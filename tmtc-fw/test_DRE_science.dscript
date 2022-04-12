@@ -1,0 +1,14 @@
+req = getNextValue("DRE_controlLink0,DRE_controlLink1,DRE_DataCol0,DRE_DataCol3,DRE_DataCol2,DRE_DataCol1,DRE_LinkCounterError,DISP_SubsystemsDataTransferred","toutes les 1000 ms");
+while(1)
+{
+waitingForNextValue(req)
+clearLastLogLine()
+dataTransferred = DISP_SubsystemsDataTransferred[4] / 1024/1024/1024
+unit = "Go"
+if (dataTransferred > 1024)
+{
+unit = "To"
+ dataTransferred = dataTransferred / 1024
+}
+print(dataTransferred.toPrecision(3)+" " +unit+" received, "+ DRE_LinkCounterError + " errors detected, "+DRE_controlLink0, DRE_DataCol0, DRE_DataCol1, DRE_DataCol2, DRE_DataCol3)
+}
