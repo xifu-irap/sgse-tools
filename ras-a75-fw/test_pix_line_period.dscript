@@ -1,0 +1,4 @@
+sendToRawAddressing_stopRunning()
+sendToRawAddressing_writeReadRegister(0x05,0x03000000,0x04)
+sendToRawAddressing_writeReadRegister(0x079,0x1F,0x078)
+sendToRawAddressing_startRunning()

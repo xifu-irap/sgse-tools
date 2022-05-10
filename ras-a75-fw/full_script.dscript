@@ -1,0 +1,91 @@
+// command for mode  0 = stop running,  1 = running 
+sendToRowAddressing_writeReadRegister(0x94,0x00)
+// command for reverb bit  [19.. 16]  
+sendToRowAddressing_writeReadRegister(0x00,0xFFE00000)
+// command for NRO, Line Period and delay -- NRO : [29...24] --  Line Period : [23...16]   --  delay : [13...0]
+sendToRowAddressing_writeReadRegister(0x04,0x28320000)
+// Manual Row LSB 
+sendToRowAddressing_writeReadRegister(0x08,0x00)
+// Manual Row MSB
+sendToRowAddressing_writeReadRegister(0x0C,0x00)
+// Row 0 LSB - [31...0]
+sendToRowAddressing_writeReadRegister(0x10,0x40008001)
+// Row 0 MSB - [7...0]
+sendToRowAddressing_writeReadRegister(0x14,0x00000000)
+// Row 1 LSB - [31...0]
+sendToRowAddressing_writeReadRegister(0x18,0x80010002)
+// Row 1 MSB - [7...0]
+sendToRowAddressing_writeReadRegister(0x1C,0x00000000)
+// Row 2 LSB - [31...0]
+sendToRowAddressing_writeReadRegister(0x20,0x00020004)
+// Row 2 MSB - [7...0]
+sendToRowAddressing_writeReadRegister(0x24,0x00000001)
+// Row 3 LSB - [31...0]
+sendToRowAddressing_writeReadRegister(0x28,0x00040008)
+// Row 3 MSB - [7...0]
+sendToRowAddressing_writeReadRegister(0x2C,0x00000002)
+// Row 4 LSB - [31...0]
+sendToRowAddressing_writeReadRegister(0x30,0x00080010)
+// Row 4 MSB - [7...0]
+sendToRowAddressing_writeReadRegister(0x34,0x00000004)
+// Row 5 LSB - [31...0]
+sendToRowAddressing_writeReadRegister(0x38,0x00100020)
+// Row 5 MSB - [7...0]
+sendToRowAddressing_writeReadRegister(0x3C,0x00000008)
+// Row 6 LSB - [31...0]
+sendToRowAddressing_writeReadRegister(0x40,0x00204000)
+// Row 6 MSB - [7...0]
+sendToRowAddressing_writeReadRegister(0x44,0x00000010)
+// Row 7 LSB - [31...0]
+sendToRowAddressing_writeReadRegister(0x48,0x00408000)
+// Row 7 MSB - [7...0]
+sendToRowAddressing_writeReadRegister(0x4C,0x00000020)
+// Row 8 LSB - [31...0]
+sendToRowAddressing_writeReadRegister(0x50,0x00800100)
+// Row 8 MSB - [7...0]
+sendToRowAddressing_writeReadRegister(0x54,0x00000040)
+// Row 9 LSB - [31...0]
+sendToRowAddressing_writeReadRegister(0x58,0x01000200)
+// Row 9 MSB - [7...0]
+sendToRowAddressing_writeReadRegister(0x5C,0x00000080)
+// Row 10 LSB - [31...0]
+sendToRowAddressing_writeReadRegister(0x60,0x02000400)
+// Row 10 MSB - [7...0]
+sendToRowAddressing_writeReadRegister(0x64,0x00000000)
+// Row 11 LSB - [31...0]
+sendToRowAddressing_writeReadRegister(0x68,0x04000800)
+// Row 11 MSB - [7...0]
+sendToRowAddressing_writeReadRegister(0x6C,0x00000000)
+// Row 12 LSB - [31...0]
+sendToRowAddressing_writeReadRegister(0x70,0x08001000)
+// Row 12 MSB - [7...0]
+sendToRowAddressing_writeReadRegister(0x74,0x00000000)
+// Row 13 LSB - [31...0]
+sendToRowAddressing_writeReadRegister(0x78,0x10002000)
+// Row 13 MSB - [7...0]
+sendToRowAddressing_writeReadRegister(0x7C,0x00000000)
+// Row 14 LSB - [31...0]
+sendToRowAddressing_writeReadRegister(0x80,0x20004000)
+// Row 14 MSB - [7...0]
+sendToRowAddressing_writeReadRegister(0x84,0x00000000)
+// Synchro LSB - [31...0]
+sendToRowAddressing_writeReadRegister(0x88,0x40008001)
+// Synchro MSB - [7...0]
+sendToRowAddressing_writeReadRegister(0x8C,0x00000000)
+// Freq_Row
+sendToRowAddressing_writeReadRegister(0x90,0x00000000)
+// Dac_Row_low - [15...0] 2 first are dont care 2 others are Power down mode (00 = normal mode) and the 12 others are used to change the values of the DACs (Value max is 0x0FFF ) 
+sendToRowAddressing_writeReadRegister(0x94,0x0FFF)
+// Dac_Row_high - [15...0] 2 first are dont care 2 others are Power down mode (00 = normal mode) and the 12 others are used to change the values of the DACs (Value max is 0x0FFF ) 
+sendToRowAddressing_writeReadRegister(0x98,0x00)
+// Dac_cluster_low - [15...0] 2 first are dont care 2 others are Power down mode (00 = normal mode) and the 12 others are used to change the values of the DACs (Value max is 0x0FFF ) 
+sendToRowAddressing_writeReadRegister(0x9C,0x00)
+// Dac_cluster_high - [15...0] 2 first are dont care 2 others are Power down mode (00 = normal mode) and the 12 others are used to change the values of the DACs (Value max is 0x0FFF ) 
+sendToRowAddressing_writeReadRegister(0xA0,0x0FFF)
+// Dac_start - 1 bit,  start = '1'
+sendToRowAddressing_writeReadRegister(0xA8,0x00000001)
+// Read firmware and software version
+sendToRowAddressing_readRegister(0xAC)
+// command for mode  0 = stop running,  1 = running 
+sendToRowAddressing_writeReadRegister(0x94,0x01)
+	
