@@ -2,14 +2,14 @@
 sendToRowAddressing_writeReadRegister(0x94,0x00)
 // command for reverb bit  [19.. 16]  
 sendToRowAddressing_writeReadRegister(0x00,0xFFE00000)
-// command for NRO, Line Period and delay -- NRO : [29...24] --  Line Period : [23...16]   --  delay : [13...0]
-sendToRowAddressing_writeReadRegister(0x04,0x28320000)
+// command for NRO, Line Period and delay -- NRO : [29...24] --  Line Period : [23...16]   --  delay : [7...0]
+sendToRowAddressing_writeReadRegister(0x04,0x0A200000)
 // Manual Row LSB 
 sendToRowAddressing_writeReadRegister(0x08,0x00)
 // Manual Row MSB
-sendToRowAddressing_writeReadRegister(0x0C,0x00)
+sendToRowAddressing_writeReadRegister(0x0C,0x000)
 // Row 0 LSB - [31...0]
-sendToRowAddressing_writeReadRegister(0x10,0x40008001)
+sendToRowAddressing_writeReadRegister(0x10,0x00000001)
 // Row 0 MSB - [7...0]
 sendToRowAddressing_writeReadRegister(0x14,0x00000000)
 // Row 1 LSB - [31...0]
@@ -69,19 +69,19 @@ sendToRowAddressing_writeReadRegister(0x80,0x20004000)
 // Row 14 MSB - [7...0]
 sendToRowAddressing_writeReadRegister(0x84,0x00000000)
 // Synchro LSB - [31...0]
-sendToRowAddressing_writeReadRegister(0x88,0x40008001)
+sendToRowAddressing_writeReadRegister(0x88,0x00000001)
 // Synchro MSB - [7...0]
 sendToRowAddressing_writeReadRegister(0x8C,0x00000000)
 // Freq_Row
 sendToRowAddressing_writeReadRegister(0x90,0x00000000)
-// Dac_Row_low - [15...0] 2 first are dont care 2 others are Power down mode (00 = normal mode) and the 12 others are used to change the values of the DACs (Value max is 0x0FFF ) 
-sendToRowAddressing_writeReadRegister(0x94,0x0FFF)
-// Dac_Row_high - [15...0] 2 first are dont care 2 others are Power down mode (00 = normal mode) and the 12 others are used to change the values of the DACs (Value max is 0x0FFF ) 
-sendToRowAddressing_writeReadRegister(0x98,0x00)
-// Dac_cluster_low - [15...0] 2 first are dont care 2 others are Power down mode (00 = normal mode) and the 12 others are used to change the values of the DACs (Value max is 0x0FFF ) 
-sendToRowAddressing_writeReadRegister(0x9C,0x00)
-// Dac_cluster_high - [15...0] 2 first are dont care 2 others are Power down mode (00 = normal mode) and the 12 others are used to change the values of the DACs (Value max is 0x0FFF ) 
-sendToRowAddressing_writeReadRegister(0xA0,0x0FFF)
+// Dac_Row_low - [13...0] 2 first are dont care 2 others are Power down mode (00 = normal mode) and the 12 others are used to change the values of the DACs (Value max is 0x0FFF ) 
+sendToRowAddressing_writeReadRegister(0x94,0x0000)
+// Dac_Row_high - [13...0] 2 first are dont care 2 others are Power down mode (00 = normal mode) and the 12 others are used to change the values of the DACs (Value max is 0x0FFF ) 
+sendToRowAddressing_writeReadRegister(0x98,0x0800)
+// Dac_cluster_low - [13...0] 2 first are dont care 2 others are Power down mode (00 = normal mode) and the 12 others are used to change the values of the DACs (Value max is 0x0FFF ) 
+sendToRowAddressing_writeReadRegister(0x9C,0x0000)
+// Dac_cluster_high - [13...0] 2 first are dont care 2 others are Power down mode (00 = normal mode) and the 12 others are used to change the values of the DACs (Value max is 0x0FFF ) 
+sendToRowAddressing_writeReadRegister(0xA0,0x0800)
 // Dac_start - 1 bit,  start = '1'
 sendToRowAddressing_writeReadRegister(0xA8,0x00000001)
 // Read firmware and software version
