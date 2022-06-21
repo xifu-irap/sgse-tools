@@ -1,2 +1,2 @@
 # sgse-tools
-JavaScript scripts to command the TDM demux tests
+JavaScript scripts to command the TDM tests.
