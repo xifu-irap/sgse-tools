@@ -1,0 +1,61 @@
+//
+//  Copyright (C) 2021-2030 Laurent Ravera, IRAP Toulouse.
+//  This file is part of the ATHENA X-IFU DRE test driving software.
+//
+//  ras-js is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//
+//  laurent.ravera@irap.omp.eu
+//  configure_ras.dscript
+//
+
+include("./ras_tools.dscript")
+
+// Definition of some information that can be written in a log file
+operator_name=get_operator_name();
+session_name=get_session_name();
+session_comment = "No comment";
+
+
+//---------------------------------------------------------------------------------------
+// Definition of the RAS configuration 
+//---------------------------------------------------------------------------------------
+nbrows = 15;
+lineperiod = 32; // corresponds to 160ns if main clock value is 200 MHz
+delay = 5; // ns
+overlap = 0; // or reverb
+row_low_lvl = 0x800;
+row_high_lvl = 0x000;
+cluster_low_lvl = 0x800;
+cluster_high_lvl = 0x000;
+rowseq = [nbrows];
+rowseq[0]  = 0x00000001;
+rowseq[1]  = 0x00000002;
+rowseq[2]  = 0x00000004;
+rowseq[3]  = 0x00000008;
+rowseq[4]  = 0x00000010;
+rowseq[5]  = 0x00000020;
+rowseq[6]  = 0x00000040;
+rowseq[7]  = 0x00000080;
+rowseq[8]  = 0x00000100;
+rowseq[9]  = 0x00000200;
+rowseq[10] = 0x00000400;
+rowseq[11] = 0x00000800;
+rowseq[12] = 0x00001000;
+rowseq[13] = 0x00002000;
+rowseq[14] = 0x00004000;
+syncseq=0x00000001;
+
+configure_ras(nbrows, lineperiod, delay, overlap, rowseq, syncseq, row_low_lvl, row_high_lvl, cluster_low_lvl, cluster_high_lvl);
+
+//---------------------------------------------------------------------------------------
