@@ -1,0 +1,354 @@
+//
+//  Copyright (C) 2021-2030 Laurent Ravera, IRAP Toulouse.
+//  This file is part of the ATHENA X-IFU DRE test driving software.
+//
+//  demux-perfs-js is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//
+//  laurent.ravera@irap.omp.eu
+//  ras_tools.dscript
+//
+
+//---------------------------------------------------------------------------------------
+// This set of functions is compatible with XifuStudio v0.4.7 and above
+// for which sendToRowAddressing_writeReadRegister uses 2 parameters only
+//---------------------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------------------
+// Frequency of main clock
+
+const FMAINCLOCK_CORRECTION_FACTOR = 0.001;
+const THEORICAL_FMAINCLOCK = 200*Math.pow(10,6);
+const FMAINCLOCK = THEORICAL_FMAINCLOCK*FMAINCLOCK_CORRECTION_FACTOR;
+// Definition of constants
+const MODE_DEF = 0 // Mode to define the parameters
+const MODE_RUN = 1 // Mode to run the sequence
+// definition of DAC names
+const DAC_ROW_LOW      = 0
+const DAC_ROW_HIGH     = 1
+const DAC_CLUSTER_LOW  = 2
+const DAC_CLUSTER_HIGH = 3
+
+//---------------------------------------------------------------------------------------
+// Definition of functions
+
+function set_mode(mode)
+{
+	address = 0x94;
+	mode_mask = 0x1;      // 1 bit
+	value = mode & mode_mask;
+	sendToRowAddressing_writeReadRegister(address, value);
+}
+
+function set_address_sequence(row_number, sequence_32bits)
+// A address sequence is set over 40 bits with 2 commands.
+// The LSB corresponds to the beginning of the sequence
+// The 8 MSB are not used in the context of the testing at IRAP.
+// The 8 MSB are forced to 0.
+{
+	const base_address = 0x10;
+	// Sending LSB
+	address_LSB = base_address + row_number*4*2;
+	sendToRowAddressing_writeReadRegister(address_LSB, sequence_32bits);
+	// Sending MSB (not used, forced to 0)
+	address_MSB = base_address + row_number*4*2 + 4;
+	sendToRowAddressing_writeReadRegister(address_MSB, 0x00);
+}
+
+function set_sync_sequence(sequence_32bits)
+// The sequence is managed such as a row
+{
+	row_number = 0x0F;
+	set_address_sequence(row_number, sequence_32bits);
+}
+
+function set_overlap(overlap)
+// Device ctrl 1
+// Corresponds to the reverb in the US terminology
+{
+	address = 0x00;
+	overlap_mask = 0xF;  // 4 bits
+	value = (overlap & overlap_mask) * Math.pow(2,16);
+	sendToRowAddressing_writeReadRegister(address, value);
+}
+
+function set_nbrows_lineperiod_delay(nbrows, lineperiod, delay)
+// Device ctrl 2
+{
+	address = 0x04;
+	nbrows_mask = 0x3F;      // 6 bits
+	lineperiod_mask = 0xFF;  // 8 bits
+	delay_mask = 0xFF;       // 8 bits
+	value = (delay & delay_mask) + (lineperiod & lineperiod_mask) * Math.pow(2,16) + (nbrows & nbrows_mask) * Math.pow(2,24);
+	sendToRowAddressing_writeReadRegister(address, value);
+}
+
+function set_dac(dac, dac_val)
+// The DACs are 12-bit DACs
+// The 2 MSBs (bits 12 and 13th) are configuration bits (power down mode)
+// We are using the configuration with these bits set to 0.
+{
+	switch (dac) 
+		{
+		case DAC_ROW_LOW:
+			address = 0x98;
+			break;
+		case DAC_ROW_HIGH:
+			address = 0x9C;
+			break;
+		case DAC_CLUSTER_LOW:
+			address = 0xA0;
+			break;
+		case DAC_CLUSTER_HIGH:
+			address = 0xA4;
+			break;
+		default:
+			address = 0x98;
+			print("Problem with DAC reference !");
+		}
+	dac_val_mask = 0x0FFF;  // 12 bits
+	if (dac_val > dac_val_mask)
+	{
+		print("Problem with the DAC value !");
+	}
+	value = dac_val & dac_val_mask;
+	sendToRowAddressing_writeReadRegister(address, value);
+}
+
+function start_dacs()
+// Common command for the 4 DACs
+{
+	address = 0xA8;
+	value = 0x1;
+	sendToRowAddressing_writeReadRegister(address, value);
+}
+
+function stop_dacs()
+// Common command for the 4 DACs
+{
+	address = 0xA8;
+	value = 0x0;
+	sendToRowAddressing_writeReadRegister(address, value);
+}
+
+function get_board_and_fw_id()
+// Read parameter, use ReadRegister only ??
+{
+	address = 0xAC;
+	value = 0x1;
+	print("board et fw = ", sendToRowAddressing_readRegister(address));
+}
+
+//---------------------------------------------------------------------------------------
+// Definition of some standard sequences
+//---------------------------------------------------------------------------------------
+
+function set_rowseq(rowseq)
+// Sequence with 15 rows activated one by one from row 0 to row 14
+{
+	for (row=0; row<15; row+=1)
+	{
+		set_address_sequence(row, rowseq[row]);
+	}
+}
+
+//---------------------------------------------------------------------------------------
+// Definition of some scan functions
+//---------------------------------------------------------------------------------------
+
+function scan_rowperiod(start, stop, step, step_duration_ms)
+{
+	nbrows = 15;
+	delay = 0;
+	delay_ns = delay * Math.pow(10,9) / FMAINCLOCK; // 5ns
+
+	start_ns = start/FMAINCLOCK;
+	stop_ns = stop/FMAINCLOCK;
+	step_ns = step/FMAINCLOCK;
+	print("Scanning the row period from " + start_ns + " to " + stop_ns/Math.pow(10,9) + " by steps of " + Math.round(step_ns*100)/100);
+	print("For this test the number of rows is set to " + nbrows + " and the delay is set to " + delay + " (" + delay_ns + " ns)");
+	print("the test duration will be: " + (stop - start) * step_duration_ms / (step * 1000) + " s"); 
+
+	for (lineperiod = start; lineperiod < stop; lineperiod+= step)
+	{
+		print("Setting the row period to " + Math.round(((lineperiod +1 )* Math.pow(10,9) / FMAINCLOCK)*100)/100 + " ns");
+		set_mode(MODE_DEF); // Starts the sequence and stops the configuration
+		set_nbrows_lineperiod_delay(nbrows, lineperiod, delay);
+		set_mode(MODE_RUN); // Starts the sequence and stops the configuration
+		waitMs(step_duration_ms);
+	}
+}
+
+function scan_overlap(start, stop, step, step_duration_ms)
+{
+	overlap = 0;
+	delay = 0;
+	delay_ns = delay * Math.pow(10,9) / FMAINCLOCK; //5ns
+	negative_start = 9;
+	positive_stop = 7;
+
+	start_ns = start/FMAINCLOCK;
+	stop_ns = stop/FMAINCLOCK;
+	step_ns = step/FMAINCLOCK;
+	print("Scanning the Overlap from " + start_ns + " to " + stop_ns/Math.pow(10,9) + " by steps of " + Math.round(step_ns*100)/100);
+	print("the test duration will be: " + (stop - start) * step_duration_ms / (step * 1000) + " s"); 
+
+	for (overlap = negative_start; overlap <= stop; overlap+= step)
+	{
+		print("Setting the Overlap to " + Math.round(((overlap +1 )* Math.pow(10,9) / FMAINCLOCK)*100)/100 + " ns");
+		set_mode(MODE_DEF); // Starts the sequence and stops the configuration
+		set_overlap(overlap);
+		set_mode(MODE_RUN); // Starts the sequence and stops the configuration
+		waitMs(step_duration_ms);
+	}
+	
+	for (overlap = start; overlap <= positive_stop; overlap+= step)
+	{
+		print("Setting the Overlap to " + Math.round(((overlap +1 )* Math.pow(10,9) / FMAINCLOCK)*100)/100 + " ns");
+		set_mode(MODE_DEF); // Starts the sequence and stops the configuration
+		set_overlap(overlap);
+		set_mode(MODE_RUN); // Starts the sequence and stops the configuration
+		waitMs(step_duration_ms);
+	}
+}
+
+function scan_delay(start, stop, step, step_duration_ms)
+{
+	nbrows = 15;
+	lineperiod = 32;
+	delay = 0;
+	delay_ns = delay * Math.pow(10,9) / FMAINCLOCK; //5ns
+
+	start_ns = start/FMAINCLOCK;
+	stop_ns = stop/FMAINCLOCK;
+	step_ns = step/FMAINCLOCK;
+	print("Scanning the Delay from " + start_ns+ " to " + stop_ns/Math.pow(10,9) + " by steps of " + Math.round(step_ns*100)/100);
+	print("the test duration will be: " + (stop - start) * step_duration_ms / (step * 1000) + " s"); 
+
+	for (delay = start; delay < stop; delay+= step)
+	{		
+		print("Setting the Delay to " + Math.round(((delay +1 )* Math.pow(10,9) / FMAINCLOCK)*100)/100 + " ns");
+		set_mode(MODE_DEF); // Starts the sequence and stops the configuration
+		set_nbrows_lineperiod_delay(nbrows, lineperiod, delay);
+		set_mode(MODE_RUN); // Starts the sequence and stops the configuration
+		waitMs(step_duration_ms);
+		}
+	}
+
+
+//---------------------------------------------------------------------------------------
+// OCJ : call function set_nbrows_lineperiod_delay(nbrows, lineperiod, delay) with fixed parameters
+// suggestion : add lineperiod+delay as parameters
+//---------------------------------------------------------------------------------------
+function scan_nbrows(start, stop, step, step_duration_ms)
+{
+	lineperiod = 32;
+	lineperiod_ns = lineperiod * Math.pow(10,9) / FMAINCLOCK;
+	delay = 0;
+	delay_ns = delay * Math.pow(10,9) / FMAINCLOCK;
+	
+	print("Scanning the number of rows from " + start + " to " + stop + " by steps of " + Math.round(step*100)/100);
+	print("For this test the lineperiod is set to " + lineperiod + " (" + Math.round(lineperiod_ns*100)/100 + " ns) and the delay is set to " + delay + " (" + delay_ns + " ns)");
+	print("The test duration will be :" + (stop - start) * step_duration_ms / (step * 1000) + " s"); 
+	
+	for (nbrows = start; nbrows < stop; nbrows+= step) 
+	{
+		print("Setting the number of rows to " + nbrows);
+		set_mode(MODE_DEF); // Starts the sequence and stops the configuration
+		set_nbrows_lineperiod_delay(nbrows, lineperiod, delay);
+		set_mode(MODE_RUN); // Starts the sequence and stops the configuration
+		waitMs(step_duration_ms);
+	}
+}
+
+//---------------------------------------------------------------------------------------
+// Configuring the RAS
+//---------------------------------------------------------------------------------------
+
+function configure_ras(nbrows, lineperiod, delay, overlap, rowseq, syncseq, row_low_lvl, row_high_lvl, cluster_low_lvl, cluster_high_lvl)
+{
+	print("Frequency of main clock assumed to be: " + FMAINCLOCK / Math.pow(10,6) + " MHz");
+	print("Setting the RAS in setting mode...");
+	set_mode(MODE_DEF);
+	
+	print("Setting the number of rows to " + nbrows);
+	lineperiod_ns = lineperiod * Math.pow(10,9) / FMAINCLOCK;
+	print("Setting the line period to " + lineperiod + " ("+ lineperiod_ns + " ns)");
+	delay_ns = delay / FMAINCLOCK;
+	print("Setting the synchro delay to " + delay + " ("+ delay_ns + " ns)");
+	set_nbrows_lineperiod_delay(nbrows, lineperiod, delay);
+	
+	overlap_ns = overlap / FMAINCLOCK;
+	print("Setting the address overlap to " + overlap+ " ("+ overlap_ns + " ns)");
+	set_overlap(overlap);
+	
+	print("Setting the row sequence...");
+	set_rowseq(rowseq);
+	
+	print("Setting the synchronisation sequence...");
+	set_sync_sequence(syncseq);
+	
+	print("Setting the DACs levels...");
+	print("  Setting low level for rows at: " + row_low_lvl);
+	set_dac(DAC_ROW_LOW, row_low_lvl);
+	print("  Setting high level for rows at: " + row_high_lvl);
+	set_dac(DAC_ROW_HIGH, row_high_lvl);
+	print("  Setting low level for clusters at: " + cluster_low_lvl);
+	set_dac(DAC_CLUSTER_LOW, cluster_low_lvl);
+	print("  Setting high level for clusters at: " + cluster_high_lvl);
+	set_dac(DAC_CLUSTER_HIGH, cluster_high_lvl);
+	print("Starting the DACs...");
+	start_dacs();
+	
+	print("Reading board and firmware id...");
+	get_board_and_fw_id();
+	print("Setting the RAS in run mode...");
+	set_mode(MODE_RUN); // Starts the sequence and stops the configuration
+}
+
+//---------------------------------------------------------------------------------------
+// General functions
+//---------------------------------------------------------------------------------------
+
+function get_operator_name()
+// GUI to read operator name
+// A list of predifined names is proposed. 
+// If none is selected a tab allows to enter a text
+{
+	OperatorTab = ["", "David", "Odile", "Yoann", "Laurent", "Yann"]
+	OperatorId = getItem("Please, select the operator name:", OperatorTab)
+	if (OperatorId == -1)
+		{
+			Operator_name = getText("Please, type the operator name:", "")
+		}
+	else
+		{
+			Operator_name = OperatorTab[OperatorId]
+		}
+	return(Operator_name)
+}
+
+function get_session_name()
+// GUI to read a text which will be used as the session name
+{
+	session_name = getText("Please, type the session name:", "Default_session_name");
+	return(session_name);
+}
+
+function maDate()
+// Returns the date using the format : yearmonthday_hourminutesecond
+{
+	d = new Date();
+	Now_date = d.getFullYear()+(("00" +(d.getMonth()+1).toString()).slice(-2))+(("00" +(d.getDate()).toString()).slice(-2))+"_"+(("00" +(d.getHours()).toString()).slice(-2))+(("00" +(d.getMinutes()).toString()).slice(-2))+(("00" +(d.getSeconds()).toString()).slice(-2));
+	return Now_date;
+}
