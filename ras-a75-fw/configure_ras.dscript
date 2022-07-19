@@ -30,31 +30,31 @@ session_comment = "No comment";
 //---------------------------------------------------------------------------------------
 // Definition of the RAS configuration 
 //---------------------------------------------------------------------------------------
-nbrows = 15;
-lineperiod = 32; // corresponds to 160ns if main clock value is 200 MHz
-delay = 5; // ns
+nbrows = 32;
+lineperiod = 83; // 32 corresponds to 160ns if main clock value is 200 MHz
+delay = 90; // # of times 5 ns
 overlap = 0; // or reverb
-row_low_lvl = 0x800;
-row_high_lvl = 0x000;
-cluster_low_lvl = 0x800;
+row_low_lvl      = 0x0D5; // 0x1AA = 420 mV, 0x0D5 = 210 mV
+row_high_lvl     = 0x000;
+cluster_low_lvl  = 0x0D5;
 cluster_high_lvl = 0x000;
 rowseq = [nbrows];
-rowseq[0]  = 0x00000001;
-rowseq[1]  = 0x00000002;
-rowseq[2]  = 0x00000004;
-rowseq[3]  = 0x00000008;
-rowseq[4]  = 0x00000010;
-rowseq[5]  = 0x00000020;
-rowseq[6]  = 0x00000040;
-rowseq[7]  = 0x00000080;
-rowseq[8]  = 0x00000100;
-rowseq[9]  = 0x00000200;
-rowseq[10] = 0x00000400;
-rowseq[11] = 0x00000800;
-rowseq[12] = 0x00001000;
-rowseq[13] = 0x00002000;
-rowseq[14] = 0x00004000;
-syncseq=0x00000001;
+rowseq[0]  = 0x00000002; //pixel US 1
+rowseq[1]  = 0x00000004; //pixel US 2
+rowseq[2]  = 0x00000008; //pixel US 3
+rowseq[3]  = 0x00000001; //pixel US 0
+rowseq[4]  = 0x00000020; //pixel US 5
+rowseq[5]  = 0x00000010; //pixel US 4
+rowseq[6]  = 0x00000080; //pixel US 7
+rowseq[7]  = 0x00000040; //pixel US 6
+rowseq[8]  = 0x00000000; 
+rowseq[9]  = 0x00000000;
+rowseq[10] = 0x00000000;
+rowseq[11] = 0x00000000;
+rowseq[12] = 0x00000000;
+rowseq[13] = 0x00000000;
+rowseq[14] = 0x00000000;
+syncseq    = 0x00000080;
 
 configure_ras(nbrows, lineperiod, delay, overlap, rowseq, syncseq, row_low_lvl, row_high_lvl, cluster_low_lvl, cluster_high_lvl);
 
