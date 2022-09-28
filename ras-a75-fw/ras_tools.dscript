@@ -42,6 +42,13 @@ const DAC_CLUSTER_HIGH = 3
 //---------------------------------------------------------------------------------------
 // Definition of functions
 
+function rowIRAP(rowUS)
+// This is a convertion table to translate Row addresses from US id to IRAP id.
+{
+	row_irap = [3, 0, 1, 2, 5, 4, 7, 6];
+	return(row_irap[rowUS]);
+}
+
 function set_mode(mode)
 {
 	address = 0x94;
@@ -85,6 +92,7 @@ function set_overlap(overlap)
 function set_nbrows_lineperiod_delay(nbrows, lineperiod, delay)
 // Device ctrl 2
 {
+	lineperiod = lineperiod-1; // in the firmware lineperiod is Trow+1 period
 	address = 0x04;
 	nbrows_mask = 0x3F;      // 6 bits
 	lineperiod_mask = 0xFF;  // 8 bits
@@ -142,11 +150,27 @@ function stop_dacs()
 }
 
 function get_board_and_fw_id()
-// Read parameter, use ReadRegister only ??
 {
+	var id = {board: 0, firmware: 0};
 	address = 0xAC;
-	value = 0x1;
-	print("board et fw = ", sendToRowAddressing_readRegister(address));
+	sendToRowAddressing_readRegister(address) // demande au RA la valeur du registre
+	
+	getLatestValue("RA_registers") // demande au dispatcher les dernieres valeurs lues des registres
+	value = RA_registers[address/4]
+	id.board = parseInt(value/256)
+	id.firmware = value-id.board
+	return(id)
+}
+
+function print_board_and_fw_id()
+{
+	id = get_board_and_fw_id()
+	board_id_hex=('0000' + id.board.toString(16).toUpperCase()).slice(-4)
+	fw_id_hex=('0000' + id.firmware.toString(16).toUpperCase()).slice(-4)
+	print("> -----------------------------")
+	print("> Board id:  0x",board_id_hex)
+	print("> Firmware id:  0x",fw_id_hex)
+	print("> -----------------------------")
 }
 
 //---------------------------------------------------------------------------------------
@@ -261,7 +285,7 @@ function scan_nbrows(start, stop, step, step_duration_ms)
 	print("For this test the lineperiod is set to " + lineperiod + " (" + Math.round(lineperiod_ns*100)/100 + " ns) and the delay is set to " + delay + " (" + delay_ns + " ns)");
 	print("The test duration will be :" + (stop - start) * step_duration_ms / (step * 1000) + " s"); 
 	
-	for (nbrows = start; nbrows < stop; nbrows+= step) 
+	for (nbrows = start; nbrows <= stop; nbrows+= step) 
 	{
 		print("Setting the number of rows to " + nbrows);
 		set_mode(MODE_DEF); // Starts the sequence and stops the configuration
@@ -325,7 +349,7 @@ function get_operator_name()
 // A list of predifined names is proposed. 
 // If none is selected a tab allows to enter a text
 {
-	OperatorTab = ["", "David", "Odile", "Yoann", "Laurent", "Yann"]
+	OperatorTab = ["", "David", "Odile", "Laurent", "Yann"]
 	OperatorId = getItem("Please, select the operator name:", OperatorTab)
 	if (OperatorId == -1)
 		{
