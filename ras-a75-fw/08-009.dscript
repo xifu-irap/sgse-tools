@@ -1,0 +1,92 @@
+//
+//  Copyright (C) 2021-2030 Laurent Ravera, IRAP Toulouse.
+//  This file is part of the ATHENA X-IFU DRE test driving software.
+//
+//  ras-js is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//
+//  laurent.ravera@irap.omp.eu
+//  configure_ras.dscript
+//
+
+include("./ras_tools.dscript")
+
+// Definition of some information that can be written in a log file
+//operator_name=get_operator_name();
+//session_name=get_session_name();
+//session_comment = "No comment";
+
+//---------------------------------------------------------------------------------------
+// Definition of the RAS configuration 
+//---------------------------------------------------------------------------------------
+nbrows = 1;
+lineperiod = 40; // corresponds to approx 163ns if main clock value is 245.76 MHz
+delay = 222; // # de fois master clock
+overlap = 0; // or reverb
+level = 0x0D5;
+//row_low_lvl = 0x0D5; // 0x1AA = 420 mV, 0x0D5 = 210 mV
+row_low_lvl = level; // 0x1AA = 420 mV, 0x0D5 = 210 mV
+row_high_lvl = 0x000;
+//cluster_low_lvl = 0x0D5;
+cluster_low_lvl = level;
+cluster_high_lvl = 0x000;
+rowseq = [nbrows];
+
+SEQUENCE = "IRAP"
+
+if (SEQUENCE=="US")
+{
+	// Sequence ordonnee US
+	rowseq[rowIRAP(0)]  = 0x00000001; 
+	rowseq[rowIRAP(1)]  = 0x00000000;  // Row address 0 unplugged in RAS IRAP
+	rowseq[rowIRAP(2)]  = 0x00000002; 
+	rowseq[rowIRAP(3)]  = 0x00000004; 
+	rowseq[rowIRAP(4)]  = 0x00000008; 
+	rowseq[rowIRAP(5)]  = 0x00000010; 
+	rowseq[rowIRAP(6)]  = 0x00000020; 
+	rowseq[rowIRAP(7)]  = 0x00000040; 
+	//rowseq[8]  = 0x00000080; 
+	//rowseq[9]  = 0x00000100;
+	//rowseq[10] = 0x00000200;
+	//rowseq[11] = 0x00000400;
+	//rowseq[12] = 0x00000800;
+	//rowseq[13] = 0x00001000;
+	//rowseq[14] = 0x00002000;
+}
+else if (SEQUENCE =="IRAP")
+{
+	// Sequence ordonnee IRAP
+	rowseq[0]  = 0x00000000; // Row address 0 unplugged in RAS IRAP
+	rowseq[1]  = 0x00000001; 
+	rowseq[2]  = 0x00000001; 
+	rowseq[3]  = 0x00000001; 
+	rowseq[4]  = 0x00000001; 
+	rowseq[5]  = 0x00000001; 
+	rowseq[6]  = 0x00000001; 
+	rowseq[7]  = 0x00000001; 
+	rowseq[8]  = 0x00000001; 
+	rowseq[9]  = 0x00000001;
+	rowseq[10] = 0x00000001;
+	rowseq[11] = 0x00000001;
+	rowseq[12] = 0x00000001;
+	rowseq[13] = 0x00000001;
+	rowseq[14] = 0x00000001;
+}
+
+syncseq = 0x00000002;
+
+print_board_and_fw_id()
+
+configure_ras(nbrows, lineperiod, delay, overlap, rowseq, syncseq, row_low_lvl, row_high_lvl, cluster_low_lvl, cluster_high_lvl);
+
+//---------------------------------------------------------------------------------------
