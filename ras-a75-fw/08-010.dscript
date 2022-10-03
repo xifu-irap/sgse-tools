@@ -33,12 +33,9 @@ nbrows = 1;
 lineperiod = 40; // corresponds to approx 163ns if main clock value is 245.76 MHz
 delay = 222; // # de fois master clock
 overlap = 0; // or reverb
-level = 0x0D5;
-//row_low_lvl = 0x0D5; // 0x1AA = 420 mV, 0x0D5 = 210 mV
-row_low_lvl = level; // 0x1AA = 420 mV, 0x0D5 = 210 mV
+row_low_lvl = 0x0D5; // 0x1AA = 420 mV, 0x0D5 = 210 mV
 row_high_lvl = 0x000;
-//cluster_low_lvl = 0x0D5;
-cluster_low_lvl = level;
+cluster_low_lvl = 0x0D5;
 cluster_high_lvl = 0x000;
 rowseq = [nbrows];
 
@@ -86,7 +83,20 @@ else if (SEQUENCE =="IRAP")
 syncseq = 0x00000002;
 
 print_board_and_fw_id()
-
 configure_ras(nbrows, lineperiod, delay, overlap, rowseq, syncseq, row_low_lvl, row_high_lvl, cluster_low_lvl, cluster_high_lvl);
+
+scan_FAS_level(0, 20, 5)
 
 //---------------------------------------------------------------------------------------
+
+function scan_FAS_level(level_start, step, n_steps)
+// To help during manual scans of FAS levels
+{
+	for (level = level_start; level < level_start + n_steps*step; level+= step)
+	{
+		set_dac(DAC_ROW_LOW, level);
+		text="The row level has been set to " + level + ". Ready to switch to next value?"
+		alert(text)
+	}
+	
+}
