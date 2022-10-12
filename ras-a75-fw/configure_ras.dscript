@@ -20,42 +20,106 @@
 //
 
 include("./ras_tools.dscript")
+include("./default_configurations.dscript")
 
 // Definition of some information that can be written in a log file
-operator_name=get_operator_name();
-session_name=get_session_name();
-session_comment = "No comment";
-
+//operator_name=get_operator_name();
+//session_name=get_session_name();
+//session_comment = "No comment";
 
 //---------------------------------------------------------------------------------------
 // Definition of the RAS configuration 
 //---------------------------------------------------------------------------------------
-nbrows = 32;
-lineperiod = 83; // 32 corresponds to 160ns if main clock value is 200 MHz
-delay = 90; // # of times 5 ns
+nbrows = 8;
+lineperiod = 160; // corresponds to approx 163ns if main clock value is 245.76 MHz
+delay = 222; // # de fois master clock
 overlap = 0; // or reverb
-row_low_lvl      = 0x0D5; // 0x1AA = 420 mV, 0x0D5 = 210 mV
-row_high_lvl     = 0x000;
-cluster_low_lvl  = 0x0D5;
-cluster_high_lvl = 0x000;
+// Levels: 1 ADU corresponds approximately to 1mV
+// 0x0D5 corresponds to 210mV
+// 0x14A corresponds to 325mV (Phi0/2)
+level=0x14A;
+row_on_lvl = level; 
+row_off_lvl = 0x000;
+cluster_on_lvl = level;
+cluster_off_lvl = 0x000;
 rowseq = [nbrows];
-rowseq[0]  = 0x00000002; //pixel US 1
-rowseq[1]  = 0x00000004; //pixel US 2
-rowseq[2]  = 0x00000008; //pixel US 3
-rowseq[3]  = 0x00000001; //pixel US 0
-rowseq[4]  = 0x00000020; //pixel US 5
-rowseq[5]  = 0x00000010; //pixel US 4
-rowseq[6]  = 0x00000080; //pixel US 7
-rowseq[7]  = 0x00000040; //pixel US 6
-rowseq[8]  = 0x00000000; 
-rowseq[9]  = 0x00000000;
-rowseq[10] = 0x00000000;
-rowseq[11] = 0x00000000;
-rowseq[12] = 0x00000000;
-rowseq[13] = 0x00000000;
-rowseq[14] = 0x00000000;
-syncseq    = 0x00000080;
 
-configure_ras(nbrows, lineperiod, delay, overlap, rowseq, syncseq, row_low_lvl, row_high_lvl, cluster_low_lvl, cluster_high_lvl);
+SEQUENCE = "US"
+//SEQUENCE = "IRAP"
+//SEQUENCE = "BLINK"
+//SEQUENCE = "NONE"
+
+if (SEQUENCE=="US")
+{
+	// Sequence ordonnee US
+	rowseq[rowIRAP(0)]  = 0x00000001; 
+	rowseq[rowIRAP(1)]  = 0x00000000;  // Row address 0 unplugged in RAS IRAP
+	rowseq[rowIRAP(2)]  = 0x00000002; 
+	rowseq[rowIRAP(3)]  = 0x00000004; 
+	rowseq[rowIRAP(4)]  = 0x00000008; 
+	rowseq[rowIRAP(5)]  = 0x00000010; 
+	rowseq[rowIRAP(6)]  = 0x00000020; 
+	rowseq[rowIRAP(7)]  = 0x00000040; 
+	rowseq[8]  = 0x00000080; 
+	rowseq[9]  = 0x00000100;
+	rowseq[10] = 0x00000200;
+	rowseq[11] = 0x00000400;
+	rowseq[12] = 0x00000800;
+	rowseq[13] = 0x00001000;
+	rowseq[14] = 0x00002000;
+}
+else if (SEQUENCE =="IRAP")
+{
+	// Sequence ordonnee IRAP
+	rowseq[0]  = 0x00000000; // Row address 0 unplugged in RAS IRAP
+	rowseq[1]  = 0x00000001; 
+	rowseq[2]  = 0x00000001; 
+	rowseq[3]  = 0x00000001; 
+	rowseq[4]  = 0x00000001; 
+	rowseq[5]  = 0x00000001; 
+	rowseq[6]  = 0x00000001; 
+	rowseq[7]  = 0x00000001; 
+	rowseq[8]  = 0x00000001; 
+	rowseq[9]  = 0x00000001;
+	rowseq[10] = 0x00000001;
+	rowseq[11] = 0x00000001;
+	rowseq[12] = 0x00000001;
+	rowseq[13] = 0x00000001;
+	rowseq[14] = 0x00000001;
+}
+else if (SEQUENCE =="BLINK")
+{
+	rowseq[rowIRAP(0)]  = 0xAAAAAAAA; 
+	rowseq[rowIRAP(1)]  = 0x00000000;  // Row address 0 unplugged in RAS IRAP
+	rowseq[rowIRAP(2)]  = 0x00000000; 
+	rowseq[rowIRAP(3)]  = 0x00000000; 
+	rowseq[rowIRAP(4)]  = 0x00000000; 
+	rowseq[rowIRAP(5)]  = 0x00000000; 
+	rowseq[rowIRAP(6)]  = 0x00000000; 
+	rowseq[rowIRAP(7)]  = 0x00000000; 
+}
+else if (SEQUENCE =="NONE")
+{
+	rowseq = NONE_SEQ;
+}
+
+syncseq = 0x00000002;
+
+print_board_and_fw_id()
+configure_ras(nbrows, lineperiod, delay, overlap, rowseq, syncseq, row_on_lvl, row_off_lvl, cluster_on_lvl, cluster_off_lvl);
+
+//scan_FAS_level(0, 20, 5)
 
 //---------------------------------------------------------------------------------------
+
+function scan_FAS_level(level_start, step, n_steps)
+// To help during manual scans of FAS levels
+{
+	for (level = level_start; level < level_start + n_steps*step; level+= step)
+	{
+		set_dac(DAC_ROW_LOW, level);
+		text="The row level has been set to " + level + ". Ready to switch to next value?"
+		alert(text)
+	}
+	
+}
