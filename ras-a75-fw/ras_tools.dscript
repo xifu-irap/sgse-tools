@@ -42,10 +42,10 @@ const DAC_CLUSTER_OFF = 3
 //---------------------------------------------------------------------------------------
 // Definition of functions
 
-function rowIRAP(rowUS)
+function UStoIRAP(rowUS)
 // This is a convertion table to translate Row addresses from US id to IRAP id.
 {
-	row_irap = [3, 0, 1, 2, 5, 4, 7, 6];
+	row_irap = [3, 0, 1, 2, 5, 4, 7, 6, 8, 9, 10, 11, 12, 13, 14];
 	return(row_irap[rowUS]);
 }
 

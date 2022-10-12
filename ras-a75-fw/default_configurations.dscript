@@ -1,0 +1,102 @@
+//
+//  Copyright (C) 2021-2030 Laurent Ravera, IRAP Toulouse.
+//  This file is part of the ATHENA X-IFU DRE test driving software.
+//
+//  ras-js is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//
+//  laurent.ravera@irap.omp.eu
+//  default_configurations.dscript
+//  In this script we define default RAS sequences.
+
+include("./ras_tools.dscript")
+
+nrows=15;
+
+
+// This function defines a RAS sequence with all rows off
+function seqAllOff()
+{
+    SEQ = [nrows];
+    for (row=0; row<nrows; row+=1)
+    {
+        SEQ[row] = 0x00000000;
+    }
+    return SEQ;
+}
+
+// This function defines a RAS sequence with a single row always on
+function seqAlwaysOn(irow)
+{
+    SEQ = [nrows];
+    for (row=0; row<nrows; row+=1)
+    {
+        SEQ[row] = 0x00000000;
+    }
+    SEQ[irow] = 0xFFFFFFFF;
+    return SEQ;
+}
+
+// This function defines a RAS sequence with a single row blinking (on/off)
+function seqBlink(irow)
+{
+    SEQ = [nrows];
+    for (row=0; row<nrows; row+=1)
+    {
+        SEQ[row] = 0x00000000;
+    }
+    SEQ[irow] = 0xAAAAAAAA;
+    return SEQ;
+}
+
+// This function defines an ordered sequence over 15 addresses (IRAP order)
+function seqIncrementalIRAP()
+{
+	// Sequence ordonnee IRAP
+	rowseq[0]  = 0x00000001; // Row address 0 unplugged in RAS IRAP
+	rowseq[1]  = 0x00000002; 
+	rowseq[2]  = 0x00000004; 
+	rowseq[3]  = 0x00000008; 
+	rowseq[4]  = 0x00000010; 
+	rowseq[5]  = 0x00000020; 
+	rowseq[6]  = 0x00000040; 
+	rowseq[7]  = 0x00000080; 
+	rowseq[8]  = 0x00000100; 
+	rowseq[9]  = 0x00000200;
+	rowseq[10] = 0x00000400;
+	rowseq[11] = 0x00000800;
+	rowseq[12] = 0x00001000;
+	rowseq[13] = 0x00002000;
+	rowseq[14] = 0x00004000;
+}
+
+// This function defines an ordered sequence over 15 addresses (US order)
+function seqIncrementalUS()
+{
+	// Sequence ordonnee IRAP
+	rowseq[UStoIRAP(0)]  = 0x00000001; // Row address 0 unplugged in RAS IRAP
+	rowseq[UStoIRAP(1)]  = 0x00000002; 
+	rowseq[UStoIRAP(2)]  = 0x00000004; 
+	rowseq[UStoIRAP(3)]  = 0x00000008; 
+	rowseq[UStoIRAP(4)]  = 0x00000010; 
+	rowseq[UStoIRAP(5)]  = 0x00000020; 
+	rowseq[UStoIRAP(6)]  = 0x00000040; 
+	rowseq[UStoIRAP(7)]  = 0x00000080; 
+	rowseq[UStoIRAP(8)]  = 0x00000100; 
+	rowseq[UStoIRAP(9)]  = 0x00000200;
+	rowseq[UStoIRAP(10)] = 0x00000400;
+	rowseq[UStoIRAP(11)] = 0x00000800;
+	rowseq[UStoIRAP(12)] = 0x00001000;
+	rowseq[UStoIRAP(13)] = 0x00002000;
+	rowseq[UStoIRAP(14)] = 0x00004000;
+}

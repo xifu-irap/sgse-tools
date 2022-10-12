@@ -30,85 +30,42 @@ include("./default_configurations.dscript")
 //---------------------------------------------------------------------------------------
 // Definition of the RAS configuration 
 //---------------------------------------------------------------------------------------
-nbrows = 8;
-lineperiod = 160; // corresponds to approx 163ns if main clock value is 245.76 MHz
-delay = 222; // # de fois master clock
-overlap = 0; // or reverb
-// Levels: 1 ADU corresponds approximately to 1mV
-// 0x0D5 corresponds to 210mV
-// 0x14A corresponds to 325mV (Phi0/2)
+
+// Timing configuration
+// Fmasterclock=245.76 MHz, period=4.08ns
+lineperiod = 160; // Nb of master clock periods 
+delay = 222; // Nb of master clock periods
+overlap = 0; // Nb of master clock periods
+
+
+// Levels configuration
+// (1 ADU corresponds approximately to 1mV)
+//    0x0D5 corresponds to 210mV
+//    0x14A corresponds to 325mV (Phi0/2)
 level=0x14A;
 row_on_lvl = level; 
 row_off_lvl = 0x000;
 cluster_on_lvl = level;
 cluster_off_lvl = 0x000;
-rowseq = [nbrows];
 
-SEQUENCE = "US"
-//SEQUENCE = "IRAP"
-//SEQUENCE = "BLINK"
-//SEQUENCE = "NONE"
 
-if (SEQUENCE=="US")
-{
-	// Sequence ordonnee US
-	rowseq[rowIRAP(0)]  = 0x00000001; 
-	rowseq[rowIRAP(1)]  = 0x00000000;  // Row address 0 unplugged in RAS IRAP
-	rowseq[rowIRAP(2)]  = 0x00000002; 
-	rowseq[rowIRAP(3)]  = 0x00000004; 
-	rowseq[rowIRAP(4)]  = 0x00000008; 
-	rowseq[rowIRAP(5)]  = 0x00000010; 
-	rowseq[rowIRAP(6)]  = 0x00000020; 
-	rowseq[rowIRAP(7)]  = 0x00000040; 
-	rowseq[8]  = 0x00000080; 
-	rowseq[9]  = 0x00000100;
-	rowseq[10] = 0x00000200;
-	rowseq[11] = 0x00000400;
-	rowseq[12] = 0x00000800;
-	rowseq[13] = 0x00001000;
-	rowseq[14] = 0x00002000;
-}
-else if (SEQUENCE =="IRAP")
-{
-	// Sequence ordonnee IRAP
-	rowseq[0]  = 0x00000000; // Row address 0 unplugged in RAS IRAP
-	rowseq[1]  = 0x00000001; 
-	rowseq[2]  = 0x00000001; 
-	rowseq[3]  = 0x00000001; 
-	rowseq[4]  = 0x00000001; 
-	rowseq[5]  = 0x00000001; 
-	rowseq[6]  = 0x00000001; 
-	rowseq[7]  = 0x00000001; 
-	rowseq[8]  = 0x00000001; 
-	rowseq[9]  = 0x00000001;
-	rowseq[10] = 0x00000001;
-	rowseq[11] = 0x00000001;
-	rowseq[12] = 0x00000001;
-	rowseq[13] = 0x00000001;
-	rowseq[14] = 0x00000001;
-}
-else if (SEQUENCE =="BLINK")
-{
-	rowseq[rowIRAP(0)]  = 0xAAAAAAAA; 
-	rowseq[rowIRAP(1)]  = 0x00000000;  // Row address 0 unplugged in RAS IRAP
-	rowseq[rowIRAP(2)]  = 0x00000000; 
-	rowseq[rowIRAP(3)]  = 0x00000000; 
-	rowseq[rowIRAP(4)]  = 0x00000000; 
-	rowseq[rowIRAP(5)]  = 0x00000000; 
-	rowseq[rowIRAP(6)]  = 0x00000000; 
-	rowseq[rowIRAP(7)]  = 0x00000000; 
-}
-else if (SEQUENCE =="NONE")
-{
-	rowseq = NONE_SEQ;
-}
+// Sequence configuration
+nbrows = 8;
+// Comment / uncomment the requested sequence
+irow=1;
+rowseq = seqAllOff();
+rowseq = seqAlwaysOn(irow);
+rowseq = seqBlink(irow);
+rowseq = seqIncrementalIRAP();
+rowseq = seqIncrementalIRAP();
 
 syncseq = 0x00000002;
 
-print_board_and_fw_id()
+
+// Sending the parameters to the firmware
+print_board_and_fw_id();
 configure_ras(nbrows, lineperiod, delay, overlap, rowseq, syncseq, row_on_lvl, row_off_lvl, cluster_on_lvl, cluster_off_lvl);
 
-//scan_FAS_level(0, 20, 5)
 
 //---------------------------------------------------------------------------------------
 
@@ -119,7 +76,6 @@ function scan_FAS_level(level_start, step, n_steps)
 	{
 		set_dac(DAC_ROW_LOW, level);
 		text="The row level has been set to " + level + ". Ready to switch to next value?"
-		alert(text)
+		alert(text);
 	}
-	
 }
