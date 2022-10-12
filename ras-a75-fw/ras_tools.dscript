@@ -28,16 +28,16 @@
 // Frequency of main clock
 
 const FMAINCLOCK_CORRECTION_FACTOR = 0.001;
-const THEORICAL_FMAINCLOCK = 200*Math.pow(10,6);
+const THEORICAL_FMAINCLOCK = 245.76*Math.pow(10,6);
 const FMAINCLOCK = THEORICAL_FMAINCLOCK*FMAINCLOCK_CORRECTION_FACTOR;
 // Definition of constants
 const MODE_DEF = 0 // Mode to define the parameters
 const MODE_RUN = 1 // Mode to run the sequence
 // definition of DAC names
-const DAC_ROW_LOW      = 0
-const DAC_ROW_HIGH     = 1
-const DAC_CLUSTER_LOW  = 2
-const DAC_CLUSTER_HIGH = 3
+const DAC_ROW_ON      = 0
+const DAC_ROW_OFF     = 1
+const DAC_CLUSTER_ON  = 2
+const DAC_CLUSTER_OFF = 3
 
 //---------------------------------------------------------------------------------------
 // Definition of functions
@@ -108,16 +108,16 @@ function set_dac(dac, dac_val)
 {
 	switch (dac) 
 		{
-		case DAC_ROW_LOW:
+		case DAC_ROW_ON:
 			address = 0x98;
 			break;
-		case DAC_ROW_HIGH:
+		case DAC_ROW_OFF:
 			address = 0x9C;
 			break;
-		case DAC_CLUSTER_LOW:
+		case DAC_CLUSTER_ON:
 			address = 0xA0;
 			break;
-		case DAC_CLUSTER_HIGH:
+		case DAC_CLUSTER_OFF:
 			address = 0xA4;
 			break;
 		default:
@@ -299,7 +299,7 @@ function scan_nbrows(start, stop, step, step_duration_ms)
 // Configuring the RAS
 //---------------------------------------------------------------------------------------
 
-function configure_ras(nbrows, lineperiod, delay, overlap, rowseq, syncseq, row_low_lvl, row_high_lvl, cluster_low_lvl, cluster_high_lvl)
+function configure_ras(nbrows, lineperiod, delay, overlap, rowseq, syncseq, row_on_lvl, row_off_lvl, cluster_on_lvl, cluster_off_lvl)
 {
 	print("Frequency of main clock assumed to be: " + FMAINCLOCK / Math.pow(10,6) + " MHz");
 	print("Setting the RAS in setting mode...");
@@ -323,14 +323,14 @@ function configure_ras(nbrows, lineperiod, delay, overlap, rowseq, syncseq, row_
 	set_sync_sequence(syncseq);
 	
 	print("Setting the DACs levels...");
-	print("  Setting low level for rows at: " + row_low_lvl);
-	set_dac(DAC_ROW_LOW, row_low_lvl);
-	print("  Setting high level for rows at: " + row_high_lvl);
-	set_dac(DAC_ROW_HIGH, row_high_lvl);
-	print("  Setting low level for clusters at: " + cluster_low_lvl);
-	set_dac(DAC_CLUSTER_LOW, cluster_low_lvl);
-	print("  Setting high level for clusters at: " + cluster_high_lvl);
-	set_dac(DAC_CLUSTER_HIGH, cluster_high_lvl);
+	print("  Setting ON level for rows at: " + row_on_lvl);
+	set_dac(DAC_ROW_ON, row_on_lvl);
+	print("  Setting OFF level for rows at: " + row_off_lvl);
+	set_dac(DAC_ROW_OFF, row_off_lvl);
+	print("  Setting ON level for clusters at: " + cluster_on_lvl);
+	set_dac(DAC_CLUSTER_ON, cluster_on_lvl);
+	print("  Setting OFF level for clusters at: " + cluster_off_lvl);
+	set_dac(DAC_CLUSTER_OFF, cluster_off_lvl);
 	print("Starting the DACs...");
 	start_dacs();
 	
@@ -376,3 +376,5 @@ function maDate()
 	Now_date = d.getFullYear()+(("00" +(d.getMonth()+1).toString()).slice(-2))+(("00" +(d.getDate()).toString()).slice(-2))+"_"+(("00" +(d.getHours()).toString()).slice(-2))+(("00" +(d.getMinutes()).toString()).slice(-2))+(("00" +(d.getSeconds()).toString()).slice(-2));
 	return Now_date;
 }
+
+//---------------------------------------------------------------------------------------
