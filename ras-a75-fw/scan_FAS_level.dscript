@@ -1,0 +1,33 @@
+//
+//  Copyright (C) 2021-2030 Laurent Ravera, IRAP Toulouse.
+//  This file is part of the ATHENA X-IFU DRE test driving software.
+//
+//  ras-js is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//
+//  laurent.ravera@irap.omp.eu
+//  scan_FAS_level.dscript
+//
+
+include("./ras_tools.dscript")
+
+function scan_FAS_level(level_start, step, n_steps)
+// To help during manual scans of FAS levels
+{
+	for (level = level_start; level < level_start + n_steps*step; level+= step)
+	{
+		set_dac(DAC_ROW_LOW, level);
+		text="The row level has been set to " + level + ". Ready to switch to next value?"
+		alert(text);
+	}
+}

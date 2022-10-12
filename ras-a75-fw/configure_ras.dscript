@@ -22,15 +22,14 @@
 include("./ras_tools.dscript")
 include("./default_configurations.dscript")
 
-// Definition of some information that can be written in a log file
+//---------------------------------------------------------------------------------------
+// Test session configuration
 //operator_name=get_operator_name();
 //session_name=get_session_name();
 //session_comment = "No comment";
 
-//---------------------------------------------------------------------------------------
-// Definition of the RAS configuration 
-//---------------------------------------------------------------------------------------
 
+//---------------------------------------------------------------------------------------
 // Timing configuration
 // Fmasterclock=245.76 MHz, period=4.08ns
 lineperiod = 160; // Nb of master clock periods 
@@ -38,6 +37,7 @@ delay = 222; // Nb of master clock periods
 overlap = 0; // Nb of master clock periods
 
 
+//---------------------------------------------------------------------------------------
 // Levels configuration
 // (1 ADU corresponds approximately to 1mV)
 //    0x0D5 corresponds to 210mV
@@ -49,6 +49,7 @@ cluster_on_lvl = level;
 cluster_off_lvl = 0x000;
 
 
+//---------------------------------------------------------------------------------------
 // Sequence configuration
 nbrows = 8;
 // Comment / uncomment the requested sequence
@@ -62,20 +63,10 @@ rowseq = seqIncrementalIRAP();
 syncseq = 0x00000002;
 
 
+//---------------------------------------------------------------------------------------
 // Sending the parameters to the firmware
 print_board_and_fw_id();
 configure_ras(nbrows, lineperiod, delay, overlap, rowseq, syncseq, row_on_lvl, row_off_lvl, cluster_on_lvl, cluster_off_lvl);
 
 
 //---------------------------------------------------------------------------------------
-
-function scan_FAS_level(level_start, step, n_steps)
-// To help during manual scans of FAS levels
-{
-	for (level = level_start; level < level_start + n_steps*step; level+= step)
-	{
-		set_dac(DAC_ROW_LOW, level);
-		text="The row level has been set to " + level + ". Ready to switch to next value?"
-		alert(text);
-	}
-}
