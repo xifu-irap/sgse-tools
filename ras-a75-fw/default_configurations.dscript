@@ -63,21 +63,42 @@ function seqBlink(irow)
 function seqIncrementalIRAP()
 {
 	// Sequence ordonnee IRAP
-	rowseq[0]  = 0x00000001; // Row address 0 unplugged in RAS IRAP
-	rowseq[1]  = 0x00000002; 
-	rowseq[2]  = 0x00000004; 
-	rowseq[3]  = 0x00000008; 
-	rowseq[4]  = 0x00000010; 
-	rowseq[5]  = 0x00000020; 
-	rowseq[6]  = 0x00000040; 
-	rowseq[7]  = 0x00000080; 
-	rowseq[8]  = 0x00000100; 
-	rowseq[9]  = 0x00000200;
-	rowseq[10] = 0x00000400;
-	rowseq[11] = 0x00000800;
-	rowseq[12] = 0x00001000;
-	rowseq[13] = 0x00002000;
-	rowseq[14] = 0x00004000;
+	rowseq[0]  = 0x00000000; // Row address 0 unplugged in RAS IRAP
+	rowseq[1]  = 0x00000001; 
+	rowseq[2]  = 0x00000002; 
+	rowseq[3]  = 0x00000004; 
+	rowseq[4]  = 0x00000008; 
+	rowseq[5]  = 0x00000010; 
+	rowseq[6]  = 0x00000020; 
+	rowseq[7]  = 0x00000040; 
+	rowseq[8]  = 0x00000080; 
+	rowseq[9]  = 0x00000100;
+	rowseq[10] = 0x00000200;
+	rowseq[11] = 0x00000400;
+	rowseq[12] = 0x00000800;
+	rowseq[13] = 0x00001000;
+	rowseq[14] = 0x00002000;
+}
+
+// This function defines a specific sequence to be used for timing characterization
+function seqTuneTimings()
+{
+	// Sequence ordonnee IRAP
+	rowseq[0]  = 0x00000000; // Row address 0 unplugged in RAS IRAP
+	rowseq[1]  = 0x00000001; 
+	rowseq[2]  = 0x00000000; 
+	rowseq[3]  = 0x00000004; 
+	rowseq[4]  = 0x00000008; 
+	rowseq[5]  = 0x00000000; 
+	rowseq[6]  = 0x00000000; 
+	rowseq[7]  = 0x00000000; 
+	rowseq[8]  = 0x00000000; 
+	rowseq[9]  = 0x00000000;
+	rowseq[10] = 0x00000000;
+	rowseq[11] = 0x00000000;
+	rowseq[12] = 0x00000000;
+	rowseq[13] = 0x00000000;
+	rowseq[14] = 0x00000000;
 }
 
 // This function defines an ordered sequence over 15 addresses (US order)
