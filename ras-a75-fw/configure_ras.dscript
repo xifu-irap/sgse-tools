@@ -59,6 +59,7 @@ rowseq = seqAlwaysOn(irow);
 rowseq = seqBlink(irow);
 rowseq = seqIncrementalIRAP();
 rowseq = seqIncrementalIRAP();
+rowseq = seqTuneTimings();
 
 syncseq = 0x00000002;
 
