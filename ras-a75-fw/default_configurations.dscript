@@ -63,61 +63,118 @@ function seqBlink(irow)
 function seqIncrementalIRAP()
 {
 	// Sequence ordonnee IRAP
-	rowseq[0]  = 0x00000000; // Row address 0 unplugged in RAS IRAP
-	rowseq[1]  = 0x00000001; 
-	rowseq[2]  = 0x00000002; 
-	rowseq[3]  = 0x00000004; 
-	rowseq[4]  = 0x00000008; 
-	rowseq[5]  = 0x00000010; 
-	rowseq[6]  = 0x00000020; 
-	rowseq[7]  = 0x00000040; 
-	rowseq[8]  = 0x00000080; 
-	rowseq[9]  = 0x00000100;
-	rowseq[10] = 0x00000200;
-	rowseq[11] = 0x00000400;
-	rowseq[12] = 0x00000800;
-	rowseq[13] = 0x00001000;
-	rowseq[14] = 0x00002000;
+	seq[0]  = 0x00000000; // Row address 0 unplugged in RAS IRAP
+	seq[1]  = 0x00000001; 
+	seq[2]  = 0x00000002; 
+	seq[3]  = 0x00000004; 
+	seq[4]  = 0x00000008; 
+	seq[5]  = 0x00000010; 
+	seq[6]  = 0x00000020; 
+	seq[7]  = 0x00000040; 
+	seq[8]  = 0x00000080; 
+	seq[9]  = 0x00000100;
+	seq[10] = 0x00000200;
+	seq[11] = 0x00000400;
+	seq[12] = 0x00000800;
+	seq[13] = 0x00001000;
+	seq[14] = 0x00002000;
+
+	return seq;
 }
+
+// This function defines an ordered sequence over 2-levels and 13 addresses
+function seqIncrementalIRAP2levels()
+{
+	// Sequence ordonnee IRAP
+	seq[0]  = 0x08040201;  // row 1
+	seq[1]  = 0x10080402;  // row 2
+	seq[2]  = 0x20100804;  // row 3
+	seq[3]  = 0x40201008;  // row 4
+	seq[4]  = 0x80402010;  // row 5
+	seq[5]  = 0x00804020;  // row 6
+	seq[6]  = 0x01008040;  // row 7
+	seq[7]  = 0x02010080;  // row 8
+	seq[8]  = 0x04020100;  // row 9
+	seq[9]  = 0x00001FF9;  // Cluster 1
+	seq[10] = 0x003FE009;  // Cluster 2
+	seq[11] = 0x7FC00009;  // Cluster 3
+	seq[12] = 0x80000009;  // Cluster 4
+	seq[13] = 0x00000009;  // Not used
+	seq[14] = 0x00000009;  // Not used
+	// With this version of the script maximum 32-row long sequences can be managed
+	// This is because the 8 MSB of the parameter are forced to 0.
+	// This can be fixed in the ras_tools.dscript if needed.  
+
+	return seq;
+}
+
+
+// This function defines an ordered sequence over 2-levels and 8 addresses
+function seqIncrementalIRAP2levels_short()
+{
+	// Sequence ordonnee IRAP
+	seq[0]  = 0x11111111;  // row 1
+	seq[1]  = 0x22222222;  // row 2
+	seq[2]  = 0x44444444;  // row 3
+	seq[3]  = 0x88888888;  // row 4
+	seq[4]  = 0x00000000;  // Not used
+	seq[5]  = 0x00000000;  // Not used
+	seq[6]  = 0x00000000;  // Not used
+	seq[7]  = 0x00000000;  // Not used
+	seq[8]  = 0x00000000;  // Not used
+	seq[9]  = 0x0F0F0F0F;  // Cluster 1
+	seq[10] = 0xF0F0F0F0;  // Cluster 2
+	seq[11] = 0x00000000;  // Not used
+	seq[12] = 0x00000000;  // Not used
+	seq[13] = 0x00000000;  // Not used
+	seq[14] = 0x00000000;  // Not used
+
+	return seq;
+}
+
 
 // This function defines a specific sequence to be used for timing characterization
 function seqTuneTimings()
 {
 	// Sequence ordonnee IRAP
-	rowseq[0]  = 0x00000000; // Row address 0 unplugged in RAS IRAP
-	rowseq[1]  = 0x00000001; 
-	rowseq[2]  = 0x00000000; 
-	rowseq[3]  = 0x00000004; 
-	rowseq[4]  = 0x00000008; 
-	rowseq[5]  = 0x00000000; 
-	rowseq[6]  = 0x00000000; 
-	rowseq[7]  = 0x00000000; 
-	rowseq[8]  = 0x00000000; 
-	rowseq[9]  = 0x00000000;
-	rowseq[10] = 0x00000000;
-	rowseq[11] = 0x00000000;
-	rowseq[12] = 0x00000000;
-	rowseq[13] = 0x00000000;
-	rowseq[14] = 0x00000000;
+	seq[0]  = 0x00000000; // Row address 0 unplugged in RAS IRAP
+	seq[1]  = 0x00000001; 
+	seq[2]  = 0x00000000; 
+	seq[3]  = 0x00000004; 
+	seq[4]  = 0x00000008; 
+	seq[5]  = 0x00000000; 
+	seq[6]  = 0x00000000; 
+	seq[7]  = 0x00000000; 
+	seq[8]  = 0x00000000; 
+	seq[9]  = 0x00000000;
+	seq[10] = 0x00000000;
+	seq[11] = 0x00000000;
+	seq[12] = 0x00000000;
+	seq[13] = 0x00000000;
+	seq[14] = 0x00000000;
+
+	return seq;
 }
 
 // This function defines an ordered sequence over 15 addresses (US order)
 function seqIncrementalUS()
 {
 	// Sequence ordonnee IRAP
-	rowseq[UStoIRAP(0)]  = 0x00000001; // Row address 0 unplugged in RAS IRAP
-	rowseq[UStoIRAP(1)]  = 0x00000002; 
-	rowseq[UStoIRAP(2)]  = 0x00000004; 
-	rowseq[UStoIRAP(3)]  = 0x00000008; 
-	rowseq[UStoIRAP(4)]  = 0x00000010; 
-	rowseq[UStoIRAP(5)]  = 0x00000020; 
-	rowseq[UStoIRAP(6)]  = 0x00000040; 
-	rowseq[UStoIRAP(7)]  = 0x00000080; 
-	rowseq[UStoIRAP(8)]  = 0x00000100; 
-	rowseq[UStoIRAP(9)]  = 0x00000200;
-	rowseq[UStoIRAP(10)] = 0x00000400;
-	rowseq[UStoIRAP(11)] = 0x00000800;
-	rowseq[UStoIRAP(12)] = 0x00001000;
-	rowseq[UStoIRAP(13)] = 0x00002000;
-	rowseq[UStoIRAP(14)] = 0x00004000;
+	seq[UStoIRAP(0)]  = 0x00000001; // Row address 0 unplugged in RAS IRAP
+	seq[UStoIRAP(1)]  = 0x00000002; 
+	seq[UStoIRAP(2)]  = 0x00000004; 
+	seq[UStoIRAP(3)]  = 0x00000008; 
+	seq[UStoIRAP(4)]  = 0x00000010; 
+	seq[UStoIRAP(5)]  = 0x00000020; 
+	seq[UStoIRAP(6)]  = 0x00000040; 
+	seq[UStoIRAP(7)]  = 0x00000080; 
+	seq[UStoIRAP(8)]  = 0x00000100; 
+	seq[UStoIRAP(9)]  = 0x00000200;
+	seq[UStoIRAP(10)] = 0x00000400;
+	seq[UStoIRAP(11)] = 0x00000800;
+	seq[UStoIRAP(12)] = 0x00001000;
+	seq[UStoIRAP(13)] = 0x00002000;
+	seq[UStoIRAP(14)] = 0x00004000;
+
+	return seq;
 }

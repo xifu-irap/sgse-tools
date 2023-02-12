@@ -299,18 +299,18 @@ function scan_nbrows(start, stop, step, step_duration_ms)
 // Configuring the RAS
 //---------------------------------------------------------------------------------------
 
-function configure_ras(nbrows, lineperiod, delay, overlap, rowseq, syncseq, row_on_lvl, row_off_lvl, cluster_on_lvl, cluster_off_lvl)
+function configure_ras(muxfactor, lineperiod, delay, overlap, rowseq, syncseq, row_on_lvl, row_off_lvl, cluster_on_lvl, cluster_off_lvl)
 {
 	print("Frequency of main clock assumed to be: " + FMAINCLOCK / Math.pow(10,6) + " MHz");
 	print("Setting the RAS in setting mode...");
 	set_mode(MODE_DEF);
 	
-	print("Setting the number of rows to " + nbrows);
+	print("Setting the mux factor to " + muxfactor);
 	lineperiod_ns = lineperiod * Math.pow(10,9) / FMAINCLOCK;
 	print("Setting the line period to " + lineperiod + " ("+ lineperiod_ns + " ns)");
 	delay_ns = delay / FMAINCLOCK;
 	print("Setting the synchro delay to " + delay + " ("+ delay_ns + " ns)");
-	set_nbrows_lineperiod_delay(nbrows, lineperiod, delay);
+	set_nbrows_lineperiod_delay(muxfactor, lineperiod, delay);
 	
 	overlap_ns = overlap / FMAINCLOCK;
 	print("Setting the address overlap to " + overlap+ " ("+ overlap_ns + " ns)");
