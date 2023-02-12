@@ -26,7 +26,7 @@ function scan_FAS_level(level_start, step, n_steps)
 {
 	for (level = level_start; level < level_start + n_steps*step; level+= step)
 	{
-		set_dac(DAC_ROW_LOW, level);
+		set_dac(DAC_ROW_OFF, level);
 		text="The row level has been set to " + level + ". Ready to switch to next value?"
 		alert(text);
 	}
