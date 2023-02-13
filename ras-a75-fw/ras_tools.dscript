@@ -98,6 +98,7 @@ function set_dac(dac, dac_val)
 // The 2 MSBs (bits 12 and 13th) are configuration bits (power down mode)
 // We are using the configuration with these bits set to 0.
 {
+	apply_setting = true;
 	switch (dac) 
 		{
 		case DAC_ROW_LOW:
@@ -119,10 +120,21 @@ function set_dac(dac, dac_val)
 	dac_val_mask = 0x0FFF;  // 12 bits
 	if (dac_val > dac_val_mask)
 	{
-		print("Problem with the DAC value !");
+		print("The DAC value is out of the parameter range!");
+		apply_setting = false;
 	}
-	value = dac_val & dac_val_mask;
-	sendToRowAddressing_writeReadRegister(address, value);
+	max_rating = 0x0800;  // 2 volts at single ended outputs
+	if (dac_val > max_rating)
+	{
+		print("The DAC value is bigger than the maximum rating!");
+		print("The maximum possible value will be applied.")
+		dac_val = max_rating;
+	}
+
+	if (apply_setting)
+	{
+		sendToRowAddressing_writeReadRegister(address, value);
+	}
 }
 
 function start_dacs()
