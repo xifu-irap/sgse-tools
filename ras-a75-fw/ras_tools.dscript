@@ -34,10 +34,10 @@ const FMAINCLOCK = THEORICAL_FMAINCLOCK*FMAINCLOCK_CORRECTION_FACTOR;
 const MODE_DEF = 0 // Mode to define the parameters
 const MODE_RUN = 1 // Mode to run the sequence
 // definition of DAC names
-const DAC_ROW_LOW      = 0
-const DAC_ROW_HIGH     = 1
-const DAC_CLUSTER_LOW  = 2
-const DAC_CLUSTER_HIGH = 3
+const DAC_ROW_OFF     = 0
+const DAC_ROW_ON      = 1
+const DAC_CLUSTER_OFF = 2
+const DAC_CLUSTER_ON  = 3
 
 //---------------------------------------------------------------------------------------
 // Definition of functions
@@ -101,16 +101,16 @@ function set_dac(dac, dac_val)
 	apply_setting = true;
 	switch (dac) 
 		{
-		case DAC_ROW_LOW:
+		case DAC_ROW_OFF:
 			address = 0x98;
 			break;
-		case DAC_ROW_HIGH:
+		case DAC_ROW_ON:
 			address = 0x9C;
 			break;
-		case DAC_CLUSTER_LOW:
+		case DAC_CLUSTER_OFF:
 			address = 0xA0;
 			break;
-		case DAC_CLUSTER_HIGH:
+		case DAC_CLUSTER_ON:
 			address = 0xA4;
 			break;
 		default:
@@ -312,13 +312,13 @@ function configure_ras(nbrows, lineperiod, delay, overlap, rowseq, syncseq, row_
 	
 	print("Setting the DACs levels...");
 	print("  Setting low level for rows at: " + row_low_lvl);
-	set_dac(DAC_ROW_LOW, row_low_lvl);
+	set_dac(DAC_ROW_OFF, row_low_lvl);
 	print("  Setting high level for rows at: " + row_high_lvl);
-	set_dac(DAC_ROW_HIGH, row_high_lvl);
+	set_dac(DAC_ROW_ON, row_high_lvl);
 	print("  Setting low level for clusters at: " + cluster_low_lvl);
-	set_dac(DAC_CLUSTER_LOW, cluster_low_lvl);
+	set_dac(DAC_CLUSTER_OFF, cluster_low_lvl);
 	print("  Setting high level for clusters at: " + cluster_high_lvl);
-	set_dac(DAC_CLUSTER_HIGH, cluster_high_lvl);
+	set_dac(DAC_CLUSTER_ON, cluster_high_lvl);
 	print("Starting the DACs...");
 	start_dacs();
 	
