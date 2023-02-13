@@ -1,0 +1,117 @@
+
+//
+//  Copyright (C) 2021-2030 Laurent Ravera, IRAP Toulouse.
+//  This file is part of the ATHENA X-IFU DRE test driving software.
+//
+//  ras-js is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+//  laurent.ravera@irap.omp.eu
+//  File name: check_ps_gs_levels.dscript
+//  Purpose: This script scans the PS0 and GS0 outputs over the full 
+//           scale range in order to verify the requirement XIFU-DRE-R-0160
+
+include("./ras_tools.dscript")
+include("./default_configurations.dscript")
+
+
+// Definition of some information that can be writen in a log file
+operator_name=get_operator_name();
+session_name=get_session_name();
+session_comment = "No comment";
+
+
+//---------------------------------------------------------------------------------------
+// Timing configuration
+// Fmasterclock=245.76 MHz, period=4.08ns
+lineperiod = 160; // Nb of master clock periods 
+delay = 222; // Nb of master clock periods
+overlap = 0; // Nb of master clock periods
+
+
+//---------------------------------------------------------------------------------------
+// Levels configuration
+// (1 ADU corresponds approximately to 1mV)
+//    0x0D5 corresponds to 210mV
+//    0x14A corresponds to 325mV (Phi0/2)
+level_min = 0x0000;
+level_max = 0x0800;
+row_on_lvl = level_max; 
+row_off_lvl = level_min;
+cluster_on_lvl = level_max;
+cluster_off_lvl = level_min;
+
+
+//---------------------------------------------------------------------------------------
+// Sequence configuration
+// Configuring a 2-level 8-pixel long sequence
+
+nmux = 8;
+seq = seqIncrementalIRAP2levels_short();
+
+syncseq = 0x00000001;
+
+
+//---------------------------------------------------------------------------------------
+// Sending the parameters to the firmware
+print_board_and_fw_id();
+configure_ras(nmux, lineperiod, delay, overlap, seq, syncseq, row_on_lvl, row_off_lvl, cluster_on_lvl, cluster_off_lvl);
+
+
+//---------------------------------------------------------------------------------------
+// RAS levels min/max measurements
+
+row_min = getText("Please measure the level min of row addresses (mV):", "")
+row_max = getText("Please measure the level max of row addresses (mV):", "")
+print("")
+print("# Row adresses:")
+print(" Level min = ", row_min, "mV and level max = ", row_max, " mV.")
+print(" Range = ", row_max - row_min, " mV")
+print("")
+
+cluster_min = getText("Please measure the level min of cluster addresses (mV):", "")
+cluster_max = getText("Please measure the level max of cluster addresses (mV):", "")
+print("")
+print("# Cluster adresses:")
+print(" Level min = ", cluster_min, "mV and level max = ", cluster_max, " mV.")
+print(" Range = ", cluster_max - cluster_min, " mV")
+print("")
+
+
+alert("Ready to see ramps on the address levels?:")
+
+//---------------------------------------------------------------------------------------
+// RAS ramps / resolution
+
+// Defining a shorter sequence with mux factor = 1 and addresses set to off
+nmux = 1;
+seq = seqAllOff();
+configure_ras(nmux, lineperiod, delay, overlap, seq, syncseq, row_on_lvl, row_off_lvl, cluster_on_lvl, cluster_off_lvl);
+
+
+wait_duration = 50
+step_size = 16 // With step = 16 the number of steps is 2^8 (compliant with requirement)
+
+
+for (iter=0; iter < 20; iter+=1)
+{
+    for (level = level_min; level <= level_max; level+= step_size)
+    {
+        set_dac(DAC_ROW_OFF, level);
+        set_dac(DAC_CLUSTER_OFF, level_max-level);
+        waitMs(wait_duration)
+    }
+}
+
+
+//---------------------------------------------------------------------------------------
