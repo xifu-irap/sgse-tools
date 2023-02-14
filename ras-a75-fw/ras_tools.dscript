@@ -27,9 +27,7 @@
 //---------------------------------------------------------------------------------------
 // Frequency of main clock
 
-const FMAINCLOCK_CORRECTION_FACTOR = 0.001;
-const THEORICAL_FMAINCLOCK = 200*Math.pow(10,6);
-const FMAINCLOCK = THEORICAL_FMAINCLOCK*FMAINCLOCK_CORRECTION_FACTOR;
+const FMAINCLOCK = 245.76*Math.pow(10,6);
 // Definition of constants
 const MODE_DEF = 0 // Mode to define the parameters
 const MODE_RUN = 1 // Mode to run the sequence
@@ -102,19 +100,19 @@ function set_dac(dac, dac_val)
 	switch (dac) 
 		{
 		case DAC_ROW_OFF:
-			address = 0x98;
-			break;
-		case DAC_ROW_ON:
 			address = 0x9C;
 			break;
-		case DAC_CLUSTER_OFF:
-			address = 0xA0;
+		case DAC_ROW_ON:
+			address = 0x98;
 			break;
-		case DAC_CLUSTER_ON:
+		case DAC_CLUSTER_OFF:
 			address = 0xA4;
 			break;
+		case DAC_CLUSTER_ON:
+			address = 0xA0;
+			break;
 		default:
-			address = 0x98;
+			apply_setting = false;
 			print("Problem with DAC reference !");
 		}
 	dac_val_mask = 0x0FFF;  // 12 bits
@@ -133,7 +131,7 @@ function set_dac(dac, dac_val)
 
 	if (apply_setting)
 	{
-		sendToRowAddressing_writeReadRegister(address, value);
+		sendToRowAddressing_writeReadRegister(address, dac_val);
 	}
 }
 
@@ -153,16 +151,33 @@ function stop_dacs()
 	sendToRowAddressing_writeReadRegister(address, value);
 }
 
+
 function get_board_and_fw_id()
-// Read parameter, use ReadRegister only ??
 {
+	var id = {board: 0, firmware: 0};
 	address = 0xAC;
-	value = 0x1;
-	print("board et fw = ", sendToRowAddressing_readRegister(address));
+	sendToRowAddressing_readRegister(address) // demande au RA la valeur du registre
+	
+	getLatestValue("RA_registers") // demande au dispatcher les dernieres valeurs lues des registres
+	value = RA_registers[address/4]
+	id.board = parseInt(value/256)
+	id.firmware = value-id.board
+	return(id)
+}
+
+function print_board_and_fw_id()
+{
+	id = get_board_and_fw_id()
+	board_id_hex=('0000' + id.board.toString(16).toUpperCase()).slice(-4)
+	fw_id_hex=('0000' + id.firmware.toString(16).toUpperCase()).slice(-4)
+	print("> -----------------------------")
+	print("> Board id:  0x",board_id_hex)
+	print("> Firmware id:  0x",fw_id_hex)
+	print("> -----------------------------")
 }
 
 //---------------------------------------------------------------------------------------
-// Definition of some standard sequences
+// Sequence configuration
 //---------------------------------------------------------------------------------------
 
 function set_rowseq(rowseq)
@@ -178,10 +193,8 @@ function set_rowseq(rowseq)
 // Definition of some scan functions
 //---------------------------------------------------------------------------------------
 
-function scan_rowperiod(start, stop, step, step_duration_ms)
+function scan_rowperiod(start, stop, step, step_duration_ms, nbrows, delay)
 {
-	nbrows = 15;
-	delay = 0;
 	delay_ns = delay * Math.pow(10,9) / FMAINCLOCK; // 5ns
 
 	start_ns = start/FMAINCLOCK;
@@ -234,12 +247,9 @@ function scan_overlap(start, stop, step, step_duration_ms)
 	}
 }
 
-function scan_delay(start, stop, step, step_duration_ms)
+function scan_delay(start, stop, step, step_duration_ms, nbrows, lineperiod)
 {
-	nbrows = 15;
-	lineperiod = 32;
-	delay = 0;
-	delay_ns = delay * Math.pow(10,9) / FMAINCLOCK; //5ns
+	delay_ns = delay * Math.pow(10,9) / FMAINCLOCK;
 
 	start_ns = start/FMAINCLOCK;
 	stop_ns = stop/FMAINCLOCK;
@@ -262,11 +272,9 @@ function scan_delay(start, stop, step, step_duration_ms)
 // OCJ : call function set_nbrows_lineperiod_delay(nbrows, lineperiod, delay) with fixed parameters
 // suggestion : add lineperiod+delay as parameters
 //---------------------------------------------------------------------------------------
-function scan_nbrows(start, stop, step, step_duration_ms)
-{
-	lineperiod = 32;
+function scan_nbrows(start, stop, step, step_duration_ms, lineperiod, delay)
+{
 	lineperiod_ns = lineperiod * Math.pow(10,9) / FMAINCLOCK;
-	delay = 0;
 	delay_ns = delay * Math.pow(10,9) / FMAINCLOCK;
 	
 	print("Scanning the number of rows from " + start + " to " + stop + " by steps of " + Math.round(step*100)/100);
@@ -287,7 +295,7 @@ function scan_nbrows(start, stop, step, step_duration_ms)
 // Configuring the RAS
 //---------------------------------------------------------------------------------------
 
-function configure_ras(nbrows, lineperiod, delay, overlap, rowseq, syncseq, row_low_lvl, row_high_lvl, cluster_low_lvl, cluster_high_lvl)
+function configure_ras(nbrows, lineperiod, delay, overlap, rowseq, syncseq, row_off_lvl, row_on_lvl, cluster_off_lvl, cluster_on_lvl)
 {
 	print("Frequency of main clock assumed to be: " + FMAINCLOCK / Math.pow(10,6) + " MHz");
 	print("Setting the RAS in setting mode...");
@@ -311,14 +319,14 @@ function configure_ras(nbrows, lineperiod, delay, overlap, rowseq, syncseq, row_
 	set_sync_sequence(syncseq);
 	
 	print("Setting the DACs levels...");
-	print("  Setting low level for rows at: " + row_low_lvl);
-	set_dac(DAC_ROW_OFF, row_low_lvl);
-	print("  Setting high level for rows at: " + row_high_lvl);
-	set_dac(DAC_ROW_ON, row_high_lvl);
-	print("  Setting low level for clusters at: " + cluster_low_lvl);
-	set_dac(DAC_CLUSTER_OFF, cluster_low_lvl);
-	print("  Setting high level for clusters at: " + cluster_high_lvl);
-	set_dac(DAC_CLUSTER_ON, cluster_high_lvl);
+	print("  Setting low level for rows at: " + row_off_lvl);
+	set_dac(DAC_ROW_OFF, row_off_lvl);
+	print("  Setting high level for rows at: " + row_on_lvl);
+	set_dac(DAC_ROW_ON, row_on_lvl);
+	print("  Setting low level for clusters at: " + cluster_off_lvl);
+	set_dac(DAC_CLUSTER_OFF, cluster_off_lvl);
+	print("  Setting high level for clusters at: " + cluster_on_lvl);
+	set_dac(DAC_CLUSTER_ON, cluster_on_lvl);
 	print("Starting the DACs...");
 	start_dacs();
 	
