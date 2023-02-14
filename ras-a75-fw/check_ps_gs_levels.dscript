@@ -24,19 +24,26 @@
 include("./ras_tools.dscript")
 include("./default_configurations.dscript")
 
+print("#------------------------------------------------------")
+testDate = maDate();
 
 // Definition of some information that can be writen in a log file
-operator_name=get_operator_name();
-session_name=get_session_name();
+operator_name=get_operator_name();
+print(" Operator name: ", operator_name)
+print(" Date: ", testDate)
+session_name=get_session_name();
+print(" Session name: ",  session_name)
 session_comment = "No comment";
-
+print(" Comment: ", session_comment)
+print_board_and_fw_id();
+print("#------------------------------------------------------")
 
 //---------------------------------------------------------------------------------------
 // Timing configuration
 // Fmasterclock=245.76 MHz, period=4.08ns
-lineperiod = 160; // Nb of master clock periods 
-delay = 222; // Nb of master clock periods
-overlap = 0; // Nb of master clock periods
+lineperiod = 39; // corresponds to 159ns
+delay = 0; // ns
+overlap = 0; // or reverb
 
 
 //---------------------------------------------------------------------------------------
@@ -58,15 +65,15 @@ cluster_off_lvl = level_min;
 
 nmux = 8;
 seq = seqIncrementalIRAP2levels_short();
-
 syncseq = 0x00000001;
 
 
 //---------------------------------------------------------------------------------------
 // Sending the parameters to the firmware
-print_board_and_fw_id();
-configure_ras(nmux, lineperiod, delay, overlap, seq, syncseq, row_on_lvl, row_off_lvl, cluster_on_lvl, cluster_off_lvl);
+configure_ras(nmux, lineperiod, delay, overlap, seq, syncseq, row_off_lvl, row_on_lvl, cluster_off_lvl, cluster_on_lvl);
 
+print("#------------------------------------------------------")
+print("# Measuring row address levels")
 
 //---------------------------------------------------------------------------------------
 // RAS levels min/max measurements
@@ -89,29 +96,50 @@ print("")
 
 
 alert("Ready to see ramps on the address levels?:")
+print("#------------------------------------------------------")
+print(" Scanning the ON and OFF levels of row and cluster addresses...")
 
 //---------------------------------------------------------------------------------------
 // RAS ramps / resolution
 
-// Defining a shorter sequence with mux factor = 1 and addresses set to off
-nmux = 1;
-seq = seqAllOff();
-configure_ras(nmux, lineperiod, delay, overlap, seq, syncseq, row_on_lvl, row_off_lvl, cluster_on_lvl, cluster_off_lvl);
-
-
 wait_duration = 50
-step_size = 16 // With step = 16 the number of steps is 2^8 (compliant with requirement)
+step_size = 16 // With step = 16 the number of steps over FSR is 2^8 (compliant with requirement)
 
-
-for (iter=0; iter < 20; iter+=1)
+// Scan to change high to low and low high
+for (level = level_min; level < level_max; level+= step_size)
 {
-    for (level = level_min; level <= level_max; level+= step_size)
-    {
-        set_dac(DAC_ROW_OFF, level);
-        set_dac(DAC_CLUSTER_OFF, level_max-level);
-        waitMs(wait_duration)
-    }
+	set_mode(MODE_DEF);
+	stop_dacs();
+	set_dac(DAC_ROW_OFF, level);
+	set_dac(DAC_CLUSTER_OFF, level);
+	set_dac(DAC_ROW_ON, level_max-level);
+	set_dac(DAC_CLUSTER_ON, level_max-level);
+	start_dacs();
+	set_mode(MODE_RUN)
+	//waitMs(wait_duration)
 }
 
+// Scan to go back to the initial setting
+for (level = level_max; level > 0; level-= step_size)
+{
+	set_mode(MODE_DEF);
+	stop_dacs();
+	set_dac(DAC_ROW_OFF, level);
+	set_dac(DAC_CLUSTER_OFF, level);
+	set_dac(DAC_ROW_ON, level_max-level);
+	set_dac(DAC_CLUSTER_ON, level_max-level);
+	start_dacs();
+	set_mode(MODE_RUN)
+	//waitMs(wait_duration)
+}
+
+possible_answers = ["correct", "not correct"]
+answer = getItem("The scanning of the address levels was ", possible_answers)
+print("The scanning of the address levels was ", possible_answers[answer])
+
+print("#------------------------------------------------------")
+print("# End of test")
+print("#------------------------------------------------------")
+saveLogContent("report_"+testDate+".txt")
 
 //---------------------------------------------------------------------------------------
