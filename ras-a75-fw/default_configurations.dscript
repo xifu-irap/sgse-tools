@@ -140,30 +140,54 @@ function seqIncrementalIRAP2levels_short()
 	return seq;
 }
 
-// This function is defined to test the overlap
-function test_overlap()
-{
-	// Sequence ordonnee IRAP
-	nrows = 15
-	seq = [nrows];
-	seq[0]  = 0x11111111;  // row 1
-	seq[1]  = 0x00000000;  // row 2
-	seq[2]  = 0x00000000;  // row 3
-	seq[3]  = 0x00000000;  // row 4
-	seq[4]  = 0x00000000;  // Not used
-	seq[5]  = 0x00000000;  // Not used
-	seq[6]  = 0x00000000;  // Not used
-	seq[7]  = 0x00000000;  // Not used
-	seq[8]  = 0x00000000;  // Not used
-	seq[9]  = 0x22222222;  // Cluster 1
-	seq[10] = 0x00000000;  // Cluster 2
-	seq[11] = 0x00000000;  // Not used
-	seq[12] = 0x00000000;  // Not used
-	seq[13] = 0x00000000;  // Not used
-	seq[14] = 0x00000000;  // Not used
-
-	return seq;
-}
+// This function is defined to test the overlap
+
+function test_overlap()
+
+{
+
+	// Sequence ordonnee IRAP
+
+	nrows = 15
+
+	seq = [nrows];
+
+	seq[0]  = 0x11111111;  // row 1
+
+	seq[1]  = 0x00000000;  // row 2
+
+	seq[2]  = 0x00000000;  // row 3
+
+	seq[3]  = 0x00000000;  // row 4
+
+	seq[4]  = 0x00000000;  // Not used
+
+	seq[5]  = 0x00000000;  // Not used
+
+	seq[6]  = 0x00000000;  // Not used
+
+	seq[7]  = 0x00000000;  // Not used
+
+	seq[8]  = 0x00000000;  // Not used
+
+	seq[9]  = 0x22222222;  // Cluster 1
+
+	seq[10] = 0x00000000;  // Cluster 2
+
+	seq[11] = 0x00000000;  // Not used
+
+	seq[12] = 0x00000000;  // Not used
+
+	seq[13] = 0x00000000;  // Not used
+
+	seq[14] = 0x00000000;  // Not used
+
+
+
+	return seq;
+
+}
+
 
 // This function defines a specific sequence to be used for timing characterization
 function seqTuneTimings()

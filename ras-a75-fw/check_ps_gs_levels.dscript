@@ -40,10 +40,10 @@ print("#------------------------------------------------------")
 
 //---------------------------------------------------------------------------------------
 // Timing configuration
-// Fmasterclock=245.76 MHz, period=4.08ns
-lineperiod = 39; // corresponds to 159ns
-delay = 0; // ns
-overlap = 0; // or reverb
+// Fmasterclock=125MHz, period=8ns
+lineperiod = 20; // corresponds to 160ns
+delay = 0;
+overlap = 0;
 
 
 //---------------------------------------------------------------------------------------
@@ -52,25 +52,25 @@ overlap = 0; // or reverb
 //    0x0D5 corresponds to 210mV
 //    0x14A corresponds to 325mV (Phi0/2)
 level_min = 0x0000;
-level_max = 0x0800;
-row_on_lvl = level_max; 
-row_off_lvl = level_min;
-cluster_on_lvl = level_max;
-cluster_off_lvl = level_min;
+level_max = DAC_MAX_RATING;
+pixel_on_lvl = level_max; 
+pixel_off_lvl = level_min;
+group_on_lvl = level_max;
+group_off_lvl = level_min;
 
 
 //---------------------------------------------------------------------------------------
 // Sequence configuration
 // Configuring a 2-level 8-pixel long sequence
 
-nmux = 8;
+nbrows = 8;
 seq = seqIncrementalIRAP2levels_short();
 syncseq = 0x00000001;
 
 
 //---------------------------------------------------------------------------------------
 // Sending the parameters to the firmware
-configure_ras(nmux, lineperiod, delay, overlap, seq, syncseq, row_off_lvl, row_on_lvl, cluster_off_lvl, cluster_on_lvl);
+configure_ras(nbrows, lineperiod, delay, overlap, seq, syncseq, pixel_off_lvl, pixel_on_lvl, group_off_lvl, group_on_lvl);
 
 print("#------------------------------------------------------")
 print("# Measuring row address levels")
@@ -78,20 +78,20 @@ print("# Measuring row address levels")
 //---------------------------------------------------------------------------------------
 // RAS levels min/max measurements
 
-row_min = getText("Please measure the level min of row addresses (mV):", "")
-row_max = getText("Please measure the level max of row addresses (mV):", "")
+pixel_min = getText("Please measure the level min of row addresses (mV):", "")
+pixel_max = getText("Please measure the level max of row addresses (mV):", "")
 print("")
 print("# Row adresses:")
-print(" Level min = ", row_min, "mV and level max = ", row_max, " mV.")
-print(" Range = ", row_max - row_min, " mV")
+print(" Level min = ", pixel_min, "mV and level max = ", pixel_max, " mV.")
+print(" Range = ", pixel_max - pixel_min, " mV")
 print("")
 
-cluster_min = getText("Please measure the level min of cluster addresses (mV):", "")
-cluster_max = getText("Please measure the level max of cluster addresses (mV):", "")
+group_min = getText("Please measure the level min of cluster addresses (mV):", "")
+group_max = getText("Please measure the level max of cluster addresses (mV):", "")
 print("")
 print("# Cluster adresses:")
-print(" Level min = ", cluster_min, "mV and level max = ", cluster_max, " mV.")
-print(" Range = ", cluster_max - cluster_min, " mV")
+print(" Level min = ", group_min, "mV and level max = ", group_max, " mV.")
+print(" Range = ", group_max - group_min, " mV")
 print("")
 
 
@@ -110,13 +110,12 @@ for (level = level_min; level < level_max; level+= step_size)
 {
 	set_mode(MODE_DEF);
 	stop_dacs();
-	//set_dac(DAC_ROW_OFF, level);
-	set_dac(DAC_CLUSTER_OFF, level);
-	//set_dac(DAC_ROW_ON, level_max-level);
-	set_dac(DAC_CLUSTER_ON, level_max-level);
+	set_dac(DAC_PIXEL_OFF, level);
+	set_dac(DAC_GROUP_OFF, level);
+	set_dac(DAC_PIXEL_ON, level_max-level);
+	set_dac(DAC_GROUP_ON, level_max-level);
 	start_dacs();
 	set_mode(MODE_RUN)
-	//waitMs(wait_duration)
 }
 
 // Scan to go back to the initial setting
@@ -124,13 +123,12 @@ for (level = level_max; level > 0; level-= step_size)
 {
 	set_mode(MODE_DEF);
 	stop_dacs();
-	//set_dac(DAC_ROW_OFF, level);
-	set_dac(DAC_CLUSTER_OFF, level);
-	//set_dac(DAC_ROW_ON, level_max-level);
-	set_dac(DAC_CLUSTER_ON, level_max-level);
+	set_dac(DAC_PIXEL_OFF, level);
+	set_dac(DAC_GROUP_OFF, level);
+	set_dac(DAC_PIXEL_ON, level_max-level);
+	set_dac(DAC_GROUP_ON, level_max-level);
 	start_dacs();
 	set_mode(MODE_RUN)
-	//waitMs(wait_duration)
 }
 
 possible_answers = ["correct", "not correct"]
