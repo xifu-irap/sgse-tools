@@ -20,43 +20,43 @@
 //
 
 include("./ras_tools.dscript")
-include("./default_configurations.dscript")
-
-// Definition of some information that can be writen in a loang file
-operator_name=get_operator_name();
-session_name=get_session_name();
-session_comment = "No comment";
-
-// Defining a default configuration
-//---------------------------------------------------------------------------------------
-// Timing configuration
-// Fmasterclock=245.76 MHz, period=4.08ns
-lineperiod = 39; // corresponds to 159ns
-delay = 0; // ns
-overlap = 0; // or reverb
-
-
-//---------------------------------------------------------------------------------------
-// Levels configuration
-// (1 ADU corresponds approximately to 1mV)
-//    0x0D5 corresponds to 210mV
-//    0x14A corresponds to 325mV (Phi0/2)
-level_min = 0x0000;
-level_max = 0x0800;
-row_on_lvl = level_max; 
-row_off_lvl = level_min;
-cluster_on_lvl = level_max;
-cluster_off_lvl = level_min;
-
-nbrows = 4;
-seq = test_overlap();
-syncseq = 0x00000001;
-
-//---------------------------------------------------------------------------------------
-// Sending the parameters to the firmware
-configure_ras(nbrows, lineperiod, delay, overlap, seq, syncseq, row_off_lvl, row_on_lvl, cluster_off_lvl, cluster_on_lvl);
-
-
+include("./default_configurations.dscript")
+
+// Definition of some information that can be writen in a loang file
+operator_name=get_operator_name();
+session_name=get_session_name();
+session_comment = "No comment";
+
+// Defining a default configuration
+//---------------------------------------------------------------------------------------
+// Timing configuration
+// Fmasterclock=245.76 MHz, period=4.08ns
+lineperiod = 39; // corresponds to 159ns
+delay = 0; // ns
+overlap = 0; // or reverb
+
+
+//---------------------------------------------------------------------------------------
+// Levels configuration
+// (1 ADU corresponds approximately to 1mV)
+//    0x0D5 corresponds to 210mV
+//    0x14A corresponds to 325mV (Phi0/2)
+level_min = 0x0000;
+level_max = 0x0800;
+row_on_lvl = level_max; 
+row_off_lvl = level_min;
+cluster_on_lvl = level_max;
+cluster_off_lvl = level_min;
+
+nbrows = 4;
+seq = test_overlap();
+syncseq = 0x00000001;
+
+//---------------------------------------------------------------------------------------
+// Sending the parameters to the firmware
+configure_ras(nbrows, lineperiod, delay, overlap, seq, syncseq, row_off_lvl, row_on_lvl, cluster_off_lvl, cluster_on_lvl);
+
+
 //---------------------------------------------------------------------------------------
 // Scanning the Overlap
 start = 0;

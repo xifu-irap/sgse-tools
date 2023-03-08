@@ -24,19 +24,19 @@
 include("./ras_tools.dscript")
 include("./default_configurations.dscript")
 
-print("#------------------------------------------------------")
-testDate = maDate();
+print("#------------------------------------------------------")
+testDate = maDate();
 
 // Definition of some information that can be writen in a log file
-operator_name=get_operator_name();
-print(" Operator name: ", operator_name)
-print(" Date: ", testDate)
-session_name=get_session_name();
+operator_name=get_operator_name();
+print(" Operator name: ", operator_name)
+print(" Date: ", testDate)
+session_name=get_session_name();
 print(" Session name: ",  session_name)
 session_comment = "No comment";
-print(" Comment: ", session_comment)
+print(" Comment: ", session_comment)
 print_board_and_fw_id();
-print("#------------------------------------------------------")
+print("#------------------------------------------------------")
 
 //---------------------------------------------------------------------------------------
 // Timing configuration
@@ -72,8 +72,8 @@ syncseq = 0x00000001;
 // Sending the parameters to the firmware
 configure_ras(nmux, lineperiod, delay, overlap, seq, syncseq, row_off_lvl, row_on_lvl, cluster_off_lvl, cluster_on_lvl);
 
-print("#------------------------------------------------------")
-print("# Measuring row address levels")
+print("#------------------------------------------------------")
+print("# Measuring row address levels")
 
 //---------------------------------------------------------------------------------------
 // RAS levels min/max measurements
@@ -96,8 +96,8 @@ print("")
 
 
 alert("Ready to see ramps on the address levels?:")
-print("#------------------------------------------------------")
-print(" Scanning the ON and OFF levels of row and cluster addresses...")
+print("#------------------------------------------------------")
+print(" Scanning the ON and OFF levels of row and cluster addresses...")
 
 //---------------------------------------------------------------------------------------
 // RAS ramps / resolution
@@ -110,9 +110,9 @@ for (level = level_min; level < level_max; level+= step_size)
 {
 	set_mode(MODE_DEF);
 	stop_dacs();
-	set_dac(DAC_ROW_OFF, level);
+	//set_dac(DAC_ROW_OFF, level);
 	set_dac(DAC_CLUSTER_OFF, level);
-	set_dac(DAC_ROW_ON, level_max-level);
+	//set_dac(DAC_ROW_ON, level_max-level);
 	set_dac(DAC_CLUSTER_ON, level_max-level);
 	start_dacs();
 	set_mode(MODE_RUN)
@@ -124,22 +124,22 @@ for (level = level_max; level > 0; level-= step_size)
 {
 	set_mode(MODE_DEF);
 	stop_dacs();
-	set_dac(DAC_ROW_OFF, level);
+	//set_dac(DAC_ROW_OFF, level);
 	set_dac(DAC_CLUSTER_OFF, level);
-	set_dac(DAC_ROW_ON, level_max-level);
+	//set_dac(DAC_ROW_ON, level_max-level);
 	set_dac(DAC_CLUSTER_ON, level_max-level);
 	start_dacs();
 	set_mode(MODE_RUN)
 	//waitMs(wait_duration)
 }
-
-possible_answers = ["correct", "not correct"]
-answer = getItem("The scanning of the address levels was ", possible_answers)
-print("The scanning of the address levels was ", possible_answers[answer])
-
-print("#------------------------------------------------------")
+
+possible_answers = ["correct", "not correct"]
+answer = getItem("The scanning of the address levels was ", possible_answers)
+print("The scanning of the address levels was ", possible_answers[answer])
+
+print("#------------------------------------------------------")
 print("# End of test")
-print("#------------------------------------------------------")
-saveLogContent("report_"+testDate+".txt")
+print("#------------------------------------------------------")
+saveLogContent("report_"+testDate+".txt")
 
 //---------------------------------------------------------------------------------------
