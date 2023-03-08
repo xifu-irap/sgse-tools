@@ -30,14 +30,23 @@ session_comment = "No comment";
 //---------------------------------------------------------------------------------------
 // Definition of the RAS configuration 
 //---------------------------------------------------------------------------------------
-nbrows = 32;
-lineperiod = 83; // 32 corresponds to 160ns if main clock value is 200 MHz
-delay = 90; // # of times 5 ns
-overlap = 0; // or reverb
-row_low_lvl      = 0x0D5; // 0x1AA = 420 mV, 0x0D5 = 210 mV
-row_high_lvl     = 0x000;
-cluster_low_lvl  = 0x0D5;
-cluster_high_lvl = 0x000;
+nbrows = 15;
+lineperiod = 20; // 160ns 
+delay = 90; // # of times 8ns
+overlap = 0;
+
+//---------------------------------------------------------------------------------------
+// Levels configuration
+// (1 ADU corresponds approximately to 1mV)
+//    0x0D5 corresponds to 210mV
+//    0x14A corresponds to 325mV (Phi0/2)
+level_min = 0x0000;
+level_max = DAC_MAX_RATING;
+pixel_on_lvl = level_max; 
+pixel_off_lvl = level_min;
+group_on_lvl = level_max;
+group_off_lvl = level_min;
+
 rowseq = [nbrows];
 rowseq[0]  = 0x00000002; //pixel US 1
 rowseq[1]  = 0x00000004; //pixel US 2
@@ -56,6 +65,6 @@ rowseq[13] = 0x00000000;
 rowseq[14] = 0x00000000;
 syncseq    = 0x00000080;
 
-configure_ras(nbrows, lineperiod, delay, overlap, rowseq, syncseq, row_low_lvl, row_high_lvl, cluster_low_lvl, cluster_high_lvl);
+configure_ras(nbrows, lineperiod, delay, overlap, rowseq, syncseq, pixel_off_lvl, pixel_on_lvl, group_off_lvl, group_on_lvl);
 
 //---------------------------------------------------------------------------------------
