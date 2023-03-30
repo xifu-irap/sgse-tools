@@ -19,222 +19,99 @@
 //  default_configurations.dscript
 //  In this script we define default RAS sequences.
 
-include("./ras_tools.dscript")
+include("./ras_parameters.dscript")
+
+//------------------------------------------
+// Defining X-IFU sequence (2 levels)
+//------------------------------------------
+
+seq_xifu_lsb = [nb_ras_lines];
+seq_xifu_msb = [nb_ras_lines];
+
+// Synchronisation signal sequence
+sync_seq_xifu_lsb = 0x00000001;
+sync_seq_xifu_msb = 0x00;
+
+// Pixel select sequences
+seq_xifu_lsb[ 0]  = 0x08040201;
+seq_xifu_msb[ 0]  = 0x00;
+seq_xifu_lsb[ 1]  = 0x10080402;
+seq_xifu_msb[ 1]  = 0x00;
+seq_xifu_lsb[ 2]  = 0x20100804;
+seq_xifu_msb[ 2]  = 0x00;
+seq_xifu_lsb[ 3]  = 0x40201008;
+seq_xifu_msb[ 3]  = 0x00;
+seq_xifu_lsb[ 4]  = 0x80402010;
+seq_xifu_msb[ 4]  = 0x00;
+seq_xifu_lsb[ 5]  = 0x00804020;
+seq_xifu_msb[ 5]  = 0x01;
+seq_xifu_lsb[ 6]  = 0x01008040;
+seq_xifu_msb[ 6]  = 0x02;
+seq_xifu_lsb[ 7]  = 0x02010080;
+seq_xifu_msb[ 7]  = 0x00;
+seq_xifu_lsb[ 8]  = 0x04020100;
+seq_xifu_msb[ 8]  = 0x00;
+
+// Group select sequences
+seq_xifu_lsb[ 9]  = 0x000008FF;
+seq_xifu_msb[ 9]  = 0x00;
+seq_xifu_lsb[10]  = 0x000CF700;
+seq_xifu_msb[10]  = 0x00;
+seq_xifu_lsb[11]  = 0x0EF30000;
+seq_xifu_msb[11]  = 0x00;
+seq_xifu_lsb[12]  = 0xF1000000;
+seq_xifu_msb[12]  = 0x0C;
+
+// Spare sequences
+seq_xifu_lsb[13]  = 0x00000000;
+seq_xifu_msb[13]  = 0x00;
+seq_xifu_lsb[14]  = 0x00000000;
+seq_xifu_msb[14]  = 0x00;
 
 
-// This function defines a RAS sequence with all rows off
-function seqAllOff()
-{
-	nrows=15;
-    SEQ = [nrows];
-    for (row=0; row<nrows; row+=1)
-    {
-        SEQ[row] = 0x00000000;
-    }
-    return SEQ;
-}
+//------------------------------------------
+// Defining a sequence with all addresses On at the first period
+//------------------------------------------
 
-// This function defines a RAS sequence with a single row always on
-function seqAlwaysOn(irow)
-{
-	nrows=15;
-    SEQ = [nrows];
-    for (row=0; row<nrows; row+=1)
-    {
-        SEQ[row] = 0x00000000;
-    }
-    SEQ[irow] = 0xFFFFFFFF;
-    return SEQ;
-}
+seq_start1_lsb = [nb_ras_lines];
+seq_start1_msb = [nb_ras_lines];
 
-// This function defines a RAS sequence with a single row blinking (on/off)
-function seqBlink(irow)
-{
-	nrows=15;
-    SEQ = [nrows];
-    for (row=0; row<nrows; row+=1)
-    {
-        SEQ[row] = 0x00000000;
-    }
-    SEQ[irow] = 0xAAAAAAAA;
-    return SEQ;
-}
+// Synchronisation signal sequence
+sync_start1_lsb = 0x00000001;
+sync_start1_msb = 0x00;
 
-// This function defines an ordered sequence over 15 addresses (IRAP order)
-function seqIncrementalIRAP()
-{
-	// Sequence ordonnee IRAP
-	nrows = 15
-	seq = [nrows];
+// Pixel select sequences
+seq_start1_lsb[ 0]  = 0x00000001;
+seq_start1_msb[ 0]  = 0x00;
+seq_start1_lsb[ 1]  = 0x00000001;
+seq_start1_msb[ 1]  = 0x00;
+seq_start1_lsb[ 2]  = 0x00000001;
+seq_start1_msb[ 2]  = 0x00;
+seq_start1_lsb[ 3]  = 0x00000001;
+seq_start1_msb[ 3]  = 0x00;
+seq_start1_lsb[ 4]  = 0x00000001;
+seq_start1_msb[ 4]  = 0x00;
+seq_start1_lsb[ 5]  = 0x00000001;
+seq_start1_msb[ 5]  = 0x00;
+seq_start1_lsb[ 6]  = 0x00000001;
+seq_start1_msb[ 6]  = 0x00;
+seq_start1_lsb[ 7]  = 0x00000001;
+seq_start1_msb[ 7]  = 0x00;
+seq_start1_lsb[ 8]  = 0x00000001;
+seq_start1_msb[ 8]  = 0x00;
 
-	seq[0]  = 0x00000001; // Row address 0 unplugged in RAS IRAP
-	seq[1]  = 0x00000002; 
-	seq[2]  = 0x00000004; 
-	seq[3]  = 0x00000008; 
-	seq[4]  = 0x00000010; 
-	seq[5]  = 0x00000020; 
-	seq[6]  = 0x00000040; 
-	seq[7]  = 0x00000080; 
-	seq[8]  = 0x00000100; 
-	seq[9]  = 0x00000200;
-	seq[10] = 0x00000400;
-	seq[11] = 0x00000800;
-	seq[12] = 0x00001000;
-	seq[13] = 0x00002000;
-	seq[14] = 0x00004000;
+// Group select sequences
+seq_start1_lsb[ 9]  = 0x00000001;
+seq_start1_msb[ 9]  = 0x00;
+seq_start1_lsb[10]  = 0x00000001;
+seq_start1_msb[10]  = 0x00;
+seq_start1_lsb[11]  = 0x00000001;
+seq_start1_msb[11]  = 0x00;
+seq_start1_lsb[12]  = 0x00000001;
+seq_start1_msb[12]  = 0x0C;
 
-	return seq;
-}
-
-// This function defines an ordered sequence over 2-levels and 13 addresses
-function seqIncrementalIRAP2levels()
-{
-	nrows = 15
-	seq = [nrows];
-	// Sequence ordonnee IRAP
-	seq[0]  = 0x08040201;  // row 1
-	seq[1]  = 0x10080402;  // row 2
-	seq[2]  = 0x20100804;  // row 3
-	seq[3]  = 0x40201008;  // row 4
-	seq[4]  = 0x80402010;  // row 5
-	seq[5]  = 0x00804020;  // row 6
-	seq[6]  = 0x01008040;  // row 7
-	seq[7]  = 0x02010080;  // row 8
-	seq[8]  = 0x04020100;  // row 9
-	seq[9]  = 0x00001FF9;  // Cluster 1
-	seq[10] = 0x003FE009;  // Cluster 2
-	seq[11] = 0x7FC00009;  // Cluster 3
-	seq[12] = 0x80000009;  // Cluster 4
-	seq[13] = 0x00000009;  // Not used
-	seq[14] = 0x00000009;  // Not used
-	// With this version of the script maximum 32-row long sequences can be managed
-	// This is because the 8 MSB of the parameter are forced to 0.
-	// This can be fixed in the ras_tools.dscript if needed.  
-
-	return seq;
-}
-
-
-// This function defines an ordered sequence over 2-levels and 8 addresses
-function seqIncrementalIRAP2levels_short()
-{
-	// Sequence ordonnee IRAP
-	nrows = 15
-	seq = [nrows];
-	seq[0]  = 0x11111111;  // row 1
-	seq[1]  = 0x22222222;  // row 2
-	seq[2]  = 0x44444444;  // row 3
-	seq[3]  = 0x88888888;  // row 4
-	seq[4]  = 0x00000000;  // Not used
-	seq[5]  = 0x00000000;  // Not used
-	seq[6]  = 0x00000000;  // Not used
-	seq[7]  = 0x00000000;  // Not used
-	seq[8]  = 0x00000000;  // Not used
-	seq[9]  = 0x0F0F0F0F;  // Cluster 1
-	seq[10] = 0xF0F0F0F0;  // Cluster 2
-	seq[11] = 0x00000000;  // Not used
-	seq[12] = 0x00000000;  // Not used
-	seq[13] = 0x00000000;  // Not used
-	seq[14] = 0x00000000;  // Not used
-
-	return seq;
-}
-
-// This function is defined to test the overlap
-
-function test_overlap()
-
-{
-
-	// Sequence ordonnee IRAP
-
-	nrows = 15
-
-	seq = [nrows];
-
-	seq[0]  = 0x11111111;  // row 1
-
-	seq[1]  = 0x00000000;  // row 2
-
-	seq[2]  = 0x00000000;  // row 3
-
-	seq[3]  = 0x00000000;  // row 4
-
-	seq[4]  = 0x00000000;  // Not used
-
-	seq[5]  = 0x00000000;  // Not used
-
-	seq[6]  = 0x00000000;  // Not used
-
-	seq[7]  = 0x00000000;  // Not used
-
-	seq[8]  = 0x00000000;  // Not used
-
-	seq[9]  = 0x22222222;  // Cluster 1
-
-	seq[10] = 0x00000000;  // Cluster 2
-
-	seq[11] = 0x00000000;  // Not used
-
-	seq[12] = 0x00000000;  // Not used
-
-	seq[13] = 0x00000000;  // Not used
-
-	seq[14] = 0x00000000;  // Not used
-
-
-
-	return seq;
-
-}
-
-
-// This function defines a specific sequence to be used for timing characterization
-function seqTuneTimings()
-{
-	nrows = 15
-	seq = [nrows];
-	// Sequence ordonnee IRAP
-	seq[0]  = 0x00000000; // Row address 0 unplugged in RAS IRAP
-	seq[1]  = 0x00000001; 
-	seq[2]  = 0x00000000; 
-	seq[3]  = 0x00000004; 
-	seq[4]  = 0x00000008; 
-	seq[5]  = 0x00000000; 
-	seq[6]  = 0x00000000; 
-	seq[7]  = 0x00000000; 
-	seq[8]  = 0x00000000; 
-	seq[9]  = 0x00000000;
-	seq[10] = 0x00000000;
-	seq[11] = 0x00000000;
-	seq[12] = 0x00000000;
-	seq[13] = 0x00000000;
-	seq[14] = 0x00000000;
-
-	return seq;
-}
-
-// This function defines an ordered sequence over 15 addresses (US order)
-function seqIncrementalUS()
-{
-	nrows = 15
-	seq = [nrows];
-	// Sequence ordonnee IRAP
-	seq[UStoIRAP(0)]  = 0x00000001; // Row address 0 unplugged in RAS IRAP
-	seq[UStoIRAP(1)]  = 0x00000002; 
-	seq[UStoIRAP(2)]  = 0x00000004; 
-	seq[UStoIRAP(3)]  = 0x00000008; 
-	seq[UStoIRAP(4)]  = 0x00000010; 
-	seq[UStoIRAP(5)]  = 0x00000020; 
-	seq[UStoIRAP(6)]  = 0x00000040; 
-	seq[UStoIRAP(7)]  = 0x00000080; 
-	seq[UStoIRAP(8)]  = 0x00000100; 
-	seq[UStoIRAP(9)]  = 0x00000200;
-	seq[UStoIRAP(10)] = 0x00000400;
-	seq[UStoIRAP(11)] = 0x00000800;
-	seq[UStoIRAP(12)] = 0x00001000;
-	seq[UStoIRAP(13)] = 0x00002000;
-	seq[UStoIRAP(14)] = 0x00004000;
-
-	return seq;
-}
+// Spare sequences
+seq_start1_lsb[13]  = 0x00000000;
+seq_start1_msb[13]  = 0x00;
+seq_start1_lsb[14]  = 0x00000000;
+seq_start1_msb[14]  = 0x00;

@@ -20,6 +20,7 @@
 //
 
 include("./ras_tools.dscript")
+include("./default_configurations.dscript")
 
 // Definition of some information that can be written in a log file
 operator_name=get_operator_name();
@@ -30,9 +31,7 @@ session_comment = "No comment";
 //---------------------------------------------------------------------------------------
 // Definition of the RAS configuration 
 //---------------------------------------------------------------------------------------
-nbrows = 15;
-lineperiod = 20; // 160ns 
-delay = 90; // # of times 8ns
+delay = 0; // # of times 8ns
 overlap = 0;
 
 //---------------------------------------------------------------------------------------
@@ -41,30 +40,18 @@ overlap = 0;
 //    0x0D5 corresponds to 210mV
 //    0x14A corresponds to 325mV (Phi0/2)
 level_min = 0x0000;
-level_max = DAC_MAX_RATING;
+level_max = 0x0BEF;
 pixel_on_lvl = level_max; 
 pixel_off_lvl = level_min;
 group_on_lvl = level_max;
 group_off_lvl = level_min;
 
-rowseq = [nbrows];
-rowseq[0]  = 0x00000002; //pixel US 1
-rowseq[1]  = 0x00000004; //pixel US 2
-rowseq[2]  = 0x00000008; //pixel US 3
-rowseq[3]  = 0x00000001; //pixel US 0
-rowseq[4]  = 0x00000020; //pixel US 5
-rowseq[5]  = 0x00000010; //pixel US 4
-rowseq[6]  = 0x00000080; //pixel US 7
-rowseq[7]  = 0x00000040; //pixel US 6
-rowseq[8]  = 0x00000000; 
-rowseq[9]  = 0x00000000;
-rowseq[10] = 0x00000000;
-rowseq[11] = 0x00000000;
-rowseq[12] = 0x00000000;
-rowseq[13] = 0x00000000;
-rowseq[14] = 0x00000000;
-syncseq    = 0x00000080;
+// Chose the sequence here
+seq_lsb = seq_xifu_lsb;
+seq_msb = seq_xifu_msb;
+sync_seq_lsb = sync_seq_xifu_lsb;
+sync_seq_msb = sync_seq_xifu_msb;
 
-configure_ras(nbrows, lineperiod, delay, overlap, rowseq, syncseq, pixel_off_lvl, pixel_on_lvl, group_off_lvl, group_on_lvl);
+configure_ras(seq_lsb, seq_msb, sync_seq_lsb, sync_seq_msb, delay, overlap, pixel_off_lvl, pixel_on_lvl, group_off_lvl, group_on_lvl);
 
 //---------------------------------------------------------------------------------------
