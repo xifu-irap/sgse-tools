@@ -24,10 +24,9 @@
 // for which sendToRowAddressing_writeReadRegister uses 2 parameters only
 //---------------------------------------------------------------------------------------
 
-//---------------------------------------------------------------------------------------
-// Frequency of main clock
+include("./ras_parameters.dscript")
 
-const FMAINCLOCK = 125*Math.pow(10,6);
+//---------------------------------------------------------------------------------------
 // Definition of constants
 const MODE_DEF = 0 // Mode to define the parameters
 const MODE_RUN = 1 // Mode to run the sequence
@@ -36,7 +35,6 @@ const DAC_PIXEL_OFF  = 0
 const DAC_PIXEL_ON   = 1
 const DAC_GROUP_OFF  = 2
 const DAC_GROUP_ON   = 3
-const DAC_MAX_RATING = 0x0800;  // 2 volts at single ended outputs
 
 //---------------------------------------------------------------------------------------
 // Definition of functions
@@ -49,26 +47,39 @@ function set_mode(mode)
 	sendToRowAddressing_writeReadRegister(address, value);
 }
 
-function set_address_sequence(row_number, sequence_32bits)
+function set_address_sequence_40bits(row_number, LSB_32bits, MSB_8bits)
 // A address sequence is set over 40 bits with 2 commands.
 // The LSB corresponds to the beginning of the sequence
-// The 8 MSB are not used in the context of the testing at IRAP.
-// The 8 MSB are forced to 0.
 {
 	const base_address = 0x10;
-	// Sending LSB
+	// Sending LSB (32 bits)
 	address_LSB = base_address + row_number*4*2;
-	sendToRowAddressing_writeReadRegister(address_LSB, sequence_32bits);
-	// Sending MSB (not used, forced to 0)
+	mask_LSB = 0xFFFFFFFF;
+	sendToRowAddressing_writeReadRegister(address_LSB, LSB_32bits & mask_LSB);
+	// Sending MSB (8 bits)
 	address_MSB = base_address + row_number*4*2 + 4;
-	sendToRowAddressing_writeReadRegister(address_MSB, 0x00);
+	mask_MSB = 0xFF;
+	sendToRowAddressing_writeReadRegister(address_MSB, MSB_8bits & mask_MSB);
 }
 
-function set_sync_sequence(sequence_32bits)
+//---------------------------------------------------------------------------------------
+// Sequence configuration
+//---------------------------------------------------------------------------------------
+
+function set_rowseq(seq_lsb, seq_msb)
+// Sequence with 15 rows activated one by one from row 0 to row 14
+{
+	for (row=0; row<nb_ras_lines; row+=1)
+	{
+		set_address_sequence_40bits(row, seq_lsb[row], seq_msb[row]);
+	}
+}
+
+function set_sync_sequence(sequence_LSB_32bits, sequence_MSB_8bits)
 // The sequence is managed such as a row
 {
 	row_number = 0x0F;
-	set_address_sequence(row_number, sequence_32bits);
+	set_address_sequence_40bits(row_number, sequence_LSB_32bits, sequence_MSB_8bits);
 }
 
 function set_overlap(overlap)
@@ -178,18 +189,6 @@ function print_board_and_fw_id()
 	print("> -----------------------------")
 }
 
-//---------------------------------------------------------------------------------------
-// Sequence configuration
-//---------------------------------------------------------------------------------------
-
-function set_rowseq(rowseq)
-// Sequence with 15 rows activated one by one from row 0 to row 14
-{
-	for (row=0; row<15; row+=1)
-	{
-		set_address_sequence(row, rowseq[row]);
-	}
-}
 
 //---------------------------------------------------------------------------------------
 // Definition of some scan functions
@@ -298,7 +297,7 @@ function scan_nbrows(start, stop, step, step_duration_ms, lineperiod, delay)
 // Configuring the RAS
 //---------------------------------------------------------------------------------------
 
-function configure_ras(nbrows, lineperiod, delay, overlap, rowseq, syncseq, pixel_off_lvl, pixel_on_lvl, group_off_lvl, group_on_lvl)
+function configure_ras(seq_lsb, seq_msb, sync_seq_lsb, sync_seq_msb, delay, overlap, pixel_off_lvl, pixel_on_lvl, group_off_lvl, group_on_lvl)
 {
 	print("Frequency of main clock assumed to be: " + FMAINCLOCK / Math.pow(10,6) + " MHz");
 	print("Setting the RAS in setting mode...");
@@ -316,10 +315,10 @@ function configure_ras(nbrows, lineperiod, delay, overlap, rowseq, syncseq, pixe
 	set_overlap(overlap);
 	
 	print("Setting the row sequence...");
-	set_rowseq(rowseq);
+	set_rowseq(seq_lsb, seq_msb);
 	
 	print("Setting the synchronisation sequence...");
-	set_sync_sequence(syncseq);
+	set_sync_sequence(sync_seq_lsb, sync_seq_msb);
 	
 	print("Setting the DACs levels...");
 	print("  Setting low level for PS at: " + pixel_off_lvl);
