@@ -53,14 +53,14 @@ seq_xifu_lsb[ 8]  = 0x04020100;
 seq_xifu_msb[ 8]  = 0x00;
 
 // Group select sequences
-seq_xifu_lsb[ 9]  = 0x000008FF;
+seq_xifu_lsb[ 9]  = 0x000001FF;
 seq_xifu_msb[ 9]  = 0x00;
-seq_xifu_lsb[10]  = 0x000CF700;
+seq_xifu_lsb[10]  = 0x0003FE00;
 seq_xifu_msb[10]  = 0x00;
-seq_xifu_lsb[11]  = 0x0EF30000;
+seq_xifu_lsb[11]  = 0x07FC0000;
 seq_xifu_msb[11]  = 0x00;
-seq_xifu_lsb[12]  = 0xF1000000;
-seq_xifu_msb[12]  = 0x0C;
+seq_xifu_lsb[12]  = 0xF8000000;
+seq_xifu_msb[12]  = 0x0F;
 
 // Spare sequences
 seq_xifu_lsb[13]  = 0x00000000;
@@ -77,8 +77,8 @@ seq_start1_lsb = [nb_ras_lines];
 seq_start1_msb = [nb_ras_lines];
 
 // Synchronisation signal sequence
-sync_start1_lsb = 0x00000001;
-sync_start1_msb = 0x00;
+sync_seq_xifu_lsb = 0x00000001;
+sync_seq_xifu_msb = 0x00;
 
 // Pixel select sequences
 seq_start1_lsb[ 0]  = 0x00000001;
@@ -115,3 +115,97 @@ seq_start1_lsb[13]  = 0x00000000;
 seq_start1_msb[13]  = 0x00;
 seq_start1_lsb[14]  = 0x00000000;
 seq_start1_msb[14]  = 0x00;
+
+//------------------------------------------
+// Defining a sequence with only active pixel 0 without TDM
+//------------------------------------------
+seq_noTDM_pixel0_lsb = [nb_ras_lines];
+seq_noTDM_pixel0_msb = [nb_ras_lines];
+
+// Synchronisation signal sequence
+sync_seq_xifu_lsb = 0x00000001;
+sync_seq_xifu_msb = 0x00;
+
+// Pixel select sequences
+seq_noTDM_pixel0_lsb[ 0]  = 0xFFFFFFFF;
+seq_noTDM_pixel0_msb[ 0]  = 0x03;
+seq_noTDM_pixel0_lsb[ 1]  = 0x00000000;
+seq_noTDM_pixel0_msb[ 1]  = 0x00;
+seq_noTDM_pixel0_lsb[ 2]  = 0x00000000;
+seq_noTDM_pixel0_msb[ 2]  = 0x00;
+seq_noTDM_pixel0_lsb[ 3]  = 0x00000000;
+seq_noTDM_pixel0_msb[ 3]  = 0x00;
+seq_noTDM_pixel0_lsb[ 4]  = 0x00000000;
+seq_noTDM_pixel0_msb[ 4]  = 0x00;
+seq_noTDM_pixel0_lsb[ 5]  = 0x00000000;
+seq_noTDM_pixel0_msb[ 5]  = 0x00;
+seq_noTDM_pixel0_lsb[ 6]  = 0x00000000;
+seq_noTDM_pixel0_msb[ 6]  = 0x00;
+seq_noTDM_pixel0_lsb[ 7]  = 0x00000000;
+seq_noTDM_pixel0_msb[ 7]  = 0x00;
+seq_noTDM_pixel0_lsb[ 8]  = 0x00000000;
+seq_noTDM_pixel0_msb[ 8]  = 0x00;
+
+// Group select sequences
+seq_noTDM_pixel0_lsb[ 9]  = 0xFFFFFFFF;
+seq_noTDM_pixel0_msb[ 9]  = 0x03;
+seq_noTDM_pixel0_lsb[10]  = 0x00000000;
+seq_noTDM_pixel0_msb[10]  = 0x00;
+seq_noTDM_pixel0_lsb[11]  = 0x00000000;
+seq_noTDM_pixel0_msb[11]  = 0x00;
+seq_noTDM_pixel0_lsb[12]  = 0x00000000;
+seq_noTDM_pixel0_msb[12]  = 0x00;
+
+// Spare sequences
+seq_noTDM_pixel0_lsb[13]  = 0x00000000;
+seq_noTDM_pixel0_msb[13]  = 0x00;
+seq_noTDM_pixel0_lsb[14]  = 0x00000000;
+seq_noTDM_pixel0_msb[14]  = 0x00;
+
+//------------------------------------------
+// Defining a sequence with only active pixel 22 without TDM (Pixel 3 Group 2)
+//------------------------------------------
+seq_noTDM_pixel21_lsb = [nb_ras_lines];
+seq_noTDM_pixel21_msb = [nb_ras_lines];
+
+// Synchronisation signal sequence
+sync_seq_xifu_lsb = 0x00000001;
+sync_seq_xifu_msb = 0x00;
+
+// Pixel select sequences
+seq_noTDM_pixel21_lsb[ 0]  = 0x00000000;
+seq_noTDM_pixel21_msb[ 0]  = 0x00;
+seq_noTDM_pixel21_lsb[ 1]  = 0x00000000;
+seq_noTDM_pixel21_msb[ 1]  = 0x00;
+seq_noTDM_pixel21_lsb[ 2]  = 0x00000000;
+seq_noTDM_pixel21_msb[ 2]  = 0x00;
+seq_noTDM_pixel21_lsb[ 3]  = 0xFFFFFFFF;
+seq_noTDM_pixel21_msb[ 3]  = 0x03;
+seq_noTDM_pixel21_lsb[ 4]  = 0x00000000;
+seq_noTDM_pixel21_msb[ 4]  = 0x00;
+seq_noTDM_pixel21_lsb[ 5]  = 0x00000000;
+seq_noTDM_pixel21_msb[ 5]  = 0x00;
+seq_noTDM_pixel21_lsb[ 6]  = 0x00000000;
+seq_noTDM_pixel21_msb[ 6]  = 0x00;
+seq_noTDM_pixel21_lsb[ 7]  = 0x00000000;
+seq_noTDM_pixel21_msb[ 7]  = 0x00;
+seq_noTDM_pixel21_lsb[ 8]  = 0x00000000;
+seq_noTDM_pixel21_msb[ 8]  = 0x00;
+
+// Group select sequences
+seq_noTDM_pixel21_lsb[ 9]  = 0x00000000;
+seq_noTDM_pixel21_msb[ 9]  = 0x00;
+seq_noTDM_pixel21_lsb[10]  = 0x00000000;
+seq_noTDM_pixel21_msb[10]  = 0x00;
+seq_noTDM_pixel21_lsb[11]  = 0xFFFFFFFF;
+seq_noTDM_pixel21_msb[11]  = 0x03;
+seq_noTDM_pixel21_lsb[12]  = 0x00000000;
+seq_noTDM_pixel21_msb[12]  = 0x00;
+
+// Spare sequences
+seq_noTDM_pixel21_lsb[13]  = 0x00000000;
+seq_noTDM_pixel21_msb[13]  = 0x00;
+seq_noTDM_pixel21_lsb[14]  = 0x00000000;
+seq_noTDM_pixel21_msb[14]  = 0x00;
+
+

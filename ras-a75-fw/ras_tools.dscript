@@ -135,13 +135,6 @@ function set_dac(dac, dac_val)
 		apply_setting = false;
 	}
 
-	if (dac_val > DAC_MAX_RATING)
-	{
-		print("The DAC value is bigger than the maximum rating!");
-		print("The maximum possible value will be applied.")
-		dac_val = DAC_MAX_RATING;
-	}
-
 	if (apply_setting)
 	{
 		sendToRowAddressing_writeReadRegister(address, dac_val);
@@ -174,7 +167,7 @@ function get_board_and_fw_id()
 	getLatestValue("RA_registers") // demande au dispatcher les dernieres valeurs lues des registres
 	value = RA_registers[address/4]
 	id.board = parseInt(value/256)
-	id.firmware = value-id.board
+	id.firmware = value - id.board*256
 	return(id)
 }
 
@@ -194,20 +187,20 @@ function print_board_and_fw_id()
 // Definition of some scan functions
 //---------------------------------------------------------------------------------------
 
-function scan_rowperiod(start, stop, step, step_duration_ms, nbrows, delay)
+function scan_lineperiod(start, stop, step, step_duration_ms, nbrows, delay)
 {
-	delay_ns = delay * Math.pow(10,9) / FMAINCLOCK; // 5ns
+	delay_ns = delay * Math.pow(10,9) / FMAINCLOCK;
 
-	start_ns = start/FMAINCLOCK;
-	stop_ns = stop/FMAINCLOCK;
-	step_ns = step/FMAINCLOCK;
-	print("Scanning the row period from " + start_ns + " to " + stop_ns/Math.pow(10,9) + " by steps of " + Math.round(step_ns*100)/100);
+	start_ns = (start+1) * Math.pow(10,9) / FMAINCLOCK;
+	stop_ns = (stop+1) * Math.pow(10,9) / FMAINCLOCK;
+	step_ns = step * Math.pow(10,9) / FMAINCLOCK;
+	print("Scanning the lineperiod from " + start_ns + " ns to " + stop_ns + " ns by steps of " + step_ns + " ns ");
 	print("For this test the number of rows is set to " + nbrows + " and the delay is set to " + delay + " (" + delay_ns + " ns)");
 	print("the test duration will be: " + (stop - start) * step_duration_ms / (step * 1000) + " s"); 
 
-	for (lineperiod = start; lineperiod < stop; lineperiod+= step)
+	for (lineperiod = start; lineperiod <= stop; lineperiod+= step)
 	{
-		print("Setting the row period to " + Math.round(((lineperiod +1 )* Math.pow(10,9) / FMAINCLOCK)*100)/100 + " ns");
+		print("Setting the lineperiod to " + lineperiod + " = " + Math.round(((lineperiod +1 )* Math.pow(10,9) / FMAINCLOCK)*100)/100 + " ns");
 		set_mode(MODE_DEF); // Starts the sequence and stops the configuration
 		set_nbrows_lineperiod_delay(nbrows, lineperiod, delay);
 		set_mode(MODE_RUN); // Starts the sequence and stops the configuration
@@ -215,11 +208,11 @@ function scan_rowperiod(start, stop, step, step_duration_ms, nbrows, delay)
 	}
 }
 
-function scan_overlap(start, stop, step, step_duration_ms)
+function scan_overlap_LRA(start, stop, step, step_duration_ms)
 {
 	overlap = 0;
 	delay = 0;
-	delay_ns = delay * Math.pow(10,9) / FMAINCLOCK; //5ns
+	delay_ns = delay * Math.pow(10,9) / FMAINCLOCK;
 	negative_start = 9;
 	positive_stop = 7;
 
@@ -248,19 +241,47 @@ function scan_overlap(start, stop, step, step_duration_ms)
 	}
 }
 
+function scan_overlap(start, stop, step, step_duration_ms)
+{
+	start_ns = Math.round(-7 * Math.pow(10,9) / FMAINCLOCK);
+	stop_ns = Math.round(7 * Math.pow(10,9) / FMAINCLOCK);
+	step_ns = step * Math.pow(10,9) / FMAINCLOCK;
+	print("Scanning the Overlap from " + start_ns + " ns to " + stop_ns + " ns by steps of " + step_ns + " ns ");
+	print("the test duration will be: " + (stop - start) * step_duration_ms / (step * 1000) + " s");
+	
+	// overlap = 8 is not allowed (signed value)
+	for (overlap = 9; overlap <= 15; overlap+= step)
+	{		
+		print("Setting the overlap to " + overlap + " (" + ((Math.round(((-8)* Math.pow(10,9) / FMAINCLOCK)*100)/100) + (Math.round(((overlap-8)* Math.pow(10,9) / FMAINCLOCK)*100)/100)) + " ns)");
+		set_mode(MODE_DEF); // Starts the sequence and stops the configuration
+		set_overlap(overlap);
+		set_mode(MODE_RUN); // Starts the sequence and stops the configuration
+		waitMs(step_duration_ms);
+		
+	}	
+	for (overlap = 0; overlap <= 7; overlap+= step)
+	{		
+		print("Setting the overlap to " + overlap + " (" + Math.round(((overlap)* Math.pow(10,9) / FMAINCLOCK)*100)/100 + " ns)");
+		set_mode(MODE_DEF); // Starts the sequence and stops the configuration
+		set_overlap(overlap);
+		set_mode(MODE_RUN); // Starts the sequence and stops the configuration
+		waitMs(step_duration_ms);
+	}
+}
+
 function scan_delay(start, stop, step, step_duration_ms, nbrows, lineperiod)
 {
-	delay_ns = delay * Math.pow(10,9) / FMAINCLOCK;
+	//delay_ns = delay * Math.pow(10,9) / FMAINCLOCK;
 
-	start_ns = start/FMAINCLOCK;
-	stop_ns = stop/FMAINCLOCK;
-	step_ns = step/FMAINCLOCK;
-	print("Scanning the Delay from " + start_ns+ " to " + stop_ns/Math.pow(10,9) + " by steps of " + Math.round(step_ns*100)/100);
+	start_ns = start * Math.pow(10,9) / FMAINCLOCK;
+	stop_ns = stop * Math.pow(10,9) / FMAINCLOCK;
+	step_ns = step * Math.pow(10,9) / FMAINCLOCK;
+	print("Scanning the Delay from " + start_ns + " ns to " + stop_ns + " ns by steps of " + step_ns + " ns ");
 	print("the test duration will be: " + (stop - start) * step_duration_ms / (step * 1000) + " s"); 
 
-	for (delay = start; delay < stop; delay+= step)
+	for (delay = start; delay <= stop; delay+= step)
 	{		
-		print("Setting the Delay to " + Math.round(((delay +1 )* Math.pow(10,9) / FMAINCLOCK)*100)/100 + " ns");
+		print("Setting the Delay to " + Math.round(((delay)* Math.pow(10,9) / FMAINCLOCK)*100)/100 + " ns");
 		set_mode(MODE_DEF); // Starts the sequence and stops the configuration
 		set_nbrows_lineperiod_delay(nbrows, lineperiod, delay);
 		set_mode(MODE_RUN); // Starts the sequence and stops the configuration
@@ -268,22 +289,17 @@ function scan_delay(start, stop, step, step_duration_ms, nbrows, lineperiod)
 		}
 	}
 
-
-//---------------------------------------------------------------------------------------
-// OCJ : call function set_nbrows_lineperiod_delay(nbrows, lineperiod, delay) with fixed parameters
-// suggestion : add lineperiod+delay as parameters
-//---------------------------------------------------------------------------------------
 function scan_nbrows(start, stop, step, step_duration_ms, lineperiod, delay)
 {
 
-	lineperiod_ns = lineperiod * Math.pow(10,9) / FMAINCLOCK;
+	trow_ns = (lineperiod + 1)* Math.pow(10,9) / FMAINCLOCK;
 	delay_ns = delay * Math.pow(10,9) / FMAINCLOCK;
 	
 	print("Scanning the number of rows from " + start + " to " + stop + " by steps of " + Math.round(step*100)/100);
-	print("For this test the lineperiod is set to " + lineperiod + " (" + Math.round(lineperiod_ns*100)/100 + " ns) and the delay is set to " + delay + " (" + delay_ns + " ns)");
+	print("For this test the lineperiod is set to " + lineperiod + " (Trow = " + trow_ns + " ns) and the delay is set to " + delay + " (" + delay_ns + " ns)");
 	print("The test duration will be :" + (stop - start) * step_duration_ms / (step * 1000) + " s"); 
 	
-	for (nbrows = start; nbrows < stop; nbrows+= step) 
+	for (nbrows = start; nbrows <= stop; nbrows+= step) 
 	{
 		print("Setting the number of rows to " + nbrows);
 		set_mode(MODE_DEF); // Starts the sequence and stops the configuration
@@ -304,13 +320,13 @@ function configure_ras(seq_lsb, seq_msb, sync_seq_lsb, sync_seq_msb, delay, over
 	set_mode(MODE_DEF);
 	
 	print("Setting the number of rows to " + nbrows);
-	lineperiod_ns = lineperiod * Math.pow(10,9) / FMAINCLOCK;
-	print("Setting the line period to " + lineperiod + " ("+ lineperiod_ns + " ns)");
+	trow_ns = (lineperiod+1) * Math.pow(10,9) / FMAINCLOCK;
+	print("Setting the lineperiod to " + lineperiod + " (Trow = "+ trow_ns + " ns)");
 	delay_ns = delay / FMAINCLOCK;
 	print("Setting the synchro delay to " + delay + " ("+ delay_ns + " ns)");
 	set_nbrows_lineperiod_delay(nbrows, lineperiod, delay);
 	
-	overlap_ns = overlap / FMAINCLOCK;
+	overlap_ns = overlap * Math.pow(10,9) / FMAINCLOCK;
 	print("Setting the address overlap to " + overlap+ " ("+ overlap_ns + " ns)");
 	set_overlap(overlap);
 	
@@ -321,20 +337,29 @@ function configure_ras(seq_lsb, seq_msb, sync_seq_lsb, sync_seq_msb, delay, over
 	set_sync_sequence(sync_seq_lsb, sync_seq_msb);
 	
 	print("Setting the DACs levels...");
-	print("  Setting low level for PS at: " + pixel_off_lvl);
+	level_hex =('0000' + pixel_off_lvl.toString(16).toUpperCase()).slice(-4)
+	print("  Setting low level for PS at: " + level_hex); 
 	set_dac(DAC_PIXEL_OFF, pixel_off_lvl);
-	print("  Setting high level for PS at: " + pixel_on_lvl);
+	
+	level_hex =('0000' + pixel_on_lvl.toString(16).toUpperCase()).slice(-4)
+	print("  Setting high level for PS at: " + level_hex);
 	set_dac(DAC_PIXEL_ON, pixel_on_lvl);
-	print("  Setting low level for GS at: " + group_off_lvl);
+	
+	level_hex =('0000' + group_off_lvl.toString(16).toUpperCase()).slice(-4)
+	print("  Setting low level for GS at: " + level_hex);
 	set_dac(DAC_GROUP_OFF, group_off_lvl);
-	print("  Setting high level for GS at: " + group_on_lvl);
-	print("  (When PS and GS are high the corresponding SQUID is ON.)")
+	
+	level_hex =('0000' + group_on_lvl.toString(16).toUpperCase()).slice(-4)
+	print("  Setting high level for GS at: " + level_hex);
 	set_dac(DAC_GROUP_ON, group_on_lvl);
+	
+	print("  (When PS and GS are high the corresponding SQUID is ON.)")
+	
 	print("Starting the DACs...");
 	start_dacs();
 	
 	print("Reading board and firmware id...");
-	get_board_and_fw_id();
+	print_board_and_fw_id();
 	print("Setting the RAS in run mode...");
 	set_mode(MODE_RUN); // Starts the sequence and stops the configuration
 }
