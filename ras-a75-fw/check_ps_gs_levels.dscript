@@ -20,94 +20,63 @@
 //  File name: check_ps_gs_levels.dscript
 //  Purpose: This script scans the PS0 and GS0 outputs over the full 
 //           scale range in order to verify the requirement XIFU-DRE-R-0160
-
 include("./ras_tools.dscript")
 include("./default_configurations.dscript")
 
 print("#------------------------------------------------------")
 testDate = maDate();
 
-// Definition of some information that can be writen in a log file
-operator_name=get_operator_name();
-print(" Operator name: ", operator_name)
-print(" Date: ", testDate)
-session_name=get_session_name();
-print(" Session name: ",  session_name)
-session_comment = "No comment";
-print(" Comment: ", session_comment)
-print_board_and_fw_id();
+// Definition of some information that can be written in a log file
+//operator_name=get_operator_name();
+//session_name=get_session_name();
+//session_comment = "No comment";
+
 print("#------------------------------------------------------")
+testDate = maDate();
 
 //---------------------------------------------------------------------------------------
-// Timing configuration
-// Fmasterclock=125MHz, period=8ns
-lineperiod = 20; // corresponds to 160ns
-delay = 0;
+// Definition of the RAS configuration 
+//---------------------------------------------------------------------------------------
+delay = 0; // # of times 8ns
 overlap = 0;
-
 
 //---------------------------------------------------------------------------------------
 // Levels configuration
-// (1 ADU corresponds approximately to 1mV)
-//    0x0D5 corresponds to 210mV
-//    0x14A corresponds to 325mV (Phi0/2)
+//    0xBC0 corresponds to 900mV in differential ended mode
 level_min = 0x0000;
-level_max = DAC_MAX_RATING;
+level_max = 0x0BC0;
+
 pixel_on_lvl = level_max; 
 pixel_off_lvl = level_min;
 group_on_lvl = level_max;
 group_off_lvl = level_min;
 
+// Choose the sequence here
+seq_lsb = seq_xifu_lsb;
+seq_msb = seq_xifu_msb;
+
+sync_seq_lsb = sync_seq_xifu_lsb;
+sync_seq_msb = sync_seq_xifu_msb;
+
+configure_ras(seq_lsb, seq_msb, sync_seq_lsb, sync_seq_msb, delay, overlap, pixel_off_lvl, pixel_on_lvl, group_off_lvl, group_on_lvl);
 
 //---------------------------------------------------------------------------------------
-// Sequence configuration
-// Configuring a 2-level 8-pixel long sequence
-
-nbrows = 8;
-seq = seqIncrementalIRAP2levels_short();
-syncseq = 0x00000001;
-
-
-//---------------------------------------------------------------------------------------
-// Sending the parameters to the firmware
-configure_ras(nbrows, lineperiod, delay, overlap, seq, syncseq, pixel_off_lvl, pixel_on_lvl, group_off_lvl, group_on_lvl);
 
 print("#------------------------------------------------------")
-print("# Measuring row address levels")
-
-//---------------------------------------------------------------------------------------
-// RAS levels min/max measurements
-
-pixel_min = getText("Please measure the level min of row addresses (mV):", "")
-pixel_max = getText("Please measure the level max of row addresses (mV):", "")
-print("")
-print("# Row adresses:")
-print(" Level min = ", pixel_min, "mV and level max = ", pixel_max, " mV.")
-print(" Range = ", pixel_max - pixel_min, " mV")
-print("")
-
-group_min = getText("Please measure the level min of cluster addresses (mV):", "")
-group_max = getText("Please measure the level max of cluster addresses (mV):", "")
-print("")
-print("# Cluster adresses:")
-print(" Level min = ", group_min, "mV and level max = ", group_max, " mV.")
-print(" Range = ", group_max - group_min, " mV")
-print("")
-
-
-alert("Ready to see ramps on the address levels?:")
-print("#------------------------------------------------------")
-print(" Scanning the ON and OFF levels of row and cluster addresses...")
+print(" Scanning the ON and OFF levels of pixel and group addresses...")
 
 //---------------------------------------------------------------------------------------
 // RAS ramps / resolution
 
-wait_duration = 50
 step_size = 16 // With step = 16 the number of steps over FSR is 2^8 (compliant with requirement)
 
-// Scan to change high to low and low high
+// Scan to change high to low and low to high
+print("Scan to change ON level to OFF and OFF level to ON...")
 for (level = level_min; level < level_max; level+= step_size)
 {
+	ON_hex=('0000' + ((level_max-level).toString(16).toUpperCase()).slice(-4))
+	OFF_hex=('0000' + ((level).toString(16).toUpperCase()).slice(-4))
+	print("ON level = 0x" + ON_hex + ", OFF level = 0x" + OFF_hex)
 	set_mode(MODE_DEF);
 	stop_dacs();
 	set_dac(DAC_PIXEL_OFF, level);
@@ -119,8 +88,12 @@ for (level = level_min; level < level_max; level+= step_size)
 }
 
 // Scan to go back to the initial setting
+print("Scan to go back to initial setting with ON level to ON and OFF level to OFF...")
 for (level = level_max; level > 0; level-= step_size)
 {
+	ON_hex=('0000' + ((level_max-level).toString(16).toUpperCase()).slice(-4))
+	OFF_hex=('0000' + ((level).toString(16).toUpperCase()).slice(-4))
+	print("ON level = 0x" + ON_hex + ", OFF level = 0x" + OFF_hex)
 	set_mode(MODE_DEF);
 	stop_dacs();
 	set_dac(DAC_PIXEL_OFF, level);
@@ -131,13 +104,9 @@ for (level = level_max; level > 0; level-= step_size)
 	set_mode(MODE_RUN)
 }
 
-possible_answers = ["correct", "not correct"]
-answer = getItem("The scanning of the address levels was ", possible_answers)
-print("The scanning of the address levels was ", possible_answers[answer])
-
 print("#------------------------------------------------------")
 print("# End of test")
 print("#------------------------------------------------------")
-saveLogContent("report_"+testDate+".txt")
+saveLogContent("report_check_ps_gs_levels_" + testDate + ".txt")
 
 //---------------------------------------------------------------------------------------

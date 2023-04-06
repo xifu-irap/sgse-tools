@@ -22,48 +22,51 @@
 include("./ras_tools.dscript")
 include("./default_configurations.dscript")
 
-// Definition of some information that can be writen in a loang file
-operator_name=get_operator_name();
-session_name=get_session_name();
-session_comment = "No comment";
+// Definition of some information that can be written in a log file
+//operator_name=get_operator_name();
+//session_name=get_session_name();
+//session_comment = "No comment";
 
-// Defining a default configuration
+print("#------------------------------------------------------")
+testDate = maDate();
+
 //---------------------------------------------------------------------------------------
-// Timing configuration
-// Fmasterclock=125MHz, period=8ns
-lineperiod = 20; // corresponds to 160ns
-delay = 0; 
-overlap = 0; 
-
+// Definition of the RAS configuration 
+//---------------------------------------------------------------------------------------
+delay = 0; // # of times 8ns
+overlap = 0;
 
 //---------------------------------------------------------------------------------------
 // Levels configuration
-// (1 ADU corresponds approximately to 1mV)
-//    0x0D5 corresponds to 210mV
-//    0x14A corresponds to 325mV (Phi0/2)
+// 0xBC0 corresponds to 900mV in differential ended mode
 level_min = 0x0000;
-level_max = DAC_MAX_RATING;
+level_max = 0x0BC0;
+
 pixel_on_lvl = level_max; 
 pixel_off_lvl = level_min;
 group_on_lvl = level_max;
 group_off_lvl = level_min;
 
-nbrows = 4;
-seq = test_overlap();
-syncseq = 0x00000001;
+// Choose the sequence here
+seq_lsb = seq_xifu_lsb;
+seq_msb = seq_xifu_msb;
 
-//---------------------------------------------------------------------------------------
-// Sending the parameters to the firmware
-configure_ras(nbrows, lineperiod, delay, overlap, seq, syncseq, pixel_off_lvl, pixel_on_lvl, group_off_lvl, group_on_lvl);
+sync_seq_lsb = sync_seq_xifu_lsb;
+sync_seq_msb = sync_seq_xifu_msb;
 
+configure_ras(seq_lsb, seq_msb, sync_seq_lsb, sync_seq_msb, delay, overlap, pixel_off_lvl, pixel_on_lvl, group_off_lvl, group_on_lvl);
 
 //---------------------------------------------------------------------------------------
 // Scanning the Overlap
-start = 0;
-stop = 15;
+start = 0; // Fixed value
+stop = 15; // Fixed value
 step = 1;
-step_duration_ms=1000;
+step_duration_ms = 150;
 scan_overlap(start, stop, step, step_duration_ms);
 
-
 //---------------------------------------------------------------------------------------
+
+print("#------------------------------------------------------")
+print("# End of test")
+print("#------------------------------------------------------")
+saveLogContent("report_scan_overlap_" + testDate + ".txt")

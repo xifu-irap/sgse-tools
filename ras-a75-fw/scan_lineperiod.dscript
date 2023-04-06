@@ -16,13 +16,13 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //
 //  laurent.ravera@irap.omp.eu
-//  scan_nbrows.dscript
+//  scan_lineperiod.dscript
 //
 
 include("./ras_tools.dscript")
 include("./default_configurations.dscript")
 
-// Definition of some information that can be written in a log file
+// Definition of some information that can be writen in a loang file
 //operator_name=get_operator_name();
 //session_name=get_session_name();
 //session_comment = "No comment";
@@ -34,42 +34,35 @@ testDate = maDate();
 // Definition of the RAS configuration 
 //---------------------------------------------------------------------------------------
 delay = 0; // # of times 8ns
-overlap = 0;
-
+overlap = 0;
 //---------------------------------------------------------------------------------------
 // Levels configuration
 //    0xBC0 corresponds to 900mV in differential ended mode
 level_min = 0x0000;
-level_max = 0x0BC0;
-
+level_max = 0x0BC0;
 pixel_on_lvl = level_max; 
 pixel_off_lvl = level_min;
 group_on_lvl = level_max;
-group_off_lvl = level_min;
-
+group_off_lvl = level_min;
 // Choose the sequence here
 seq_lsb = seq_xifu_lsb;
-seq_msb = seq_xifu_msb;
-
+seq_msb = seq_xifu_msb;
 sync_seq_lsb = sync_seq_xifu_lsb;
-sync_seq_msb = sync_seq_xifu_msb;
-
+sync_seq_msb = sync_seq_xifu_msb;
 configure_ras(seq_lsb, seq_msb, sync_seq_lsb, sync_seq_msb, delay, overlap, pixel_off_lvl, pixel_on_lvl, group_off_lvl, group_on_lvl);
 
 //---------------------------------------------------------------------------------------
-// Scanning the number of rows
-start = 1;
-stop = 34;
+// Scanning the lineperiod
+start = 0;
+stop = 255;
 step = 1;
 step_duration_ms = 150;
-scan_nbrows(start, stop, step, step_duration_ms, lineperiod, delay);
+scan_lineperiod(start, stop, step, step_duration_ms, nbrows, delay);
 
 //---------------------------------------------------------------------------------------
 
 print("#------------------------------------------------------")
 print("# End of test")
 print("#------------------------------------------------------")
-saveLogContent("report_scan_nbrows_" + testDate + ".txt")
-
-
+saveLogContent("report_scan_lineperiod_" + testDate + ".txt")
 

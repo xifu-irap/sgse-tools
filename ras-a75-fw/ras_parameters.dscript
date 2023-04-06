@@ -27,12 +27,14 @@
 //---------------------------------------------------------------------------------------
 // Frequency of main clock
 
-const FINPUTCLOCK = 62.5*Math.pow(10,6);
+const FINPUTCLOCK = 62.5*Math.pow(10,6); // MHz
 const FMAINCLOCK = 2*FINPUTCLOCK;
+
 // Definition of constants
-const lineperiod = 20;  // 20 corresponds to 160 ns
+const lineperiod = 19;  // Trow = (lineperiod+1)*8 ns; lineperiod=19 => Trow = 160 ns
 const nbrows = 34;
 
+// RAS-DM0 : 9 RA for pixels + 4 RA for groups + 2 RA spare
 const nb_ras_lines = 15;
 
 //---------------------------------------------------------------------------------------
