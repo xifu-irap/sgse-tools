@@ -1486,40 +1486,72 @@ function main(level_p, mode_p, verbosity_p) {
         display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
     }
     // summary of the test_wire errors
-    if (error_wire_cnt == 0) {
-        const msg_tmp = "[OK]: Test: Wire Registers has " + error_wire_cnt.toString(10) + " error";
-        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
-    } else {
-        const msg_tmp = "[KO]: Test: Wire Registers has " + error_wire_cnt.toString(10) + " errors";
-        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
-    }
-
+    if (en_wire == 0) 
+	{
+		const msg_tmp = "[N/A]: Test: Wire Registers was not performed ";
+		display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+	} 
+	else 
+	{
+		if (error_wire_cnt == 0) {
+			const msg_tmp = "[OK]: Test: Wire Registers has " + error_wire_cnt.toString(10) + " error";
+			display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+		} else {
+			const msg_tmp = "[KO]: Test: Wire Registers has " + error_wire_cnt.toString(10) + " errors";
+			display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+		}
+	}
     // summary of the test_recording errors
-    if (error_rec_cnt == 0) {
-        const msg_tmp = "[OK]: Test: ADC recording has " + error_rec_cnt.toString(10) + " error";
-        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
-    } else {
-        const msg_tmp = "[KO]: ADC recording has " + error_rec_cnt.toString(10) + " errors";
-        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
-    }
-
+    
+	if (en_rec == 0) 
+	{
+		const msg_tmp = "[N/A]: Test: ADC recording was not performed ";
+		display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+	} 
+	else 
+	{
+		if (error_rec_cnt == 0) {
+			const msg_tmp = "[OK]: Test: ADC recording has " + error_rec_cnt.toString(10) + " error";
+			display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+		} else {
+			const msg_tmp = "[KO]: ADC recording has " + error_rec_cnt.toString(10) + " errors";
+			display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+		}
+	}
+	
     // summary of the test_ram_conf errors
-    if (error_ram_conf_cnt == 0) {
-        const msg_tmp = "[OK]: Test: RAM configuration has " + error_ram_conf_cnt.toString(10) + " error";
-        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
-    } else {
-        const msg_tmp = "[KO]: Test: RAM configuration has " + error_ram_conf_cnt.toString(10) + " errors";
-        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
-    }
+    if (en_ram_conf == 0) 
+	{
+		const msg_tmp = "[N/A]: Test: RAM configuration was not performed ";
+		display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+	} 
+	else 
+	{
+		if (error_ram_conf_cnt == 0) {
+			const msg_tmp = "[OK]: Test: RAM configuration has " + error_ram_conf_cnt.toString(10) + " error";
+			display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+		} else {
+			const msg_tmp = "[KO]: Test: RAM configuration has " + error_ram_conf_cnt.toString(10) + " errors";
+			display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+		}
+	}
 
     // summary of the test_dac_pattern errors
-    if (error_dac_pattern_cnt == 0) {
-        const msg_tmp = "[OK]: Test: DAC pattern generation has " + error_dac_pattern_cnt.toString(10) + " error";
-        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
-    } else {
-        const msg_tmp = "[KO]: Test: DAC pattern generation has " + error_dac_pattern_cnt.toString(10) + " errors";
-        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
-    }
+     if (dac_en_pattern == 0) 
+	{
+		const msg_tmp = "[N/A]: Test: DAC pattern generation was not performed ";
+		display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+	} 
+	else 
+	{
+		if (error_dac_pattern_cnt == 0) {
+			const msg_tmp = "[OK]: Test: DAC pattern generation has " + error_dac_pattern_cnt.toString(10) + " error";
+			display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+		} else {
+			const msg_tmp = "[KO]: Test: DAC pattern generation has " + error_dac_pattern_cnt.toString(10) + " errors";
+			display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+		}
+	}
 
     if (error_debug_cnt == 0) {
         const msg_tmp = "[OK]: Debug errors has " + error_debug_cnt.toString(10) + " error";
