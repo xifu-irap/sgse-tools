@@ -1,0 +1,7 @@
+// Read 16 values of the Pulse shaping table
+// Values expected : see .vhd code
+sendToDREReadRegisters(0x0800, 16)
+// Read the SQ2 LockPoint offset : return = 0
+sendToDREReadRegister(0x0423)
+// Read the REG version : return = DF
+sendToDREReadRegister(0x6001)
