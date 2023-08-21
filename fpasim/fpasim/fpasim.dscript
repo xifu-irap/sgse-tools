@@ -20,14 +20,14 @@
 //    @file                   fpasim_tools.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    Automatic Generation    No
-//    Code Rules Reference    
+//    Code Rules Reference
 // -------------------------------------------------------------------------------------------------------------
-//    @details       
+//    @details
 //
-//    This script defines base functions to access (read/write) to the FPASim functions. 
-//    In particular, functions associated to the SPI module bridge are defined for the downstream javascript.         
+//    This script defines base functions to access (read/write) to the FPASim functions.
+//    In particular, functions associated to the SPI module bridge are defined for the downstream javascript.
 //
-//    Note: 
+//    Note:
 //      . This script only implemented function to access registers not yet implemented by the Xifu Studio application.
 //
 // -------------------------------------------------------------------------------------------------------------
@@ -64,7 +64,7 @@ FPASIM_POS_TRIGIN['spi_valid'] = 24;
 const FPASIM_ADDR_WIREIN = {};
 FPASIM_ADDR_WIREIN['CTRL'] = 0x00; // 0
 FPASIM_ADDR_WIREIN['MAKE_PULSE'] = 0x01; // 1
-FPASIM_ADDR_WIREIN['FPASIM_GAIN'] = 0x02; // 2
+//FPASIM_ADDR_WIREIN['RFU'] = 0x02; // 2
 FPASIM_ADDR_WIREIN['MUX_SQ_FB_DELAY'] = 0x03; // 3
 FPASIM_ADDR_WIREIN['AMP_SQ_OF_DELAY'] = 0x04; // 4
 FPASIM_ADDR_WIREIN['ERROR_DELAY'] = 0x05; // 5
@@ -102,7 +102,7 @@ FPASIM_ADDR_WIREIN['ERROR_SEL'] = 0x19; // 25
 const FPASIM_ADDR_WIREOUT = {};
 FPASIM_ADDR_WIREOUT['CTRL'] = 0x20; // 0
 FPASIM_ADDR_WIREOUT['MAKE_PULSE'] = 0x21; // 1
-FPASIM_ADDR_WIREOUT['FPASIM_GAIN'] = 0x22; // 2
+// FPASIM_ADDR_WIREOUT['RFU'] = 0x22; // 2
 FPASIM_ADDR_WIREOUT['MUX_SQ_FB_DELAY'] = 0x23; // 3
 FPASIM_ADDR_WIREOUT['AMP_SQ_OF_DELAY'] = 0x24; // 4
 FPASIM_ADDR_WIREOUT['ERROR_DELAY'] = 0x25; // 5
@@ -151,10 +151,10 @@ function fpasim_build_ctrl(rst_p, en_p) {
 /**
  * Build the word to write in the "MAKE_PULSE" register.
  *   Note: fields ( defintion, range, ...) are defined in the "0136-FPAsim-D_commands_dictionnary.xlsx" document.
- * @param {number} pixel_all_p    - 
- * @param {number} pixel_id_p     - 
- * @param {number} time_shift_p   - 
- * @param {number} pulse_height_p - 
+ * @param {number} pixel_all_p    -
+ * @param {number} pixel_id_p     -
+ * @param {number} time_shift_p   -
+ * @param {number} pulse_height_p -
  * @return {number} built word.
  */
 function fpasim_build_make_pulse(pixel_all_p, pixel_id_p, time_shift_p, pulse_height_p) {
@@ -162,21 +162,11 @@ function fpasim_build_make_pulse(pixel_all_p, pixel_id_p, time_shift_p, pulse_he
     return data;
 }
 
-/**
- * Build the word to write in the "FPASIM_GAIN" register.
- *   Note: fields ( defintion, range, ...) are defined in the "0136-FPAsim-D_commands_dictionnary.xlsx" document.
- * @param {number} fpasim_gain_p - 
- * @return {number} built word.
- */
-function fpasim_build_fpasim_gain(fpasim_gain_p) {
-    const data = fpasim_gain_p;
-    return data;
-}
 
 /**
  * Build the word to write in the "MUX_SQ_FB_DELAY" register.
  *   Note: fields ( defintion, range, ...) are defined in the "0136-FPAsim-D_commands_dictionnary.xlsx" document.
- * @param {number} mux_sq_fb_delay_p - 
+ * @param {number} mux_sq_fb_delay_p -
  * @return {number} built word.
  */
 function fpasim_build_mux_sq_fb_delay(mux_sq_fb_delay_p) {
@@ -187,7 +177,7 @@ function fpasim_build_mux_sq_fb_delay(mux_sq_fb_delay_p) {
 /**
  * Build the word to write in the "AMP_SQ_OF_DELAY" register.
  *   Note: fields ( defintion, range, ...) are defined in the "0136-FPAsim-D_commands_dictionnary.xlsx" document.
- * @param {number} amp_sq_of_delay_p - 
+ * @param {number} amp_sq_of_delay_p -
  * @return {number} built word.
  */
 function fpasim_build_amp_sq_of_delay(amp_sq_of_delay_p) {
@@ -198,7 +188,7 @@ function fpasim_build_amp_sq_of_delay(amp_sq_of_delay_p) {
 /**
  * Build the word to write in the "ERROR_DELAY" register.
  *   Note: fields ( defintion, range, ...) are defined in the "0136-FPAsim-D_commands_dictionnary.xlsx" document.
- * @param {number} error_delay_p - 
+ * @param {number} error_delay_p -
  * @return {number} built word.
  */
 function fpasim_build_error_delay(error_delay_p) {
@@ -209,7 +199,7 @@ function fpasim_build_error_delay(error_delay_p) {
 /**
  * Build the word to write in the "RA_DELAY" register.
  *   Note: fields ( defintion, range, ...) are defined in the "0136-FPAsim-D_commands_dictionnary.xlsx" document.
- * @param {number} ra_delay_p - 
+ * @param {number} ra_delay_p -
  * @return {number} built word.
  */
 function fpasim_build_ra_delay(ra_delay_p) {
@@ -220,9 +210,9 @@ function fpasim_build_ra_delay(ra_delay_p) {
 /**
  * Build the word to write in the "TES_CONF" register.
  *   Note: fields ( defintion, range, ...) are defined in the "0136-FPAsim-D_commands_dictionnary.xlsx" document.
- * @param {number} nb_pixel_by_frame_p - 
- * @param {number} nb_sample_by_pixel_p - 
- * @param {number} nb_samples_by_frame_p - 
+ * @param {number} nb_pixel_by_frame_p -
+ * @param {number} nb_sample_by_pixel_p -
+ * @param {number} nb_samples_by_frame_p -
  * @return {number} built word.
  */
 function fpasim_build_tes_conf(nb_pixel_by_frame_p, nb_sample_by_pixel_p, nb_samples_by_frame_p) {
@@ -233,7 +223,7 @@ function fpasim_build_tes_conf(nb_pixel_by_frame_p, nb_sample_by_pixel_p, nb_sam
 /**
  * Build the word to write in the "CONF0" register.
  *   Note: fields ( defintion, range, ...) are defined in the "0136-FPAsim-D_commands_dictionnary.xlsx" document.
- * @param {number} inter_squid_gain_p - 
+ * @param {number} inter_squid_gain_p -
  * @return {number} built word.
  */
 function fpasim_build_conf0(inter_squid_gain_p) {
@@ -245,8 +235,8 @@ function fpasim_build_conf0(inter_squid_gain_p) {
 /**
  * Build the word to write in the "SPI_CTRL" register.
  *   Note: fields ( defintion, range, ...) are defined in the "0136-FPAsim-D_commands_dictionnary.xlsx" document.
- * @param {number} rst_p - 
- * @param {number} en_p - 
+ * @param {number} rst_p -
+ * @param {number} en_p -
  * @return {number} built word.
  */
 function fpasim_build_spi_ctrl(rst_p, en_p) {
@@ -258,8 +248,8 @@ function fpasim_build_spi_ctrl(rst_p, en_p) {
 /**
  * Build the word to write in the "SPI_CONF0" register.
  *   Note: fields ( defintion, range, ...) are defined in the "0136-FPAsim-D_commands_dictionnary.xlsx" document.
- * @param {number} spi_id_p - 
- * @param {number} spi_mode_p - 
+ * @param {number} spi_id_p -
+ * @param {number} spi_mode_p -
  * @return {number} built word.
  */
 function fpasim_build_spi_conf0(spi_id_p, spi_mode_p) {
@@ -270,7 +260,7 @@ function fpasim_build_spi_conf0(spi_id_p, spi_mode_p) {
 /**
  * Build the word to write in the "SPI_CONF1" register.
  *   Note: fields ( defintion, range, ...) are defined in the "0136-FPAsim-D_commands_dictionnary.xlsx" document.
- * @param {number} spi_dac_tx_en_p - 
+ * @param {number} spi_dac_tx_en_p -
  * @return {number} built word.
  */
 function fpasim_build_spi_conf1(spi_dac_tx_en_p) {
@@ -281,7 +271,7 @@ function fpasim_build_spi_conf1(spi_dac_tx_en_p) {
 /**
  * Build the word to write in the "SPI_WR_DATA" register.
  *   Note: fields ( defintion, range, ...) are defined in the "0136-FPAsim-D_commands_dictionnary.xlsx" document.
- * @param {number} data_p - 
+ * @param {number} data_p -
  * @return {number} built word.
  */
 function fpasim_build_spi_wr_data(data_p) {
@@ -292,7 +282,7 @@ function fpasim_build_spi_wr_data(data_p) {
 /**
  * Build the word to write in the "REC_CTRL" register.
  *   Note: fields ( defintion, range, ...) are defined in the "0136-FPAsim-D_commands_dictionnary.xlsx" document.
- * @param {number} en_p - 
+ * @param {number} en_p -
  * @return {number} built word.
  */
 function fpasim_build_rec_ctrl(en_p) {
@@ -314,8 +304,8 @@ function fpasim_build_rec_conf0(rec_adc_nb_word_32b_p) {
 /**
  * Build the word to write in the "debug_ctrl" register.
  *   Note: fields ( defintion, range, ...) are defined in the "0136-FPAsim-D_commands_dictionnary.xlsx" document.
- * @param {number} rst_status_p - 
- * @param {number} debug_pulse_p - 
+ * @param {number} rst_status_p -
+ * @param {number} debug_pulse_p -
  * @return {number} built word.
  */
 function fpasim_build_debug_ctrl(dac_en_pattern_p, rst_status_p, debug_pulse_p) {
@@ -326,7 +316,7 @@ function fpasim_build_debug_ctrl(dac_en_pattern_p, rst_status_p, debug_pulse_p) 
 /**
  * Build the word to write in the "ERROR_SEL" register.
  *   Note: fields ( defintion, range, ...) are defined in the "0136-FPAsim-D_commands_dictionnary.xlsx" document.
- * @param {number} sel_error_p - 
+ * @param {number} sel_error_p -
  * @return {number} built word.
  */
 function fpasim_build_error_sel(sel_error_p) {
@@ -337,7 +327,7 @@ function fpasim_build_error_sel(sel_error_p) {
 
 /**
  * Get the selected status register value.
- * @param {number} sel_error_p - 
+ * @param {number} sel_error_p -
  * @param {number} level_p - level of indentation at the beginning.
  * @param {number} mode_p - define the print output.
  * @param {number} verbosity_p - level of verbosity.
@@ -463,8 +453,8 @@ function fpasim_set_spi_ctrl(rst_p, en_p, level_p, mode_p, verbosity_p) {
 /**
  * Set the "SPI_CONF0" register.
  *   Note: fields ( defintion, range, ...) are defined in the "0136-FPAsim-D_commands_dictionnary.xlsx" document.
- * @param {number} spi_id_p - 
- * @param {number} spi_mode_p - 
+ * @param {number} spi_id_p -
+ * @param {number} spi_mode_p -
  * @param {number} level_p - level of indentation at the beginning.
  * @param {number} mode_p - define the print output.
  * @param {number} verbosity_p - level of verbosity.
@@ -510,7 +500,7 @@ function fpasim_set_spi_conf0(spi_id_p, spi_mode_p, level_p, mode_p, verbosity_p
  * Set the "SPI_CONF1" register.
  *   Note: fields ( defintion, range, ...) are defined in the "0136-FPAsim-D_commands_dictionnary.xlsx" document.
  *         This function should be called before and after the dac device configuration.
- * @param {number} spi_dac_tx_en_p - 
+ * @param {number} spi_dac_tx_en_p -
  * @param {number} level_p - level of indentation at the beginning.
  * @param {number} mode_p - define the print output.
  * @param {number} verbosity_p - level of verbosity.
@@ -554,8 +544,8 @@ function fpasim_set_spi_conf1(spi_dac_tx_en_p, level_p, mode_p, verbosity_p) {
 /**
  * Set the "SPI_WR_DATA" register.
  *   Note: fields ( defintion, range, ...) are defined in the "0136-FPAsim-D_commands_dictionnary.xlsx" document.
- *         This function should be called after the fpasim_set_spi_ctrl and fpasim_set_spi_conf0 function 
- * @param {number} data_p - 
+ *         This function should be called after the fpasim_set_spi_ctrl and fpasim_set_spi_conf0 function
+ * @param {number} data_p -
  * @param {number} level_p - level of indentation at the beginning.
  * @param {number} mode_p - define the print output.
  * @param {number} verbosity_p - level of verbosity.
@@ -680,10 +670,6 @@ function fpasim_set_debug_wirein_by_name(reg_name_p, data_p, level_p, mode_p, ve
         case 'MAKE_PULSE':
             addr = FPASIM_ADDR_WIREIN[reg_name_p];
             trig_pos = FPASIM_POS_TRIGIN['make_pulse'];
-            break;
-        case 'FPASIM_GAIN':
-            addr = FPASIM_ADDR_WIREIN[reg_name_p];
-            trig_pos = FPASIM_POS_TRIGIN['reg_valid'];
             break;
         case 'MUX_SQ_FB_DELAY':
             addr = FPASIM_ADDR_WIREIN[reg_name_p];
@@ -940,46 +926,6 @@ function fpasim_get_wireout_make_pulse(level_p, mode_p, verbosity_p) {
     return data;
 }
 
-/**
- * Get the "FPASIM_GAIN" register value.
- * @param {number} level_p - level of indentation at the beginning.
- * @param {number} mode_p - define the print output.
- * @param {number} verbosity_p - level of verbosity.
- * @return {number} read register value.
- */
-function fpasim_get_wireout_fpasim_gain(level_p, mode_p, verbosity_p) {
-    // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
-
-    const level0 = level_p;
-    const level1 = level_p + 1;
-    const level2 = level_p + 2;
-
-    addr = FPASIM_ADDR_WIREOUT['FPASIM_GAIN'];
-    data = fpasim_wireout_read_command(addr_p = addr);
-
-    if (verbosity_p < 0) {
-        // do nothing
-    } else {
-
-        if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
-            msg = "[fpasim_get_wireout_make_pulse]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
-        }
-
-        if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
-        }
-
-        if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "fpasim_gain_p", bit_pos_p = 0, bit_width_p = 3, data_p = data, level_p = level2, mode_p = mode_p);
-        }
-    }
-
-    return data;
-}
 
 /**
  * Get the "MUX_SQ_FB_DELAY" register value.
@@ -1986,9 +1932,6 @@ function fpasim_get_wireout_by_name(reg_name_p, level_p, mode_p, verbosity_p) {
             break;
         case 'MAKE_PULSE':
             data = fpasim_get_wireout_make_pulse(level_p = level0, mode_p, verbosity_p);
-            break;
-        case 'FPASIM_GAIN':
-            data = fpasim_get_wireout_fpasim_gain(level_p = level0, mode_p, verbosity_p);
             break;
         case 'MUX_SQ_FB_DELAY':
             data = fpasim_get_wireout_mux_sq_fb_delay(level_p = level0, mode_p, verbosity_p);

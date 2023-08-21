@@ -134,7 +134,7 @@ function main(level_p, mode_p, verbosity_p) {
     const mode_p = 0;
     const verbosity_p = 0;
 
-    /* 
+    /*
      ***************************************************************************
      * display the test description
      ***************************************************************************
@@ -157,14 +157,14 @@ function main(level_p, mode_p, verbosity_p) {
     msg = "";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
-    /* 
+    /*
      ***************************************************************************
      * display the script info
      ***************************************************************************
      */
     fpasim_script_info(level_p = level0, mode_p = mode_p, verbosity_p = 2);
 
-    /* 
+    /*
      ***************************************************************************
      * configure spi devices
      ***************************************************************************
@@ -173,7 +173,7 @@ function main(level_p, mode_p, verbosity_p) {
     display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
     configure_fmc150_spi_device(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
 
-    /* 
+    /*
      ***************************************************************************
      * reset the fpasim function
      ***************************************************************************
@@ -183,7 +183,7 @@ function main(level_p, mode_p, verbosity_p) {
     fpasim_reset(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
 
 
-    /* 
+    /*
      ***************************************************************************
      * Configure the FPASIM functions
      ***************************************************************************
@@ -191,23 +191,6 @@ function main(level_p, mode_p, verbosity_p) {
 
     msg = "Configure the fpasim function";
     display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
-    // set the register: FPASIM_Gain
-    //   . 0 => 0.25 on the FPGA side
-    //   . 1 => 0.5 on the FPGA side
-    //   . 2 => 0.75 on the FPGA side
-    //   . 3 => 1 on the FPGA side
-    //   . 4 => 1.5 on the FPGA side
-    //   . 5 => 2 on the FPGA side
-    //   . 6 => 3 on the FPGA side
-    //   . 7 => 4 on the FPGA side
-    fpasim_gain = 0x3;
-    msg = "Set register: FPASIM_GAIN";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    sendToFPA_configureGain(fpasim_gain);
-
-    msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
-
 
     // set the register: MUX_SQ_FB_DELAY
     mux_sq_fb_delay = 0x0;
@@ -331,7 +314,7 @@ function main(level_p, mode_p, verbosity_p) {
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
 
-    /* 
+    /*
      ***************************************************************************
      * Generate make_pulse commands (1 pixel)
      ***************************************************************************
@@ -391,7 +374,7 @@ function main(level_p, mode_p, verbosity_p) {
     msg = "";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
-    /* 
+    /*
      ***************************************************************************
      * Generate make_pulses commands (all pixels)
      ***************************************************************************
@@ -459,7 +442,7 @@ function main(level_p, mode_p, verbosity_p) {
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
 
-    /* 
+    /*
      ***************************************************************************
      * check all errors
      ***************************************************************************
@@ -469,8 +452,8 @@ function main(level_p, mode_p, verbosity_p) {
     display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
     error_debug_cnt = fpasim_check_all_errors(level_p = level1, mode_p = 0, verbosity_p = 0);
 
-    
-    /* 
+
+    /*
      ***************************************************************************
      * Summary
      ***************************************************************************
@@ -487,7 +470,7 @@ function main(level_p, mode_p, verbosity_p) {
     }
 
 
-    /* 
+    /*
      ***************************************************************************
      * End of Test
      ***************************************************************************
