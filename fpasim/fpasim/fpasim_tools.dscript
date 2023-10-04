@@ -238,6 +238,8 @@ function fpasim_reset(level_p, mode_p, verbosity_p) {
     /*
     reset status On
     */
+    const adc1_bypass = 0;
+    const adc0_bypass = 0;
     const dac_en_pattern = 0;
     const rst_status = 1;
     const debug_pulse = 0;
@@ -245,7 +247,7 @@ function fpasim_reset(level_p, mode_p, verbosity_p) {
 
     const msg = "Set DEBUG_CTRL: Reset Status On"
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    fpasim_set_debug_ctrl(dac_en_pattern_p = dac_en_pattern, rst_status_p = rst_status, debug_pulse_p = debug_pulse, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    fpasim_set_debug_ctrl(adc1_bypass_p=adc1_bypass, adc0_bypass_p=adc0_bypass, dac_en_pattern_p = dac_en_pattern, rst_status_p = rst_status, debug_pulse_p = debug_pulse, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
 
     const msg = "";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
@@ -256,11 +258,13 @@ function fpasim_reset(level_p, mode_p, verbosity_p) {
     */
     const msg = "Set DEBUG_CTRL: Reset Status Off"
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    const adc1_bypass = 0;
+    const adc0_bypass = 0;
     const dac_en_pattern = 0;
     const rst_status = 0;
     const debug_pulse = 0;
     // build the data to send
-    fpasim_set_debug_ctrl(dac_en_pattern_p = dac_en_pattern, rst_status_p = rst_status, debug_pulse_p = debug_pulse, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    fpasim_set_debug_ctrl(adc1_bypass_p=adc1_bypass, adc0_bypass_p=adc0_bypass, dac_en_pattern_p = dac_en_pattern, rst_status_p = rst_status, debug_pulse_p = debug_pulse, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
 
     const msg = "";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
@@ -560,13 +564,15 @@ function fpasim_dac_enable_pattern(level_p, mode_p, verbosity_p) {
      *
      * Enable pattern generation in the fpga
      */
+    const adc1_bypass = 0;
+    const adc0_bypass = 0;
     const dac_en_pattern = 1;
     const rst_status = 0;
     const debug_pulse = 0;
 
     const msg = "Enable the FPASim dac pattern generator";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    fpasim_set_debug_ctrl(dac_en_pattern_p = dac_en_pattern, rst_status_p = rst_status, debug_pulse_p = debug_pulse, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    fpasim_set_debug_ctrl(adc1_bypass_p=adc1_bypass, adc0_bypass_p=adc0_bypass, dac_en_pattern_p = dac_en_pattern, rst_status_p = rst_status, debug_pulse_p = debug_pulse, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
 
     const msg = "";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
@@ -707,15 +713,18 @@ function fpasim_dac_disable_pattern(level_p, mode_p, verbosity_p) {
      *
      * disable pattern generation in the fpga
      */
+    const adc1_bypass = 0;
+    const adc0_bypass = 0;
     const dac_en_pattern = 0;
     const rst_status = 0;
     const debug_pulse = 0;
     const msg = "Disable the FPASim dac pattern generator";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    fpasim_set_debug_ctrl(dac_en_pattern_p = dac_en_pattern, rst_status_p = rst_status, debug_pulse_p = debug_pulse, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    fpasim_set_debug_ctrl(adc1_bypass_p=adc1_bypass, adc0_bypass_p=adc0_bypass, dac_en_pattern_p = dac_en_pattern, rst_status_p = rst_status, debug_pulse_p = debug_pulse, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
 
     const msg = "";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
 
     /*
     disable the FPASim

@@ -194,13 +194,13 @@ function test_wire(level_p, mode_p, verbosity_p) {
     const pixel_all = 0x0;
     const pixelId = 0x1;
     const timeShift = 0x2;
-    const pulseheight = 0x3;
+    const pulseHeight = 0x3;
 
     const msg = "Set register: MAKE_PULSE";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    sendToFPA_makePulse(pixelId = pixelId, timeShift = timeShift, pulseHeigth = pulseheight);
+    sendToFPA_makePulse(pixelId = pixelId, timeShift = timeShift, pulseHeigth = pulseHeight);
     // build the data to send
-    const data0 = fpasim_build_make_pulse(pixel_all_p = pixel_all, pixel_id_p = pixelId, time_shift_p = timeShift, pulse_height_p = pulseheight);
+    const data0 = fpasim_build_make_pulse(pixel_all_p = pixel_all, pixel_id_p = pixelId, time_shift_p = timeShift, pulse_height_p = pulseHeight);
     // read the register
     const data1 = fpasim_get_wireout_by_name(reg_name_p = "MAKE_PULSE", level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
     // check the read data Vs the written data
@@ -509,11 +509,13 @@ function test_wire(level_p, mode_p, verbosity_p) {
      * check: DEBUG_CTRL
      ***************************************************************************
      */
+    const adc1_bypass = 0;
+    const adc0_bypass = 0;
     const dac_en_pattern = 0;
     const rst_status = 0;
     const debug_pulse = 1;
     // build the data to send
-    const data0 = fpasim_build_debug_ctrl(dac_en_pattern_p = dac_en_pattern, rst_status_p = rst_status, debug_pulse_p = debug_pulse);
+    const data0 = fpasim_build_debug_ctrl(adc1_bypass_p=adc1_bypass,adc0_bypass_p=adc0_bypass, dac_en_pattern_p = dac_en_pattern, rst_status_p = rst_status, debug_pulse_p = debug_pulse);
 
     const msg = "Set register: DEBUG_CTRL";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
