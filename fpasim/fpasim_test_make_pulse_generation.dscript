@@ -42,10 +42,10 @@ include("./fpasim/fpasim_tools.dscript");
 
 
 /**
- * convert a percentage of the pulse heigth into a pulse heigth value to write in the "MAKE PULSE" register.
+ * convert a percentage of the pulse height into a pulse height value to write in the "MAKE PULSE" register.
  * @param {number} percentage_p - percentage. The range is [0,1.0]
  */
-function convert_percentage_to_pulse_heigth(percentage_p) {
+function convert_percentage_to_pulse_height(percentage_p) {
 
     const value = percentage_p * (Math.pow(2, 16) - 1) / 100;
     return Math.round(value);
@@ -162,16 +162,18 @@ function main(level_p, mode_p, verbosity_p) {
      * display the script info
      ***************************************************************************
      */
-    fpasim_script_info(level_p = level0, mode_p = mode_p, verbosity_p = 2);
+    error_info_cnt = 0;
+    error_info_cnt = fpasim_script_info(level_p = level0, mode_p = mode_p, verbosity_p = 2);
 
     /*
      ***************************************************************************
-     * configure spi devices
+     * configure spi devices, FPAsim RAM with default values
      ***************************************************************************
      */
-    msg = "Configure spi devices";
+    msg = "Configure spi devices + FPAsim RAMs with default values";
     display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
-    configure_fmc150_spi_device(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
+    error_load_ram_cnt = fpasim_configure(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
+
 
     /*
      ***************************************************************************
@@ -344,11 +346,11 @@ function main(level_p, mode_p, verbosity_p) {
     time_shift_tab[1] = 0;
     time_shift_tab[0] = 0;
 
-    pulse_height_tab[4] = convert_percentage_to_pulse_heigth(percentage_p = 14);
-    pulse_height_tab[3] = convert_percentage_to_pulse_heigth(percentage_p = 12);
-    pulse_height_tab[2] = convert_percentage_to_pulse_heigth(percentage_p = 10);
-    pulse_height_tab[1] = convert_percentage_to_pulse_heigth(percentage_p = 8);
-    pulse_height_tab[0] = convert_percentage_to_pulse_heigth(percentage_p = 6);
+    pulse_height_tab[4] = convert_percentage_to_pulse_height(percentage_p = 14);
+    pulse_height_tab[3] = convert_percentage_to_pulse_height(percentage_p = 12);
+    pulse_height_tab[2] = convert_percentage_to_pulse_height(percentage_p = 10);
+    pulse_height_tab[1] = convert_percentage_to_pulse_height(percentage_p = 8);
+    pulse_height_tab[0] = convert_percentage_to_pulse_height(percentage_p = 6);
 
 
     session_name = getText("Start loop");
@@ -361,7 +363,7 @@ function main(level_p, mode_p, verbosity_p) {
         time_shift = time_shift_tab[i];
         pulse_height = pulse_height_tab[i];
 
-        session_name = getText("make_pulse iteration" + i.toString(10) + ", pulse_heigth:" + pulse_height.toString(16));
+        session_name = getText("make_pulse iteration" + i.toString(10) + ", pulse_height:" + pulse_height.toString(16));
 
         msg = "Set Make_pulse (1 pixel): pixel_id: " + pixel_id.toString(10) + ", time_shift: " + time_shift.toString(10) + ", pulse_height: 0x" + pulse_height.toString(16);
         display(msg_p = msg, level_p = level1, mode_p = mode_p);
@@ -397,11 +399,11 @@ function main(level_p, mode_p, verbosity_p) {
     time_shift_tab[1] = 0;
     time_shift_tab[0] = 0;
 
-    pulse_height_tab[4] = convert_percentage_to_pulse_heigth(percentage_p = 14);
-    pulse_height_tab[3] = convert_percentage_to_pulse_heigth(percentage_p = 12);
-    pulse_height_tab[2] = convert_percentage_to_pulse_heigth(percentage_p = 10);
-    pulse_height_tab[1] = convert_percentage_to_pulse_heigth(percentage_p = 8);
-    pulse_height_tab[0] = convert_percentage_to_pulse_heigth(percentage_p = 6);
+    pulse_height_tab[4] = convert_percentage_to_pulse_height(percentage_p = 14);
+    pulse_height_tab[3] = convert_percentage_to_pulse_height(percentage_p = 12);
+    pulse_height_tab[2] = convert_percentage_to_pulse_height(percentage_p = 10);
+    pulse_height_tab[1] = convert_percentage_to_pulse_height(percentage_p = 8);
+    pulse_height_tab[0] = convert_percentage_to_pulse_height(percentage_p = 6);
 
 
     // loop
@@ -411,7 +413,7 @@ function main(level_p, mode_p, verbosity_p) {
 
         time_shift = time_shift_tab[i];
         pulse_height = pulse_height_tab[i];
-        session_name = getText("make_pulseS iteration" + i.toString(10) + ", pulse_heigth:" + pulse_height.toString(16));
+        session_name = getText("make_pulseS iteration" + i.toString(10) + ", pulse_height:" + pulse_height.toString(16));
 
         msg = "Set Make_pulse (all pixels): pixel_id: N/A, time_shift: " + time_shift.toString(10) + ", pulse_height: 0x" + pulse_height.toString(16);
         display(msg_p = msg, level_p = level1, mode_p = mode_p);
@@ -458,14 +460,64 @@ function main(level_p, mode_p, verbosity_p) {
      * Summary
      ***************************************************************************
      */
+
+    msg = "Summary: Errors";
+    display_title(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    // get board id
+    reg_name = 'BOARD_ID';
+    msg = "Get " + reg_name + ": ";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    data = fpasim_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 2);
+
+    msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    // get the firmware Id
+    reg_name = 'FIRMWARE_ID';
+    msg = "Get " + reg_name + ": ";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    data = fpasim_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 2);
+
+
+    msg = " ";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    // get firmware version
+    reg_name = 'FIRMWARE_VERSION';
+    msg = "Get " + reg_name + ": ";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    data = fpasim_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 2);
+
+    msg = " ";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+     // summary of the fpasim_script_info errors
+    if (error_info_cnt == 0) {
+        msg_tmp = "[OK]: Script Info has " + error_info_cnt.toString(10) + " error";
+        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+    } else {
+        msg_tmp = "[KO]: Script Info has " + error_info_cnt.toString(10) + " errors";
+        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+    }
+
+    // summary of the RAM loading with default value
+    if (error_load_ram_cnt == 0) {
+        msg_tmp = "[OK]: Default RAM loading " + error_load_ram_cnt.toString(10) + " error";
+        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+    } else {
+        msg_tmp = "[KO]: Default RAM loading " + error_load_ram_cnt.toString(10) + " errors";
+        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+    }
+
     msg = "Summary: Errors";
     display_title(msg_p = msg, level_p = level1, mode_p = mode_p);
 
     if (error_debug_cnt == 0) {
-        const msg_tmp = "[OK]: Debug errors has " + error_debug_cnt.toString(10) + " error";
+        msg_tmp = "[OK]: Debug errors has " + error_debug_cnt.toString(10) + " error";
         display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
     } else {
-        const msg_tmp = "[KO]: Debug errors generation has " + error_debug_cnt.toString(10) + " errors";
+        msg_tmp = "[KO]: Debug errors generation has " + error_debug_cnt.toString(10) + " errors";
         display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
     }
 
