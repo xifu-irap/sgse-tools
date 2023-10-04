@@ -20,11 +20,11 @@
 //    @file                   fpasim_tools.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    Automatic Generation    No
-//    Code Rules Reference    
+//    Code Rules Reference
 // -------------------------------------------------------------------------------------------------------------
-//    @details        
+//    @details
 //
-//    This script combines imported functions in order to build higher level functions.        
+//    This script combines imported functions in order to build higher level functions.
 //
 // -------------------------------------------------------------------------------------------------------------
 include("./fpasim/CDCE72010.dscript");
@@ -330,10 +330,34 @@ function fpasim_check_all_errors(level_p, mode_p, verbosity_p) {
 
 }
 
+/**
+ * Configure the initial State of the FPAsim
+ * Configure the SPI devices of the FMC150 boards.
+ * Configure the FPAsim RAM with default values
+ *
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} 0
+ */
+function fpasim_configure(level_p,mode_p,verbosity_p)
+{
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    // configure the spi_device of the fmc150 board
+    configure_fmc150_spi_device(level_p=level_p, mode_p=mode_p, verbosity_p=verbosity_p);
+    // configure the FPAsim RAM with default values
+    error_load_ram_cnt = configure_fpasim_default_ram(level_p=level_p, mode_p=mode_p, verbosity_p=verbosity_p);
+    return error_load_ram_cnt;
+
+}
 
 /**
  * Configure the SPI devices of the FMC150 boards.
- *  The order is important: 
+ *  The order is important:
  *    In particular, CDCE72010_configure function needs to be called first
  *  in order to generate clocks for adc and dac devices.
  * @param {number} level_p - level of indentation at the beginning.
@@ -422,7 +446,7 @@ function check_equal(value0_p, value1_p, msg_p, level_p, mode_p, verbosity_p) {
 }
 
 /**
- * Check if 2 tab are identical. Then, display the result.
+ * Check if 2 tables are identical. Then, display the result.
  * @param {array of number} tab0_p - 1st tab.
  * @param {array of number} tab1_p - 2nd tab.
  * @param {string} msg_p - error message.
@@ -576,7 +600,7 @@ function fpasim_dac_enable_pattern(level_p, mode_p, verbosity_p) {
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
     /*
-    clear the iotest_results (config8) 
+    clear the iotest_results (config8)
     */
     const iotest_results = 0x0;
     const msg = "Reset iotest_results (dac device)";
@@ -800,6 +824,409 @@ function maDate()
     return Now_date;
 }
 
+//---------------------------------------------------------------------------------------
+// RAMs functions: write ram content from a file
+//---------------------------------------------------------------------------------------
+/**
+ * This function does the following steps:
+ *  1. reads an *.mem input file
+ *  2. store the file data part into an array
+ *  3. return the build array
+ *
+ * @param {number} file_p - filepath to the *.mem file
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {array} data file contents.
+ */
+// var fileDataArray
+// var fileDataOffset
+function loadFromFile(file_p,level_p, mode_p, verbosity_p)
+{
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+
+    const msg = "[loadFromFile]: "+file_p;
+    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+
+    fileContent = readTextFile(file_p);
+
+    if (fileContent.length > 1 )
+    {
+        if (fileContent[0].slice(0,1) == "@")
+        {
+            // fileDataOffset = parseInt(fileContent[0].slice(1),16)
+            fileDataArray = new Array(fileContent.length - 1);
+            for (i =1; i < fileContent.length;++i)
+                {
+                    fileDataArray[i - 1] = parseInt(fileContent[i],16);
+                }
+
+            const array_length = fileDataArray.length;
+            const msg = "OK: array size: "+array_length.toString(10);
+            display(msg_p = msg, level_p = level1, mode_p = mode_p);
+            return fileDataArray;
+            // return fileDataArray.length
+
+        }
+        else
+        {
+            const msg = "KO: bad file format...";
+            display(msg_p = msg, level_p = level1, mode_p = mode_p);
+            // fileDataOffset = parseInt(fileContent[0],16)
+            fileDataArray = new Array(1);
+            return fileDataArray;
+            // return 0
+        }
+
+    }
+    else
+        {
+            const msg = "KO: bad file format or file not found...";
+            display(msg_p = msg, level_p = level1, mode_p = mode_p);
+            // fileDataOffset = parseInt(fileContent[0],16)
+            fileDataArray = new Array(1);
+            return fileDataArray;
+            // return 0
+        }
+}
+
+/**
+ * This function does the following steps:
+ *  1. reads an *.mem input file
+ *  2. store the file data part into an array
+ *  3. send the array into the FPAsim RAM (tes_pulse_shape)
+ *  4. return the array if no errors
+ *
+ * @param {number} file_p - filepath to the *.mem file
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {array} written ram data.
+ */
+function fpasim_loadTES_PulseShape_From_File(file_p,level_p, mode_p, verbosity_p)
+{
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    // function name
+    msg = "[fpasim_loadTES_PulseShape_From_File]";
+    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+
+    // expected number of read data values from the input file
+    const expected_array_size = 32768;
+
+    // read value from the file
+    array = loadFromFile(file_p=file_p,level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
+    array_length = array.length;
+
+    if (array_length != expected_array_size)
+    {
+        msg = "[KO]: bad File size";
+        display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+        msg = "  expected: " + expected_array_size.toString(10);
+        display(msg_p = msg, level_p = level2, mode_p = mode_p);
+
+        msg = "  file size:" + array_length+toString(10);
+        display(msg_p = msg, level_p = level2, mode_p = mode_p);
+
+        // error code
+        return -1;
+    }
+
+    // send the array to the fpasim
+    sendToFPA_loadTES_PulseShape(array);
+
+    // no error
+    return 0;
+}
+
+/**
+ * This function does the following steps:
+ *  1. reads an *.mem input file
+ *  2. store the file data part into an array
+ *  3. send the array into the FPAsim RAM (amp_squid_tf)
+ *  4. return the array if no errors
+ *
+ * @param {number} file_p - filepath to the *.mem file
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {array} written ram data.
+ */
+function fpasim_sendToFPA_loadAmpSQUID_TF_From_File(file_p,level_p, mode_p, verbosity_p)
+{
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    // function name
+    msg = "[fpasim_sendToFPA_loadAmpSQUID_TF_From_File]";
+    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    // expected number of read data values from the input file
+    const expected_array_size = 16384;
+
+    // read value from the file
+    array = loadFromFile(file_p=file_p,level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
+    array_length = array.length
+
+    if (array_length != expected_array_size)
+    {
+        msg = "[KO]: bad File size";
+        display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+        msg = "  expected: " + expected_array_size.toString(10);
+        display(msg_p = msg, level_p = level2, mode_p = mode_p);
+
+        msg = "  file size:" + array_length+toString(10);
+        display(msg_p = msg, level_p = level2, mode_p = mode_p);
+
+        // error code
+        return -1;
+    }
+
+    // send the array to the fpasim
+    sendToFPA_loadAmpSQUID_TF(array);
+
+   // no error
+    return 0;
+}
+
+/**
+ * This function does the following steps:
+ *  1. reads an *.mem input file
+ *  2. store the file data part into an array
+ *  3. send the array into the FPAsim RAM (mux_squid_tf)
+ *  4. return the array if no errors
+ *
+ * @param {number} file_p - filepath to the *.mem file
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {array} written ram data.
+ */
+function fpasim_sendToFPA_loadMuxSQUID_TF_From_File(file_p,level_p, mode_p, verbosity_p)
+{
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    // function name
+    msg = "[fpasim_sendToFPA_loadMuxSQUID_TF_From_File]";
+    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    // expected number of read data values from the input file
+    const expected_array_size = 8192;
+
+    // read value from the file
+    array = loadFromFile(file_p=file_p,level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
+    array_length = array.length
+
+    if (array_length != expected_array_size)
+    {
+        msg = "[KO]: bad File size";
+        display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+        msg = "  expected: " + expected_array_size.toString(10);
+        display(msg_p = msg, level_p = level2, mode_p = mode_p);
+
+        msg = "  file size:" + array_length+toString(10);
+        display(msg_p = msg, level_p = level2, mode_p = mode_p);
+
+        // error code
+        return -1;
+    }
+
+    // send the array to the fpasim
+    sendToFPA_loadMuxSQUID_TF(array);
+
+    // no error
+    return 0;
+}
+
+/**
+ * This function does the following steps:
+ *  1. reads an *.mem input file
+ *  2. store the file data part into an array
+ *  3. send the array into the FPAsim RAM (tes_steady_state)
+ *  4. return the array if no errors
+ *
+ * @param {number} file_p - filepath to the *.mem file
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {array} written ram data.
+ */
+function fpasim_sendToFPA_loadTES_SteadyState_From_File(file_p,level_p, mode_p, verbosity_p)
+{
+
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    // function name
+    msg = "[fpasim_sendToFPA_loadTES_SteadyState_From_File]";
+    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+
+    // expected number of read data values from the input file
+    const expected_array_size = 64;
+
+    // read value from the file
+    array = loadFromFile(file_p=file_p,level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
+    array_length = array.length
+
+    if (array_length != expected_array_size)
+    {
+        msg = "[KO]: bad File size";
+        display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+        msg = "  expected: " + expected_array_size.toString(10);
+        display(msg_p = msg, level_p = level2, mode_p = mode_p);
+
+        msg = "  file size:" + array_length+toString(10);
+        display(msg_p = msg, level_p = level2, mode_p = mode_p);
+
+        // error code
+        return -1;
+    }
 
 
+    // send the array to the fpasim
+    sendToFPA_loadTES_SteadyState(array);
+
+    // no error
+    return 0;
+}
+
+/**
+ * This function does the following steps:
+ *  1. reads an *.mem input file
+ *  2. store the file data part into an array
+ *  3. send the array into the FPAsim RAM (mux_squid_offset)
+ *  4. return the array if no errors
+ *
+ * @param {number} file_p - filepath to the *.mem file
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {array} written ram data.
+ */
+function fpasim_sendToFPA_loadMuxSQUID_Offset_From_File(file_p,level_p, mode_p, verbosity_p)
+{
+
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    // function name
+    msg = "[fpasim_sendToFPA_loadMuxSQUID_Offset_From_File]";
+    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    // expected number of read data values from the input file
+    const expected_array_size = 64;
+
+    // read value from the file
+    array = loadFromFile(file_p=file_p,level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
+    array_length = array.length
+
+    if (array_length != expected_array_size)
+    {
+        msg = "[KO]: bad File size";
+        display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+        msg = "  expected: " + expected_array_size.toString(10);
+        display(msg_p = msg, level_p = level2, mode_p = mode_p);
+
+        msg = "  file size:" + array_length+toString(10);
+        display(msg_p = msg, level_p = level2, mode_p = mode_p);
+
+        // error code
+        return -1;
+    }
+
+
+    // send the array to the fpasim
+    sendToFPA_loadMuxSQUID_Offset(array);
+
+    // no error
+    return 0;
+}
+
+/**
+ * Configure the default value of the fpasim rams
+ *  Note:
+ *    .The spi device needs to be configured before in order to get
+ *    the FPAsim clocks.
+ *
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} 0
+ */
+function configure_fpasim_default_ram(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    const msg = "[configure_fpasim_default_ram]";
+    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+
+    // relative path from the main script (the calling script path)
+    ram_base_path = "./fpasim_default_ram/"
+
+    tes_pulse_shape_filepath  = ram_base_path + "tes_pulse_shape.mem"
+    tes_std_state_filepath    = ram_base_path + "tes_std_state.mem"
+    mux_squid_offset_filepath = ram_base_path + "mux_squid_offset.mem"
+    mux_squid_tf_filepath     = ram_base_path + "mux_squid_tf.mem"
+    amp_squid_tf_filepath     = ram_base_path + "amp_squid_tf.mem"
+
+    err0 = fpasim_loadTES_PulseShape_From_File(file_p=tes_pulse_shape_filepath,level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
+    err1 = fpasim_sendToFPA_loadTES_SteadyState_From_File(file_p=tes_std_state_filepath,level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
+    err2 = fpasim_sendToFPA_loadMuxSQUID_Offset_From_File(file_p=mux_squid_offset_filepath,level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
+    err3 = fpasim_sendToFPA_loadMuxSQUID_TF_From_File(file_p=mux_squid_tf_filepath,level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
+    err4 = fpasim_sendToFPA_loadAmpSQUID_TF_From_File(file_p=amp_squid_tf_filepath,level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
+
+    errors_cnt = err0 + err1 + err2 + err3 + err4;
+
+    // negative -> positive value
+    errors_cnt = errors_cnt * -1;
+
+    return errors_cnt;
+
+}
 //---------------------------------------------------------------------------------------
