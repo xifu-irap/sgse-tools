@@ -304,12 +304,15 @@ function fpasim_build_rec_conf0(rec_adc_nb_word_32b_p) {
 /**
  * Build the word to write in the "debug_ctrl" register.
  *   Note: fields ( defintion, range, ...) are defined in the "0136-FPAsim-D_commands_dictionnary.xlsx" document.
- * @param {number} rst_status_p -
- * @param {number} debug_pulse_p -
+ * @param {number} adc1_bypass_p - 1: bypass the ADC1 (adc_amp_squid) (set the value to 0), 0: do nothing
+ * @param {number} adc0_bypass_p - 1: bypass the ADC0 (adc_mux_squid) (set the value to 0), 0: do nothing
+ * @param {number} dac_en_pattern_p - enable the dac pattern generator.
+ * @param {number} rst_status_p - reset errors.
+ * @param {number} debug_pulse_p - '1': errors are pipelined, 0': errors are latches.
  * @return {number} built word.
  */
-function fpasim_build_debug_ctrl(dac_en_pattern_p, rst_status_p, debug_pulse_p) {
-    const data = (dac_en_pattern_p << 4) + (rst_status_p << 1) + debug_pulse_p;
+function fpasim_build_debug_ctrl(adc1_bypass_p, adc0_bypass_p, dac_en_pattern_p, rst_status_p, debug_pulse_p) {
+    const data = (adc1_bypass_p << 9) + (adc0_bypass_p << 8) + (dac_en_pattern_p << 4) + (rst_status_p << 1) + debug_pulse_p;
     return data;
 }
 
@@ -589,6 +592,8 @@ function fpasim_set_spi_wr_data(data_p, level_p, mode_p, verbosity_p) {
 /**
  * Set the "DEBUG_CTRL" register.
  *   Note: fields ( defintion, range, ...) are defined in the "0136-FPAsim-D_commands_dictionnary.xlsx" document.
+ * @param {number} adc1_bypass_p - 1: bypass the ADC1 (adc_amp_squid) (set the value to 0), 0: do nothing
+ * @param {number} adc0_bypass_p - 1: bypass the ADC0 (adc_mux_squid) (set the value to 0), 0: do nothing
  * @param {number} dac_en_pattern_p - enable the dac pattern generator.
  * @param {number} rst_status_p - reset errors.
  * @param {number} debug_pulse_p - '1': errors are pipelined, 0': errors are latches.
@@ -596,7 +601,7 @@ function fpasim_set_spi_wr_data(data_p, level_p, mode_p, verbosity_p) {
  * @param {number} mode_p - define the print output.
  * @param {number} verbosity_p - level of verbosity.
  */
-function fpasim_set_debug_ctrl(dac_en_pattern_p, rst_status_p, debug_pulse_p, level_p, mode_p, verbosity_p) {
+function fpasim_set_debug_ctrl(adc1_bypass_p, adc0_bypass_p, dac_en_pattern_p, rst_status_p, debug_pulse_p, level_p, mode_p, verbosity_p) {
     // default function parameter values
     if (typeof(level_p) === 'undefined') level_p = 0;
     if (typeof(mode_p) === 'undefined') mode_p = 0;
@@ -606,7 +611,7 @@ function fpasim_set_debug_ctrl(dac_en_pattern_p, rst_status_p, debug_pulse_p, le
     const level1 = level_p + 1;
     const level2 = level_p + 2;
 
-    const data = fpasim_build_debug_ctrl(dac_en_pattern_p, rst_status_p, debug_pulse_p)
+    const data = fpasim_build_debug_ctrl(adc1_bypass_p, adc0_bypass_p, dac_en_pattern_p, rst_status_p, debug_pulse_p)
     const addr = FPASIM_ADDR_WIREIN["DEBUG_CTRL"];
 
     sendToFPA_debugSetWireIn(addr, data);
@@ -628,6 +633,8 @@ function fpasim_set_debug_ctrl(dac_en_pattern_p, rst_status_p, debug_pulse_p, le
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
+            display_bit(bit_name_p = "adc1_bypass_p", bit_value_p = adc1_bypass_p, bit_width_p = 9, level_p = level2, mode_p = mode_p);
+            display_bit(bit_name_p = "adc0_bypass_p", bit_value_p = adc0_bypass_p, bit_width_p = 8, level_p = level2, mode_p = mode_p);
             display_bit(bit_name_p = "dac_en_pattern_p", bit_value_p = dac_en_pattern_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
             display_bit(bit_name_p = "rst_status_p", bit_value_p = rst_status_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
             display_bit(bit_name_p = "debug_pulse_p", bit_value_p = debug_pulse_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
@@ -1649,6 +1656,8 @@ function fpasim_get_wireout_debug_ctrl(level_p, mode_p, verbosity_p) {
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
+            display_bit_from_data(bit_name_p = "adc1_bypass", bit_pos_p = 9, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data(bit_name_p = "adc0_bypass", bit_pos_p = 8, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
             display_bit_from_data(bit_name_p = "dac_en_pattern", bit_pos_p = 4, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
             display_bit_from_data(bit_name_p = "rst_status", bit_pos_p = 1, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
             display_bit_from_data(bit_name_p = "debug_pulse", bit_pos_p = 0, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
