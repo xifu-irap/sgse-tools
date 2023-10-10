@@ -47,7 +47,7 @@ include("./fpasim/fpasim_tools.dscript");
  */
 function convert_percentage_to_pulse_height(percentage_p) {
 
-    const value = percentage_p * (Math.pow(2, 16) - 1) / 100;
+    value = percentage_p * (Math.pow(2, 16) - 1) / 100;
     return Math.round(value);
 }
 
@@ -56,7 +56,7 @@ function convert_percentage_to_pulse_height(percentage_p) {
  */
 function tes_steady_state_conf_ram() {
 
-    const tab_length = 64;
+    tab_length = 64;
     pulse_shape = Array(tab_length);
     cnt = 0;
     for (i = 0; i < tab_length; ++i) {
@@ -74,7 +74,7 @@ function tes_steady_state_conf_ram() {
 function mux_quid_tf_conf_ram() {
 
 
-    const tab_length = 8192;
+    tab_length = 8192;
     pulse_shape = Array(tab_length);
     cnt = 0;
     for (i = 0; i < tab_length; ++i) {
@@ -96,7 +96,7 @@ function mux_quid_tf_conf_ram() {
 function amp_quid_tf_conf_ram() {
 
 
-    const tab_length = 16384;
+    tab_length = 16384;
     pulse_shape = Array(tab_length);
     cnt = 0;
     for (i = 0; i < tab_length; ++i) {
