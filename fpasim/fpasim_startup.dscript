@@ -1,0 +1,328 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Ken-ji de la Rosa, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE Focal Plane Assembly simulator.
+//
+//                              fpasim-fw is free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                   kenji.delarosa@alten.com
+//    @file                   fpasim_test_make_pulse_generation.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    Automatic Generation    No
+//    Code Rules Reference
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This test does the following steps
+//       1. configure the spi devices
+//       2. reset the hardware
+//       3. configure RAMs with default values
+//       4. configure registers with default values
+//       5. check status and errors
+//
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// import javascript
+include("./fpasim/fpasim_tools.dscript");
+
+
+
+/**
+ * Script Entry Point
+ * @param {number} level_p - level of indentation at the beginning
+ * @param {number} mode_p - define the print output
+ * @param {number} verbosity_p - level of verbosity
+ */
+function main(level_p, mode_p, verbosity_p) {
+
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+
+    const level0 = 0;
+    const level1 = level0 + 1;
+    const level2 = level0 + 2;
+
+    const mode_p = 0;
+    const verbosity_p = 0;
+
+    /*
+     ***************************************************************************
+     * display the test description
+     ***************************************************************************
+     */
+    msg = "Startup Script";
+    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+
+    msg = "This test does the following steps:"
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    msg = [
+        "1. configure the spi devices",
+        "2. reset the FPASim function",
+    ]
+    display(msg_p = msg, level_p = level2, mode_p = mode_p);
+
+    msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    /*
+     ***************************************************************************
+     * display the script info
+     ***************************************************************************
+     */
+    //error_info_cnt = 0;
+    //error_info_cnt = fpasim_script_info(level_p = level0, mode_p = mode_p, verbosity_p = 2);
+
+    /*
+     ***************************************************************************
+     * configure spi devices, FPAsim RAM with default values
+     ***************************************************************************
+     */
+    msg = "Configure spi devices";
+    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+    configure_fmc150_spi_device(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
+
+
+    /*
+     ***************************************************************************
+     * reset the fpasim function
+     ***************************************************************************
+     */
+    msg = "Reset the fpasim function";
+    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+    fpasim_reset(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
+
+    /*
+     ***************************************************************************
+     * Configure the FPASIM RAMs
+     ***************************************************************************
+     */
+
+    msg = "Configure the fpasim RAMs";
+    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+
+    // RAM tes_pulse_shape filepath (*.mem)
+    tes_pulse_shape_filepath  = "./fpasim_default_ram/tes_pulse_shape.mem"
+    // RAM tes_std_state filepath (*.mem)
+    tes_std_state_filepath    = "./fpasim_default_ram/tes_std_state.mem"
+    // RAM mux_squid_offset filepath (*.mem)
+    mux_squid_offset_filepath = "./fpasim_default_ram/mux_squid_offset.mem"
+    // RAM mux_squid_tf filepath (*.mem)
+    mux_squid_tf_filepath     = "./fpasim_default_ram/mux_squid_tf.mem"
+    // RAM amp_squid_tf filepath (*.mem)
+    amp_squid_tf_filepath     = "./fpasim_default_ram/amp_squid_tf.mem"
+
+    err0 = fpasim_loadTES_PulseShape_From_File(file_p=tes_pulse_shape_filepath,level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
+    err1 = fpasim_sendToFPA_loadTES_SteadyState_From_File(file_p=tes_std_state_filepath,level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
+    err2 = fpasim_sendToFPA_loadMuxSQUID_Offset_From_File(file_p=mux_squid_offset_filepath,level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
+    err3 = fpasim_sendToFPA_loadMuxSQUID_TF_From_File(file_p=mux_squid_tf_filepath,level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
+    err4 = fpasim_sendToFPA_loadAmpSQUID_TF_From_File(file_p=amp_squid_tf_filepath,level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
+    error_load_ram_cnt = err0 + err1 + err2 + err3 + err4;
+    // negative -> positive value
+    error_load_ram_cnt = error_load_ram_cnt * -1;
+
+
+    /*
+     ***************************************************************************
+     * Configure the FPASIM functions
+     ***************************************************************************
+     */
+
+    msg = "Configure the fpasim function";
+    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+
+    // set the register: MUX_SQ_FB_DELAY
+    mux_sq_fb_delay = 0x0; // 0 to 63
+    msg = "Set register: MUX_SQ_FB_DELAY";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    sendToFPA_configureMuxDelay(mux_sq_fb_delay);
+
+    msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+
+    // set the register: AMP_SQ_OF_DELAY
+    amp_sq_of_delay = 0x0; // 0 to 63
+    msg = "Set register: AMP_SQ_OF_DELAY";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    sendToFPA_configureAmpDelay(amp_sq_of_delay);
+
+    msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+
+    // set the register: ERROR_DELAY
+    error_delay = 0x0; // 0 to 63
+    msg = "Set register: ERROR_DELAY";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    sendToFPA_configureErrorDelay(error_delay);
+
+    msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+
+    // set the register: RA_DELAY
+    ra_delay = 0x0; // 0 to 63
+    msg = "Set register: RA_DELAY";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    sendToFPA_configureRaDelay(ra_delay);
+
+    msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+
+    // set the register: TES_CONF
+    // user: nbPixels
+    nbPixels = 48; // 1 to 64
+    // user: nbSamplesPerPixel
+    nbSamplesPerPixel = 40; // 8 to 64
+    // auto-computed
+    totalFrameSize = nbPixels * nbSamplesPerPixel;
+
+    // auto-computed: expected FPGA values
+    nbPixels = nbPixels - 1; // add -1 because we start from 0
+    nbSamplesPerPixel = nbSamplesPerPixel - 1; // add -1 because we start from 0
+    totalFrameSize = totalFrameSize - 1; // add -1 because we start from 0
+
+    msg = "Set register: TES_CONF";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    sendToFPA_configureTES_conf(nbPixels = nbPixels, nbSamplesPerPixel = nbSamplesPerPixel, totalFrameSize = totalFrameSize);
+
+    msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    // set the register: CONF0
+    //   formula:
+    //     .inter_squid_gain = 256*(1/inter_squid_gain_bis)
+    //       . with:
+    //         . inter_squid_gain: values used by the FPGA.
+    //             . The value range is [0;255].
+    //             . In the FPGA, the value is interpreted as [0;1[ (<=> (1/inter_squid_gain_bis))
+    //         . inter_squid_gain_bis: values defined in the documentation
+    inter_squid_gain = 0x10; // [0 to 255]
+    msg = "Set register: CONF0";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    data = fpasim_build_conf0(inter_squid_gain_p = inter_squid_gain);
+    fpasim_set_debug_wirein_by_name(reg_name_p = 'CONF0', data_p = data, level_p = level2, mode_p = mode_p);
+
+    msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+
+    /*
+     ***************************************************************************
+     * check: DEBUG_CTRL
+     ***************************************************************************
+     */
+    adc1_bypass = 0; // 1: bypass adc1 (FPA_adc_amp_squid_offset_correction) (force data to 0), 0: otherwise
+    adc0_bypass = 0; // 1: bypass adc0 (adc_mux_squid_feedback) (force data to 0), 0: otherwise
+    dac_en_pattern = 0; // 1: enable dac pattern, 0: do nothing
+    rst_status = 0; // 1: reset internal error, 0: do nothing
+    debug_pulse = 1; // 1: latch the internal error, 0: otherwise
+    // build the data to send
+    data0 = fpasim_build_debug_ctrl(adc1_bypass_p=adc1_bypass,adc0_bypass_p=adc0_bypass, dac_en_pattern_p = dac_en_pattern, rst_status_p = rst_status, debug_pulse_p = debug_pulse);
+
+    msg = "Set register: DEBUG_CTRL";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    fpasim_set_debug_wirein_by_name(reg_name_p = 'DEBUG_CTRL', data_p = data0, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+
+    /*
+     ***************************************************************************
+     * check all errors
+     ***************************************************************************
+     */
+    error_debug_cnt = 0;
+    msg = "Check Debug Errors";
+    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+    error_debug_cnt = fpasim_check_all_errors(level_p = level1, mode_p = 0, verbosity_p = 0);
+
+    /*
+     ***************************************************************************
+     * Summary
+     ***************************************************************************
+     */
+
+    msg = "Summary: Errors";
+    display_title(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    // get HARDWARE_ID
+    reg_name = 'HARDWARE_ID';
+    msg = "Get " + reg_name + ": ";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    data = fpasim_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 2);
+
+    msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    // get the firmware Id
+    reg_name = 'FIRMWARE_ID';
+    msg = "Get " + reg_name + ": ";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    data = fpasim_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 2);
+
+    msg = " ";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    // get firmware version
+    reg_name = 'FIRMWARE_VERSION';
+    msg = "Get " + reg_name + ": ";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    data = fpasim_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 2);
+
+    msg = " ";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    // summary of the RAM loading with default value
+    if (error_load_ram_cnt == 0) {
+        msg_tmp = "[OK]: Default RAM loading " + error_load_ram_cnt.toString(10) + " error";
+        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+    } else {
+        msg_tmp = "[KO]: Default RAM loading " + error_load_ram_cnt.toString(10) + " errors";
+        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+    }
+
+    msg = "Summary: Errors";
+    display_title(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    if (error_debug_cnt == 0) {
+        msg_tmp = "[OK]: Debug errors has " + error_debug_cnt.toString(10) + " error";
+        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+    } else {
+        msg_tmp = "[KO]: Debug errors generation has " + error_debug_cnt.toString(10) + " errors";
+        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+    }
+
+
+
+    /*
+     ***************************************************************************
+     * End of script
+     ***************************************************************************
+     */
+    msg = "End of script";
+    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+
+
+}
+
+/**
+ * Execute the main function
+ * @param {number} level_p - level of indentation at the beginning
+ * @param {number} mode_p - define the print output
+ * @param {number} verbosity_p - level of verbosity
+ */
+main(level_p = 0, mode_p = 0, verbosity_p = 2);
