@@ -91,7 +91,7 @@ FPASIM_ADDR_WIREIN['ERROR_SEL'] = 0x19; // 25
 // FPASIM_ADDR_WIREIN['ERRORS'] = 0x1A; // 26
 // FPASIM_ADDR_WIREIN['STATUS'] = 0x1B; // 27
 // FPASIM_ADDR_WIREIN['RFU'] = 0x1C; // 28
-// FPASIM_ADDR_WIREIN['BOARD_ID'] = 0x1D; // 29
+// FPASIM_ADDR_WIREIN['HARDWARE_ID'] = 0x1D; // 29
 // FPASIM_ADDR_WIREIN['FIRMWARE_ID'] = 0x1E; // 30
 // FPASIM_ADDR_WIREIN['FIRMWARE_VERSION'] = 0x1F; // 31
 
@@ -129,7 +129,7 @@ FPASIM_ADDR_WIREOUT['ERROR_SEL'] = 0x39; // 25
 FPASIM_ADDR_WIREOUT['ERRORS'] = 0x3A; // 26
 FPASIM_ADDR_WIREOUT['STATUS'] = 0x3B; // 27
 // FPASIM_ADDR_WIREOUT['RFU'] = 0x3C; // 28
-FPASIM_ADDR_WIREOUT['BOARD_ID'] = 0x3D; // 29
+FPASIM_ADDR_WIREOUT['HARDWARE_ID'] = 0x3D; // 29
 FPASIM_ADDR_WIREOUT['FIRMWARE_ID'] = 0x3E; // 30
 FPASIM_ADDR_WIREOUT['FIRMWARE_VERSION'] = 0x3F; // 31
 
@@ -782,7 +782,7 @@ function fpasim_set_debug_wirein_by_name(reg_name_p, data_p, level_p, mode_p, ve
             // data = FPA_WireOutValues[28];
             // break;
 
-            // case 'BOARD_ID':
+            // case 'HARDWARE_ID':
             //     break;
             // case 'FIRMWARE_ID':
             //     break;
@@ -1790,13 +1790,13 @@ function fpasim_get_wireout_status(level_p, mode_p, verbosity_p) {
 }
 
 /**
- * Get the selected "BOARD_ID" register value.
+ * Get the selected "HARDWARE_ID" register value.
  * @param {number} level_p - level of indentation at the beginning.
  * @param {number} mode_p - define the print output.
  * @param {number} verbosity_p - level of verbosity.
  * @return {number} read register value.
  */
-function fpasim_get_wireout_board_id(level_p, mode_p, verbosity_p) {
+function fpasim_get_wireout_hardware_id(level_p, mode_p, verbosity_p) {
     // default function parameter values
     if (typeof(level_p) === 'undefined') level_p = 0;
     if (typeof(mode_p) === 'undefined') mode_p = 0;
@@ -1806,14 +1806,14 @@ function fpasim_get_wireout_board_id(level_p, mode_p, verbosity_p) {
     const level1 = level_p + 1;
     const level2 = level_p + 2;
 
-    addr = FPASIM_ADDR_WIREOUT['BOARD_ID'];
+    addr = FPASIM_ADDR_WIREOUT['HARDWARE_ID'];
     data = fpasim_wireout_read_command(addr_p = addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
-            msg = "[fpasim_get_wireout_board_id]: Get the register value ";
+            msg = "[fpasim_get_wireout_hardware_id]: Get the register value ";
             display(msg_p = msg, level_p = level0, mode_p = mode_p);
         }
 
@@ -2044,8 +2044,8 @@ function fpasim_get_wireout_by_name(reg_name_p, level_p, mode_p, verbosity_p) {
             // data = FPA_WireOutValues[28];
             // break;
 
-        case 'BOARD_ID':
-            data = fpasim_get_wireout_board_id(level_p = level0, mode_p, verbosity_p);
+        case 'HARDWARE_ID':
+            data = fpasim_get_wireout_hardware_id(level_p = level0, mode_p, verbosity_p);
             break;
         case 'FIRMWARE_ID':
             data = fpasim_get_wireout_firmware_id(level_p = level0, mode_p, verbosity_p);

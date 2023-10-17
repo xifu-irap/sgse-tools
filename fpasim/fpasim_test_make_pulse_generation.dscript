@@ -455,8 +455,8 @@ function main(level_p, mode_p, verbosity_p) {
     msg = "Summary: Errors";
     display_title(msg_p = msg, level_p = level1, mode_p = mode_p);
 
-    // get board id
-    reg_name = 'BOARD_ID';
+    // get hardware_id
+    reg_name = 'HARDWARE_ID';
     msg = "Get " + reg_name + ": ";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
     data = fpasim_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 2);

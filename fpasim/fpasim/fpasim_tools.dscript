@@ -82,8 +82,8 @@ function fpasim_script_info(level_p, mode_p, verbosity_p) {
     const msg = "";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
-    // get board id
-    const reg_name = 'BOARD_ID';
+    // get hardware_id
+    const reg_name = 'HARDWARE_ID';
     const msg = "Get " + reg_name + ": ";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
     const data = fpasim_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
