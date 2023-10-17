@@ -82,8 +82,8 @@ function fpasim_script_info(level_p, mode_p, verbosity_p) {
     const msg = "";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
-    // get board id
-    const reg_name = 'BOARD_ID';
+    // get hardware_id
+    const reg_name = 'HARDWARE_ID';
     const msg = "Get " + reg_name + ": ";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
     const data = fpasim_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
@@ -1238,4 +1238,17 @@ function configure_fpasim_default_ram(level_p, mode_p, verbosity_p) {
     return errors_cnt;
 
 }
+
+
+/**
+ * convert a percentage into a pulse height value.
+ *   This computed value is used by the "MAKE PULSE" register.
+ * @param {number} percentage_p - percentage. The range is [0,1.0]
+ */
+function fpasim_convert_percentage_to_pulse_height(percentage_p) {
+
+    value = percentage_p * (Math.pow(2, 16) - 1) / 100;
+    return Math.round(value);
+}
+
 //---------------------------------------------------------------------------------------
