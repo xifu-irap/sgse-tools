@@ -1238,4 +1238,17 @@ function configure_fpasim_default_ram(level_p, mode_p, verbosity_p) {
     return errors_cnt;
 
 }
+
+
+/**
+ * convert a percentage into a pulse height value.
+ *   This computed value is used by the "MAKE PULSE" register.
+ * @param {number} percentage_p - percentage. The range is [0,1.0]
+ */
+function fpasim_convert_percentage_to_pulse_height(percentage_p) {
+
+    value = percentage_p * (Math.pow(2, 16) - 1) / 100;
+    return Math.round(value);
+}
+
 //---------------------------------------------------------------------------------------
