@@ -41,15 +41,6 @@
 include("./fpasim/fpasim_tools.dscript");
 
 
-/**
- * convert a percentage of the pulse height into a pulse height value to write in the "MAKE PULSE" register.
- * @param {number} percentage_p - percentage. The range is [0,1.0]
- */
-function convert_percentage_to_pulse_height(percentage_p) {
-
-    value = percentage_p * (Math.pow(2, 16) - 1) / 100;
-    return Math.round(value);
-}
 
 /**
  * Load the steady_state ram with the same default values
@@ -346,11 +337,11 @@ function main(level_p, mode_p, verbosity_p) {
     time_shift_tab[1] = 0;
     time_shift_tab[0] = 0;
 
-    pulse_height_tab[4] = convert_percentage_to_pulse_height(percentage_p = 14);
-    pulse_height_tab[3] = convert_percentage_to_pulse_height(percentage_p = 12);
-    pulse_height_tab[2] = convert_percentage_to_pulse_height(percentage_p = 10);
-    pulse_height_tab[1] = convert_percentage_to_pulse_height(percentage_p = 8);
-    pulse_height_tab[0] = convert_percentage_to_pulse_height(percentage_p = 6);
+    pulse_height_tab[4] = fpasim_convert_percentage_to_pulse_height(percentage_p = 14);
+    pulse_height_tab[3] = fpasim_convert_percentage_to_pulse_height(percentage_p = 12);
+    pulse_height_tab[2] = fpasim_convert_percentage_to_pulse_height(percentage_p = 10);
+    pulse_height_tab[1] = fpasim_convert_percentage_to_pulse_height(percentage_p = 8);
+    pulse_height_tab[0] = fpasim_convert_percentage_to_pulse_height(percentage_p = 6);
 
 
     session_name = getText("Start loop");
@@ -399,11 +390,11 @@ function main(level_p, mode_p, verbosity_p) {
     time_shift_tab[1] = 0;
     time_shift_tab[0] = 0;
 
-    pulse_height_tab[4] = convert_percentage_to_pulse_height(percentage_p = 14);
-    pulse_height_tab[3] = convert_percentage_to_pulse_height(percentage_p = 12);
-    pulse_height_tab[2] = convert_percentage_to_pulse_height(percentage_p = 10);
-    pulse_height_tab[1] = convert_percentage_to_pulse_height(percentage_p = 8);
-    pulse_height_tab[0] = convert_percentage_to_pulse_height(percentage_p = 6);
+    pulse_height_tab[4] = fpasim_convert_percentage_to_pulse_height(percentage_p = 14);
+    pulse_height_tab[3] = fpasim_convert_percentage_to_pulse_height(percentage_p = 12);
+    pulse_height_tab[2] = fpasim_convert_percentage_to_pulse_height(percentage_p = 10);
+    pulse_height_tab[1] = fpasim_convert_percentage_to_pulse_height(percentage_p = 8);
+    pulse_height_tab[0] = fpasim_convert_percentage_to_pulse_height(percentage_p = 6);
 
 
     // loop
