@@ -266,7 +266,7 @@ function main(level_p, mode_p, verbosity_p) {
     msg = "Set Make_pulse (1 pixel): pixel_id: " + pixel_id.toString(10) + ", time_shift: " + time_shift.toString(10) + ", pulse_height: 0x" + pulse_height.toString(16);
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
-    sendToFPA_makePulse(pixelId = pixel_id, timeShift = time_shift, pulseHeigth = pulse_height);
+    sendToFPA_makePulse(pixelId = pixel_id, timeShift = time_shift, pulseHeight = pulse_height);
 
 
     msg = "";
@@ -278,10 +278,10 @@ function main(level_p, mode_p, verbosity_p) {
      ***************************************************************************
      */
     session_name = getText("Test sequence 2");
-    
+
     msg = "Test sequence 2";
     display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
-    
+
     pixel_id = 0; // 0 to 63
     time_shift = 0; // 0 to 15
     pulse_height = fpasim_convert_percentage_to_pulse_height(percentage_p = 100);
@@ -289,7 +289,7 @@ function main(level_p, mode_p, verbosity_p) {
     msg = "Set Make_pulse (1 pixel): pixel_id: " + pixel_id.toString(10) + ", time_shift: " + time_shift.toString(10) + ", pulse_height: 0x" + pulse_height.toString(16);
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
-    sendToFPA_makePulse(pixelId = pixel_id, timeShift = time_shift, pulseHeigth = pulse_height);
+    sendToFPA_makePulse(pixelId = pixel_id, timeShift = time_shift, pulseHeight = pulse_height);
 
 
     msg = "";

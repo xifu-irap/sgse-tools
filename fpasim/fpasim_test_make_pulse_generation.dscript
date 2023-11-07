@@ -359,7 +359,7 @@ function main(level_p, mode_p, verbosity_p) {
         msg = "Set Make_pulse (1 pixel): pixel_id: " + pixel_id.toString(10) + ", time_shift: " + time_shift.toString(10) + ", pulse_height: 0x" + pulse_height.toString(16);
         display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
-        sendToFPA_makePulse(pixelId = pixel_id, timeShift = time_shift, pulseHeigth = pulse_height);
+        sendToFPA_makePulse(pixelId = pixel_id, timeShift = time_shift, pulseHeight = pulse_height);
 
         // waitMs(tempo);
     }
@@ -409,7 +409,7 @@ function main(level_p, mode_p, verbosity_p) {
         msg = "Set Make_pulse (all pixels): pixel_id: N/A, time_shift: " + time_shift.toString(10) + ", pulse_height: 0x" + pulse_height.toString(16);
         display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
-        sendToFPA_makePulses(timeShift = time_shift, pulseHeigth = pulse_height);
+        sendToFPA_makePulses(timeShift = time_shift, pulseHeight = pulse_height);
         //data = fpasim_build_make_pulse(pixel_all_p=1, pixel_id_p=pixel_id, time_shift_p=time_shift, pulse_height_p=pulse_height);
         //fpasim_set_debug_wirein_by_name(reg_name_p="MAKE_PULSE", data_p=data, level_p=0, mode_p=0, verbosity_p=-1);
 
