@@ -266,7 +266,7 @@ function main(level_p, mode_p, verbosity_p) {
     msg = "Set Make_pulse (1 pixel): pixel_id: " + pixel_id.toString(10) + ", time_shift: " + time_shift.toString(10) + ", pulse_height: 0x" + pulse_height.toString(16);
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
-    sendToFPA_makePulse(pixelId = pixel_id, timeShift = time_shift, pulseHeigth = pulse_height);
+    sendToFPA_makePulse(pixelId = pixel_id, timeShift = time_shift, pulseHeight = pulse_height);
 
 
     msg = "";
