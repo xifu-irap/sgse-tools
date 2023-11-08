@@ -1,7 +1,46 @@
-// Read 16 values of the Pulse shaping table
-// Values expected : see .vhd code
+/*
+
+This test allows testing the DEMUX spi reading.
+
+ It has 3 sub-tests:
+
+    1. read registers
+
+    2. read a single user-defined register
+
+    3. read a single user-defined register
+
+  Expected Result: 
+
+    . the reading in 1. have predefined values
+
+    . The reading in 2. has a predefined value
+
+    . The reading in 3. has a predefined value
+
+*/
+
+/*
+  select the DEMUX SPI Link
+     .cs_select: 0: DEMUX, 1: RAS
+*/
+cs_select = 0;
+sendToDRELinkBoard_ConfigureSPI_CS(cs_select);
+
+/*
+  sub-test1 : read 16 register value of the Pulse Shaping table
+  Expected values:  see .vhd code
+*/
 sendToDREReadRegisters(0x0800, 16)
-// Read the SQ2 LockPoint offset : return = 0
+
+/*
+  sub-test2 : read the "SQ2 LockPoint offset" register value
+  Expected value: return = 0
+*/
 sendToDREReadRegister(0x0423)
-// Read the REG version : return = DF
+
+/*
+  sub-test2 : read the "REG version" register value
+  Expected value: return = DF
+*/
 sendToDREReadRegister(0x6001)
