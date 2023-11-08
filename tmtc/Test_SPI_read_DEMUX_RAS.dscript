@@ -1,0 +1,71 @@
+/*
+
+This test allows testing the spi selection.
+
+ It has 3 sub-tests:
+
+    1. read, write and read on the DEMUX SPI Link
+
+    2. read on the RAS SPI link
+
+    3. read on the DEMUX spi link
+
+  Expected Result: 
+
+    . the reading in 1. should be identical to the writting in 1.*
+
+    . The reading in 2. should be different of the reading in 1. and in 3.
+
+    . The reading in 1. and 3. should be identical
+
+*/
+
+
+
+/*
+  sub-test1 : write and read on the DEMUX SPI Link
+  Expected values: reading is equal to the writting
+*/
+// Select the DEMUX SPI Link
+//   cs_select: 0: DEMUX, 1: RAS
+cs_select = 0;
+sendToDRELinkBoard_ConfigureSPI_CS(cs_select);
+
+// Read the registers
+sendToDREReadRegisters(0x0400, 16);
+
+// Write registers with value_test table
+value_test = [0x0007, 0x0006, 0x0005, 0x0004, 0x0003, 0x0002, 0x0001, 0x0000, 
+           0x0000, 0x0007, 0x0006, 0x0005, 0x0004, 0x0003, 0x0002, 0x0001,
+           0x0000, 0x0000, 0x0007, 0x0006, 0x0005, 0x0003, 0x0002, 0x0001,
+           0x0000, 0x0000, 0x0007, 0x0006, 0x0005, 0x0004, 0x0003, 0x0002,
+           0x0001, 0x0000];
+sendToDREWritePixelsRegisters(0x0400,value_test);
+
+// Read the written DEMUX registers
+sendToDREReadRegisters(0x0400, 16);
+
+/*
+  sub-test2: read on the RAS SPI link
+  Expected values: reading is differerent of the reading of the sub-test1
+*/
+// Select the RAS SPI Link
+//   cs_select: 0: DEMUX, 1: RAS
+cs_select = 1;
+sendToDRELinkBoard_ConfigureSPI_CS(cs_select);
+
+// Read the RAS registers
+sendToDREReadRegisters(0x0400, 16);
+
+
+/*
+  sub-test3: read on the DEMUX spi link
+  Expected values: reading is equal to the reading of the sub-test1
+*/
+// Select the DEMUX SPI Link
+//   cs_select: 0: DEMUX, 1: RAS
+cs_select = 0;
+sendToDRELinkBoard_ConfigureSPI_CS(cs_select);
+// Read the DEMUX registers
+sendToDREReadRegisters(0x0400, 16);
+
