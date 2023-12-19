@@ -1,0 +1,451 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Ken-ji de la Rosa, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE Focal Plane Assembly simulator.
+//
+//                              tmtc-fw is free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                   kenji.delarosa@alten.com
+//    @file                   Test_tmtc_check_link.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    Automatic Generation    No
+//    Code Rules Reference
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//   This test does the following tests:
+//      . test_wire: test the TMTC registers
+//          . For the main registers: write -> read back -> check
+//   Note:
+//      . Tested with javascript
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// import javascript
+include("./tmtc/utils_tools.dscript");
+include("./tmtc/tmtc_tools.dscript");
+
+/**
+ * Configure the registers of the TMTC function with default values
+ * @param {number} level_p - level of indentation at the beginning
+ * @param {number} mode_p - define the print output
+ * @param {number} verbosity_p - level of verbosity
+ */
+function configure_tmtc(level_p, mode_p, verbosity_p) {
+
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+    /*
+     ***************************************************************************
+     * Configure the FPASIM functions
+     ***************************************************************************
+     */
+
+    msg = "Configure the tmtc function";
+    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+
+    // set the register: TC_HK_CONF
+    spi_select = 0x1;
+    msg = "Set register: TC_HK_CONF";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    tmtc_set_tc_hk_conf(spi_select_p=spi_select, level_p = level1, mode_p = mode_p);
+
+    msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    // set the register: tmtc_set_icu_conf
+    icu_select = 0x1;
+    msg = "Set register: tmtc_set_icu_conf";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    tmtc_set_icu_conf(icu_select_p=icu_select, level_p = level1, mode_p = mode_p);
+
+    msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    // set the register: DEBUG_CTRL
+    science_pattern_en_fifo_out = 0x0;
+    rst_status = 0x0;
+    debug_pulse = 0x0;
+    msg = "Set register: DEBUG_CTRL";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    tmtc_set_debug_ctrl(science_pattern_en_fifo_out_p=science_pattern_en_fifo_out, rst_status_p=rst_status, debug_pulse_p=debug_pulse, level_p = level1, mode_p = mode_p)
+
+    msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+}
+
+/**
+ * Test the wire register:
+ *   For each defined wire register, the steps are:
+ *      . write the register (wire_in)
+ *      . read the register (wire_out)
+ *      . check if the written data and the read data are equal.
+ * @param {number} level_p - level of indentation at the beginning
+ * @param {number} mode_p - define the print output
+ * @param {number} verbosity_p - level of verbosity
+ */
+function test_wire(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    //
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    cnt_error_wire = 0
+
+    /*
+     ***************************************************************************
+     * check: CTRL
+     ***************************************************************************
+     */
+    mask_rst = 0xFFFFFFFE // don't touch the rst bit
+    data0 = 0x9ABCEF0 & mask_rst;
+
+    msg = "Set register: CTRL";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    tmtc_set_debug_wirein_by_name(reg_name_p="CTRL",data_p=data0, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    // read the register
+    data1 = tmtc_get_wireout_by_name(reg_name_p = "CTRL", level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    // check the read data Vs the written data
+    msg = "Check register: Ctrl";
+    error = check_equal(value0_p = data0, value1_p = data1, msg_p = msg, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    if (error == -1) {
+        cnt_error_wire += 1
+    }
+
+    msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    /*
+     ***************************************************************************
+     * check: TC_HK_CONF
+     ***************************************************************************
+     */
+    data0 = 0x0000FFFF;
+    msg = "Set register: TC_HK_CONF";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    tmtc_set_debug_wirein_by_name(reg_name_p="TC_HK_CONF",data_p=data0, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    // read the register
+    data1 = tmtc_get_wireout_by_name(reg_name_p = "TC_HK_CONF", level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+
+
+
+
+    // check the read data Vs the written data
+    msg = "Check register: TC_HK_CONF";
+    error = check_equal(value0_p = data0, value1_p = data1, msg_p = msg, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    if (error == -1) {
+        cnt_error_wire += 1
+    }
+
+    msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+
+    /*
+     ***************************************************************************
+     * check: ICU_CONF
+     ***************************************************************************
+     */
+    data0 = 0x0000FFFF;
+
+    msg = "Set register: ICU_CONF";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    tmtc_set_debug_wirein_by_name(reg_name_p="ICU_CONF",data_p=data0, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    // read the register
+    data1 = tmtc_get_wireout_by_name(reg_name_p = "ICU_CONF", level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    // check the read data Vs the written data
+    msg = "Check register: ICU_CONF";
+    error = check_equal(value0_p = data0, value1_p = data1, msg_p = msg, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    if (error == -1) {
+        cnt_error_wire += 1
+    }
+
+    msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+
+    /*
+     ***************************************************************************
+     * check: DEBUG_CTRL
+     ***************************************************************************
+     */
+    science_pattern_en_fifo_out = 0;
+    rst_status = 0;
+    debug_pulse = 1;
+    // build the data to send
+    data0 = tmtc_build_debug_ctrl(science_pattern_en_fifo_out_p = science_pattern_en_fifo_out, rst_status_p = rst_status, debug_pulse_p = debug_pulse);
+
+    msg = "Set register: DEBUG_CTRL";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    tmtc_set_debug_wirein_by_name(reg_name_p = 'DEBUG_CTRL', data_p = data0, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    // read the register
+    data1 = tmtc_get_wireout_by_name(reg_name_p = "DEBUG_CTRL", level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    // check the read data Vs the written data
+    msg = "Check register: DEBUG_CTRL";
+    error = check_equal(value0_p = data0, value1_p = data1, msg_p = msg, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    if (error == -1) {
+        cnt_error_wire += 1
+    }
+    msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    /*
+     ***************************************************************************
+     * check: ERROR_SEL
+     ***************************************************************************
+     */
+    sel_error = 2;
+    // build the data to send
+    data0 = tmtc_build_error_sel(sel_error_p = sel_error);
+
+    msg = "Set register: ERROR_SEL";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    tmtc_set_debug_wirein_by_name(reg_name_p = 'ERROR_SEL', data_p = data0, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    // read the register
+    data1 = tmtc_get_wireout_by_name(reg_name_p = "ERROR_SEL", level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    // check the read data Vs the written data
+    msg = "Check register: ERROR_SEL";
+    error = check_equal(value0_p = data0, value1_p = data1, msg_p = msg, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    if (error == -1) {
+        cnt_error_wire += 1
+    }
+    msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    return cnt_error_wire
+
+}
+
+
+/**
+ * Script Entry Point
+ * @param {number} level_p - level of indentation at the beginning
+ * @param {number} mode_p - define the print output
+ * @param {number} verbosity_p - level of verbosity
+ */
+
+function main(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+
+    /*
+     ***************************************************************************
+     * display the test description
+     ***************************************************************************
+     */
+    msg = "tmtc Test Description: tmtc_check_link";
+    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+
+    msg = "Contexte et objet du test";
+    display_subtitle(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    msg = [
+        "Certains parametres de fonctionnement du tmtc peuvent se regler par commandes depuis le XIFU Studio.",
+        "Les parametres de ces commandes sont stockes dans des registres du tmtc et ils peuvent etre relus.",
+        "L'objet de ce test est de verifier la communication entre le tmtc et le XIFU Studio en programmant et en relisant le contenu des registres du tmtc."
+    ];
+    display(msg_p = msg, level_p = level2, mode_p = mode_p);
+
+    msg = "Deroulement du test"
+    display_subtitle(msg_p = msg, level_p = level1, mode_p = mode_p);
+    msg = [
+        "Lire le contenu des registres constant du tmtc et verifier qu'il correspond aux valeurs par defauts (en particulier le champs qui correspond à la version du firmware)",
+        "Tester la configuration des registres du tmtc",
+        "    . Pour chaque registre, effectuer les étapes suivantes:",
+        "      . ecriture -> lecture -> vérification (valeur écrite = valeur lue?)",
+    ];
+    display(msg_p = msg, level_p = level2, mode_p = mode_p);
+
+    msg = "";
+    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+
+
+
+    /*
+     ***************************************************************************
+     * display the script info
+     ***************************************************************************
+     */
+    error_info_cnt = 0;
+    error_info_cnt = tmtc_script_info(level_p = level0, mode_p = mode_p, 2);
+
+    /*
+     ***************************************************************************
+     * Get the test to execute
+     ***************************************************************************
+     */
+    msg = "Tests to execute:";
+    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+
+    // 1st Test to execute
+    str_en_wire = getText("Test: Check wire registers (0 or 1)", "0");
+    en_wire = parseInt(str_en_wire, 10);
+    msg = "Test: Check wire registers: " + str_en_wire;
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+
+
+    /*
+     ***************************************************************************
+     * configure spi devices, tmtc RAM with default values
+     ***************************************************************************
+     */
+    msg = "Configure TMTC register with default values";
+    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+    configure_tmtc(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
+
+
+    /*
+     ***************************************************************************
+     * reset the tmtc function
+     ***************************************************************************
+     */
+    // msg = "Reset the tmtc function";
+    // display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+    // tmtc_reset(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
+
+    error_wire_cnt = 0;
+
+
+    /*
+     ***************************************************************************
+     * Check: Wire registers
+     ***************************************************************************
+     */
+    if (en_wire == 1) {
+        msg = "Test: wire Registers";
+        display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+        error_wire_cnt = test_wire(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
+
+    }
+
+
+    /*
+     ***************************************************************************
+     * check all errors
+     ***************************************************************************
+     */
+    error_debug_cnt = 0;
+    msg = "Check Debug Errors";
+    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+    error_debug_cnt = tmtc_check_all_errors(level_p = level1, mode_p = 0, verbosity_p = 0);
+
+    /*
+     ***************************************************************************
+     * Summary
+     ***************************************************************************
+     */
+    msg = "Summary: Errors";
+    display_title(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    // get HARDWARE_ID
+    reg_name = 'HARDWARE_ID';
+    msg = "TMTC: Get " + reg_name + ": ";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    data = tmtc_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 2);
+
+    msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    // get the FIRMWARE_NAME
+    reg_name = 'FIRMWARE_NAME';
+    msg = "TMTC: Get " + reg_name + ": ";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    data = tmtc_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 2);
+
+
+    msg = " ";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    // get FIRMWARE_ID
+    reg_name = 'FIRMWARE_ID';
+    msg = "TMTC: Get " + reg_name + ": ";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    data = tmtc_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 2);
+
+    msg = " ";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+
+    // summary of the fpasim_script_info errors
+    if (error_info_cnt == 0) {
+        msg_tmp = "[OK]: Script Info has " + error_info_cnt.toString(10) + " error";
+        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+    } else {
+        msg_tmp = "[KO]: Script Info has " + error_info_cnt.toString(10) + " errors";
+        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+    }
+
+
+    // summary of the test_wire errors
+    if (en_wire == 0)
+    {
+        msg_tmp = "[N/A]: Test: Wire Registers was not performed ";
+        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+    }
+    else
+    {
+        if (error_wire_cnt == 0) {
+            msg_tmp = "[OK]: Test: Wire Registers has " + error_wire_cnt.toString(10) + " error";
+            display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+        } else {
+            msg_tmp = "[KO]: Test: Wire Registers has " + error_wire_cnt.toString(10) + " errors";
+            display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+        }
+    }
+
+
+    if (error_debug_cnt == 0) {
+        msg_tmp = "[OK]: Debug errors has " + error_debug_cnt.toString(10) + " error";
+        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+    } else {
+        msg_tmp = "[KO]: Debug errors generation has " + error_debug_cnt.toString(10) + " errors";
+        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+    }
+    /*
+     ***************************************************************************
+     * End of Test
+     ***************************************************************************
+     */
+    msg = "End of Test";
+    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+
+}
+
+/**
+ * Execute the main function
+ * @param {number} level_p - level of indentation at the beginning
+ * @param {number} mode_p - define the print output
+ * @param {number} verbosity_p - level of verbosity
+ */
+main(level_p = 0, mode_p = 0, verbosity_p = 2);
