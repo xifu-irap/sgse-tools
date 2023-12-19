@@ -50,59 +50,59 @@ function tmtc_script_info(level_p, mode_p, verbosity_p) {
     /*
      Print the test info
     */
-    const msg = "[tmtc_script_info]";
+    msg = "[tmtc_script_info]";
     display(msg_p = msg, level_p = level0, mode_p = mode_p);
 
     // get the operator name
-    const operator_name = get_operator_name();
-    const msg = "Operator Name: " + operator_name;
+    operator_name = get_operator_name();
+    msg = "Operator Name: " + operator_name;
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
-    const msg = "";
+    msg = "";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
     // get the session
-    const session_name = get_session_name();
-    const msg = "Session: " + session_name;
+    session_name = get_session_name();
+    msg = "Session: " + session_name;
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
-    const msg = "";
+    msg = "";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
     // Print the current date
-    const date = maDate()
-    const msg = "Date: " + date;
+    date = maDate()
+    msg = "Date: " + date;
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
-    const msg = "";
+    msg = "";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
     // get hardware_id
-    const reg_name = 'HARDWARE_ID';
-    const msg = "TMTC: Get " + reg_name + ": ";
+    reg_name = 'HARDWARE_ID';
+    msg = "TMTC: Get " + reg_name + ": ";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    const data = tmtc_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    data = tmtc_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
 
-    const msg = "";
+    msg = "";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
     // get firmware id
-    const reg_name = 'FIRMWARE_NAME';
-    const msg = "TMTC: Get " + reg_name + ": ";
+    reg_name = 'FIRMWARE_NAME';
+    msg = "TMTC: Get " + reg_name + ": ";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    const data = tmtc_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    data = tmtc_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
     data0 = 0x544D5443; // code ASCII of "TMTC"
     error = check_equal(value0_p = data0, value1_p = data, msg_p = msg, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
     if (error == -1) {
         cnt_error_info += 1
     }
 
-    const msg = "";
+    msg = "";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
     // get firmware version
-    const reg_name = 'FIRMWARE_ID';
-    const msg = "TMTC: Get " + reg_name + ": ";
+    reg_name = 'FIRMWARE_ID';
+    msg = "TMTC: Get " + reg_name + ": ";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
     data = tmtc_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
 
@@ -125,30 +125,30 @@ function tmtc_reset(level_p, mode_p, verbosity_p) {
     const level1 = level_p + 1;
     const level2 = level_p + 2;
 
-    const msg = "[tmtc_reset]";
+    msg = "[tmtc_reset]";
     display(msg_p = msg, level_p = level0, mode_p = mode_p);
 
     /*
     reset off
     */
 
-    const rst = 0;
-    const msg = "Set CTRL: reset Off";
+    rst = 0;
+    msg = "Set CTRL: reset Off";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
     tmtc_set_ctrl(rst_p=rst, level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
-    const msg = "";
+    msg = "";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
     /*
      add tempo
     */
-    const tempo = 10;
-    const msg = "wait for " + tempo.toString(10) + " ms";
+    tempo = 10;
+    msg = "wait for " + tempo.toString(10) + " ms";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
     waitMs(tempo);
 
-    const msg = "";
+    msg = "";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
 
@@ -156,34 +156,34 @@ function tmtc_reset(level_p, mode_p, verbosity_p) {
      reset on
     */
 
-    const rst = 1;
-    const msg = "Set CTRL: Reset On"
+    rst = 1;
+    msg = "Set CTRL: Reset On"
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
     tmtc_set_ctrl(rst_p=rst, level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
-    const msg = "";
+    msg = "";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
     /*
      reset off
     */
 
-    const rst = 0;
-    const msg = "Set CTRL: Reset Off"
+    rst = 0;
+    msg = "Set CTRL: Reset Off"
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
     tmtc_set_ctrl(rst_p=rst, level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
-    const msg = "";
+    msg = "";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
     /*
      add tempo
     */
-    const tempo = 10;
-    const msg = "wait for " + tempo.toString(10) + " ms";
+    tempo = 10;
+    msg = "wait for " + tempo.toString(10) + " ms";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
     waitMs(tempo);
 
-    const msg = "";
+    msg = "";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
 }
