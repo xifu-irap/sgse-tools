@@ -1,3 +1,4 @@
+
 req = getNextValue("DRE_controlLink0,DRE_controlLink1,DRE_DataCol0,DRE_DataCol3,DRE_DataCol2,DRE_DataCol1,DRE_LinkCounterError,DISP_SubsystemsDataTransferred","toutes les 1000 ms");
 while(1)
 {
