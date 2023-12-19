@@ -1,0 +1,377 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Ken-ji de la Rosa, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE Focal Plane Assembly simulator.
+//
+//                              fpasim-fw is free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                   kenji.delarosa@alten.com
+//    @file                   tmtc_tools.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    Automatic Generation    No
+//    Code Rules Reference
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This script combines imported functions in order to build higher level functions.
+//
+// -------------------------------------------------------------------------------------------------------------
+include("./tmtc/tmtc.dscript");
+
+/**
+ * Display the essential parameters of the test.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ */
+function tmtc_script_info(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    // count the number of error message
+    cnt_error_info = 0;
+    /*
+     Print the test info
+    */
+    const msg = "[tmtc_script_info]";
+    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+
+    // get the operator name
+    const operator_name = get_operator_name();
+    const msg = "Operator Name: " + operator_name;
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    const msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    // get the session
+    const session_name = get_session_name();
+    const msg = "Session: " + session_name;
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    const msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    // Print the current date
+    const date = maDate()
+    const msg = "Date: " + date;
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    const msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    // get hardware_id
+    const reg_name = 'HARDWARE_ID';
+    const msg = "TMTC: Get " + reg_name + ": ";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    const data = tmtc_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+
+    const msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    // get firmware id
+    const reg_name = 'FIRMWARE_NAME';
+    const msg = "TMTC: Get " + reg_name + ": ";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    const data = tmtc_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    data0 = 0x544D5443; // code ASCII of "TMTC"
+    error = check_equal(value0_p = data0, value1_p = data, msg_p = msg, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    if (error == -1) {
+        cnt_error_info += 1
+    }
+
+    const msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    // get firmware version
+    const reg_name = 'FIRMWARE_ID';
+    const msg = "TMTC: Get " + reg_name + ": ";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    data = tmtc_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+
+    return cnt_error_info;
+}
+
+/**
+ * Reset the fpasim function.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ */
+function tmtc_reset(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    const msg = "[tmtc_reset]";
+    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+
+    /*
+    reset off
+    */
+
+    const rst = 0;
+    const msg = "Set CTRL: reset Off";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    tmtc_set_ctrl(rst_p=rst, level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
+    const msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    /*
+     add tempo
+    */
+    const tempo = 10;
+    const msg = "wait for " + tempo.toString(10) + " ms";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    waitMs(tempo);
+
+    const msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+
+    /*
+     reset on
+    */
+
+    const rst = 1;
+    const msg = "Set CTRL: Reset On"
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    tmtc_set_ctrl(rst_p=rst, level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
+    const msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    /*
+     reset off
+    */
+
+    const rst = 0;
+    const msg = "Set CTRL: Reset Off"
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    tmtc_set_ctrl(rst_p=rst, level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
+    const msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    /*
+     add tempo
+    */
+    const tempo = 10;
+    const msg = "wait for " + tempo.toString(10) + " ms";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+    waitMs(tempo);
+
+    const msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+}
+
+
+/**
+ * Check if the specified error is equal to error_p. Then, display the result.
+ * @param {number} error_id_p - error id. The range is [0;10].
+ * @param {number} error_p - error value to compare.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ */
+function tmtc_check_error_by_id(error_id_p, error_p, level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+
+
+    const data1 = error_p;
+
+    const msg = "[tmtc_check_error_by_id]";
+    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+
+    const data0 = tmtc_get_error_by_id(sel_error_p = error_id_p, level_p = level1, mode_p = mode_p, verbosity_p = -2);
+    const str_data0 = convert_int_to_str_hex(value_p = data0, width_p = 32);
+    const str_data1 = convert_int_to_str_hex(value_p = data1, width_p = 32);
+    const msg_error = "Errors" + error_id_p.toString(10) + ":";
+    error = check_equal(value0_p = data0, value1_p = data1, msg_p = msg_error, level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
+    return error;
+}
+
+
+/**
+ * Check if all errors are equal to 0x0. Then, display the result of each check.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ */
+function tmtc_check_all_errors(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+
+    const msg = "[tmtc_check_all_errors]";
+    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    cnt_error = 0;
+    for (i = 0; i <= 4; i++) {
+        error = tmtc_check_error_by_id(error_id_p = i, error_p = 0, level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
+        if (error == -1) {
+            cnt_error += 1
+        }
+
+    }
+    return cnt_error
+
+}
+
+
+
+/**
+ * Check if 2 values are equal. Then, display the result.
+ * @param {number} value0_p - first value to compare.
+ * @param {number} value1_p - 2nd  value to compare.
+ * @param {string} msg_p - error message.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @return {number} 0
+ */
+function check_equal(value0_p, value1_p, msg_p, level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+
+    const str_data0 = convert_int_to_str_hex(value_p = value0_p, width_p = 32);
+    const str_data1 = convert_int_to_str_hex(value_p = value1_p, width_p = 32);
+
+    if (value0_p !== value1_p) {
+        const msg_tmp = "[KO]: " + msg_p;
+        display(msg_p = msg_tmp, level_p = level0, mode_p = mode_p);
+        if (verbosity_p > 0) {
+            const msg = "[check_equal]: value0_p: 0x" + str_data0 + " !=  value_1_p: 0x" + str_data1;
+            display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+        }
+        return -1
+    } else {
+        const msg = "[OK]: " + msg_p;
+        display(msg_p = msg, level_p = level0, mode_p = mode_p);
+        if (verbosity_p > 0) {
+            const msg = "[check_equal]: value0_p: 0x" + str_data0 + " ==  value_1_p: 0x" + str_data1;
+            display(msg_p = msg, level_p = level1, mode_p = mode_p);
+        }
+        return 0
+    }
+}
+
+/**
+ * Check if 2 tables are identical. Then, display the result.
+ * @param {array of number} tab0_p - 1st tab.
+ * @param {array of number} tab1_p - 2nd tab.
+ * @param {string} msg_p - error message.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @return {number} 0
+ */
+function check_equal_tab(tab0_p, tab1_p, msg_p, level_p, mode_p, verbosity_p)
+
+{
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    error = 0;
+
+    for (i = 0; i <= tab0_p.length; i++) {
+        const value0 = tab0_p[i];
+        const value1 = tab1_p[i];
+
+        if (value0 != value1) {
+            if (verbosity_p > 0) {
+                const msg = "index: " + i.toString(10) + " value0_p: " + value0.toString(10) + " ,value1_p:" + value1.toString(10);
+                display(msg_p = msg, level_p = level_p, mode_p = mode_p);
+
+            }
+            error = 1;
+        }
+    }
+
+    const error2 = check_equal(value0_p = error, value1_p = 0, msg_p = msg_p, level_p = level_p, mode_p = mode_p, verbosity_p = verbosity_p);
+    return error2;
+
+}
+
+
+
+//---------------------------------------------------------------------------------------
+// General functions
+//---------------------------------------------------------------------------------------
+
+/**
+ * Display a popup menu with a pre-defined list of operators.
+ * @return {string} Name of the operator.
+ */
+function get_operator_name() {
+    const OperatorTab = ["", "David", "Corentin", "Odile", "Laurent", "Ken", "Yann"]
+    const OperatorId = getItem("Please, select the operator name:", OperatorTab)
+    if (OperatorId == -1) {
+        const Operator_name = getText("Please, type the operator name:", "")
+    } else {
+        const Operator_name = OperatorTab[OperatorId]
+    }
+    return (Operator_name)
+}
+
+/**
+ * Display a popup menu in order to define a session by the user.
+ * @return {string} Name of the session.
+ */
+function get_session_name() {
+    const session_name = getText("Please, type the session name:", "Default_session_name");
+    return (session_name);
+}
+
+/**
+ * Format the current date.
+ * @return {string} formatted date.
+ */
+function maDate()
+// Returns the date using the format : yearmonthday_hourminutesecond
+{
+    const d = new Date();
+    const Now_date = d.getFullYear() + (("00" + (d.getMonth() + 1).toString()).slice(-2)) + (("00" + (d.getDate()).toString()).slice(-2)) + "_" + (("00" + (d.getHours()).toString()).slice(-2)) + (("00" + (d.getMinutes()).toString()).slice(-2)) + (("00" + (d.getSeconds()).toString()).slice(-2));
+    return Now_date;
+}
+
+
+
+//---------------------------------------------------------------------------------------
