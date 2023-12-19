@@ -20,14 +20,14 @@
 //    @file                   utils_tools.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    Automatic Generation    No
-//    Code Rules Reference    
+//    Code Rules Reference
 // -------------------------------------------------------------------------------------------------------------
-//    @details      
-//          
+//    @details
+//
 //     This script defines 2 main types of functions:
 //        . printing/displaying functions. Thoses functions are used to beautify the report.
 //        . helping function such as: convert_hex_to_ascii
-//       
+//
 //
 // -------------------------------------------------------------------------------------------------------------
 
@@ -65,9 +65,9 @@ function duplicate_str(str_p, nb_times_p) {
 function display_title(msg_p, level_p, mode_p, color_p) {
 
     // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(color_p) === 'undefined') color_p = 'yellow';
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (color_p) === 'undefined') color_p = 'yellow';
 
     // color = colors[color_p];
     // color_rst = colors['reset'];
@@ -100,9 +100,9 @@ function display_title(msg_p, level_p, mode_p, color_p) {
 function display_subtitle(msg_p, level_p, mode_p, color_p) {
 
     // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(color_p) === 'undefined') color_p = 'yellow';
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (color_p) === 'undefined') color_p = 'yellow';
 
 
     // color = colors[color_p];
@@ -134,9 +134,9 @@ function display_subtitle(msg_p, level_p, mode_p, color_p) {
 function display(msg_p, level_p, mode_p, color_p) {
 
     // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(color_p) === 'undefined') color_p = 'reset';
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (color_p) === 'undefined') color_p = 'reset';
 
     // color = colors[color_p]
     // color_rst = colors['reset']
@@ -161,9 +161,9 @@ function display(msg_p, level_p, mode_p, color_p) {
 function display_error(msg_p, level_p, mode_p, color_p) {
 
     // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(color_p) === 'undefined') color_p = 'reset';
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (color_p) === 'undefined') color_p = 'reset';
 
     const level0 = level_p;
     const level1 = level_p + 1;
@@ -193,8 +193,8 @@ function display_error(msg_p, level_p, mode_p, color_p) {
  */
 function display_register(addr_p, addr_width_p, data_p, data_width_p, level_p, mode_p) {
     // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
 
     const level0 = level_p;
 
@@ -221,8 +221,7 @@ function display_bit_from_data(bit_name_p, bit_pos_p, bit_width_p, data_p, level
     value = (data_p >> bit_pos_p) & mask; // return a int32_t
 
     // convert int to uint
-    if (value < 0)
-    {
+    if (value < 0) {
         // value = Math.pow(2, bit_width_p) - value;
         value += (1 << 30) * 4;
     }
@@ -242,8 +241,8 @@ function display_bit_from_data(bit_name_p, bit_pos_p, bit_width_p, data_p, level
  */
 function display_bit(bit_name_p, bit_value_p, bit_width_p, level_p, mode_p) {
     // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
 
     msg = bit_name_p + ': 0x' + convert_int_to_str_hex(value_p = bit_value_p, width_p = bit_width_p);
     display(msg_p = msg, level_p = level_p, mode_p = mode_p);
@@ -274,12 +273,12 @@ function _convert_str_to_array(msg_p) {
  */
 function convert_int_to_str_hex(value_p, width_p) {
     // default function parameter values
-    if (typeof(width_p) === 'undefined') width_p = 32;
+    if (typeof (width_p) === 'undefined') width_p = 32;
 
     // compute the number of hex decimal to output
     nb_hex_char = Math.ceil(width_p / 4);
     str_hex = value_p.toString(16);
-    
+
     // extends on the left side the hexadecimal string with 0
     while (str_hex.length < nb_hex_char) {
         str_hex = "0" + str_hex;
@@ -296,7 +295,7 @@ function convert_int_to_str_hex(value_p, width_p) {
  */
 function convert_hex_to_ascii(value_p, width_p) {
     // default function parameter values
-    if (typeof(width_p) === 'undefined') width_p = 32;
+    if (typeof (width_p) === 'undefined') width_p = 32;
 
     // compute the number bytes
     nb_bytes = Math.ceil(width_p / 8);
