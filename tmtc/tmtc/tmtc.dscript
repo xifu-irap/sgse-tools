@@ -191,9 +191,9 @@ function tmtc_build_error_sel(sel_error_p) {
  */
 function tmtc_set_ctrl(rst_p, level_p, mode_p, verbosity_p) {
     // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
 
     const level0 = level_p;
     const level1 = level_p + 1;
@@ -235,9 +235,9 @@ function tmtc_set_ctrl(rst_p, level_p, mode_p, verbosity_p) {
  */
 function tmtc_set_tc_hk_conf(spi_select_p, level_p, mode_p, verbosity_p) {
     // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
 
     const level0 = level_p;
     const level1 = level_p + 1;
@@ -278,9 +278,9 @@ function tmtc_set_tc_hk_conf(spi_select_p, level_p, mode_p, verbosity_p) {
  */
 function tmtc_set_icu_conf(icu_select_p, level_p, mode_p, verbosity_p) {
     // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
 
     const level0 = level_p;
     const level1 = level_p + 1;
@@ -324,9 +324,9 @@ function tmtc_set_icu_conf(icu_select_p, level_p, mode_p, verbosity_p) {
  */
 function tmtc_set_debug_ctrl(science_pattern_en_fifo_out_p, rst_status_p, debug_pulse_p, level_p, mode_p, verbosity_p) {
     // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
 
     const level0 = level_p;
     const level1 = level_p + 1;
@@ -372,9 +372,9 @@ function tmtc_set_debug_ctrl(science_pattern_en_fifo_out_p, rst_status_p, debug_
 
 function tmtc_set_debug_wirein_by_name(reg_name_p, data_p, level_p, mode_p, verbosity_p) {
     // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
 
     const level0 = level_p;
     const level1 = level_p + 1;
@@ -402,76 +402,76 @@ function tmtc_set_debug_wirein_by_name(reg_name_p, data_p, level_p, mode_p, verb
         //     break;
 
         // case 'RFU': // 05
-            // addr = TMTC_ADDR_WIREIN[reg_name_p];
-            // break;
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
 
         // case 'RFU': // 06
-            // addr = TMTC_ADDR_WIREIN[reg_name_p];
-            // break;
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
 
         // case 'RFU': // 07
-            // addr = TMTC_ADDR_WIREIN[reg_name_p];
-            // break;
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
 
         // case 'RFU': // 08
-            // addr = TMTC_ADDR_WIREIN[reg_name_p];
-            // break;
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
 
         // case 'RFU': // 09
-            // addr = TMTC_ADDR_WIREIN[reg_name_p];
-            // break;
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
 
         // case 'RFU': // 10
-            // addr = TMTC_ADDR_WIREIN[reg_name_p];
-            // break;
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
 
         // case 'RFU': // 11
-            // addr = TMTC_ADDR_WIREIN[reg_name_p];
-            // break;
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
 
         // case 'RFU': // 12
-            // addr = TMTC_ADDR_WIREIN[reg_name_p];
-            // break;
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
 
         // case 'RFU': // 13
-            // addr = TMTC_ADDR_WIREIN[reg_name_p];
-            // break;
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
 
         // case 'RFU': // 14
-            // addr = TMTC_ADDR_WIREIN[reg_name_p];
-            // break;
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
 
         // case 'RFU': // 15
-            // addr = TMTC_ADDR_WIREIN[reg_name_p];
-            // break;
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
 
         // case 'RFU': // 16
-            // addr = TMTC_ADDR_WIREIN[reg_name_p];
-            // break;
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
 
         // case 'RFU': // 17
-            // addr = TMTC_ADDR_WIREIN[reg_name_p];
-            // break;
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
 
         // case 'RFU': // 18
-            // addr = TMTC_ADDR_WIREIN[reg_name_p];
-            // break;
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
 
         // case 'RFU': // 19
-            // addr = TMTC_ADDR_WIREIN[reg_name_p];
-            // break;
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
 
         // case 'SCIENCE_STAMP_LSB': // 21
         //     addr = TMTC_ADDR_WIREIN[reg_name_p];
         //     break;
 
         // case 'SCIENCE_FIFO_OUT_RD_DATA_COUNT': // 22
-            // addr = TMTC_ADDR_WIREIN[reg_name_p];
-            // break;
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
 
         // case 'HK_FIFO_OUT_RD_DATA_COUNT': // 23
-            // addr = TMTC_ADDR_WIREIN[reg_name_p];
-            // break;
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
 
         case 'DEBUG_CTRL': // 24
             addr = TMTC_ADDR_WIREIN[reg_name_p];
@@ -482,28 +482,28 @@ function tmtc_set_debug_wirein_by_name(reg_name_p, data_p, level_p, mode_p, verb
             break;
 
         // case 'ERRORS':  // 26
-            // addr = TMTC_ADDR_WIREIN[reg_name_p];
-            // break;
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
 
         // case 'STATUS': // 27
-            // addr = TMTC_ADDR_WIREIN[reg_name_p];
-            // break;
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
 
         // case 'RFU': // 28
-            // addr = TMTC_ADDR_WIREIN[reg_name_p];
-            // break;
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
 
         // case 'HARDWARE_ID': // 29
-            // addr = TMTC_ADDR_WIREIN[reg_name_p];
-            // break;
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
 
         // case 'FIRMWARE_NAME': // 30
-            // addr = TMTC_ADDR_WIREIN[reg_name_p];
-            // break;
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
 
         // case 'FIRMWARE_ID': // 31
-            // addr = TMTC_ADDR_WIREIN[reg_name_p];
-            // break;
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
         default:
             msg = "[KO][tmtc_set_debug_wirein_by_name]: The register " + reg_name_p + " doesn't exist."
             display(msg_p = msg, level_p = level0, mode_p = mode_p);
@@ -564,9 +564,9 @@ function tmtc_wireout_read_command(addr_p) {
  */
 function tmtc_get_wireout_ctrl(level_p, mode_p, verbosity_p) {
     // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
 
     const level0 = level_p;
     const level1 = level_p + 1;
@@ -605,9 +605,9 @@ function tmtc_get_wireout_ctrl(level_p, mode_p, verbosity_p) {
  */
 function tmtc_get_wireout_tc_hk_conf(level_p, mode_p, verbosity_p) {
     // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
 
     const level0 = level_p;
     const level1 = level_p + 1;
@@ -646,9 +646,9 @@ function tmtc_get_wireout_tc_hk_conf(level_p, mode_p, verbosity_p) {
  */
 function tmtc_get_wireout_icu_conf(level_p, mode_p, verbosity_p) {
     // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
 
     const level0 = level_p;
     const level1 = level_p + 1;
@@ -688,9 +688,9 @@ function tmtc_get_wireout_icu_conf(level_p, mode_p, verbosity_p) {
  */
 function tmtc_get_wireout_science_stamp_lsb(level_p, mode_p, verbosity_p) {
     // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
 
     const level0 = level_p;
     const level1 = level_p + 1;
@@ -728,9 +728,9 @@ function tmtc_get_wireout_science_stamp_lsb(level_p, mode_p, verbosity_p) {
  */
 function tmtc_get_wireout_science_fifo_out_rd_data_count(level_p, mode_p, verbosity_p) {
     // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
 
     const level0 = level_p;
     const level1 = level_p + 1;
@@ -769,9 +769,9 @@ function tmtc_get_wireout_science_fifo_out_rd_data_count(level_p, mode_p, verbos
  */
 function tmtc_get_wireout_hk_fifo_out_rd_data_count(level_p, mode_p, verbosity_p) {
     // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
 
     const level0 = level_p;
     const level1 = level_p + 1;
@@ -809,9 +809,9 @@ function tmtc_get_wireout_hk_fifo_out_rd_data_count(level_p, mode_p, verbosity_p
  */
 function tmtc_get_wireout_debug_ctrl(level_p, mode_p, verbosity_p) {
     // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
 
     const level0 = level_p;
     const level1 = level_p + 1;
@@ -851,9 +851,9 @@ function tmtc_get_wireout_debug_ctrl(level_p, mode_p, verbosity_p) {
  */
 function tmtc_get_wireout_error_sel(level_p, mode_p, verbosity_p) {
     // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
 
     const level0 = level_p;
     const level1 = level_p + 1;
@@ -892,9 +892,9 @@ function tmtc_get_wireout_error_sel(level_p, mode_p, verbosity_p) {
  */
 function tmtc_get_wireout_errors(level_p, mode_p, verbosity_p) {
     // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
 
     const level0 = level_p;
     const level1 = level_p + 1;
@@ -933,9 +933,9 @@ function tmtc_get_wireout_errors(level_p, mode_p, verbosity_p) {
  */
 function tmtc_get_wireout_status(level_p, mode_p, verbosity_p) {
     // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
 
     const level0 = level_p;
     const level1 = level_p + 1;
@@ -973,9 +973,9 @@ function tmtc_get_wireout_status(level_p, mode_p, verbosity_p) {
  */
 function tmtc_get_wireout_hardware_id(level_p, mode_p, verbosity_p) {
     // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
 
     const level0 = level_p;
     const level1 = level_p + 1;
@@ -1013,9 +1013,9 @@ function tmtc_get_wireout_hardware_id(level_p, mode_p, verbosity_p) {
  */
 function tmtc_get_wireout_firmware_name(level_p, mode_p, verbosity_p) {
     // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
 
     const level0 = level_p;
     const level1 = level_p + 1;
@@ -1057,9 +1057,9 @@ function tmtc_get_wireout_firmware_name(level_p, mode_p, verbosity_p) {
  */
 function tmtc_get_wireout_firmware_id(level_p, mode_p, verbosity_p) {
     // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
 
     const level0 = level_p;
     const level1 = level_p + 1;
@@ -1102,9 +1102,9 @@ function tmtc_get_wireout_firmware_id(level_p, mode_p, verbosity_p) {
  */
 function tmtc_get_wireout_by_name(reg_name_p, level_p, mode_p, verbosity_p) {
     // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
 
     const level0 = level_p;
     const level1 = level_p + 1;
@@ -1203,8 +1203,8 @@ function tmtc_get_wireout_by_name(reg_name_p, level_p, mode_p, verbosity_p) {
             data = tmtc_get_wireout_status(level_p = level0, mode_p, verbosity_p);
             break;
 
-            // case 'RFU': //28
-            // break;
+        // case 'RFU': //28
+        // break;
 
         case 'HARDWARE_ID': //29
             data = tmtc_get_wireout_hardware_id(level_p = level0, mode_p, verbosity_p);
@@ -1236,9 +1236,9 @@ function tmtc_get_wireout_by_name(reg_name_p, level_p, mode_p, verbosity_p) {
  */
 function tmtc_get_error_by_id(sel_error_p, level_p, mode_p, verbosity_p) {
     // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
 
     const level0 = level_p;
     const level1 = level_p + 1;
@@ -1264,9 +1264,9 @@ function tmtc_get_error_by_id(sel_error_p, level_p, mode_p, verbosity_p) {
  */
 function tmtc_get_status_by_id(sel_error_p, level_p, mode_p, verbosity_p) {
     // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
 
     const level0 = level_p;
     const level1 = level_p + 1;
