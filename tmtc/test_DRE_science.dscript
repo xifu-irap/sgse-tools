@@ -1,15 +1,254 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Ken-ji de la Rosa, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE Focal Plane Assembly simulator.
+//
+//                              tmtc-fw is free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                   kenji.delarosa@alten.com
+//    @file                   Test_SPI_write_DEMUX_RAS.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    Automatic Generation    No
+//    Code Rules Reference
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//   This test does the following tests:
+//      . test_science: test the science link (normal mode)
+//         . The architecture is as follows:
+//            . DEMUX -> Science FIFO IN (TMTC) -> DDR -> science_pattern_fifo_out (bypassed) -> Science FIFO out -> Xifu Studio
+//         .The steps are:
+//            . disable the science pattern generator at the input of the science output FIFO
+//            . infinite loop: Get statistics on the science link
+//   Note:
+//      . Tested with javascript
+//
+// -------------------------------------------------------------------------------------------------------------
 
-req = getNextValue("DRE_controlLink0,DRE_controlLink1,DRE_DataCol0,DRE_DataCol3,DRE_DataCol2,DRE_DataCol1,DRE_LinkCounterError,DISP_SubsystemsDataTransferred","toutes les 1000 ms");
-while(1)
-{
-waitingForNextValue(req)
-clearLastLogLine()
-dataTransferred = DISP_SubsystemsDataTransferred[4] / 1024/1024/1024
-unit = "Go"
-if (dataTransferred > 1024)
-{
-unit = "To"
- dataTransferred = dataTransferred / 1024
+
+// import javascript
+include("./tmtc/utils_tools.dscript");
+include("./tmtc/tmtc_tools.dscript");
+
+
+/**
+ * Test: Write data to the DEMUX via the SPI link. Then, readback the written value
+ *   The steps are:
+ *     . disable the science pattern generator at the input of the science output FIFO
+ *     . infinite loop: Get statistics on the science link
+ * @param {number} level_p - level of indentation at the beginning
+ * @param {number} mode_p - define the print output
+ * @param {number} verbosity_p - level of verbosity
+ */
+function test_science(level_p, mode_p, verbosity_p) {
+
+  // default function parameter values
+  if (typeof (level_p) === 'undefined') level_p = 0;
+  if (typeof (mode_p) === 'undefined') mode_p = 0;
+  if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
+
+  //
+  const level0 = level_p;
+  const level1 = level_p + 1;
+  const level2 = level_p + 2;
+
+  /*
+    TMTC: DEBUG_PULSE register
+  */
+  // set the register: DEBUG_CTRL
+  science_pattern_en_fifo_out = 0x0; //0: normal mode, 1: science output fifo full speed
+  rst_status = 0x0;
+  debug_pulse = 0x0;
+  msg = "Set register: DEBUG_CTRL";
+  display(msg_p = msg, level_p = level1, mode_p = mode_p);
+  tmtc_set_debug_ctrl(science_pattern_en_fifo_out_p = science_pattern_en_fifo_out, rst_status_p = rst_status, debug_pulse_p = debug_pulse, level_p = level1, mode_p = mode_p)
+
+  // infinite loop: Get statistics on the science link
+  req = getNextValue("DRE_controlLink0,DRE_controlLink1,DRE_DataCol0,DRE_DataCol3,DRE_DataCol2,DRE_DataCol1,DRE_LinkCounterError,DISP_SubsystemsDataTransferred", "toutes les 1000 ms");
+  while (1) {
+    waitingForNextValue(req)
+    clearLastLogLine()
+    dataTransferred = DISP_SubsystemsDataTransferred[4] / 1024 / 1024 / 1024
+    unit = "Go"
+    if (dataTransferred > 1024) {
+      unit = "To"
+      dataTransferred = dataTransferred / 1024
+    }
+    print(dataTransferred.toPrecision(3) + " " + unit + " received, " + DRE_LinkCounterError + " errors detected, " + DRE_controlLink0, DRE_DataCol0, DRE_DataCol1, DRE_DataCol2, DRE_DataCol3)
+  }
+
 }
-print(dataTransferred.toPrecision(3)+" " +unit+" received, "+ DRE_LinkCounterError + " errors detected, "+DRE_controlLink0, DRE_DataCol0, DRE_DataCol1, DRE_DataCol2, DRE_DataCol3)
+
+/**
+ * Script Entry Point
+ * @param {number} level_p - level of indentation at the beginning
+ * @param {number} mode_p - define the print output
+ * @param {number} verbosity_p - level of verbosity
+ */
+
+function main(level_p, mode_p, verbosity_p) {
+
+  // default function parameter values
+  if (typeof (level_p) === 'undefined') level_p = 0;
+  if (typeof (mode_p) === 'undefined') mode_p = 0;
+  if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
+
+  const level0 = level_p;
+  const level1 = level_p + 1;
+  const level2 = level_p + 2;
+
+
+  /*
+   ***************************************************************************
+   * display the test description
+   ***************************************************************************
+   */
+  msg = "tmtc Test Description: Test_science";
+  display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+
+  msg = "Contexte et objet du test";
+  display_subtitle(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+
+  msg = [
+    "This test allows testing the writting to the DEMUX spi device via the SPI link.",
+    "The steps are:",
+    "   . disable the science pattern generator at the input of the science output FIFO",
+    "   . infinite loop: Get statistics on the science link"
+  ];
+  display(msg_p = msg, level_p = level2, mode_p = mode_p);
+
+  msg = "";
+  display(msg_p = msg, level_p = level0, mode_p = mode_p);
+
+
+  /*
+    ***************************************************************************
+    * display the script info
+    ***************************************************************************
+    */
+  error_info_cnt = 0;
+  error_info_cnt = tmtc_script_info(level_p = level0, mode_p = mode_p, 2);
+
+  // 1st Test to execute
+  // str_en_science = getText("Test: Science (0 or 1)", "0");
+  str_en_science = "1";
+  en_science = parseInt(str_en_science, 10);
+
+  /*
+   ***************************************************************************
+   * Check: Science Link
+   ***************************************************************************
+   */
+  if (en_science == 1) {
+    msg = "Test: Check read HK/Status from DEMUX via the SPI link";
+    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+    // error_science_cnt = test_science(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
+    test_science(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
+
+  }
+
+  /*
+       ***************************************************************************
+       * check all errors
+       ***************************************************************************
+       */
+  error_debug_cnt = 0;
+  msg = "Check Debug Errors";
+  display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+  error_debug_cnt = tmtc_check_all_errors(level_p = level1, mode_p = 0, verbosity_p = 0);
+
+  /*
+    ***************************************************************************
+    * Summary
+    ***************************************************************************
+    */
+  msg = "Summary: Errors";
+  display_title(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+  // get HARDWARE_ID
+  reg_name = 'HARDWARE_ID';
+  msg = "TMTC: Get " + reg_name + ": ";
+  display(msg_p = msg, level_p = level1, mode_p = mode_p);
+  data = tmtc_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 1);
+
+  msg = "";
+  display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+  // get the FIRMWARE_NAME
+  reg_name = 'FIRMWARE_NAME';
+  msg = "TMTC: Get " + reg_name + ": ";
+  display(msg_p = msg, level_p = level1, mode_p = mode_p);
+  data = tmtc_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 1);
+
+
+  msg = " ";
+  display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+  // get FIRMWARE_ID
+  reg_name = 'FIRMWARE_ID';
+  msg = "TMTC: Get " + reg_name + ": ";
+  display(msg_p = msg, level_p = level1, mode_p = mode_p);
+  data = tmtc_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 1);
+
+  msg = " ";
+  display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+  // summary of the fpasim_script_info errors
+  if (error_info_cnt == 0) {
+    msg_tmp = "[OK]: Script Info has " + error_info_cnt.toString(10) + " error";
+    display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+  } else {
+    msg_tmp = "[KO]: Script Info has " + error_info_cnt.toString(10) + " errors";
+    display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+  }
+
+  // summary of the science errors
+  // if (en_science == 0)
+  // {
+  //     msg_tmp = "[N/A]: Test: DEMUX SPI Read was not performed ";
+  //     display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+  // }
+  // else
+  // {
+  //     if (error_science_cnt == 0) {
+  //         msg_tmp = "[OK]: Test: DEMUX SPI Read has " + error_science_cnt.toString(10) + " error";
+  //         display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+  //     } else {
+  //         msg_tmp = "[KO]: Test: DEMUX SPI Read has " + error_science_cnt.toString(10) + " errors";
+  //         display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+  //     }
+  // }
+
+  /*
+   ***************************************************************************
+   * End of Test
+   ***************************************************************************
+   */
+  msg = "End of Test";
+  display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+
 }
+/**
+ * Execute the main function
+ * @param {number} level_p - level of indentation at the beginning
+ * @param {number} mode_p - define the print output
+ * @param {number} verbosity_p - level of verbosity
+ */
+main(level_p = 0, mode_p = 0, verbosity_p = 0);
+
+
+
+
+

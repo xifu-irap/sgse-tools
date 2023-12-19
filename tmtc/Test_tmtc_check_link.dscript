@@ -45,9 +45,9 @@ include("./tmtc/tmtc_tools.dscript");
 function configure_tmtc(level_p, mode_p, verbosity_p) {
 
     // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
 
     const level0 = level_p;
     const level1 = level_p + 1;
@@ -65,7 +65,7 @@ function configure_tmtc(level_p, mode_p, verbosity_p) {
     spi_select = 0x1;
     msg = "Set register: TC_HK_CONF";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    tmtc_set_tc_hk_conf(spi_select_p=spi_select, level_p = level1, mode_p = mode_p);
+    tmtc_set_tc_hk_conf(spi_select_p = spi_select, level_p = level1, mode_p = mode_p);
 
     msg = "";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
@@ -74,7 +74,7 @@ function configure_tmtc(level_p, mode_p, verbosity_p) {
     icu_select = 0x1;
     msg = "Set register: tmtc_set_icu_conf";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    tmtc_set_icu_conf(icu_select_p=icu_select, level_p = level1, mode_p = mode_p);
+    tmtc_set_icu_conf(icu_select_p = icu_select, level_p = level1, mode_p = mode_p);
 
     msg = "";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
@@ -85,7 +85,7 @@ function configure_tmtc(level_p, mode_p, verbosity_p) {
     debug_pulse = 0x0;
     msg = "Set register: DEBUG_CTRL";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    tmtc_set_debug_ctrl(science_pattern_en_fifo_out_p=science_pattern_en_fifo_out, rst_status_p=rst_status, debug_pulse_p=debug_pulse, level_p = level1, mode_p = mode_p)
+    tmtc_set_debug_ctrl(science_pattern_en_fifo_out_p = science_pattern_en_fifo_out, rst_status_p = rst_status, debug_pulse_p = debug_pulse, level_p = level1, mode_p = mode_p)
 
     msg = "";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
@@ -103,9 +103,9 @@ function configure_tmtc(level_p, mode_p, verbosity_p) {
  */
 function test_wire(level_p, mode_p, verbosity_p) {
     // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
 
     //
     const level0 = level_p;
@@ -124,7 +124,7 @@ function test_wire(level_p, mode_p, verbosity_p) {
 
     msg = "Set register: CTRL";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    tmtc_set_debug_wirein_by_name(reg_name_p="CTRL",data_p=data0, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    tmtc_set_debug_wirein_by_name(reg_name_p = "CTRL", data_p = data0, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
     // read the register
     data1 = tmtc_get_wireout_by_name(reg_name_p = "CTRL", level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
     // check the read data Vs the written data
@@ -145,7 +145,7 @@ function test_wire(level_p, mode_p, verbosity_p) {
     data0 = 0x0000FFFF;
     msg = "Set register: TC_HK_CONF";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    tmtc_set_debug_wirein_by_name(reg_name_p="TC_HK_CONF",data_p=data0, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    tmtc_set_debug_wirein_by_name(reg_name_p = "TC_HK_CONF", data_p = data0, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
     // read the register
     data1 = tmtc_get_wireout_by_name(reg_name_p = "TC_HK_CONF", level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
 
@@ -172,7 +172,7 @@ function test_wire(level_p, mode_p, verbosity_p) {
 
     msg = "Set register: ICU_CONF";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    tmtc_set_debug_wirein_by_name(reg_name_p="ICU_CONF",data_p=data0, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    tmtc_set_debug_wirein_by_name(reg_name_p = "ICU_CONF", data_p = data0, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
     // read the register
     data1 = tmtc_get_wireout_by_name(reg_name_p = "ICU_CONF", level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
     // check the read data Vs the written data
@@ -249,9 +249,9 @@ function test_wire(level_p, mode_p, verbosity_p) {
 
 function main(level_p, mode_p, verbosity_p) {
     // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
 
     const level0 = level_p;
     const level1 = level_p + 1;
@@ -308,7 +308,8 @@ function main(level_p, mode_p, verbosity_p) {
     display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
 
     // 1st Test to execute
-    str_en_wire = getText("Test: Check wire registers (0 or 1)", "0");
+    //str_en_wire = getText("Test: Check wire registers (0 or 1)", "0");
+    str_en_wire = "1";
     en_wire = parseInt(str_en_wire, 10);
     msg = "Test: Check wire registers: " + str_en_wire;
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
@@ -408,21 +409,19 @@ function main(level_p, mode_p, verbosity_p) {
 
 
     // summary of the test_wire errors
-    if (en_wire == 0)
-    {
-        msg_tmp = "[N/A]: Test: Wire Registers was not performed ";
-        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
-    }
-    else
-    {
-        if (error_wire_cnt == 0) {
-            msg_tmp = "[OK]: Test: Wire Registers has " + error_wire_cnt.toString(10) + " error";
-            display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
-        } else {
-            msg_tmp = "[KO]: Test: Wire Registers has " + error_wire_cnt.toString(10) + " errors";
-            display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
-        }
-    }
+    // if (en_wire == 0) {
+    //     msg_tmp = "[N/A]: Test: Wire Registers was not performed ";
+    //     display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+    // }
+    // else {
+    //     if (error_wire_cnt == 0) {
+    //         msg_tmp = "[OK]: Test: Wire Registers has " + error_wire_cnt.toString(10) + " error";
+    //         display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+    //     } else {
+    //         msg_tmp = "[KO]: Test: Wire Registers has " + error_wire_cnt.toString(10) + " errors";
+    //         display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+    //     }
+    // }
 
 
     if (error_debug_cnt == 0) {
