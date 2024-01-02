@@ -1,0 +1,177 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Ken-ji de la Rosa, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE Focal Plane Assembly simulator.
+//
+//                              tmtc-fw is free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                   kenji.delarosa@alten.com
+//    @file                   Test_DRE_science_debug_full_speed.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    Automatic Generation    No
+//    Code Rules Reference
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//   This test does the following tests:
+//      . test_science: test the science link (debug mode)
+//         . The architecture is as follows:
+//            . DEMUX (ignored) -> Science FIFO IN (ignored) -> DDR (ignored) -> science_pattern_fifo_out (enabled) -> Science FIFO out -> Xifu Studio
+//            . So, the reduced architecture is:
+//                . science_pattern_fifo_out (enabled) -> Science FIFO out -> Xifu Studio
+//         .The steps are:
+//            . Enable the science pattern generator at the input of the science output FIFO
+//            . Infinite loop: Get statistics on the science link
+//   Note:
+//      . Tested with javascript
+//
+// -------------------------------------------------------------------------------------------------------------
+
+
+// import javascript
+include("./tmtc/utils_tools.dscript");
+include("./tmtc/tmtc_tools.dscript");
+
+
+/**
+ * Test the science USB link full speed (debug mode): Continuously read the science data from the science pattern generator
+ *   The steps are:
+ *     . Enable the science pattern generator at the input of the science output FIFO
+ *     . Infinite loop: Get statistics on the science link
+ * @param {number} level_p - level of indentation at the beginning
+ * @param {number} mode_p - define the print output
+ * @param {number} verbosity_p - level of verbosity
+ */
+function test_science(level_p, mode_p, verbosity_p) {
+
+  // default function parameter values
+  if (typeof (level_p) === 'undefined') level_p = 0;
+  if (typeof (mode_p) === 'undefined') mode_p = 0;
+  if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
+
+  //
+  const level0 = level_p;
+  const level1 = level_p + 1;
+  const level2 = level_p + 2;
+
+  /*
+    TMTC: DEBUG_PULSE register
+  */
+  // set the register: DEBUG_CTRL
+  science_pattern_en_fifo_out = 0x1; //0: normal mode, 1: science output fifo full speed
+  rst_status = 0x0;
+  debug_pulse = 0x0;
+  msg = "Set register: DEBUG_CTRL";
+  display(msg_p = msg, level_p = level1, mode_p = mode_p);
+  tmtc_set_debug_ctrl(science_pattern_en_fifo_out_p = science_pattern_en_fifo_out, rst_status_p = rst_status, debug_pulse_p = debug_pulse, level_p = level1, mode_p = mode_p)
+
+  // infinite loop: Get statistics on the science USB link
+  req = getNextValue("DRE_controlLink0,DRE_controlLink1,DRE_DataCol0,DRE_DataCol3,DRE_DataCol2,DRE_DataCol1,DRE_LinkCounterError,DISP_SubsystemsDataTransferred", "toutes les 1000 ms");
+  while (1) {
+    waitingForNextValue(req)
+    clearLastLogLine()
+    dataTransferred = DISP_SubsystemsDataTransferred[4] / 1024 / 1024 / 1024
+    unit = "Go"
+    if (dataTransferred > 1024) {
+      unit = "To"
+      dataTransferred = dataTransferred / 1024
+    }
+    print(dataTransferred.toPrecision(3) + " " + unit + " received, " + DRE_LinkCounterError + " errors detected, " + DRE_controlLink0, DRE_DataCol0, DRE_DataCol1, DRE_DataCol2, DRE_DataCol3)
+  }
+
+}
+
+/**
+ * Script Entry Point
+ * @param {number} level_p - level of indentation at the beginning
+ * @param {number} mode_p - define the print output
+ * @param {number} verbosity_p - level of verbosity
+ */
+
+function main(level_p, mode_p, verbosity_p) {
+
+  // default function parameter values
+  if (typeof (level_p) === 'undefined') level_p = 0;
+  if (typeof (mode_p) === 'undefined') mode_p = 0;
+  if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
+
+  const level0 = level_p;
+  const level1 = level_p + 1;
+  const level2 = level_p + 2;
+
+
+  /*
+   ***************************************************************************
+   * display the test description
+   ***************************************************************************
+   */
+  msg = "tmtc Test Description: Test_science (debug mode)";
+  display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+
+  msg = "Context and purpose of the test";
+  display_subtitle(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+
+  msg = [
+    "This test (debug mode) allows testing the supported maximum speed of the science USB link with data from the science pattern generator.",
+    "The steps are:",
+    "   . Enable the science pattern generator at the input of the science output FIFO",
+    "   . Infinite loop: Get statistics on the science link"
+  ];
+  display(msg_p = msg, level_p = level2, mode_p = mode_p);
+
+  msg = "";
+  display(msg_p = msg, level_p = level0, mode_p = mode_p);
+
+
+  /*
+   ***************************************************************************
+   * display the script info
+   ***************************************************************************
+  */
+  error_info_cnt = 0;
+  error_info_cnt = tmtc_script_info(level_p = level0, mode_p = mode_p, 2);
+
+  // 1st Test to execute
+  // str_en_science = getText("Test: Science (0 or 1)", "0");
+  str_en_science = "1";
+  en_science = parseInt(str_en_science, 10);
+
+  /*
+   ***************************************************************************
+   * Check: Science Link
+   ***************************************************************************
+   */
+  if (en_science == 1) {
+    msg = "Test: Run the science USB link full speed test (debug mode)";
+    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+    test_science(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
+
+  }
+
+
+
+}
+/**
+ * Execute the main function
+ * @param {number} level_p - level of indentation at the beginning
+ * @param {number} mode_p - define the print output
+ * @param {number} verbosity_p - level of verbosity
+ */
+main(level_p = 0, mode_p = 0, verbosity_p = 0);
+
+
+
+
+
