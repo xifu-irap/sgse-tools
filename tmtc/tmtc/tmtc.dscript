@@ -3,7 +3,7 @@
 // -------------------------------------------------------------------------------------------------------------
 //                              This file is part of the ATHENA X-IFU DRE Focal Plane Assembly simulator.
 //
-//                              fpasim-fw is free software: you can redistribute it and/or modify
+//                              tmtc-fw is free software: you can redistribute it and/or modify
 //                              it under the terms of the GNU General Public License as published by
 //                              the Free Software Foundation, either version 3 of the License, or
 //                              (at your option) any later version.
@@ -24,7 +24,7 @@
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
-//    This script defines base functions to access (read/write) to the FPASim functions.
+//    This script defines base functions to access (read/write) to the TMTC functions.
 //    In particular, functions associated to the SPI module bridge are defined for the downstream javascript.
 //
 //    Note:
@@ -122,7 +122,6 @@ TMTC_ADDR_WIREOUT['FIRMWARE_ID'] = 0x3F; // 31
  * Build the word to write in the "CTRL" register.
  *   Note: fields ( defintion, range, ...) are defined in the "TMTC-D_commands_dictionnary_v5.0.xlsx" document.
  * @param {number} rst_p - reset.
- * @param {number} en_p - enable.
  * @return {number} built word.
  */
 function tmtc_build_ctrl(rst_p) {
@@ -171,7 +170,7 @@ function tmtc_build_debug_ctrl(science_pattern_en_fifo_out_p, rst_status_p, debu
 /**
  * Build the word to write in the "ERROR_SEL" register.
  *   Note: fields ( defintion, range, ...) are defined in the "TMTC-D_commands_dictionnary_v5.0.xlsx" document.
- * @param {number} sel_error_p -
+ * @param {number} sel_error_p - id of the selected error and status register
  * @return {number} built word.
  */
 function tmtc_build_error_sel(sel_error_p) {
@@ -363,7 +362,7 @@ function tmtc_set_debug_ctrl(science_pattern_en_fifo_out_p, rst_status_p, debug_
 
 /**
  * Set the selected register value.
- * @param {string} reg_name_p - Name of the FPASIM register.
+ * @param {string} reg_name_p - Name of the TMTC register.
  * @param {number} data_p - data to write in the register.
  * @param {number} level_p - level of indentation at the beginning.
  * @param {number} mode_p - define the print output.
@@ -875,7 +874,7 @@ function tmtc_get_wireout_error_sel(level_p, mode_p, verbosity_p) {
         }
 
         if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "sel_error", bit_pos_p = 1, bit_width_p = 4, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data(bit_name_p = "sel_error", bit_pos_p = 1, bit_width_p = 3, data_p = data, level_p = level2, mode_p = mode_p);
         }
     }
 
@@ -997,7 +996,7 @@ function tmtc_get_wireout_hardware_id(level_p, mode_p, verbosity_p) {
         }
 
         if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "hardware_id_p", bit_pos_p = 0, bit_width_p = 32, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data(bit_name_p = "hardware_id_p", bit_pos_p = 0, bit_width_p = 8, data_p = data, level_p = level2, mode_p = mode_p);
         }
     }
 
@@ -1273,7 +1272,7 @@ function tmtc_get_status_by_id(sel_error_p, level_p, mode_p, verbosity_p) {
 
     // Select the errors/status to read
     const index = sel_error_p;
-    fpasim_set_debug_wirein_by_name(reg_name_p = "ERROR_SEL", data_p = index, level_p = level_p, mode_p = mode_p, verbosity_p = verbosity_p);
+    tmtc_set_debug_wirein_by_name(reg_name_p = "ERROR_SEL", data_p = index, level_p = level_p, mode_p = mode_p, verbosity_p = verbosity_p);
 
     // read the selected status
     tmtc_get_wireout_by_name(reg_name_p = "STATUS", level_p = level_p, mode_p = mode_p, verbosity_p = verbosity_p);
