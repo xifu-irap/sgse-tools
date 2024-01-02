@@ -17,7 +17,7 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                   kenji.delarosa@alten.com
-//    @file                   Test_SPI_write_DEMUX_RAS.dscript
+//    @file                   Test_DRE_science.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    Automatic Generation    No
 //    Code Rules Reference
@@ -27,10 +27,10 @@
 //   This test does the following tests:
 //      . test_science: test the science link (normal mode)
 //         . The architecture is as follows:
-//            . DEMUX -> Science FIFO IN (TMTC) -> DDR -> science_pattern_fifo_out (bypassed) -> Science FIFO out -> Xifu Studio
+//            . DEMUX -> Science FIFO IN -> DDR -> science_pattern_fifo_out (bypassed) -> Science FIFO out -> Xifu Studio
 //         .The steps are:
-//            . disable the science pattern generator at the input of the science output FIFO
-//            . infinite loop: Get statistics on the science link
+//            . Disable the science pattern generator at the input of the science output FIFO
+//            . Infinite loop: Get statistics on the science link
 //   Note:
 //      . Tested with javascript
 //
@@ -43,10 +43,10 @@ include("./tmtc/tmtc_tools.dscript");
 
 
 /**
- * Test: Write data to the DEMUX via the SPI link. Then, readback the written value
+ * Test the science USB link speed (normal mode): Continuously read the science data from the DEMUX
  *   The steps are:
- *     . disable the science pattern generator at the input of the science output FIFO
- *     . infinite loop: Get statistics on the science link
+ *     . Disable the science pattern generator at the input of the science output FIFO
+ *     . Infinite loop: Get statistics on the science link
  * @param {number} level_p - level of indentation at the beginning
  * @param {number} mode_p - define the print output
  * @param {number} verbosity_p - level of verbosity
@@ -74,7 +74,7 @@ function test_science(level_p, mode_p, verbosity_p) {
   display(msg_p = msg, level_p = level1, mode_p = mode_p);
   tmtc_set_debug_ctrl(science_pattern_en_fifo_out_p = science_pattern_en_fifo_out, rst_status_p = rst_status, debug_pulse_p = debug_pulse, level_p = level1, mode_p = mode_p)
 
-  // infinite loop: Get statistics on the science link
+  // infinite loop: Get statistics on the science USB link
   req = getNextValue("DRE_controlLink0,DRE_controlLink1,DRE_DataCol0,DRE_DataCol3,DRE_DataCol2,DRE_DataCol1,DRE_LinkCounterError,DISP_SubsystemsDataTransferred", "toutes les 1000 ms");
   while (1) {
     waitingForNextValue(req)
@@ -114,18 +114,18 @@ function main(level_p, mode_p, verbosity_p) {
    * display the test description
    ***************************************************************************
    */
-  msg = "tmtc Test Description: Test_science";
+  msg = "tmtc Test Description: Test_science (normal mode)";
   display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
 
-  msg = "Contexte et objet du test";
+  msg = "Context and purpose of the test";
   display_subtitle(msg_p = msg, level_p = level1, mode_p = mode_p);
 
 
   msg = [
-    "This test allows testing the writting to the DEMUX spi device via the SPI link.",
+    "This test (normal mode) allows testing the science USB link speed with science data from the DEMUX.",
     "The steps are:",
-    "   . disable the science pattern generator at the input of the science output FIFO",
-    "   . infinite loop: Get statistics on the science link"
+    "   . Disable the science pattern generator at the input of the science output FIFO",
+    "   . Infinite loop: Get statistics on the science link"
   ];
   display(msg_p = msg, level_p = level2, mode_p = mode_p);
 
@@ -134,10 +134,10 @@ function main(level_p, mode_p, verbosity_p) {
 
 
   /*
-    ***************************************************************************
-    * display the script info
-    ***************************************************************************
-    */
+   ***************************************************************************
+   * display the script info
+   ***************************************************************************
+  */
   error_info_cnt = 0;
   error_info_cnt = tmtc_script_info(level_p = level0, mode_p = mode_p, 2);
 
@@ -152,92 +152,13 @@ function main(level_p, mode_p, verbosity_p) {
    ***************************************************************************
    */
   if (en_science == 1) {
-    msg = "Test: Check read HK/Status from DEMUX via the SPI link";
+    msg = "Test: Run the science USB link speed test (normal mode)";
     display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
-    // error_science_cnt = test_science(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
     test_science(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
 
   }
 
-  /*
-       ***************************************************************************
-       * check all errors
-       ***************************************************************************
-       */
-  error_debug_cnt = 0;
-  msg = "Check Debug Errors";
-  display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
-  error_debug_cnt = tmtc_check_all_errors(level_p = level1, mode_p = 0, verbosity_p = 0);
 
-  /*
-    ***************************************************************************
-    * Summary
-    ***************************************************************************
-    */
-  msg = "Summary: Errors";
-  display_title(msg_p = msg, level_p = level1, mode_p = mode_p);
-
-  // get HARDWARE_ID
-  reg_name = 'HARDWARE_ID';
-  msg = "TMTC: Get " + reg_name + ": ";
-  display(msg_p = msg, level_p = level1, mode_p = mode_p);
-  data = tmtc_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 1);
-
-  msg = "";
-  display(msg_p = msg, level_p = level1, mode_p = mode_p);
-
-  // get the FIRMWARE_NAME
-  reg_name = 'FIRMWARE_NAME';
-  msg = "TMTC: Get " + reg_name + ": ";
-  display(msg_p = msg, level_p = level1, mode_p = mode_p);
-  data = tmtc_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 1);
-
-
-  msg = " ";
-  display(msg_p = msg, level_p = level1, mode_p = mode_p);
-
-  // get FIRMWARE_ID
-  reg_name = 'FIRMWARE_ID';
-  msg = "TMTC: Get " + reg_name + ": ";
-  display(msg_p = msg, level_p = level1, mode_p = mode_p);
-  data = tmtc_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 1);
-
-  msg = " ";
-  display(msg_p = msg, level_p = level1, mode_p = mode_p);
-
-  // summary of the fpasim_script_info errors
-  if (error_info_cnt == 0) {
-    msg_tmp = "[OK]: Script Info has " + error_info_cnt.toString(10) + " error";
-    display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
-  } else {
-    msg_tmp = "[KO]: Script Info has " + error_info_cnt.toString(10) + " errors";
-    display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
-  }
-
-  // summary of the science errors
-  // if (en_science == 0)
-  // {
-  //     msg_tmp = "[N/A]: Test: DEMUX SPI Read was not performed ";
-  //     display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
-  // }
-  // else
-  // {
-  //     if (error_science_cnt == 0) {
-  //         msg_tmp = "[OK]: Test: DEMUX SPI Read has " + error_science_cnt.toString(10) + " error";
-  //         display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
-  //     } else {
-  //         msg_tmp = "[KO]: Test: DEMUX SPI Read has " + error_science_cnt.toString(10) + " errors";
-  //         display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
-  //     }
-  // }
-
-  /*
-   ***************************************************************************
-   * End of Test
-   ***************************************************************************
-   */
-  msg = "End of Test";
-  display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
 
 }
 /**
