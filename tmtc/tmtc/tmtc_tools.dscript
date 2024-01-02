@@ -3,7 +3,7 @@
 // -------------------------------------------------------------------------------------------------------------
 //                              This file is part of the ATHENA X-IFU DRE Focal Plane Assembly simulator.
 //
-//                              fpasim-fw is free software: you can redistribute it and/or modify
+//                              tmtc-fw is free software: you can redistribute it and/or modify
 //                              it under the terms of the GNU General Public License as published by
 //                              the Free Software Foundation, either version 3 of the License, or
 //                              (at your option) any later version.
@@ -110,7 +110,7 @@ function tmtc_script_info(level_p, mode_p, verbosity_p) {
 }
 
 /**
- * Reset the fpasim function.
+ * Reset the tmtc function.
  * @param {number} level_p - level of indentation at the beginning.
  * @param {number} mode_p - define the print output.
  * @param {number} verbosity_p - level of verbosity.

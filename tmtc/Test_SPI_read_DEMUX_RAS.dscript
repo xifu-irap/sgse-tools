@@ -25,16 +25,18 @@
 //    @details
 //
 //   This test does the following tests:
-//      . test_spi_read_DEMUX_RAS: Read HK/Status data from the DEMUX/RAS via the SPI link
+//      . Read the HK/Status data from the DEMUX/RAS via the SPI link
 //      The steps are:
-//         . TMTC: Select the DEMUX device
-//         . From the DEMUX, Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0)
-//         . To Demux: Write 34 values to the DEMUX AMP_SQ_OFFSET_FINE table (col0)
-//         . From Demux: Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0)
-//         . TMTC: Select the RAS device
-//         . From the DEMUX, Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0)
-//         . TMTC: Select the DEMUX device
-//         . From the DEMUX, Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0)
+//         . TMTC: Select the DEMUX device (TC_HK_CONF register).
+//         . From the DEMUX, Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+//         . To Demux: Write 34 values to the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+//         . From Demux: Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+//
+//         . TMTC: Select the RAS device (TC_HK_CONF register).
+//         . From the DEMUX, Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+//
+//         . TMTC: Select the DEMUX device (TC_HK_CONF register).
+//         . From the DEMUX, Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
 //   Note:
 //      . Tested with javascript
 //
@@ -52,8 +54,10 @@ include("./tmtc/tmtc_tools.dscript");
  *      . From the DEMUX, Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0)
  *      . To Demux: Write 34 values to the DEMUX AMP_SQ_OFFSET_FINE table (col0)
  *      . From Demux: Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0)
+ *
  *      . TMTC: Select the RAS device
  *      . From the DEMUX, Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0)
+ *
  *      . TMTC: Select the DEMUX device
  *      . From the DEMUX, Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0)
  * @param {number} level_p - level of indentation at the beginning
@@ -75,23 +79,22 @@ function test_spi_read(level_p, mode_p, verbosity_p) {
     /*
       TMTC: TC_HK_CONF register
     */
-    msg = "Set register: TC_HK_CONF: Select DEMUX";
+    msg = "TMTC: Select DEMUX (TC_HK_CONF register).";
     display(msg_p = msg, level_p = level0, mode_p = mode_p);
     // spi_select: 0: DEMUX, 1: RAS
     spi_select = 0;
     sendToDRELinkBoard_ConfigureSPI_CS(spi_select);
 
-    /*
-      sub-test1 : Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0)
+  /*
+      From Demux: Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0)
       Expected values:  see .vhd code
     */
     msg = "From Demux: Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0)";
     display(msg_p = msg, level_p = level0, mode_p = mode_p);
     sendToDREReadRegisters(0x0400, 16);
 
-    /*
-      sub-test2 : To Demux: Write 34 values to the DEMUX AMP_SQ_OFFSET_FINE table (col0)
-      Expected values: return = 0
+  /*
+      To Demux: Write 34 values to the DEMUX AMP_SQ_OFFSET_FINE table (col0)
     */
     msg = "To Demux: Write 34 values to the DEMUX AMP_SQ_OFFSET_FINE table (col0)";
     display(msg_p = msg, level_p = level0, mode_p = mode_p);
@@ -103,8 +106,8 @@ function test_spi_read(level_p, mode_p, verbosity_p) {
            0x0001, 0x0000];
     sendToDREWritePixelsRegisters(0x0400,value_test);
 
-    /*
-      sub-test3 : Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0)
+  /*
+      From Demux: Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0)
       Expected values:  see .vhd code
     */
     msg = "From Demux: Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0)";
@@ -114,24 +117,24 @@ function test_spi_read(level_p, mode_p, verbosity_p) {
     /*
       TMTC: TC_HK_CONF register
     */
-    msg = "Set register: TC_HK_CONF: Select RAS";
+    msg = "TMTC: Select RAS (TC_HK_CONF register)";
     display(msg_p = msg, level_p = level0, mode_p = mode_p);
     // spi_select: 0: DEMUX, 1: RAS
     spi_select = 1;
     sendToDRELinkBoard_ConfigureSPI_CS(spi_select);
 
     /*
-      sub-test3 : Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0)
+      From RAS: Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0)
       Expected values:  see .vhd code
     */
-    msg = "From Demux: Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0)";
+  msg = "From RAS: Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0)";
     display(msg_p = msg, level_p = level0, mode_p = mode_p);
     sendToDREReadRegisters(0x0400, 16);
 
     /*
       TMTC: TC_HK_CONF register
     */
-    msg = "Set register: TC_HK_CONF: Select DEMUX";
+    msg = "TMTC: Select DEMUX (TC_HK_CONF register)";
     display(msg_p = msg, level_p = level0, mode_p = mode_p);
     // spi_select: 0: DEMUX, 1: RAS
     spi_select = 0;
@@ -173,12 +176,12 @@ function main(level_p, mode_p, verbosity_p) {
     msg = "tmtc Test Description: Test_SPI_read";
     display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
 
-    msg = "Contexte et objet du test";
-    display_subtitle(msg_p = msg, level_p = level1, mode_p = mode_p);
+  msg = 'Context and purpose of the testt'
+  display_subtitle((msg_p = msg), (level_p = level1), (mode_p = mode_p))
 
 
-    msg = [
-    "This test read HK/status from the DEMUX via the SPI link.",
+  msg = [
+    "This test read the HK/status data from the DEMUX and the RAS via their respective SPI link.",
     "The steps are:",
     " 1. TMTC: Select the DEMUX device",
     " 2. From the DEMUX, Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0)",
@@ -222,7 +225,7 @@ function main(level_p, mode_p, verbosity_p) {
      ***************************************************************************
      */
     if (en_spi_read == 1) {
-        msg = "Test: Check read HK/Status from DEMUX via the SPI link";
+        msg = "Test: Check read the HK/Status data from the DEMUX and the RAS device via their respective SPI link";
         display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
         // error_spi_read_cnt = test_spi_read(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
         test_spi_read(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);

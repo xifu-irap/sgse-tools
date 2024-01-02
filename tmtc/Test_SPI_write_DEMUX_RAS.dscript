@@ -25,12 +25,19 @@
 //    @details
 //
 //   This test does the following tests:
-//      . test_spi_write: Write data to the DEMUX via the SPI link. Then, readback the written values
+//      . Write data to the DEMUX via the SPI link. Then, readback the written values
 //          The steps are:
-//             . TMTC: Select the DEMUX device
-//             . From Demux: Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0)
-//             . To Demux: Write 34 values to the DEMUX AMP_SQ_OFFSET_FINE table (col0).
-//             . From Demux: Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0)
+//           . TMTC: Select DEMUX (TC_HK_CONF register)
+//           . From Demux: Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0)
+//           . To Demux: Write 34 values to the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+//           . From Demux: Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0)
+//
+//           . TMTC: Select RAS (TC_HK_CONF register)
+//           . To RAS: Write 34 values to the DEMUX AMP_SQ_OFFSET_FINE table (col0)
+//           . From RAS: Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0)
+//
+//           . TMTC: Select DEMUX (TC_HK_CONF register)
+//           . From Demux: Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0)
 //   Note:
 //      . Tested with javascript
 //
@@ -41,18 +48,19 @@
 include("./tmtc/utils_tools.dscript");
 include("./tmtc/tmtc_tools.dscript");
 
-
 /**
  * Test: Write data to the DEMUX via the SPI link. Then, readback the written value
  *   The steps are:
- *      . Set register: TC_HK_CONF: Select DEMUX
+ *      . Select DEMUX (TC_HK_CONF register)
  *      . From Demux: Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0)
  *      . To Demux: Write 34 values to the DEMUX AMP_SQ_OFFSET_FINE table (col0).
  *      . From Demux: Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0)
- *      . Set register: TC_HK_CONF: Select RAS
- *      . To RAS: Write 34 values to the DEMUX AMP_SQ_OFFSET_FINE table (col0) address
- *      . From RAS: Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0) address
- *      . Set register: TC_HK_CONF: Select DEMUX
+ *
+ *      . Select RAS (TC_HK_CONF register)
+ *      . To RAS: Write 34 values to the DEMUX AMP_SQ_OFFSET_FINE table (col0)
+ *      . From RAS: Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0)
+ *
+ *      . Select DEMUX (TC_HK_CONF register)
  *      . From Demux: Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0)
  * @param {number} level_p - level of indentation at the beginning
  * @param {number} mode_p - define the print output
@@ -73,7 +81,7 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
   /*
     TMTC: TC_HK_CONF register
   */
-  msg = "Set register: TC_HK_CONF: Select DEMUX";
+  msg = "TMTC: Select DEMUX (TC_HK_CONF register)";
   display(msg_p = msg, level_p = level0, mode_p = mode_p);
   // spi_select: 0: DEMUX, 1: RAS
   spi_select = 0;
@@ -122,9 +130,9 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
   sendToDRELinkBoard_ConfigureSPI_CS(spi_select);
 
   /*
-    To RAS: Write 34 values to the DEMUX AMP_SQ_OFFSET_FINE table (col0) address
+    To RAS: Write 34 values to the DEMUX AMP_SQ_OFFSET_FINE table (col0)
   */
-  msg = "To RAS: Write 34 values to the DEMUX AMP_SQ_OFFSET_FINE table (col0) address";
+  msg = "To RAS: Write 34 values to the DEMUX AMP_SQ_OFFSET_FINE table (col0)";
   display(msg_p = msg, level_p = level0, mode_p = mode_p);
 
   value_test = [
@@ -136,10 +144,10 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
   sendToDREWritePixelsRegisters(0x0400, value_test);
 
   /*
-    From RAS: Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0) address
+    From RAS: Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0)
     Expected values: the reading should be identical to the written values (previously)
   */
-  msg = "From RAS: Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0) address";
+  msg = "From RAS: Read 16 values of the DEMUX AMP_SQ_OFFSET_FINE table (col0)";
   display(msg_p = msg, level_p = level0, mode_p = mode_p);
   sendToDREReadRegisters(0x0400, 16);
 
@@ -190,7 +198,7 @@ function main(level_p, mode_p, verbosity_p) {
   msg = "tmtc Test Description: Test_SPI_write";
   display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
 
-  msg = "Contexte et objet du test";
+  msg = 'Context and purpose of the test'
   display_subtitle(msg_p = msg, level_p = level1, mode_p = mode_p);
 
 
