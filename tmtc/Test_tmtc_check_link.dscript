@@ -151,18 +151,26 @@ function test_wire(level_p, mode_p, verbosity_p) {
      * check: TC_HK_CONF
      ***************************************************************************
      */
-    data0 = 0x0000FFFF;
+    data0 = 0x00000F0;
     msg = "Set register: TC_HK_CONF";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    tmtc_set_debug_wirein_by_name(reg_name_p = "TC_HK_CONF", data_p = data0, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    sendToDRELinkBoard_ConfigureSPI_CS(CS = data0);
+    // tmtc_set_debug_wirein_by_name(reg_name_p = "TC_HK_CONF", data_p = data0, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
     // read the register
     data1 = tmtc_get_wireout_by_name(reg_name_p = "TC_HK_CONF", level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
 
-
-
-
     // check the read data Vs the written data
-    msg = "Check register: TC_HK_CONF";
+    msg = "Check register0: TC_HK_CONF";
+    error = check_equal(value0_p = data0, value1_p = data1, msg_p = msg, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    if (error == -1) {
+        cnt_error_wire += 1
+    }
+
+    // Use the Xifu Studio specific access
+    getNextValue("DRELINKBOARD_SPI_CS");
+    data1 =  DRELINKBOARD_SPI_CS;
+
+    msg = "Check register1: TC_HK_CONF";
     error = check_equal(value0_p = data0, value1_p = data1, msg_p = msg, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
     if (error == -1) {
         cnt_error_wire += 1
@@ -177,19 +185,29 @@ function test_wire(level_p, mode_p, verbosity_p) {
      * check: ICU_CONF
      ***************************************************************************
      */
-    data0 = 0xF000FFFF;
-
+    data0 = 0x000000D0;
     msg = "Set register: ICU_CONF";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    tmtc_set_debug_wirein_by_name(reg_name_p = "ICU_CONF", data_p = data0, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    sendToDRELinkBoard_ConfigureICU(ICU=data0);
+    // tmtc_set_debug_wirein_by_name(reg_name_p = "ICU_CONF", data_p = data0, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
     // read the register
     data1 = tmtc_get_wireout_by_name(reg_name_p = "ICU_CONF", level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
     // check the read data Vs the written data
-    msg = "Check register: ICU_CONF";
+    msg = "Check register0: ICU_CONF";
     error = check_equal(value0_p = data0, value1_p = data1, msg_p = msg, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
     if (error == -1) {
         cnt_error_wire += 1
     }
+
+    // Use the Xifu Studio specific access
+    getNextValue("DRELINKBOARD_ICU_Selection");
+    data1 =  DRELINKBOARD_ICU_Selection;
+    msg = "Check register1: ICU_CONF";
+    error = check_equal(value0_p = data0, value1_p = data1, msg_p = msg, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    if (error == -1) {
+        cnt_error_wire += 1
+    }
+
 
     msg = "";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
@@ -237,6 +255,67 @@ function test_wire(level_p, mode_p, verbosity_p) {
     data1 = tmtc_get_wireout_by_name(reg_name_p = "ERROR_SEL", level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
     // check the read data Vs the written data
     msg = "Check register: ERROR_SEL";
+    error = check_equal(value0_p = data0, value1_p = data1, msg_p = msg, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    if (error == -1) {
+        cnt_error_wire += 1
+    }
+    msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+
+    /*
+     ***************************************************************************
+     * check: HARDWARE_ID
+     ***************************************************************************
+     */
+     // debug access
+     data0 = tmtc_get_wireout_hardware_id(level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+     // Xifu Studio specific access
+     getNextValue("DRELINKBOARD_HARDWARE_ID");
+     data1 = DRELINKBOARD_HARDWARE_ID;
+
+     // check the read data Vs the written data
+    msg = "Check register: HARDWARE_ID";
+    error = check_equal(value0_p = data0, value1_p = data1, msg_p = msg, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    if (error == -1) {
+        cnt_error_wire += 1
+    }
+    msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+   /*
+     ***************************************************************************
+     * check: FIRMWARE_NAME
+     ***************************************************************************
+     */
+     // debug access
+     data0 = tmtc_get_wireout_firmware_name(level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+     // Xifu Studio specific access
+     getNextValue("DRELINKBOARD_FIRMWARE_NAME");
+     data1 = DRELINKBOARD_FIRMWARE_NAME;
+
+     // check the read data Vs the written data
+    msg = "Check register: FIRMWARE_NAME";
+    error = check_equal(value0_p = data0, value1_p = data1, msg_p = msg, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    if (error == -1) {
+        cnt_error_wire += 1
+    }
+    msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+
+   /*
+     ***************************************************************************
+     * check: FIRMWARE_ID
+     ***************************************************************************
+     */
+     // debug access
+     data0 = tmtc_get_wireout_firmware_id(level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+     // Xifu Studio specific access
+     getNextValue("DRELINKBOARD_FIRMWARE_ID");
+     data1 = DRELINKBOARD_FIRMWARE_ID;
+
+     // check the read data Vs the written data
+    msg = "Check register: FIRMWARE_ID";
     error = check_equal(value0_p = data0, value1_p = data1, msg_p = msg, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
     if (error == -1) {
         cnt_error_wire += 1
