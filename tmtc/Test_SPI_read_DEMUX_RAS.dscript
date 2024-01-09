@@ -94,6 +94,9 @@ function test_spi_read(level_p, mode_p, verbosity_p) {
   spi_select = 0;
   sendToDRELinkBoard_ConfigureSPI_CS(spi_select);
 
+  msg = "";
+  display(msg_p = msg, level_p = level0, mode_p = mode_p);
+
   /*
     From the DEMUX, read 16 consecutive values of the Pulse shape Table (Col0).
     Expected values:  see .vhd code
@@ -108,7 +111,7 @@ function test_spi_read(level_p, mode_p, verbosity_p) {
 
   // read values
   getLatestValue("DRE_registers");
-  read_values_tab = extract_sub_table(tab_p=DRE_registers, addr_p=addr, nb_data_p=nb_data, level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p)
+  read_values_tab = extract_sub_table(tab_p=DRE_registers, addr_p=addr, nb_data_p=nb_data, level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
 
   // expected values to read
   expected_values_tab = Array(nb_data);
@@ -129,10 +132,15 @@ function test_spi_read(level_p, mode_p, verbosity_p) {
   expected_values_tab[14]= 0x000E;
   expected_values_tab[15]= 0x0008;
 
-  msg = "Bad reading of the DEMUX Pulse Shape Table (Col0).";
-  error = check_equal_tab(tab0_p=read_values_tab, tab1_p=expected_values_tab, msg_p, level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
-  cnt_err += (-error);
+  msg = "Reading of the DEMUX Pulse Shape Table (Col0).";
+  error = check_equal_tab(tab0_p=read_values_tab, tab1_p=expected_values_tab, msg_p = msg, level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
+  if (error == -1)
+  {
+    cnt_err += 1;
+  }
 
+  msg = "";
+  display(msg_p = msg, level_p = level0, mode_p = mode_p);
 
   /*
     From the DEMUX, read the 'SQ2 LockPoint offset' register value.
@@ -151,10 +159,16 @@ function test_spi_read(level_p, mode_p, verbosity_p) {
 
   // check values with the expected ones;
   expected_value = 0x0;
-  msg = "Bad reading of the DEMUX 'SQ2 LockPoint offset' register value.";
+  msg = "Reading of the DEMUX 'SQ2 LockPoint offset' register value.";
   error = check_equal(value0_p=read_values_tab[0], value1_p=expected_value, msg_p=msg, level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
-  cnt_err += (-error);
-  
+  if (error == -1)
+  {
+    cnt_err += 1;
+  }
+
+  msg = "";
+  display(msg_p = msg, level_p = level0, mode_p = mode_p);
+
   /*
     From the DEMUX, read the 'Firmware version' register value."
     Expected value: return = 0xDF
@@ -173,9 +187,12 @@ function test_spi_read(level_p, mode_p, verbosity_p) {
 
   // check values with the expected ones;
   expected_value = 0xDF;
-  msg = "Bad reading of the DEMUX 'Firmware version' register value.";
+  msg = "Reading of the DEMUX 'Firmware version' register value.";
   error = check_equal(value0_p=read_values_tab[0], value1_p=expected_value, msg_p=msg, level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
-  cnt_err += (-error);
+  if (error == -1)
+  {
+      cnt_err += 1;
+  }
 
 
   //////////////////////////////////////////////////////////
@@ -190,6 +207,9 @@ function test_spi_read(level_p, mode_p, verbosity_p) {
   // spi_select: 0: DEMUX, 1: RAS
   spi_select = 1;
   sendToDRELinkBoard_ConfigureSPI_CS(spi_select);
+
+  msg = "";
+  display(msg_p = msg, level_p = level0, mode_p = mode_p);
 
   /*
     From the RAS, read 16 consecutive values at the same address as the Pulse shape Table (col0) of the DEMUX.
@@ -225,7 +245,14 @@ function test_spi_read(level_p, mode_p, verbosity_p) {
 
   msg = "Bad reading of the table at the same address as the Pulse shape Table (col0) of the DEMUX."
   error = check_equal_tab(tab0_p=read_values_tab, tab1_p=expected_values_tab, msg_p, level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
-  cnt_err += (-error);
+  if (error == -1)
+  {
+    cnt_err += 1;
+  }
+
+  msg = "";
+  display(msg_p = msg, level_p = level0, mode_p = mode_p);
+
 
   /*
     From the RAS, read a single register value at the same address as the "Firmware version" of the DEMUX.
@@ -248,7 +275,10 @@ function test_spi_read(level_p, mode_p, verbosity_p) {
   expected_value = 0x00; // if RAS not connected
   msg = "Bad reading of the register at the same address as the 'Firmware version' of the DEMUX";
   error = check_equal(value0_p=read_values_tab[0], value1_p=expected_value, msg_p=msg, level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
-  cnt_err += (-error);
+  if (error == -1)
+  {
+    cnt_err += 1;
+  }
 
 
   return cnt_err;
@@ -296,7 +326,7 @@ function main(level_p, mode_p, verbosity_p) {
     "  7. From the RAS, read a single register value at the same address as the 'Firmware version' of the DEMUX.",
     "",
     "  Expected Result:",
-    "    . the reading in 2. has a predefined values.",
+    "    . The reading in 2. has a predefined values.",
     "    . The reading in 3. has a predefined value.",
     "    . The reading in 4. has a predefined value.",
     "    . The reading in 6. is 0x0 if the RAS device is not connected.",
@@ -314,7 +344,7 @@ function main(level_p, mode_p, verbosity_p) {
    ***************************************************************************
    */
   error_info_cnt = 0;
-  error_info_cnt = tmtc_script_info(level_p = level0, mode_p = mode_p, 2);
+  error_info_cnt = tmtc_script_info(level_p = level0, mode_p = mode_p, verbosity_p = 2);
 
   // 1st Test to execute
   // str_en_spi_read = getText("Test: Check the read HK/Status data from the DEMUX/RAS SPI links (0 or 1).", "0");
@@ -439,4 +469,4 @@ function main(level_p, mode_p, verbosity_p) {
  * @param {number} mode_p - define the print output.
  * @param {number} verbosity_p - level of verbosity.
  */
-main(level_p = 0, mode_p = 0, verbosity_p = 0);
+main(level_p = 0, mode_p = 0, verbosity_p = 2);
