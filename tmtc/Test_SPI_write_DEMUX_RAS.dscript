@@ -85,6 +85,9 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
     const level1 = level_p + 1;
     const level2 = level_p + 2;
 
+    // count errors
+    cnt_err = 0;
+
     //////////////////////////////////////////////////////////
     // DEMUX reading/writting
     //////////////////////////////////////////////////////////
@@ -128,6 +131,16 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
     display(msg_p = msg, level_p = level0, mode_p = mode_p);
     sendToDREReadRegisters(0x0400, 16);
 
+    // read values
+    getLatestValue("DRE_registers");
+    read_values_tab = extract_sub_table(tab_p=DRE_registers, addr_p=addr, nb_data_p=nb_data, level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p)
+
+    // expected values to read
+    expected_values_tab = value_test;
+
+    msg = "Bad reading of the DEMUX Pulse Shape Table (Col0)";
+    error = check_equal_tab(tab0_p=read_values_tab, tab1_p=expected_values_tab, msg_p, level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
+    cnt_err += (-error);
 
 
     //////////////////////////////////////////////////////////
@@ -149,13 +162,13 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
     msg = "To the RAS: Write 34 consecutive values at the same address as the DEMUX AMP_SQ_OFFSET_FINE table (col0).";
     display(msg_p = msg, level_p = level0, mode_p = mode_p);
 
-    value_test = [
+    ras_value_test = [
        0x0007, 0x0006, 0x0005, 0x0004, 0x0003, 0x0002, 0x0001, 0x0000,
        0x0000, 0x0007, 0x0006, 0x0005, 0x0004, 0x0003, 0x0002, 0x0001,
        0x0000, 0x0000, 0x0007, 0x0006, 0x0005, 0x0003, 0x0002, 0x0001,
        0x0000, 0x0000, 0x0007, 0x0006, 0x0005, 0x0004, 0x0003, 0x0002,
        0x0001, 0x0000];
-    sendToDREWritePixelsRegisters(0x0400, value_test);
+    sendToDREWritePixelsRegisters(0x0400, ras_value_test);
 
     /*
      From the RAS: Read 16 consecutive values at the same address as the DEMUX AMP_SQ_OFFSET_FINE table (col0).
@@ -165,6 +178,33 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
     msg = "From the RAS: Read 16 consecutive values at the same address as the DEMUX AMP_SQ_OFFSET_FINE table (col0).";
     display(msg_p = msg, level_p = level0, mode_p = mode_p);
     sendToDREReadRegisters(0x0400, 16);
+
+    // read values
+    getLatestValue("DRE_registers");
+    read_values_tab = extract_sub_table(tab_p=DRE_registers, addr_p=addr, nb_data_p=nb_data, level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p)
+
+    // expected values to read (if RAS not connected)
+    expected_values_tab = Array(nb_data);
+    expected_values_tab[0]= 0x0000;
+    expected_values_tab[1]= 0x0000;
+    expected_values_tab[2]= 0x0000;
+    expected_values_tab[3]= 0x0000;
+    expected_values_tab[4]= 0x0000;
+    expected_values_tab[5]= 0x0000;
+    expected_values_tab[6]= 0x0000;
+    expected_values_tab[7]= 0x0000;
+    expected_values_tab[8]= 0x0000;
+    expected_values_tab[9]= 0x0000;
+    expected_values_tab[10]= 0x0000;
+    expected_values_tab[11]= 0x0000;
+    expected_values_tab[12]= 0x0000;
+    expected_values_tab[13]= 0x0000;
+    expected_values_tab[14]= 0x0000;
+    expected_values_tab[15]= 0x0000;
+
+    msg = "Bad reading of the DEMUX Pulse Shape Table (Col0)";
+    error = check_equal_tab(tab0_p=read_values_tab, tab1_p=expected_values_tab, msg_p, level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
+    cnt_err += (-error);
 
 
 
@@ -188,6 +228,19 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
     msg = "From the DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).";
     display(msg_p = msg, level_p = level0, mode_p = mode_p);
     sendToDREReadRegisters(0x0400, 16);
+
+    // read values
+    getLatestValue("DRE_registers");
+    read_values_tab = extract_sub_table(tab_p=DRE_registers, addr_p=addr, nb_data_p=nb_data, level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
+
+    // expected values to read
+    expected_values_tab = value_test;
+
+    msg = "Bad reading of the DEMUX Pulse Shape Table (Col0)";
+    error = check_equal_tab(tab0_p=read_values_tab, tab1_p=expected_values_tab, msg_p, level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
+    cnt_err += (-error);
+
+    return cnt_err;
 
 }
 
