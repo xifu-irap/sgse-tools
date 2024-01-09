@@ -92,7 +92,7 @@ function tmtc_script_info(level_p, mode_p, verbosity_p) {
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
     data = tmtc_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
     data0 = 0x544D5443; // code ASCII of "TMTC"
-    error = check_equal(value0_p = data0, value1_p = data, msg_p = msg, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    error = check_equal(value0_p = data0, value1_p = data, msg_p = msg, level_p = level2, mode_p = mode_p, verbosity_p = 0);
     if (error == -1) {
         cnt_error_info += 1
     }
@@ -251,7 +251,6 @@ function tmtc_check_all_errors(level_p, mode_p, verbosity_p) {
 }
 
 
-
 /**
  * Check if 2 values are equal. Then, display the result.
  * @param {number} value0_p - first value to compare.
@@ -259,6 +258,7 @@ function tmtc_check_all_errors(level_p, mode_p, verbosity_p) {
  * @param {string} msg_p - error message.
  * @param {number} level_p - level of indentation at the beginning.
  * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
  * @return {number} 0
  */
 function check_equal(value0_p, value1_p, msg_p, level_p, mode_p, verbosity_p) {
@@ -294,12 +294,13 @@ function check_equal(value0_p, value1_p, msg_p, level_p, mode_p, verbosity_p) {
 }
 
 /**
- * Check if 2 tables are identical. Then, display the result.
+ * Check if 2 tables are identicals. Then, display the result.
  * @param {array of number} tab0_p - 1st tab.
  * @param {array of number} tab1_p - 2nd tab.
  * @param {string} msg_p - error message.
  * @param {number} level_p - level of indentation at the beginning.
  * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
  * @return {number} 0
  */
 function check_equal_tab(tab0_p, tab1_p, msg_p, level_p, mode_p, verbosity_p) {
@@ -328,7 +329,64 @@ function check_equal_tab(tab0_p, tab1_p, msg_p, level_p, mode_p, verbosity_p) {
 
 }
 
+/**
+ * Extract a sub-table from an input table.
+ *   with start index: @addr_p
+ *        end index  : @addr_p + (nb_data_p - 1)
+ * @param {array of number} tab_p - table where to extract a sub-table
+ * @param {number} addr_p - starting tab index (address). Range: 0 to +inf
+ * @param {number} nb_data_p - number of consecutives data to extract. Range: 1 to +inf
 
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} 0
+ */
+
+function extract_sub_table(tab_p, addr_p, nb_data_p, level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+
+    extracted_tab = Array(nb_data_p);
+    max_addr = addr_p + nb_data_p;
+
+    if (tab_p.length < max_addr)
+    {
+        const msg = "[KO]: [extract_sub_table]: the input tab is too small";
+        display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    }
+    else
+    {
+        if (verbosity_p > 1)
+        {
+            const msg = "[OK]: [extract_sub_table]: extraction sub table";
+            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+        }
+    }
+
+
+    for (i = 0; i < nb_data_p; i++) {
+        addr             = i + addr_p;
+        data             = tab_p[i+addr_p];
+        extracted_tab[i] = data;
+
+        if (verbosity_p > 1)
+        {
+            str_addr = convert_int_to_str_hex(value_p = addr, width_p = 16);
+            str_data = convert_int_to_str_hex(value_p = data, width_p = 16);
+            const msg = "extracted tab index "+i.toString(10)+": addr = 0x"+str_addr+", data=0x"+str_data;
+            display(msg_p = msg, level_p = level1, mode_p = mode_p);
+        }
+    }
+
+    return extracted_tab;
+
+}
 
 //---------------------------------------------------------------------------------------
 // General functions
