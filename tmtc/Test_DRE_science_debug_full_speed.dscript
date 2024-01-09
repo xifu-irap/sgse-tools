@@ -25,16 +25,16 @@
 //    @details
 //
 //   This test does the following tests:
-//      . test_science: test the science link (debug mode)
-//         . The architecture is as follows:
-//            . DEMUX (ignored) -> Science FIFO IN (ignored) -> DDR (ignored) -> science_pattern_fifo_out (enabled) -> Science FIFO out -> Xifu Studio
+//      . test_science: test the science link without the DEMUX (full USB speed): debug mode.
+//         . The FPGA architecture is as follows:
+//            . DEMUX (ignored inputs) -> Science FIFO IN (ignored) -> DDR (ignored) -> science_pattern_fifo_out (enabled) -> Science FIFO out -> Xifu Studio
 //            . So, the reduced architecture is:
-//                . science_pattern_fifo_out (enabled) -> Science FIFO out -> Xifu Studio
+//                . science_pattern_fifo_out (enabled) -> Science FIFO out -> Xifu Studio.
 //         .The steps are:
-//            . Enable the science pattern generator at the input of the science output FIFO
-//            . Infinite loop: Get statistics on the science link
+//            . Enable the science pattern generator at the input of the science output FIFO.
+//            . Infinite loop: Get statistics on the science link.
 //   Note:
-//      . Tested with javascript
+//      . Tested with javascript.
 //
 // -------------------------------------------------------------------------------------------------------------
 
@@ -45,13 +45,13 @@ include("./tmtc/tmtc_tools.dscript");
 
 
 /**
- * Test the science USB link full speed (debug mode): Continuously read the science data from the science pattern generator
+ * Test the science USB link full speed without the DEMUX (debug mode): Continuously read the science data from the science pattern generator.
  *   The steps are:
  *     . Enable the science pattern generator at the input of the science output FIFO
- *     . Infinite loop: Get statistics on the science link
- * @param {number} level_p - level of indentation at the beginning
- * @param {number} mode_p - define the print output
- * @param {number} verbosity_p - level of verbosity
+ *     . Infinite loop: Get statistics on the science link.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
  */
 function test_science(level_p, mode_p, verbosity_p) {
 
@@ -66,9 +66,9 @@ function test_science(level_p, mode_p, verbosity_p) {
   const level2 = level_p + 2;
 
   /*
-    TMTC: DEBUG_PULSE register
-  */
-  // set the register: DEBUG_CTRL
+    TMTC: DEBUG_PULSE register.
+   */
+  // set the register: DEBUG_CTRL.
   science_pattern_en_fifo_out = 0x1; //0: normal mode, 1: science output fifo full speed
   rst_status = 0x0;
   debug_pulse = 0x0;
@@ -78,12 +78,14 @@ function test_science(level_p, mode_p, verbosity_p) {
 
   // infinite loop: Get statistics on the science USB link
   req = getNextValue("DRE_controlLink0,DRE_controlLink1,DRE_DataCol0,DRE_DataCol3,DRE_DataCol2,DRE_DataCol1,DRE_LinkCounterError,DISP_SubsystemsDataTransferred", "toutes les 1000 ms");
-  while (1) {
+  while (1)
+  {
     waitingForNextValue(req)
     clearLastLogLine()
     dataTransferred = DISP_SubsystemsDataTransferred[4] / 1024 / 1024 / 1024
     unit = "Go"
-    if (dataTransferred > 1024) {
+    if (dataTransferred > 1024)
+    {
       unit = "To"
       dataTransferred = dataTransferred / 1024
     }
@@ -93,12 +95,11 @@ function test_science(level_p, mode_p, verbosity_p) {
 }
 
 /**
- * Script Entry Point
- * @param {number} level_p - level of indentation at the beginning
- * @param {number} mode_p - define the print output
- * @param {number} verbosity_p - level of verbosity
+ * Script Entry Point.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
  */
-
 function main(level_p, mode_p, verbosity_p) {
 
   // default function parameter values
@@ -110,30 +111,27 @@ function main(level_p, mode_p, verbosity_p) {
   const level1 = level_p + 1;
   const level2 = level_p + 2;
 
-
   /*
    ***************************************************************************
    * display the test description
    ***************************************************************************
    */
-  msg = "tmtc Test Description: Test_science (debug mode)";
+  msg = "tmtc Test Description: Test_science (debug mode).";
   display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
 
-  msg = "Context and purpose of the test";
+  msg = "Context and purpose of the test.";
   display_subtitle(msg_p = msg, level_p = level1, mode_p = mode_p);
 
-
   msg = [
-    "This test (debug mode) allows testing the supported maximum speed of the science USB link with data from the science pattern generator.",
+    "This test (debug mode) allows testing the supported maximum speed of the science USB link (without DEMUX) by using data from the science pattern generator.",
     "The steps are:",
-    "   . Enable the science pattern generator at the input of the science output FIFO",
-    "   . Infinite loop: Get statistics on the science link"
+    "   . Enable the science pattern generator at the input of the science output FIFO.",
+    "   . Infinite loop: Get statistics on the science link."
   ];
   display(msg_p = msg, level_p = level2, mode_p = mode_p);
 
   msg = "";
   display(msg_p = msg, level_p = level0, mode_p = mode_p);
-
 
   /*
    ***************************************************************************
@@ -144,7 +142,7 @@ function main(level_p, mode_p, verbosity_p) {
   error_info_cnt = tmtc_script_info(level_p = level0, mode_p = mode_p, 2);
 
   // 1st Test to execute
-  // str_en_science = getText("Test: Science (0 or 1)", "0");
+  // str_en_science = getText("Test: Science USB full speed (0 or 1).", "0");
   str_en_science = "1";
   en_science = parseInt(str_en_science, 10);
 
@@ -153,25 +151,19 @@ function main(level_p, mode_p, verbosity_p) {
    * Check: Science Link
    ***************************************************************************
    */
-  if (en_science == 1) {
-    msg = "Test: Run the science USB link full speed test (debug mode)";
+  if (en_science == 1)
+  {
+    msg = "Test: Run the science USB link full speed test (debug mode).";
     display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
     test_science(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
-
   }
 
-
-
 }
+
 /**
- * Execute the main function
- * @param {number} level_p - level of indentation at the beginning
- * @param {number} mode_p - define the print output
- * @param {number} verbosity_p - level of verbosity
+ * Execute the main function.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
  */
 main(level_p = 0, mode_p = 0, verbosity_p = 0);
-
-
-
-
-
