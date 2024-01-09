@@ -28,9 +28,9 @@
 //      . Write data to the DEMUX SPI link. Then, readback the written values.
 //          The steps are:
 //           . TMTC: Select the DEMUX SPI link.
-//           . From DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
-//           . To DEMUX:   Write 34 consecutive values to the DEMUX AMP_SQ_OFFSET_FINE table (col0).
-//           . From DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+//           . From the DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+//           . To the DEMUX:   Write 34 consecutive values to the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+//           . From the DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
 //   Note:
 //      . Tested with javascript
 //
@@ -46,231 +46,244 @@ include("./tmtc/tmtc_tools.dscript");
  * Test: Write data to the DEMUX SPI link. Then, readback the written values.
  *   The steps are:
  *      . TMTC: Select the DEMUX SPI link.
- *      . From DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
- *      . To DEMUX:   Write 34 consecutive values to the DEMUX AMP_SQ_OFFSET_FINE table (col0).
- *      . From DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
- * @param {number} level_p - level of indentation at the beginning
- * @param {number} mode_p - define the print output
- * @param {number} verbosity_p - level of verbosity
+ *      . From the DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+ *      . To the DEMUX:   Write 34 consecutive values to the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+ *      . From the DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
  */
 function test_spi_write(level_p, mode_p, verbosity_p) {
 
-     // default function parameter values
-     if (typeof(level_p) === 'undefined') level_p = 0;
-     if (typeof(mode_p) === 'undefined') mode_p = 0;
-     if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
 
-     //
-     const level0 = level_p;
-     const level1 = level_p + 1;
-     const level2 = level_p + 2;
+    //
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
 
-     //////////////////////////////////////////////////////////
-     // DEMUX reading/writting
-     //////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
+    // DEMUX reading/writting
+    //////////////////////////////////////////////////////////
 
-     /*
-      TMTC: TC_HK_CONF register
+    /*
+     TMTC: TC_HK_CONF register.
      */
-     msg = "TMTC: Select the DEMUX SPI link (TC_HK_CONF register).";
-     display(msg_p = msg, level_p = level0, mode_p = mode_p);
-     // spi_select: 0: DEMUX, 1: RAS
-     spi_select = 0;
-     sendToDRELinkBoard_ConfigureSPI_CS(spi_select);
+    msg = "TMTC: Select the DEMUX SPI link (TC_HK_CONF register).";
+    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    // spi_select: 0: DEMUX, 1: RAS
+    spi_select = 0;
+    sendToDRELinkBoard_ConfigureSPI_CS(spi_select);
 
-
-     /*
-       From DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
-       Expected values:  see .vhd code
+    /*
+      From the DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+      Expected values:  see .vhd code
      */
-     msg = "From DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).";
-     display(msg_p = msg, level_p = level0, mode_p = mode_p);
-     sendToDREReadRegisters(0x0400, 16);
+    msg = "From the DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).";
+    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    sendToDREReadRegisters(0x0400, 16);
 
-     /*
-     To DEMUX: Write 34 consecutive values to the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+    /*
+     To the DEMUX: Write 34 consecutive values to the DEMUX AMP_SQ_OFFSET_FINE table (col0).
      */
-     msg = "To DEMUX: Write 34 consecutive values to the DEMUX AMP_SQ_OFFSET_FINE table (col0).";
-     display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    msg = "To the DEMUX: Write 34 consecutive values to the DEMUX AMP_SQ_OFFSET_FINE table (col0).";
+    display(msg_p = msg, level_p = level0, mode_p = mode_p);
 
-     value_test = [
+    value_test = [
                 0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007, 0x0001,
                 0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007, 0x0001,
                 0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007, 0x0001,
                 0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007, 0x0001,
                 0x0001, 0x0002];
-     sendToDREWritePixelsRegisters(0x0400,value_test);
+    sendToDREWritePixelsRegisters(0x0400,value_test);
 
-
-     /*
-      From DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+    /*
+      From the DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
       Expected values: the reading should be identical to the written values (previously access).
      */
-     msg = "From DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).";
-     display(msg_p = msg, level_p = level0, mode_p = mode_p);
-     sendToDREReadRegisters(0x0400, 16);
+    msg = "From the DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).";
+    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    sendToDREReadRegisters(0x0400, 16);
+
 
 }
 
 /**
- * Script Entry Point
- * @param {number} level_p - level of indentation at the beginning
- * @param {number} mode_p - define the print output
- * @param {number} verbosity_p - level of verbosity
+ * Script Entry Point.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
  */
-
 function main(level_p, mode_p, verbosity_p) {
 
-     // default function parameter values
-     if (typeof(level_p) === 'undefined') level_p = 0;
-     if (typeof(mode_p) === 'undefined') mode_p = 0;
-     if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
 
-     const level0 = level_p;
-     const level1 = level_p + 1;
-     const level2 = level_p + 2;
-
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
 
     /*
      ***************************************************************************
      * display the test description
      ***************************************************************************
      */
-     msg = "tmtc Test Description: Test_SPI_write";
-     display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+    msg = "tmtc Test Description: Test_SPI_write_DEMUX_RAS.";
+    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
 
-     msg = 'Context and purpose of the test'
-     display_subtitle(msg_p = msg, level_p = level1, mode_p = mode_p);
+    msg = 'Context and purpose of the test.'
+    display_subtitle(msg_p = msg, level_p = level1, mode_p = mode_p);
 
-
-     msg = [
-     "This test allows testing the writting/reading of the DEMUX SPI link.",
+    msg = [
+     "This test does the writting/reading of the DEMUX SPI link.",
      "The steps are:",
      "   1. TMTC: Select the DEMUX SPI link.",
-     "   2. From DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).",
-     "   3. To DEMUX:   Write 34 consecutive values to the DEMUX AMP_SQ_OFFSET_FINE table (col0).",
-     "   4. From DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).",
+     "   2. From the DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).",
+     "   3. To the DEMUX:   Write 34 consecutive values to the DEMUX AMP_SQ_OFFSET_FINE table (col0).",
+     "   4. From the DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).",
      "",
      "Expected Result:",
      "    . check the written values in 3. are equal to the read values in 4."
     ];
-     display(msg_p = msg, level_p = level2, mode_p = mode_p);
+    display(msg_p = msg, level_p = level2, mode_p = mode_p);
 
-     msg = "";
-     display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    msg = "";
+    display(msg_p = msg, level_p = level0, mode_p = mode_p);
 
-
-     /*
+    /*
      ***************************************************************************
      * display the script info
      ***************************************************************************
      */
-     error_info_cnt = 0;
-     error_info_cnt = tmtc_script_info(level_p = level0, mode_p = mode_p, 2);
+    error_info_cnt = 0;
+    error_info_cnt = tmtc_script_info(level_p = level0, mode_p = mode_p, 2);
 
-     // 1st Test to execute
-     // str_en_spi_write = getText("Test: Check the read HK/Status data from DEMUX SPI link (0 or 1)", "0");
-     str_en_spi_write = "1";
-     en_spi_write = parseInt(str_en_spi_write, 10);
+    // 1st Test to execute
+    // str_en_spi_write = getText("Test: Check the read HK/Status data from the DEMUX SPI link (0 or 1).", "0");
+    str_en_spi_write = "1";
+    en_spi_write = parseInt(str_en_spi_write, 10);
 
      /*
      ***************************************************************************
      * Check: SPI write
      ***************************************************************************
      */
-     if (en_spi_write == 1) {
-        msg = "Test: Check the read HK/Status data from DEMUX SPI link.";
+    if (en_spi_write == 1)
+    {
+        msg = "Test: Check the read HK/Status data from the DEMUX SPI link.";
         display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
         // error_spi_write_cnt = test_spi_write(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
         test_spi_write(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
-
     }
 
-     /*
+    /*
      ***************************************************************************
      * check all errors
      ***************************************************************************
      */
-     error_debug_cnt = 0;
-     msg = "Check Debug Errors";
-     display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
-     error_debug_cnt = tmtc_check_all_errors(level_p = level1, mode_p = 0, verbosity_p = 0);
+    error_debug_cnt = 0;
+    msg = "Check Debug Errors.";
+    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+    error_debug_cnt = tmtc_check_all_errors(level_p = level1, mode_p = 0, verbosity_p = 0);
 
-     /*
+    /*
      ***************************************************************************
      * Summary
      ***************************************************************************
      */
-     msg = "Summary: Errors";
-     display_title(msg_p = msg, level_p = level1, mode_p = mode_p);
+    msg = "Summary: Errors.";
+    display_title(msg_p = msg, level_p = level1, mode_p = mode_p);
 
-     // get HARDWARE_ID
-     reg_name = 'HARDWARE_ID';
-     msg = "TMTC: Get " + reg_name + ": ";
-     display(msg_p = msg, level_p = level1, mode_p = mode_p);
-     data = tmtc_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 1);
+    // get HARDWARE_ID
+    reg_name = 'HARDWARE_ID';
+    msg = "TMTC: Get " + reg_name + ": ";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    data = tmtc_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 1);
 
-     msg = "";
-     display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    msg = "";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
-     // get the FIRMWARE_NAME
-     reg_name = 'FIRMWARE_NAME';
-     msg = "TMTC: Get " + reg_name + ": ";
-     display(msg_p = msg, level_p = level1, mode_p = mode_p);
-     data = tmtc_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 1);
+    // get the FIRMWARE_NAME
+    reg_name = 'FIRMWARE_NAME';
+    msg = "TMTC: Get " + reg_name + ": ";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    data = tmtc_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 1);
 
+    msg = " ";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
-     msg = " ";
-     display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    // get FIRMWARE_ID
+    reg_name = 'FIRMWARE_ID';
+    msg = "TMTC: Get " + reg_name + ": ";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    data = tmtc_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 1);
 
-     // get FIRMWARE_ID
-     reg_name = 'FIRMWARE_ID';
-     msg = "TMTC: Get " + reg_name + ": ";
-     display(msg_p = msg, level_p = level1, mode_p = mode_p);
-     data = tmtc_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 1);
+    msg = " ";
+    display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
-     msg = " ";
-     display(msg_p = msg, level_p = level1, mode_p = mode_p);
-
-     // summary of the tmtc_script_info errors
-     if (error_info_cnt == 0) {
-         msg_tmp = "[OK]: Script Info has " + error_info_cnt.toString(10) + " error";
-         display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
-     } else {
-         msg_tmp = "[KO]: Script Info has " + error_info_cnt.toString(10) + " errors";
-         display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
-     }
+    // summary of the script_info errors.
+    if (error_info_cnt == 0)
+    {
+        msg_tmp = "[OK]: Script Info has " + error_info_cnt.toString(10) + " error.";
+        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+    }
+    else
+    {
+        msg_tmp = "[KO]: Script Info has " + error_info_cnt.toString(10) + " errors.";
+        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+    }
 
     // summary of the spi_write errors
     // if (en_spi_write == 0)
     // {
-    //     msg_tmp = "[N/A]: Test: DEMUX SPI write/Read was not performed ";
+    //     msg_tmp = "[N/A]: Test: The DEMUX SPI writting/reading was not performed.";
     //     display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
     // }
     // else
     // {
-    //     if (error_spi_write_cnt == 0) {
-    //         msg_tmp = "[OK]: Test: DEMUX SPI write/Read has " + error_spi_write_cnt.toString(10) + " error";
+    //     if (error_spi_write_cnt == 0)
+    //     {
+    //         msg_tmp = "[OK]: Test: The DEMUX SPI writting/reading has " + error_spi_write_cnt.toString(10) + " error.";
     //         display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
-    //     } else {
-    //         msg_tmp = "[KO]: Test: DEMUX SPI write/Read has " + error_spi_write_cnt.toString(10) + " errors";
+    //     }
+    //     else
+    //     {
+    //         msg_tmp = "[KO]: Test: The DEMUX SPI writting/reading has " + error_spi_write_cnt.toString(10) + " errors.";
     //         display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
     //     }
     // }
+
+    // summary of the internal errors
+    if (error_debug_cnt == 0)
+    {
+      msg_tmp = "[OK]: Debug errors has " + error_debug_cnt.toString(10) + " error.";
+      display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+    }
+    else
+    {
+      msg_tmp = "[KO]: Debug errors generation has " + error_debug_cnt.toString(10) + " errors.";
+      display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+    }
 
     /*
      ***************************************************************************
      * End of Test
      ***************************************************************************
      */
-     msg = "End of Test";
-     display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+    msg = "End of Test.";
+    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
 
 }
+
 /**
- * Execute the main function
- * @param {number} level_p - level of indentation at the beginning
- * @param {number} mode_p - define the print output
- * @param {number} verbosity_p - level of verbosity
+ * Execute the main function.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
  */
 main(level_p = 0, mode_p = 0, verbosity_p = 0);
