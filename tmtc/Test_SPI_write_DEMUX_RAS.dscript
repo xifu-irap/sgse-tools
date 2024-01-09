@@ -101,6 +101,9 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
     spi_select = 0;
     sendToDRELinkBoard_ConfigureSPI_CS(spi_select);
 
+    msg = "";
+    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+
     /*
       From the DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
       Expected values:  see .vhd code
@@ -138,9 +141,15 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
     // expected values to read
     expected_values_tab = value_test;
 
-    msg = "Bad reading of the DEMUX Pulse Shape Table (Col0)";
+    msg = "Reading of the DEMUX Pulse Shape Table (Col0)";
     error = check_equal_tab(tab0_p=read_values_tab, tab1_p=expected_values_tab, msg_p, level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
-    cnt_err += (-error);
+    if (error == -1)
+    {
+      cnt_err += 1;
+    }
+
+    msg = "";
+    display(msg_p = msg, level_p = level0, mode_p = mode_p);
 
 
     //////////////////////////////////////////////////////////
@@ -155,6 +164,9 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
     // spi_select: 0: DEMUX, 1: RAS
     spi_select = 1;
     sendToDRELinkBoard_ConfigureSPI_CS(spi_select);
+
+    msg = "";
+    display(msg_p = msg, level_p = level0, mode_p = mode_p);
 
     /*
        To the RAS: Write 34 consecutive values at the same address as the DEMUX AMP_SQ_OFFSET_FINE table (col0).
@@ -202,11 +214,15 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
     expected_values_tab[14]= 0x0000;
     expected_values_tab[15]= 0x0000;
 
-    msg = "Bad reading of the DEMUX Pulse Shape Table (Col0)";
+    msg = "Reading at the same address as the DEMUX Pulse Shape Table (Col0)";
     error = check_equal_tab(tab0_p=read_values_tab, tab1_p=expected_values_tab, msg_p, level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
-    cnt_err += (-error);
+    if (error == -1)
+    {
+      cnt_err += 1;
+    }
 
-
+    msg = "";
+    display(msg_p = msg, level_p = level0, mode_p = mode_p);
 
     //////////////////////////////////////////////////////////
     // DEMUX reading
@@ -220,6 +236,9 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
     // spi_select: 0: DEMUX, 1: RAS
     spi_select = 0;
     sendToDRELinkBoard_ConfigureSPI_CS(spi_select);
+
+    msg = "";
+    display(msg_p = msg, level_p = level0, mode_p = mode_p);
 
     /*
      From the DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
@@ -236,9 +255,12 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
     // expected values to read
     expected_values_tab = value_test;
 
-    msg = "Bad reading of the DEMUX Pulse Shape Table (Col0)";
+    msg = "Reading of the DEMUX Pulse Shape Table (Col0)";
     error = check_equal_tab(tab0_p=read_values_tab, tab1_p=expected_values_tab, msg_p, level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
-    cnt_err += (-error);
+    if (error == -1)
+    {
+      cnt_err += 1;
+    }
 
     return cnt_err;
 
@@ -303,7 +325,7 @@ function main(level_p, mode_p, verbosity_p) {
      ***************************************************************************
      */
     error_info_cnt = 0;
-    error_info_cnt = tmtc_script_info(level_p = level0, mode_p = mode_p, 2);
+    error_info_cnt = tmtc_script_info(level_p = level0, mode_p = mode_p, verbosity_p= 2);
 
     // 1st Test to execute
     // str_en_spi_write = getText("Test: Check the read HK/Status data from the DEMUX/RAS SPI links (0 or 1).", "0");

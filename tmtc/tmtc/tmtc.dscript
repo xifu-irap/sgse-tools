@@ -1080,7 +1080,7 @@ function tmtc_get_wireout_firmware_id(level_p, mode_p, verbosity_p) {
         }
 
         if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "firmware_id", bit_pos_p = 0, bit_width_p = 32, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data(bit_name_p = "firmware_id_p", bit_pos_p = 0, bit_width_p = 8, data_p = data, level_p = level2, mode_p = mode_p);
         }
     }
 
