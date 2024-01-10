@@ -75,7 +75,7 @@ function test_spi_read(level_p, mode_p, verbosity_p) {
       TMTC: TC_HK_CONF register.
    */
   msg = "TMTC: Select the DEMUX SPI link (TC_HK_CONF register).";
-  display(msg_p = msg, level_p = level0, mode_p = mode_p);
+  display_subtitle(msg_p = msg, level_p = level0, mode_p = mode_p);
   // spi_select: 0: DEMUX, 1: RAS
   spi_select = 0;
   sendToDRELinkBoard_ConfigureSPI_CS(spi_select);
@@ -202,12 +202,15 @@ function main(level_p, mode_p, verbosity_p) {
   const level1 = level_p + 1;
   const level2 = level_p + 2;
 
+  // script name
+  script_name = "Test_SPI_read";
+
   /*
    ***************************************************************************
    * display the test description
    ***************************************************************************
    */
-  msg = "tmtc Test Description: Test_SPI_read.";
+  msg = "tmtc Test Description: " + script_name;
   display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
 
   msg = 'Context and purpose of the test.'
@@ -239,7 +242,12 @@ function main(level_p, mode_p, verbosity_p) {
    ***************************************************************************
    */
   error_info_cnt = 0;
-  error_info_cnt = tmtc_script_info(level_p = level0, mode_p = mode_p, 2);
+  list_tmp       = tmtc_script_info(level_p = level1, mode_p = mode_p, 2);
+  error_info_cnt = list_tmp[0];
+  info           = list_tmp[1];
+
+  // build output filename
+  output_filename = script_name + "__" + info + ".txt";
 
   // 1st Test to execute
   // str_en_spi_read = getText("Test: Check the read HK/Status data from the DEMUX SPI link (0 or 1).", "0");
@@ -355,6 +363,13 @@ function main(level_p, mode_p, verbosity_p) {
    */
   msg = "End of Test";
   display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+
+  /*
+   ***************************************************************************
+   * Save the Log content
+   ***************************************************************************
+   */
+  saveLogContent(output_filename);
 
 }
 

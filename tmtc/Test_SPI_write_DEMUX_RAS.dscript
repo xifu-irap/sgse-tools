@@ -96,7 +96,7 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
      TMTC: TC_HK_CONF register.
      */
     msg = "TMTC: Select the DEMUX SPI link (TC_HK_CONF register).";
-    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display_subtitle(msg_p = msg, level_p = level0, mode_p = mode_p);
     // spi_select: 0: DEMUX, 1: RAS
     spi_select = 0;
     sendToDRELinkBoard_ConfigureSPI_CS(spi_select);
@@ -163,8 +163,8 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
     /*
      TMTC: TC_HK_CONF register.
      */
-    msg = "Set register: TC_HK_CONF: Select the RAS SPI link (TC_HK_CONF register).";
-    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    msg = "TMTC: Select the RAS SPI link (TC_HK_CONF register).";
+    display_subtitle(msg_p = msg, level_p = level0, mode_p = mode_p);
     // spi_select: 0: DEMUX, 1: RAS
     spi_select = 1;
     sendToDRELinkBoard_ConfigureSPI_CS(spi_select);
@@ -199,8 +199,8 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
 
 
     // read values
-    getLatestValue("DRE_registers");
-    read_values_tab = extract_sub_table(tab_p=DRE_registers, addr_p=addr, nb_data_p=nb_data, level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p)
+    getLatestValue("RA_registers");
+    read_values_tab = extract_sub_table(tab_p=RA_registers, addr_p=addr, nb_data_p=nb_data, level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p)
 
     // expected values to read (if RAS not connected)
     expected_values_tab = Array(nb_data);
@@ -226,8 +226,8 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
     /*
      TMTC: TC_HK_CONF register.
      */
-    msg = "Set register: TC_HK_CONF: Select the DEMUX SPI link (TC_HK_CONF register).";
-    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    msg = "TMTC: Select the DEMUX SPI link (TC_HK_CONF register).";
+    display_subtitle(msg_p = msg, level_p = level0, mode_p = mode_p);
     // spi_select: 0: DEMUX, 1: RAS
     spi_select = 0;
     sendToDRELinkBoard_ConfigureSPI_CS(spi_select);
@@ -280,12 +280,15 @@ function main(level_p, mode_p, verbosity_p) {
     const level1 = level_p + 1;
     const level2 = level_p + 2;
 
+    // script name
+    script_name = "Test_SPI_write_DEMUX_RAS";
+
     /*
      ***************************************************************************
      * display the test description
      ***************************************************************************
      */
-    msg = "tmtc Test Description: Test_SPI_write_DEMUX_RAS.";
+    msg = "tmtc Test Description: " + script_name;
     display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
 
     msg = 'Context and purpose of the test.'
@@ -322,7 +325,12 @@ function main(level_p, mode_p, verbosity_p) {
      ***************************************************************************
      */
     error_info_cnt = 0;
-    error_info_cnt = tmtc_script_info(level_p = level0, mode_p = mode_p, verbosity_p= 2);
+    list_tmp       = tmtc_script_info(level_p = level1, mode_p = mode_p, verbosity_p= 2);
+    error_info_cnt = list_tmp[0];
+    info           = list_tmp[1];
+
+    // build output filename
+    output_filename = script_name + "__" + info + ".txt";
 
     // 1st Test to execute
     // str_en_spi_write = getText("Test: Check the read HK/Status data from the DEMUX/RAS SPI links (0 or 1).", "0");
@@ -438,6 +446,13 @@ function main(level_p, mode_p, verbosity_p) {
      */
     msg = "End of Test.";
     display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+
+    /*
+     ***************************************************************************
+     * Save the Log content
+     ***************************************************************************
+     */
+    saveLogContent(output_filename);
 
 }
 
