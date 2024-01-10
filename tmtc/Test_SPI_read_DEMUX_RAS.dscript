@@ -224,27 +224,20 @@ function test_spi_read(level_p, mode_p, verbosity_p) {
   addr      = 0x0800;
   sendToDREReadRegisters(addr, nb_data);
 
+  // read values
+  getLatestValue("DRE_registers");
+  read_values_tab = extract_sub_table(tab_p=DRE_registers, addr_p=addr, nb_data_p=nb_data, level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
+
+ print(DRE_registers);
   // expected values to read (if RAS not connected)
   expected_values_tab = Array(nb_data);
-  expected_values_tab[0]= 0x0000;
-  expected_values_tab[1]= 0x0000;
-  expected_values_tab[2]= 0x0000;
-  expected_values_tab[3]= 0x0000;
-  expected_values_tab[4]= 0x0000;
-  expected_values_tab[5]= 0x0000;
-  expected_values_tab[6]= 0x0000;
-  expected_values_tab[7]= 0x0000;
-  expected_values_tab[8]= 0x0000;
-  expected_values_tab[9]= 0x0000;
-  expected_values_tab[10]= 0x0000;
-  expected_values_tab[11]= 0x0000;
-  expected_values_tab[12]= 0x0000;
-  expected_values_tab[13]= 0x0000;
-  expected_values_tab[14]= 0x0000;
-  expected_values_tab[15]= 0x0000;
+  for (i = 0; i < expected_values_tab.length; i++)
+    {
+       expected_values_tab[i]= 0x0000;
+    }
 
-  msg = "Bad reading of the table at the same address as the Pulse shape Table (col0) of the DEMUX."
-  error = check_equal_tab(tab0_p=read_values_tab, tab1_p=expected_values_tab, msg_p, level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
+  msg = "Reading of the table at the same address as the Pulse shape Table (col0) of the DEMUX."
+  error = check_equal_tab(tab0_p=read_values_tab, tab1_p=expected_values_tab, msg_p = msg, level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
   if (error == -1)
   {
     cnt_err += 1;
@@ -259,7 +252,7 @@ function test_spi_read(level_p, mode_p, verbosity_p) {
     Expected value:
       . return = 0x0 if the RAS device is not connected.
    */
-  msg = "From the RAS, read a single register value at the same address as the "Firmware version" of the DEMUX.";
+  msg = "From the RAS, read a single register value at the same address as the 'Firmware version' of the DEMUX.";
   display(msg_p = msg, level_p = level0, mode_p = mode_p);
 
   // Send command to read register
@@ -273,7 +266,7 @@ function test_spi_read(level_p, mode_p, verbosity_p) {
 
   // check values with the expected ones;
   expected_value = 0x00; // if RAS not connected
-  msg = "Bad reading of the register at the same address as the 'Firmware version' of the DEMUX";
+  msg = "Reading of the register at the same address as the 'Firmware version' of the DEMUX";
   error = check_equal(value0_p=read_values_tab[0], value1_p=expected_value, msg_p=msg, level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
   if (error == -1)
   {
@@ -344,7 +337,7 @@ function main(level_p, mode_p, verbosity_p) {
    ***************************************************************************
    */
   error_info_cnt = 0;
-  error_info_cnt = tmtc_script_info(level_p = level0, mode_p = mode_p, verbosity_p = 2);
+  error_info_cnt = tmtc_script_info(level_p = level0, mode_p = mode_p, 2);
 
   // 1st Test to execute
   // str_en_spi_read = getText("Test: Check the read HK/Status data from the DEMUX/RAS SPI links (0 or 1).", "0");
@@ -372,7 +365,7 @@ function main(level_p, mode_p, verbosity_p) {
   error_debug_cnt = 0;
   msg = "Check Debug Errors";
   display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
-  error_debug_cnt = tmtc_check_all_errors(level_p = level1, mode_p = 0, verbosity_p = 0);
+  error_debug_cnt = tmtc_check_all_errors(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
 
   /*
    ***************************************************************************
@@ -395,7 +388,7 @@ function main(level_p, mode_p, verbosity_p) {
   reg_name = 'FIRMWARE_NAME';
   msg = "TMTC: Get " + reg_name + ": ";
   display(msg_p = msg, level_p = level1, mode_p = mode_p);
-  data = tmtc_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 1);
+  data = tmtc_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 2);
 
   msg = " ";
   display(msg_p = msg, level_p = level1, mode_p = mode_p);

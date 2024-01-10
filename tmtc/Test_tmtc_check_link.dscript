@@ -156,7 +156,7 @@ function test_wire(level_p, mode_p, verbosity_p) {
      * check: TC_HK_CONF
      ***************************************************************************
      */
-    data0 = 0x00000F0;
+    data0 = 0x00000F1;
     msg = "Set register: TC_HK_CONF.";
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
@@ -177,7 +177,7 @@ function test_wire(level_p, mode_p, verbosity_p) {
     }
 
     // Read register: Use the Xifu Studio specific access.
-    getNextValue("DRELINKBOARD_SPI_CS");
+    getLatestValue("DRELINKBOARD_SPI_CS");
     data1 =  DRELINKBOARD_SPI_CS;
 
     // check the read data Vs the written data
@@ -219,7 +219,7 @@ function test_wire(level_p, mode_p, verbosity_p) {
 
     // read register
     // Use the Xifu Studio specific access
-    getNextValue("DRELINKBOARD_ICU_Selection");
+    getLatestValue("DRELINKBOARD_ICU_Selection");
     data1 =  DRELINKBOARD_ICU_Selection;
     msg = "Check register (access1): ICU_CONF.";
     error = check_equal(value0_p = data0, value1_p = data1, msg_p = msg, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
@@ -303,7 +303,7 @@ function test_wire(level_p, mode_p, verbosity_p) {
 
     // read register
     // Xifu Studio specific access
-    getNextValue("DRELINKBOARD_HARDWARE_ID");
+    getLatestValue("DRELINKBOARD_HARDWARE_ID");
     data1 = DRELINKBOARD_HARDWARE_ID;
 
     // check the read data Vs the written data
@@ -329,7 +329,7 @@ function test_wire(level_p, mode_p, verbosity_p) {
 
     // read register
     // Xifu Studio specific access
-    getNextValue("DRELINKBOARD_FIRMWARE_NAME");
+    getLatestValue("DRELINKBOARD_FIRMWARE_NAME");
     data1 = DRELINKBOARD_FIRMWARE_NAME;
 
     // check the read data Vs the written data
@@ -355,7 +355,7 @@ function test_wire(level_p, mode_p, verbosity_p) {
 
     // read register
     // Xifu Studio specific access
-    getNextValue("DRELINKBOARD_FIRMWARE_ID");
+    getLatestValue("DRELINKBOARD_FIRMWARE_ID");
     data1 = DRELINKBOARD_FIRMWARE_ID;
 
     // check the read data Vs the written data
