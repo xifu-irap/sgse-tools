@@ -198,7 +198,7 @@ function tmtc_set_ctrl(rst_p, level_p, mode_p, verbosity_p) {
     const level1 = level_p + 1;
     const level2 = level_p + 2;
 
-    const data = tmtc_build_ctrl(rst_p = rst_p);
+    const data = tmtc_build_ctrl(rst_p);
     const addr = TMTC_ADDR_WIREIN["CTRL"];
 
     sendToDRELinkBoard_SetWireIn(addr, data);
@@ -208,14 +208,14 @@ function tmtc_set_ctrl(rst_p, level_p, mode_p, verbosity_p) {
     } else {
         if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
             msg = "[tmtc_set_ctrl]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
         if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "rst_p", bit_value_p = rst_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
+            display_bit("rst_p", rst_p, 1, level2, mode_p);
 
         }
 
@@ -242,7 +242,7 @@ function tmtc_set_tc_hk_conf(spi_select_p, level_p, mode_p, verbosity_p) {
     const level1 = level_p + 1;
     const level2 = level_p + 2;
 
-    const data = tmtc_build_tc_hk_conf(spi_select_p = spi_select_p);
+    const data = tmtc_build_tc_hk_conf(spi_select_p);
     const addr = TMTC_ADDR_WIREIN["TC_HK_CONF"];
 
     sendToDRELinkBoard_SetWireIn(addr, data);
@@ -252,14 +252,14 @@ function tmtc_set_tc_hk_conf(spi_select_p, level_p, mode_p, verbosity_p) {
     } else {
         if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
             msg = "[tmtc_set_tc_hk_conf]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
         if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "spi_select_p", bit_value_p = spi_select_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
+            display_bit("spi_select_p", spi_select_p, 1, level2, mode_p);
 
         }
 
@@ -285,7 +285,7 @@ function tmtc_set_icu_conf(icu_select_p, level_p, mode_p, verbosity_p) {
     const level1 = level_p + 1;
     const level2 = level_p + 2;
 
-    const data = tmtc_build_icu_conf(icu_select_p = icu_select_p);
+    const data = tmtc_build_icu_conf(icu_select_p);
     const addr = TMTC_ADDR_WIREIN["ICU_CONF"];
 
     sendToDRELinkBoard_SetWireIn(addr, data);
@@ -295,14 +295,14 @@ function tmtc_set_icu_conf(icu_select_p, level_p, mode_p, verbosity_p) {
     } else {
         if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
             msg = "[tmtc_set_icu_conf]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
         if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "icu_select_p", bit_value_p = spi_select_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
+            display_bit("icu_select_p", spi_select_p, 1, level2, mode_p);
 
         }
 
@@ -331,7 +331,7 @@ function tmtc_set_debug_ctrl(science_pattern_en_fifo_out_p, rst_status_p, debug_
     const level1 = level_p + 1;
     const level2 = level_p + 2;
 
-    const data = tmtc_build_debug_ctrl(science_pattern_en_fifo_out_p, rst_status_p, debug_pulse_p)
+    const data = tmtc_build_debug_ctrl(science_pattern_en_fifo_out_p, rst_status_p, debug_pulse_p);
     const addr = TMTC_ADDR_WIREIN["DEBUG_CTRL"];
 
     sendToDRELinkBoard_SetWireIn(addr, data);
@@ -341,17 +341,17 @@ function tmtc_set_debug_ctrl(science_pattern_en_fifo_out_p, rst_status_p, debug_
     } else {
         if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
             msg = "[tmtc_set_debug_ctrl]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "science_pattern_en_fifo_out_p", bit_value_p = science_pattern_en_fifo_out_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "rst_status_p", bit_value_p = rst_status_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "debug_pulse_p", bit_value_p = debug_pulse_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
+            display_bit("science_pattern_en_fifo_out_p", science_pattern_en_fifo_out_p, 1, level2, mode_p);
+            display_bit("rst_status_p", rst_status_p, 1, level2, mode_p);
+            display_bit("debug_pulse_p", debug_pulse_p, 1, level2, mode_p);
 
         }
     }
@@ -505,7 +505,7 @@ function tmtc_set_debug_wirein_by_name(reg_name_p, data_p, level_p, mode_p, verb
         // break;
         default:
             msg = "[KO][tmtc_set_debug_wirein_by_name]: The register " + reg_name_p + " doesn't exist."
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
             error = 1;
             break;
     }
@@ -521,11 +521,11 @@ function tmtc_set_debug_wirein_by_name(reg_name_p, data_p, level_p, mode_p, verb
 
             if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
                 msg = "[tmtc_set_debug_wirein_by_name]: Set " + reg_name_p;
-                display(msg_p = msg, level_p = level0, mode_p = mode_p);
+                display(msg, level0, mode_p);
             }
 
             if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
-                display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+                display_register(addr, 32, data, 32, level1, mode_p);
             }
 
 
@@ -572,7 +572,7 @@ function tmtc_get_wireout_ctrl(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = TMTC_ADDR_WIREOUT['CTRL'];
-    data = tmtc_wireout_read_command(addr_p = addr);
+    data = tmtc_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
@@ -580,15 +580,15 @@ function tmtc_get_wireout_ctrl(level_p, mode_p, verbosity_p) {
 
         if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
             msg = "[tmtc_get_wireout_ctrl]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "rst", bit_pos_p = 0, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("rst", 0, 1, data, level2, mode_p);
         }
     }
 
@@ -613,22 +613,22 @@ function tmtc_get_wireout_tc_hk_conf(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = TMTC_ADDR_WIREOUT['TC_HK_CONF'];
-    data = tmtc_wireout_read_command(addr_p = addr);
+    data = tmtc_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
             msg = "[tmtc_get_wireout_tc_hk_conf]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "spi_select", bit_pos_p = 0, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("spi_select", 0, 1, data, level2, mode_p);
         }
     }
 
@@ -654,22 +654,22 @@ function tmtc_get_wireout_icu_conf(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = TMTC_ADDR_WIREOUT['ICU_CONF'];
-    data = tmtc_wireout_read_command(addr_p = addr);
+    data = tmtc_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
             msg = "[tmtc_get_wireout_icu_conf]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "icu_select", bit_pos_p = 0, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("icu_select", 0, 1, data, level2, mode_p);
         }
     }
 
@@ -696,22 +696,22 @@ function tmtc_get_wireout_science_stamp_lsb(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = TMTC_ADDR_WIREOUT['SCIENCE_STAMP_LSB'];
-    data = tmtc_wireout_read_command(addr_p = addr);
+    data = tmtc_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
             msg = "[tmtc_get_wireout_science_stamp_lsb]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "DDR delta words (DDR occupation)", bit_pos_p = 0, bit_width_p = 32, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("DDR delta words (DDR occupation)", 0, 32, data, level2, mode_p);
         }
     }
 
@@ -736,7 +736,7 @@ function tmtc_get_wireout_science_fifo_out_rd_data_count(level_p, mode_p, verbos
     const level2 = level_p + 2;
 
     addr = TMTC_ADDR_WIREOUT['SCIENCE_FIFO_OUT_RD_DATA_COUNT'];
-    data = tmtc_wireout_read_command(addr_p = addr);
+    data = tmtc_wireout_read_command(addr);
 
 
     if (verbosity_p < 0) {
@@ -744,15 +744,15 @@ function tmtc_get_wireout_science_fifo_out_rd_data_count(level_p, mode_p, verbos
     } else {
         if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
             msg = "[tmtc_get_wireout_science_fifo_out_rd_data_count]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "science data count", bit_pos_p = 0, bit_width_p = 17, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("science data count", 0, 17, data, level2, mode_p);
         }
     }
 
@@ -777,22 +777,22 @@ function tmtc_get_wireout_hk_fifo_out_rd_data_count(level_p, mode_p, verbosity_p
     const level2 = level_p + 2;
 
     addr = TMTC_ADDR_WIREOUT['HK_FIFO_OUT_RD_DATA_COUNT'];
-    data = tmtc_wireout_read_command(addr_p = addr);
+    data = tmtc_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
             msg = "[tmtc_get_wireout_hk_fifo_out_rd_data_count]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "hk data count", bit_pos_p = 0, bit_width_p = 16, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("hk data count", 0, 16, data, level2, mode_p);
         }
     }
 
@@ -817,24 +817,24 @@ function tmtc_get_wireout_debug_ctrl(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = TMTC_ADDR_WIREOUT['DEBUG_CTRL'];
-    data = tmtc_wireout_read_command(addr_p = addr);
+    data = tmtc_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
             msg = "[tmtc_get_wireout_debug_ctrl]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "science_pattern_en_fifo_out_p", bit_pos_p = 4, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "rst_status", bit_pos_p = 1, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "debug_pulse", bit_pos_p = 0, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("science_pattern_en_fifo_out_p", 4, 1, data, level2, mode_p);
+            display_bit_from_data("rst_status", 1, bit_width_p = 1, data, level2, mode_p);
+            display_bit_from_data("debug_pulse", 0, bit_width_p = 1, data, level2, mode_p);
         }
     }
 
@@ -859,22 +859,22 @@ function tmtc_get_wireout_error_sel(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = TMTC_ADDR_WIREOUT['ERROR_SEL'];
-    data = tmtc_wireout_read_command(addr_p = addr);
+    data = tmtc_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
             msg = "[tmtc_get_wireout_error_sel]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "sel_error", bit_pos_p = 1, bit_width_p = 3, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("sel_error", 1, 3, data, level2, mode_p);
         }
     }
 
@@ -900,22 +900,22 @@ function tmtc_get_wireout_errors(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = TMTC_ADDR_WIREOUT['ERRORS'];
-    data = tmtc_wireout_read_command(addr_p = addr);
+    data = tmtc_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
             msg = "[tmtc_get_wireout_errors]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "errors", bit_pos_p = 0, bit_width_p = 32, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("errors", 0, 32, data, level2, mode_p);
         }
     }
 
@@ -941,22 +941,22 @@ function tmtc_get_wireout_status(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = TMTC_ADDR_WIREOUT['STATUS'];
-    data = tmtc_wireout_read_command(addr_p = addr);
+    data = tmtc_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
             msg = "[tmtc_get_wireout_status]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "status", bit_pos_p = 0, bit_width_p = 32, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("status", 0, 32, data, level2, mode_p);
         }
     }
 
@@ -981,22 +981,22 @@ function tmtc_get_wireout_hardware_id(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = TMTC_ADDR_WIREOUT['HARDWARE_ID'];
-    data = tmtc_wireout_read_command(addr_p = addr);
+    data = tmtc_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
             msg = "[tmtc_get_wireout_hardware_id]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "hardware_id_p", bit_pos_p = 0, bit_width_p = 8, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("hardware_id_p", 0, 8, data, level2, mode_p);
         }
     }
 
@@ -1021,24 +1021,24 @@ function tmtc_get_wireout_firmware_name(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = TMTC_ADDR_WIREOUT['FIRMWARE_NAME'];
-    data = tmtc_wireout_read_command(addr_p = addr);
+    data = tmtc_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
             msg = "[tmtc_get_wireout_firmware_name]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "firmware_name_p", bit_pos_p = 0, bit_width_p = 32, data_p = data, level_p = level2, mode_p = mode_p);
-            msg = "firmware_name_p (ASCII): " + convert_hex_to_ascii(value_p = data, width_p = 32);
-            display(msg_p = msg, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("firmware_name_p", 0, 32, data, level2, mode_p);
+            msg = "firmware_name_p (ASCII): " + convert_hex_to_ascii(data, 32);
+            display(msg, level2, mode_p);
         }
     }
 
@@ -1065,22 +1065,22 @@ function tmtc_get_wireout_firmware_id(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = TMTC_ADDR_WIREOUT['FIRMWARE_ID'];
-    data = tmtc_wireout_read_command(addr_p = addr);
+    data = tmtc_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
             msg = "[tmtc_get_wireout_firmware_id]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "firmware_id_p", bit_pos_p = 0, bit_width_p = 8, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("firmware_id_p", 0, 8, data, level2, mode_p);
         }
     }
 
@@ -1111,13 +1111,13 @@ function tmtc_get_wireout_by_name(reg_name_p, level_p, mode_p, verbosity_p) {
     data = 0;
     switch (reg_name_p) {
         case 'CTRL': //00
-            data = tmtc_get_wireout_ctrl(level_p = level0, mode_p, verbosity_p);
+            data = tmtc_get_wireout_ctrl(level0, mode_p, verbosity_p);
             break;
         case 'TC_HK_CONF': //01
-            data = tmtc_get_wireout_tc_hk_conf(level_p = level0, mode_p, verbosity_p);
+            data = tmtc_get_wireout_tc_hk_conf(level0, mode_p, verbosity_p);
             break;
         case 'ICU_CONF': //02
-            data = tmtc_get_wireout_icu_conf(level_p = level0, mode_p, verbosity_p);
+            data = tmtc_get_wireout_icu_conf(level0, mode_p, verbosity_p);
             break;
 
         // case 'RFU': //03
@@ -1175,48 +1175,48 @@ function tmtc_get_wireout_by_name(reg_name_p, level_p, mode_p, verbosity_p) {
         //     break;
 
         case 'SCIENCE_STAMP_LSB': //21
-            data = tmtc_get_wireout_science_stamp_lsb(level_p = level0, mode_p, verbosity_p);
+            data = tmtc_get_wireout_science_stamp_lsb(level0, mode_p, verbosity_p);
             break;
 
         case 'SCIENCE_FIFO_OUT_RD_DATA_COUNT': //22
-            data = tmtc_get_wireout_science_fifo_out_rd_data_count(level_p = level0, mode_p, verbosity_p);
+            data = tmtc_get_wireout_science_fifo_out_rd_data_count(level0, mode_p, verbosity_p);
             break;
 
         case 'HK_FIFO_OUT_RD_DATA_COUNT': //23
-            data = tmtc_get_wireout_hk_fifo_out_rd_data_count(level_p = level0, mode_p, verbosity_p);
+            data = tmtc_get_wireout_hk_fifo_out_rd_data_count(level0, mode_p, verbosity_p);
             break;
 
         case 'DEBUG_CTRL': //24
-            data = tmtc_get_wireout_debug_ctrl(level_p = level0, mode_p, verbosity_p);
+            data = tmtc_get_wireout_debug_ctrl(level0, mode_p, verbosity_p);
             break;
 
         case 'ERROR_SEL': //25
-            data = tmtc_get_wireout_error_sel(level_p = level0, mode_p, verbosity_p);
+            data = tmtc_get_wireout_error_sel(level0, mode_p, verbosity_p);
             break;
 
         case 'ERRORS': //26
-            data = tmtc_get_wireout_errors(level_p = level0, mode_p, verbosity_p);
+            data = tmtc_get_wireout_errors(level0, mode_p, verbosity_p);
             break;
 
         case 'STATUS': //27
-            data = tmtc_get_wireout_status(level_p = level0, mode_p, verbosity_p);
+            data = tmtc_get_wireout_status(level0, mode_p, verbosity_p);
             break;
 
         // case 'RFU': //28
         // break;
 
         case 'HARDWARE_ID': //29
-            data = tmtc_get_wireout_hardware_id(level_p = level0, mode_p, verbosity_p);
+            data = tmtc_get_wireout_hardware_id(level0, mode_p, verbosity_p);
             break;
         case 'FIRMWARE_NAME': //30
-            data = tmtc_get_wireout_firmware_name(level_p = level0, mode_p, verbosity_p);
+            data = tmtc_get_wireout_firmware_name(level0, mode_p, verbosity_p);
             break;
         case 'FIRMWARE_ID': //31
-            data = tmtc_get_wireout_firmware_id(level_p = level0, mode_p, verbosity_p);
+            data = tmtc_get_wireout_firmware_id(level0, mode_p, verbosity_p);
             break;
         default:
             const msg = "[tmtc_get_wireout_by_name]: Error " + reg_name_p + " doesn't exist."
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
             break;
     }
 
@@ -1243,11 +1243,11 @@ function tmtc_get_error_by_id(sel_error_p, level_p, mode_p, verbosity_p) {
     const level1 = level_p + 1;
 
     // Select the errors/status to read
-    const data0 = tmtc_build_error_sel(sel_error_p = sel_error_p);
-    tmtc_set_debug_wirein_by_name(reg_name_p = "ERROR_SEL", data_p = data0, level_p = level_p, mode_p = mode_p, verbosity_p = verbosity_p);
+    const data0 = tmtc_build_error_sel(sel_error_p);
+    tmtc_set_debug_wirein_by_name("ERROR_SEL", data0, level_p, mode_p, verbosity_p);
 
     // read the selected errors
-    const data = tmtc_get_wireout_by_name(reg_name_p = "ERRORS", level_p = level_p, mode_p = mode_p, verbosity_p = verbosity_p);
+    const data = tmtc_get_wireout_by_name("ERRORS", level_p, mode_p, verbosity_p);
 
     return data;
 }
@@ -1272,10 +1272,10 @@ function tmtc_get_status_by_id(sel_error_p, level_p, mode_p, verbosity_p) {
 
     // Select the errors/status to read
     const index = sel_error_p;
-    tmtc_set_debug_wirein_by_name(reg_name_p = "ERROR_SEL", data_p = index, level_p = level_p, mode_p = mode_p, verbosity_p = verbosity_p);
+    tmtc_set_debug_wirein_by_name("ERROR_SEL", index, level_p, mode_p, verbosity_p);
 
     // read the selected status
-    tmtc_get_wireout_by_name(reg_name_p = "STATUS", level_p = level_p, mode_p = mode_p, verbosity_p = verbosity_p);
+    tmtc_get_wireout_by_name("STATUS", level_p, mode_p, verbosity_p);
 
     return data;
 }
