@@ -76,20 +76,20 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
      TMTC: TC_HK_CONF register.
      */
     msg = "TMTC: Select the DEMUX SPI link (TC_HK_CONF register).";
-    display_subtitle(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display_subtitle(msg, level0, mode_p);
     // spi_select: 0: DEMUX, 1: RAS
     spi_select = 0;
     sendToDRELinkBoard_ConfigureSPI_CS(spi_select);
 
     msg = "";
-    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display(msg, level0, mode_p);
 
     /*
       From the DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
       Expected values:  see .vhd code
      */
     msg = "From the DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).";
-    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display(msg, level0, mode_p);
     nb_data= 16;
     addr = 0x0400;
     sendToDREReadRegisters(addr, nb_data);
@@ -98,7 +98,7 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
      To the DEMUX: Write 34 consecutive values to the DEMUX AMP_SQ_OFFSET_FINE table (col0).
      */
     msg = "To the DEMUX: Write 34 consecutive values to the DEMUX AMP_SQ_OFFSET_FINE table (col0).";
-    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display(msg, level0, mode_p);
 
     value_test = [
                 0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007, 0x0001,
@@ -113,20 +113,20 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
       Expected values: the reading should be identical to the written values (previously access).
      */
     msg = "From the DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).";
-    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display(msg, level0, mode_p);
     nb_data= 34;
     addr = 0x0400;
     sendToDREReadRegisters(addr, nb_data);
 
     // read values
     getLatestValue("DRE_registers");
-    read_values_tab = extract_sub_table(tab_p=DRE_registers, addr_p=addr, nb_data_p=nb_data, level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p)
+    read_values_tab = extract_sub_table(DRE_registers, addr, nb_data, level1, mode_p, verbosity_p)
 
     // expected values to read
     expected_values_tab = value_test;
 
     msg = "Reading of the DEMUX Pulse Shape Table (Col0)";
-    error = check_equal_tab(tab0_p=read_values_tab, tab1_p=expected_values_tab, msg_p=msg, level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
+    error = check_equal_tab(read_values_tab, expected_values_tab, msg, level1, mode_p, verbosity_p);
     if (error == -1)
     {
       cnt_err += 1;
@@ -161,10 +161,10 @@ function main(level_p, mode_p, verbosity_p) {
      ***************************************************************************
      */
     msg = "tmtc Test Description: " + script_name;
-    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display_title(msg, level0, mode_p);
 
     msg = 'Context and purpose of the test.'
-    display_subtitle(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display_subtitle(msg, level1, mode_p);
 
     msg = [
      "This test does the writting/reading of the DEMUX SPI link.",
@@ -177,10 +177,10 @@ function main(level_p, mode_p, verbosity_p) {
      "Expected Result:",
      "    . check the written values in 3. are equal to the read values in 4."
     ];
-    display(msg_p = msg, level_p = level2, mode_p = mode_p);
+    display(msg, level2, mode_p);
 
     msg = "";
-    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display(msg, level0, mode_p);
 
     /*
      ***************************************************************************
@@ -188,7 +188,7 @@ function main(level_p, mode_p, verbosity_p) {
      ***************************************************************************
      */
     error_info_cnt = 0;
-    list_tmp       = tmtc_script_info(level_p = level1, mode_p = mode_p, verbosity_p= 2);
+    list_tmp       = tmtc_script_info(level1, mode_p, 2);
     error_info_cnt = list_tmp[0];
     info           = list_tmp[1];
 
@@ -208,9 +208,8 @@ function main(level_p, mode_p, verbosity_p) {
     if (en_spi_write == 1)
     {
         msg = "Test: Check the read HK/Status data from the DEMUX SPI link.";
-        display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
-        // error_spi_write_cnt = test_spi_write(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
-        test_spi_write(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
+        display_title(msg, level0, mode_p);
+        error_spi_write_cnt = test_spi_write(level1, mode_p, verbosity_p);
     }
 
     /*
@@ -220,8 +219,8 @@ function main(level_p, mode_p, verbosity_p) {
      */
     error_debug_cnt = 0;
     msg = "Check Debug Errors.";
-    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
-    error_debug_cnt = tmtc_check_all_errors(level_p = level1, mode_p = 0, verbosity_p = 0);
+    display_title(msg, level0, mode_p);
+    error_debug_cnt = tmtc_check_all_errors(level1, mode_p, verbosity_p);
 
     /*
      ***************************************************************************
@@ -229,77 +228,77 @@ function main(level_p, mode_p, verbosity_p) {
      ***************************************************************************
      */
     msg = "Summary: Errors.";
-    display_title(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display_title(msg, level1, mode_p);
 
     // get HARDWARE_ID
     reg_name = 'HARDWARE_ID';
     msg = "TMTC: Get " + reg_name + ": ";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    data = tmtc_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 1);
+    display(msg, level1, mode_p);
+    data = tmtc_get_wireout_by_name(reg_name, level2, mode_p, 1);
 
     msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     // get the FIRMWARE_NAME
     reg_name = 'FIRMWARE_NAME';
     msg = "TMTC: Get " + reg_name + ": ";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    data = tmtc_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 1);
+    display(msg, level1, mode_p);
+    data = tmtc_get_wireout_by_name(reg_name, level2, mode_p, 1);
 
     msg = " ";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     // get FIRMWARE_ID
     reg_name = 'FIRMWARE_ID';
     msg = "TMTC: Get " + reg_name + ": ";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    data = tmtc_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 1);
+    display(msg, level1, mode_p);
+    data = tmtc_get_wireout_by_name(reg_name, level2, mode_p, 1);
 
     msg = " ";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     // summary of the script_info errors.
     if (error_info_cnt == 0)
     {
         msg_tmp = "[OK]: Script Info has " + error_info_cnt.toString(10) + " error.";
-        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+        display(msg_tmp, level1, mode_p);
     }
     else
     {
         msg_tmp = "[KO]: Script Info has " + error_info_cnt.toString(10) + " errors.";
-        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+        display(msg_tmp, mode_p);
     }
 
     // summary of the spi_write errors
-    // if (en_spi_write == 0)
-    // {
-    //     msg_tmp = "[N/A]: Test: The DEMUX SPI writting/reading was not performed.";
-    //     display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
-    // }
-    // else
-    // {
-    //     if (error_spi_write_cnt == 0)
-    //     {
-    //         msg_tmp = "[OK]: Test: The DEMUX SPI writting/reading has " + error_spi_write_cnt.toString(10) + " error.";
-    //         display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
-    //     }
-    //     else
-    //     {
-    //         msg_tmp = "[KO]: Test: The DEMUX SPI writting/reading has " + error_spi_write_cnt.toString(10) + " errors.";
-    //         display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
-    //     }
-    // }
+    if (en_spi_write == 0)
+    {
+        msg_tmp = "[N/A]: Test: The DEMUX SPI writting/reading was not performed. ";
+        display(msg_tmp, level1, mode_p);
+    }
+    else
+    {
+        if (error_spi_write_cnt == 0)
+        {
+            msg_tmp = "[OK]: Test: The DEMUX SPI writting/reading has " + error_spi_write_cnt.toString(10) + " error.";
+            display(msg_tmp, level1, mode_p);
+        }
+        else
+        {
+            msg_tmp = "[KO]: Test: The DEMUX SPI writting/reading has " + error_spi_write_cnt.toString(10) + " errors.";
+            display(msg_tmp, level1, mode_p);
+        }
+    }
 
     // summary of the internal errors
     if (error_debug_cnt == 0)
     {
       msg_tmp = "[OK]: Debug errors has " + error_debug_cnt.toString(10) + " error.";
-      display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+      display(msg_tmp, level1, mode_p);
     }
     else
     {
       msg_tmp = "[KO]: Debug errors generation has " + error_debug_cnt.toString(10) + " errors.";
-      display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+      display(msg_tmp, level1, mode_p);
     }
 
     /*
@@ -308,7 +307,7 @@ function main(level_p, mode_p, verbosity_p) {
      ***************************************************************************
      */
     msg = "End of Test.";
-    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display_title(msg, level0, mode_p);
 
     /*
      ***************************************************************************
@@ -325,4 +324,4 @@ function main(level_p, mode_p, verbosity_p) {
  * @param {number} mode_p - define the print output.
  * @param {number} verbosity_p - level of verbosity.
  */
-main(level_p = 0, mode_p = 0, verbosity_p = 0);
+main(0, 0, 2);

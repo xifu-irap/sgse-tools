@@ -71,8 +71,8 @@ function test_science(level_p, mode_p, verbosity_p) {
   rst_status = 0x0;
   debug_pulse = 0x0;
   msg = "Set register: DEBUG_CTRL";
-  display(msg_p = msg, level_p = level1, mode_p = mode_p);
-  tmtc_set_debug_ctrl(science_pattern_en_fifo_out_p = science_pattern_en_fifo_out, rst_status_p = rst_status, debug_pulse_p = debug_pulse, level_p = level1, mode_p = mode_p)
+  display(msg, level1, mode_p);
+  tmtc_set_debug_ctrl(science_pattern_en_fifo_out, rst_status, debug_pulse, level1, mode_p);
 
   // infinite loop: Get statistics on the science USB link
   req = getNextValue("DRE_controlLink0,DRE_controlLink1,DRE_DataCol0,DRE_DataCol3,DRE_DataCol2,DRE_DataCol1,DRE_LinkCounterError,DISP_SubsystemsDataTransferred", "toutes les 1000 ms");
@@ -118,10 +118,10 @@ function main(level_p, mode_p, verbosity_p) {
    ***************************************************************************
    */
   msg = "tmtc Test Description: " + script_name + " (normal mode).";
-  display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+  display_title(msg, level0, mode_p);
 
   msg = "Context and purpose of the test.";
-  display_subtitle(msg_p = msg, level_p = level1, mode_p = mode_p);
+  display_subtitle(msg, level1, mode_p);
 
   msg = [
     "This test (normal mode) allows testing the science USB link speed with science data from the DEMUX.",
@@ -129,10 +129,10 @@ function main(level_p, mode_p, verbosity_p) {
     "   . Disable the science pattern generator at the input of the science output FIFO.",
     "   . Infinite loop: Get statistics on the science link."
   ];
-  display(msg_p = msg, level_p = level2, mode_p = mode_p);
+  display(msg, level2, mode_p);
 
   msg = "";
-  display(msg_p = msg, level_p = level0, mode_p = mode_p);
+  display(msg, level0, mode_p);
 
   /*
    ***************************************************************************
@@ -140,7 +140,7 @@ function main(level_p, mode_p, verbosity_p) {
    ***************************************************************************
   */
   error_info_cnt = 0;
-  list_tmp       = tmtc_script_info(level_p = level1, mode_p = mode_p, 2);
+  list_tmp       = tmtc_script_info(level1, mode_p, 2);
   error_info_cnt = list_tmp[0];
   info           = list_tmp[1];
 
@@ -160,8 +160,8 @@ function main(level_p, mode_p, verbosity_p) {
   if (en_science == 1)
   {
     msg = "Test: Run the science USB link speed test (normal mode).";
-    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
-    test_science(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
+    display_title(msg, level0, mode_p);
+    test_science(level1, mode_p, verbosity_p);
   }
 
 
@@ -171,7 +171,7 @@ function main(level_p, mode_p, verbosity_p) {
     ***************************************************************************
     */
   msg = "End of Test.";
-  display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+  display_title(msg, level0, mode_p);
 
   /*
     ***************************************************************************
@@ -188,4 +188,4 @@ function main(level_p, mode_p, verbosity_p) {
  * @param {number} mode_p - define the print output.
  * @param {number} verbosity_p - level of verbosity.
  */
-main(level_p = 0, mode_p = 0, verbosity_p = 0);
+main(0, 0, 2);
