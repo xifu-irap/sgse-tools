@@ -59,9 +59,6 @@ function configure_tmtc(level_p, mode_p, verbosity_p) {
      ***************************************************************************
      */
 
-    msg = "Configure the tmtc registers";
-    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
-
     // Set the CTRL register.
     msg = "TMTC: Set register: CTRL";
     display((msg_p = msg), (level_p = level1), (mode_p = mode_p));
@@ -390,13 +387,15 @@ function main(level_p, mode_p, verbosity_p) {
     const level1 = level_p + 1;
     const level2 = level_p + 2;
 
+    // script name
+    script_name = "Test_tmtc_check_link";
 
     /*
      ***************************************************************************
      * display the test description
      ***************************************************************************
      */
-    msg = "tmtc Test Description: tmtc_check_link.";
+    msg = "tmtc Test Description: " + script_name;
     display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
 
     msg = 'Context and purpose of the test.';
@@ -426,7 +425,12 @@ function main(level_p, mode_p, verbosity_p) {
      ***************************************************************************
      */
     error_info_cnt = 0;
-    error_info_cnt = tmtc_script_info(level_p = level0, mode_p = mode_p, 2);
+    list_tmp       = tmtc_script_info(level_p = level1, mode_p = mode_p, 2);
+    error_info_cnt = list_tmp[0];
+    info           = list_tmp[1];
+
+    // build output filename
+    output_filename = script_name + "__" + info + ".txt";
 
     /*
      ***************************************************************************
@@ -573,6 +577,13 @@ function main(level_p, mode_p, verbosity_p) {
      */
     msg = "End of Test.";
     display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+
+    /*
+     ***************************************************************************
+     * Save the Log content
+     ***************************************************************************
+     */
+    saveLogContent(output_filename);
 
 }
 

@@ -108,7 +108,11 @@ function tmtc_script_info(level_p, mode_p, verbosity_p) {
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
     data = tmtc_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
 
-    return cnt_error_info;
+     // build output filename
+    //output_filename = operator_name + "_" + session_name + "_" + date;
+    output_filename = date + "_" + operator_name;
+
+    return [cnt_error_info,output_filename];
 }
 
 /**
@@ -276,19 +280,19 @@ function check_equal(value0_p, value1_p, msg_p, level_p, mode_p, verbosity_p) {
     const str_data1 = convert_int_to_str_hex(value_p = value1_p, width_p = 32);
 
     if (value0_p !== value1_p) {
-        const msg_tmp = "[KO]: " + msg_p;
-        display(msg_p = msg_tmp, level_p = level0, mode_p = mode_p);
+        msg = "[KO]: " + msg_p;
+        display(msg_p = msg, level_p = level0, mode_p = mode_p);
         if (verbosity_p > 0) {
-            const msg = "[check_equal]: value0_p: 0x" + str_data0 + " !=  value_1_p: 0x" + str_data1;
+            msg = "[check_equal]: value0_p: 0x" + str_data0 + " !=  value_1_p: 0x" + str_data1;
             display(msg_p = msg, level_p = level1, mode_p = mode_p);
 
         }
         return -1
     } else {
-        const msg = "[OK]: " + msg_p;
+        msg = "[OK]: " + msg_p;
         display(msg_p = msg, level_p = level0, mode_p = mode_p);
         if (verbosity_p > 0) {
-            const msg = "[check_equal]: value0_p: 0x" + str_data0 + " ==  value_1_p: 0x" + str_data1;
+            msg = "[check_equal]: value0_p: 0x" + str_data0 + " ==  value_1_p: 0x" + str_data1;
             display(msg_p = msg, level_p = level1, mode_p = mode_p);
         }
         return 0
@@ -320,7 +324,7 @@ function check_equal_tab(tab0_p, tab1_p, msg_p, level_p, mode_p, verbosity_p) {
         if (value0 != value1) {
             if (verbosity_p > 0) {
                 const msg = "index: " + i.toString(10) + " value0_p: " + value0.toString(10) + " ,value1_p:" + value1.toString(10);
-                display(msg_p = msg, level_p = level_p, mode_p = mode_p);
+                display(msg, level_p, mode_p);
 
             }
             error = 1;
@@ -357,8 +361,8 @@ function extract_sub_table(tab_p, addr_p, nb_data_p, level_p, mode_p, verbosity_
 
     extracted_tab = Array(nb_data_p);
     max_addr = addr_p + nb_data_p;
-	
-	const msg = "[extract_sub_table]: extraction sub table";
+
+    const msg = "[extract_sub_table]: extraction sub table";
     display(msg_p = msg, level_p = level0, mode_p = mode_p);
 
     for (i = 0; i < nb_data_p; i++) {
