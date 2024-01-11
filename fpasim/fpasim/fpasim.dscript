@@ -85,7 +85,7 @@ FPASIM_ADDR_WIREIN['SPI_CONF0'] = 0x13; // 19
 FPASIM_ADDR_WIREIN['SPI_CONF1'] = 0x14; // 20
 FPASIM_ADDR_WIREIN['SPI_WR_DATA'] = 0x15; // 21
 // FPASIM_ADDR_WIREIN['SPI_RD_DATA'] = 0x16; // 22
-// FPASIM_ADDR_WIREIN['SPI_STATUS'] = 0x37; // 23
+// FPASIM_ADDR_WIREIN['SPI_STATUS'] = 0x17; // 23
 FPASIM_ADDR_WIREIN['DEBUG_CTRL'] = 0x18; // 24
 FPASIM_ADDR_WIREIN['ERROR_SEL'] = 0x19; // 25
 // FPASIM_ADDR_WIREIN['ERRORS'] = 0x1A; // 26
@@ -670,123 +670,133 @@ function fpasim_set_debug_wirein_by_name(reg_name_p, data_p, level_p, mode_p, ve
     trig_pos = -1;
     error = 0;
     switch (reg_name_p) {
-        case 'CTRL':
+        case 'CTRL': // 00
             addr = FPASIM_ADDR_WIREIN[reg_name_p];
             trig_pos = FPASIM_POS_TRIGIN['ctrl_valid'];
             break;
-        case 'MAKE_PULSE':
+
+        case 'MAKE_PULSE': // 01
             addr = FPASIM_ADDR_WIREIN[reg_name_p];
             trig_pos = FPASIM_POS_TRIGIN['make_pulse'];
             break;
-        case 'MUX_SQ_FB_DELAY':
-            addr = FPASIM_ADDR_WIREIN[reg_name_p];
-            trig_pos = FPASIM_POS_TRIGIN['reg_valid'];
-            break;
-        case 'AMP_SQ_OF_DELAY':
-            addr = FPASIM_ADDR_WIREIN[reg_name_p];
-            trig_pos = FPASIM_POS_TRIGIN['reg_valid'];
-            break;
-        case 'ERROR_DELAY':
-            addr = FPASIM_ADDR_WIREIN[reg_name_p];
-            trig_pos = FPASIM_POS_TRIGIN['reg_valid'];
-            break;
-        case 'RA_DELAY':
-            addr = FPASIM_ADDR_WIREIN[reg_name_p];
-            trig_pos = FPASIM_POS_TRIGIN['reg_valid'];
-            break;
-        case 'TES_CONF':
+
+        // case 'RFU': // 02
+        //       break;
+
+        case 'MUX_SQ_FB_DELAY': // 03
             addr = FPASIM_ADDR_WIREIN[reg_name_p];
             trig_pos = FPASIM_POS_TRIGIN['reg_valid'];
             break;
 
-        case 'CONF0':
+        case 'AMP_SQ_OF_DELAY': // 04
             addr = FPASIM_ADDR_WIREIN[reg_name_p];
             trig_pos = FPASIM_POS_TRIGIN['reg_valid'];
             break;
 
+        case 'ERROR_DELAY': // 05
+            addr = FPASIM_ADDR_WIREIN[reg_name_p];
+            trig_pos = FPASIM_POS_TRIGIN['reg_valid'];
+            break;
 
-            // case 'RFU':
+        case 'RA_DELAY': // 06
+            addr = FPASIM_ADDR_WIREIN[reg_name_p];
+            trig_pos = FPASIM_POS_TRIGIN['reg_valid'];
+            break;
+
+        case 'TES_CONF': // 07
+            addr = FPASIM_ADDR_WIREIN[reg_name_p];
+            trig_pos = FPASIM_POS_TRIGIN['reg_valid'];
+            break;
+
+        case 'CONF0': // 08
+            addr = FPASIM_ADDR_WIREIN[reg_name_p];
+            trig_pos = FPASIM_POS_TRIGIN['reg_valid'];
+            break;
+
+            // case 'RFU': // 09
             //   break;
 
-            // case 'RFU':
+            // case 'FPASIM_STATUS': // 10
             //   break;
 
-            // case 'DATA_COUNT':
+            // case 'DATA_COUNT': // 11
             //     break;
-        case 'REC_CTRL':
+
+        case 'REC_CTRL': // 12
             addr = FPASIM_ADDR_WIREIN[reg_name_p];
             trig_pos = FPASIM_POS_TRIGIN['rec_valid'];
             // trig_pos = -1;
             break;
-        case 'REC_CONF0':
+
+        case 'REC_CONF0': // 13
             addr = FPASIM_ADDR_WIREIN[reg_name_p];
             trig_pos = FPASIM_POS_TRIGIN['rec_valid'];
             break;
 
-            // case 'RFU':
+            // case 'RFU': // 14
             //   break;
 
-            // case 'RFU':
+            // case 'RFU': // 15
             //   break;
 
-            // case 'RFU':
+            // case 'RFU': // 16
             //   break;
 
-            // case 'REC_DATA_COUNT':
+            // case 'REC_DATA_COUNT': // 17
             //     break;
 
-        case 'SPI_CTRL':
+        case 'SPI_CTRL': // 18
             addr = FPASIM_ADDR_WIREIN[reg_name_p];
             trig_pos = -1;
             break;
 
-        case 'SPI_CONF0':
+        case 'SPI_CONF0': // 19
             addr = FPASIM_ADDR_WIREIN[reg_name_p];
             trig_pos = -1;
             break;
 
-        case 'SPI_CONF1':
+        case 'SPI_CONF1': // 20
             addr = FPASIM_ADDR_WIREIN[reg_name_p];
             trig_pos = -1;
             break;
 
-        case 'SPI_WR_DATA':
+        case 'SPI_WR_DATA': // 21
             addr = FPASIM_ADDR_WIREIN[reg_name_p];
             trig_pos = FPASIM_POS_TRIGIN['spi_valid'];
             break;
-            // case 'SPI_RD_DATA':
+
+        // case 'SPI_RD_DATA': // 22
             //     break;
-        case 'SPI_STATUS':
-            break;
 
-            // case 'RFU':
-            // break;
+        // case 'SPI_STATUS': // 23
+        //     break;
 
-        case 'DEBUG_CTRL':
+        case 'DEBUG_CTRL': // 24
             addr = FPASIM_ADDR_WIREIN[reg_name_p];
             trig_pos = FPASIM_POS_TRIGIN['debug_valid'];
             break;
 
-        case 'ERROR_SEL':
+        case 'ERROR_SEL': // 25
             addr = FPASIM_ADDR_WIREIN[reg_name_p];
             trig_pos = -1;
             break;
 
-            // case 'ERRORS':
+            // case 'ERRORS': // 26
             //     break;
 
-            // case 'STATUS':
+            // case 'STATUS': // 27
             //     break;
 
-            // case 'RFU':
-            // data = FPA_WireOutValues[28];
+            // case 'RFU': // 28
             // break;
 
-            // case 'HARDWARE_ID':
+            // case 'HARDWARE_ID': // 29
             //     break;
-            // case 'FIRMWARE_ID':
+
+            // case 'FIRMWARE_ID': // 30
             //     break;
-            // case 'FIRMWARE_VERSION':
+
+            // case 'FIRMWARE_VERSION': // 31
             //     break;
         default:
             msg = "[KO][fpasim_set_debug_wirein_by_name]: The register " + reg_name_p + " doesn't exist."
@@ -842,8 +852,8 @@ function fpasim_wireout_read_command(addr_p) {
     // Read wire out registers
     //---------------------------------------------------------------------
     // waitMs(50);
-    getLatestValue("FPA_WireOutValues");
-    const data = FPA_WireOutValues[index];
+    getLatestValue("FPA_WireOuts_x20_to_x3F");
+    const data = FPA_WireOuts_x20_to_x3F[index];
 
     return data;
 }
@@ -1936,123 +1946,128 @@ function fpasim_get_wireout_by_name(reg_name_p, level_p, mode_p, verbosity_p) {
 
     data = 0;
     switch (reg_name_p) {
-        case 'CTRL':
+        case 'CTRL':  // 00
             data = fpasim_get_wireout_ctrl(level_p = level0, mode_p, verbosity_p);
             break;
-        case 'MAKE_PULSE':
+
+        case 'MAKE_PULSE':  // 01
             data = fpasim_get_wireout_make_pulse(level_p = level0, mode_p, verbosity_p);
             break;
-        case 'MUX_SQ_FB_DELAY':
+
+        // case 'RFU':  // 02
+            //   break;
+
+        case 'MUX_SQ_FB_DELAY':  // 03
             data = fpasim_get_wireout_mux_sq_fb_delay(level_p = level0, mode_p, verbosity_p);
             break;
-        case 'AMP_SQ_OF_DELAY':
+
+        case 'AMP_SQ_OF_DELAY':  // 04
             data = fpasim_get_wireout_amp_sq_of_delay(level_p = level0, mode_p, verbosity_p);
             break;
-        case 'ERROR_DELAY':
+
+        case 'ERROR_DELAY':  // 05
             data = fpasim_get_wireout_error_delay(level_p = level0, mode_p, verbosity_p);
             break;
-        case 'RA_DELAY':
+
+        case 'RA_DELAY':  // 06
             data = fpasim_get_wireout_ra_delay(level_p = level0, mode_p, verbosity_p);
             break;
-        case 'TES_CONF':
+
+        case 'TES_CONF':  // 07
             data = fpasim_get_wireout_tes_conf(level_p = level0, mode_p, verbosity_p);
             break;
 
-        case 'CONF0':
+        case 'CONF0':  // 08
             data = fpasim_get_wireout_conf0(level_p = level0, mode_p, verbosity_p);
             break;
 
-            // case 'RFU':
-            //   data = FPA_WireOutValues[8];
+        // case 'RFU':  // 09
             //   break;
 
-            // case 'RFU':
-            //   data = FPA_WireOutValues[9];
-            //   break;
-
-        case 'FPASIM_STATUS':
+        case 'FPASIM_STATUS': // 10
             data = fpasim_get_wireout_fpasim_status(level_p = level0, mode_p, verbosity_p);
             break;
 
-        case 'DATA_COUNT':
+        case 'DATA_COUNT': // 11
             data = fpasim_get_wireout_data_count(level_p = level0, mode_p, verbosity_p);
             break;
-        case 'REC_CTRL':
+
+        case 'REC_CTRL': // 12
             data = fpasim_get_wireout_rec_ctrl(level_p = level0, mode_p, verbosity_p);
             break;
-        case 'REC_CONF0':
+
+        case 'REC_CONF0': // 13
             data = fpasim_get_wireout_rec_conf0(level_p = level0, mode_p, verbosity_p);
             break;
 
-            // case 'RFU':
-            //   data = FPA_WireOutValues[14];
+            // case 'RFU': // 14
             //   break;
 
-            // case 'RFU':
-            //   data = FPA_WireOutValues[15];
+            // case 'RFU': // 15
             //   break;
 
-            // case 'RFU':
-            //   data = FPA_WireOutValues[16];
+            // case 'RFU': // 16
             //   break;
 
-        case 'REC_DATA_COUNT':
+        case 'REC_DATA_COUNT': // 17
             data = fpasim_get_wireout_rec_data_count(level_p = level0, mode_p, verbosity_p);
             break;
 
-        case 'SPI_CTRL':
+        case 'SPI_CTRL': // 18
             data = fpasim_get_wireout_spi_ctrl(level_p = level0, mode_p, verbosity_p);
             break;
 
-        case 'SPI_CONF0':
+        case 'SPI_CONF0': // 19
             data = fpasim_get_wireout_spi_conf0(level_p = level0, mode_p, verbosity_p);
             break;
-        case 'SPI_CONF1':
+
+        case 'SPI_CONF1': // 20
             data = fpasim_get_wireout_spi_conf1(level_p = level0, mode_p, verbosity_p);
             break;
-        case 'SPI_WR_DATA':
+
+        case 'SPI_WR_DATA': // 21
             data = fpasim_get_wireout_spi_wr_data(level_p = level0, mode_p, verbosity_p);
             break;
-        case 'SPI_RD_DATA':
+
+        case 'SPI_RD_DATA': // 22
             data = fpasim_get_wireout_spi_rd_data(level_p = level0, mode_p, verbosity_p);
             break;
-        case 'SPI_STATUS':
+
+        case 'SPI_STATUS': // 23
             data = fpasim_get_wireout_spi_status(level_p = level0, mode_p, verbosity_p);
             break;
 
-            // case 'RFU':
-            // data = FPA_WireOutValues[23];
-            // break;
-
-        case 'DEBUG_CTRL':
+        case 'DEBUG_CTRL': // 24
             data = fpasim_get_wireout_debug_ctrl(level_p = level0, mode_p, verbosity_p);
             break;
 
-        case 'ERROR_SEL':
+        case 'ERROR_SEL': // 25
             data = fpasim_get_wireout_error_sel(level_p = level0, mode_p, verbosity_p);
             break;
 
-        case 'ERRORS':
+        case 'ERRORS': // 26
             data = fpasim_get_wireout_errors(level_p = level0, mode_p, verbosity_p);
             break;
 
-        case 'STATUS':
+        case 'STATUS': // 27
             data = fpasim_get_wireout_status(level_p = level0, mode_p, verbosity_p);
             break;
 
-            // case 'RFU':
-            // data = FPA_WireOutValues[28];
+            // case 'RFU': // 28
             // break;
 
-        case 'HARDWARE_ID':
+        case 'HARDWARE_ID': // 29
             data = fpasim_get_wireout_hardware_id(level_p = level0, mode_p, verbosity_p);
             break;
-        case 'FIRMWARE_ID':
+
+        case 'FIRMWARE_ID': // 30
             data = fpasim_get_wireout_firmware_id(level_p = level0, mode_p, verbosity_p);
             break;
-        case 'FIRMWARE_VERSION':
+
+        case 'FIRMWARE_VERSION': // 31
             data = fpasim_get_wireout_firmware_version(level_p = level0, mode_p, verbosity_p);
             break;
+
         default:
             const msg = "[fpasim_get_wireout_by_name]: Error " + reg_name_p + " doesn't exist."
             display(msg_p = msg, level_p = level0, mode_p = mode_p);
