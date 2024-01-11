@@ -347,9 +347,9 @@ function fpasim_get_status(sel_error_p, level_p, mode_p, verbosity_p) {
 
     // Select the errors to read
     const index = sel_error_p;
-    fpasim_set_debug_wirein_by_name(reg_name_p = "ERROR_SEL", data_p = index, level_p = level_p, mode_p = mode_p, verbosity_p = verbosity_p);
+    fpasim_set_debug_wirein_by_name("ERROR_SEL", index, level_p, mode_p, verbosity_p);
 
-    fpasim_get_wireout_by_name(reg_name_p = "STATUS", level_p = level_p, mode_p = mode_p, verbosity_p = verbosity_p);
+    fpasim_get_wireout_by_name("STATUS", level_p, mode_p, verbosity_p);
 
     return data;
 }
@@ -374,7 +374,7 @@ function fpasim_set_ctrl(rst_p, en_p, level_p, mode_p, verbosity_p) {
     const level1 = level_p + 1;
     const level2 = level_p + 2;
 
-    const data = fpasim_build_ctrl(rst_p = rst_p, en_p = en_p);
+    const data = fpasim_build_ctrl(rst_p, en_p);
     const addr = FPASIM_ADDR_WIREIN["CTRL"];
 
     sendToFPA_debugSetWireIn(addr, data);
@@ -389,15 +389,15 @@ function fpasim_set_ctrl(rst_p, en_p, level_p, mode_p, verbosity_p) {
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_set_ctrl]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "rst_p", bit_value_p = rst_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "en_p", bit_value_p = en_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
+            display_bit("rst_p", bit_value_p = rst_p, 1, level2, mode_p);
+            display_bit("en_p", bit_value_p = en_p, 1, level2, mode_p);
 
         }
 
@@ -426,7 +426,7 @@ function fpasim_set_spi_ctrl(rst_p, en_p, level_p, mode_p, verbosity_p) {
     const level1 = level_p + 1;
     const level2 = level_p + 2;
 
-    const data = fpasim_build_spi_ctrl(rst_p = rst_p, en_p = en_p);
+    const data = fpasim_build_spi_ctrl(rst_p, en_p);
     const addr = addr = FPASIM_ADDR_WIREIN["SPI_CTRL"];
 
     sendToFPA_debugSetWireIn(addr, data);
@@ -436,16 +436,16 @@ function fpasim_set_spi_ctrl(rst_p, en_p, level_p, mode_p, verbosity_p) {
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_set_spi_ctrl]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "rst_p", bit_value_p = rst_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "en_p", bit_value_p = en_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
+            display_bit("rst_p", bit_value_p = rst_p, 1, level2, mode_p);
+            display_bit("en_p", bit_value_p = en_p, 1, level2, mode_p);
 
         }
     }
@@ -482,16 +482,16 @@ function fpasim_set_spi_conf0(spi_id_p, spi_mode_p, level_p, mode_p, verbosity_p
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_set_spi_conf0]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "spi_id_p", bit_value_p = spi_id_p, bit_width_p = 3, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "spi_mode_p", bit_value_p = spi_mode_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
+            display_bit("spi_id_p", bit_value_p = spi_id_p, 3, level2, mode_p);
+            display_bit("spi_mode_p", bit_value_p = spi_mode_p, 1, level2, mode_p);
 
         }
     }
@@ -528,15 +528,15 @@ function fpasim_set_spi_conf1(spi_dac_tx_en_p, level_p, mode_p, verbosity_p) {
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_set_spi_conf1]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "spi_dac_tx_en_p", bit_value_p = spi_dac_tx_en_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
+            display_bit("spi_dac_tx_en_p", bit_value_p = spi_dac_tx_en_p, 1, level2, mode_p);
 
         }
     }
@@ -577,11 +577,11 @@ function fpasim_set_spi_wr_data(data_p, level_p, mode_p, verbosity_p) {
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_set_spi_wr_data]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
     }
@@ -625,19 +625,19 @@ function fpasim_set_debug_ctrl(adc1_bypass_p, adc0_bypass_p, dac_en_pattern_p, r
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_set_debug_ctrl]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "adc1_bypass_p", bit_value_p = adc1_bypass_p, bit_width_p = 9, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "adc0_bypass_p", bit_value_p = adc0_bypass_p, bit_width_p = 8, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "dac_en_pattern_p", bit_value_p = dac_en_pattern_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "rst_status_p", bit_value_p = rst_status_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "debug_pulse_p", bit_value_p = debug_pulse_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
+            display_bit("adc1_bypass_p", bit_value_p = adc1_bypass_p, 9, level2, mode_p);
+            display_bit("adc0_bypass_p", bit_value_p = adc0_bypass_p, 8, level2, mode_p);
+            display_bit("dac_en_pattern_p", bit_value_p = dac_en_pattern_p, 1, level2, mode_p);
+            display_bit("rst_status_p", bit_value_p = rst_status_p, 1, level2, mode_p);
+            display_bit("debug_pulse_p", bit_value_p = debug_pulse_p, 1, level2, mode_p);
 
         }
     }
@@ -800,7 +800,7 @@ function fpasim_set_debug_wirein_by_name(reg_name_p, data_p, level_p, mode_p, ve
             //     break;
         default:
             msg = "[KO][fpasim_set_debug_wirein_by_name]: The register " + reg_name_p + " doesn't exist."
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
             error = 1;
             break;
     }
@@ -818,17 +818,17 @@ function fpasim_set_debug_wirein_by_name(reg_name_p, data_p, level_p, mode_p, ve
 
             if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
                 msg = "[fpasim_set_debug_wirein_by_name]: Set " + reg_name_p;
-                display(msg_p = msg, level_p = level0, mode_p = mode_p);
+                display(msg, level0, mode_p);
             }
 
             if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-                display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+                display_register(addr, 32, data, 32, level1, mode_p);
             }
 
             if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
                 if (trig_pos != -1) {
                     msg = "[fpasim_set_debug_wirein_by_name]: Set Trig (bit" + trig_pos.toString(10) + ")";
-                    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+                    display(msg, level0, mode_p);
                 }
             }
 
@@ -876,7 +876,7 @@ function fpasim_get_wireout_ctrl(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = FPASIM_ADDR_WIREOUT['CTRL'];
-    data = fpasim_wireout_read_command(addr_p = addr);
+    data = fpasim_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
@@ -884,16 +884,16 @@ function fpasim_get_wireout_ctrl(level_p, mode_p, verbosity_p) {
 
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_get_wireout_ctrl]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "en", bit_pos_p = 0, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "rst", bit_pos_p = 1, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("en", 0, 1, data, level2, mode_p);
+            display_bit_from_data("rst", 1, 1, data, level2, mode_p);
         }
     }
 
@@ -918,25 +918,25 @@ function fpasim_get_wireout_make_pulse(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = FPASIM_ADDR_WIREOUT['MAKE_PULSE'];
-    data = fpasim_wireout_read_command(addr_p = addr);
+    data = fpasim_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_get_wireout_make_pulse]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "pulse_height", bit_pos_p = 0, bit_width_p = 11, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "time_shift", bit_pos_p = 16, bit_width_p = 4, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "pixel_id", bit_pos_p = 24, bit_width_p = 6, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "pixel_all", bit_pos_p = 31, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("pulse_height", 0, 11, data, level2, mode_p);
+            display_bit_from_data("time_shift", 16, 4, data, level2, mode_p);
+            display_bit_from_data("pixel_id", 24, 6, data, level2, mode_p);
+            display_bit_from_data("pixel_all", 31, 1, data, level2, mode_p);
         }
     }
 
@@ -962,22 +962,22 @@ function fpasim_get_wireout_mux_sq_fb_delay(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = FPASIM_ADDR_WIREOUT['MUX_SQ_FB_DELAY'];
-    data = fpasim_wireout_read_command(addr_p = addr);
+    data = fpasim_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_get_wireout_mux_sq_fb_delay]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "gain_p", bit_pos_p = 0, bit_width_p = 6, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("gain_p", 0, 6, data, level2, mode_p);
         }
     }
 
@@ -1002,22 +1002,22 @@ function fpasim_get_wireout_amp_sq_of_delay(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = FPASIM_ADDR_WIREOUT['AMP_SQ_OF_DELAY'];
-    data = fpasim_wireout_read_command(addr_p = addr);
+    data = fpasim_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_get_wireout_amp_sq_of_delay]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "gain_p", bit_pos_p = 0, bit_width_p = 6, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("gain_p", 0, 6, data, level2, mode_p);
         }
     }
 
@@ -1042,22 +1042,22 @@ function fpasim_get_wireout_error_delay(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = FPASIM_ADDR_WIREOUT['ERROR_DELAY'];
-    data = fpasim_wireout_read_command(addr_p = addr);
+    data = fpasim_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_get_wireout_error_delay]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "gain_p", bit_pos_p = 0, bit_width_p = 6, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("gain_p", 0, 6, data, level2, mode_p);
         }
     }
 
@@ -1082,22 +1082,22 @@ function fpasim_get_wireout_ra_delay(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = FPASIM_ADDR_WIREOUT['RA_DELAY'];
-    data = fpasim_wireout_read_command(addr_p = addr);
+    data = fpasim_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_get_wireout_ra_delay]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "gain_p", bit_pos_p = 0, bit_width_p = 6, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("gain_p", 0, 6, data, level2, mode_p);
         }
     }
 
@@ -1122,24 +1122,24 @@ function fpasim_get_wireout_tes_conf(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = FPASIM_ADDR_WIREOUT['TES_CONF'];
-    data = fpasim_wireout_read_command(addr_p = addr);
+    data = fpasim_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_get_wireout_tes_conf]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "nb_sample_by_frame", bit_pos_p = 0, bit_width_p = 16, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "nb_sample_by_pixel", bit_pos_p = 0, bit_width_p = 7, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "nb_pixel_by_frame", bit_pos_p = 0, bit_width_p = 6, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("nb_sample_by_frame", 0, 16, data, level2, mode_p);
+            display_bit_from_data("nb_sample_by_pixel", 0, 7, data, level2, mode_p);
+            display_bit_from_data("nb_pixel_by_frame", 0, 6, data, level2, mode_p);
         }
     }
 
@@ -1164,22 +1164,22 @@ function fpasim_get_wireout_conf0(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = FPASIM_ADDR_WIREOUT['CONF0'];
-    data = fpasim_wireout_read_command(addr_p = addr);
+    data = fpasim_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_get_wireout_conf0]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "inter_squid_gain_p", bit_pos_p = 0, bit_width_p = 8, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("inter_squid_gain_p", 0, 8, data, level2, mode_p);
         }
     }
 
@@ -1204,23 +1204,23 @@ function fpasim_get_wireout_fpasim_status(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = FPASIM_ADDR_WIREOUT['FPASIM_STATUS'];
-    data = fpasim_wireout_read_command(addr_p = addr);
+    data = fpasim_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_get_wireout_fpasim_status]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "tes_neg_out_pixel_id", bit_pos_p = 0, bit_width_p = 6, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "tes_neg_out_error", bit_pos_p = 7, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("tes_neg_out_pixel_id", 0, 6, data, level2, mode_p);
+            display_bit_from_data("tes_neg_out_error", 7, 1, data, level2, mode_p);
         }
     }
 
@@ -1245,23 +1245,23 @@ function fpasim_get_wireout_data_count(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = FPASIM_ADDR_WIREOUT['DATA_COUNT'];
-    data = fpasim_wireout_read_command(addr_p = addr);
+    data = fpasim_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_get_wireout_data_count]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "pipe_data_count", bit_pos_p = 0, bit_width_p = 16, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "make_pulse_wr_data_count", bit_pos_p = 16, bit_width_p = 16, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("pipe_data_count", 0, 16, data, level2, mode_p);
+            display_bit_from_data("make_pulse_wr_data_count", 16, 16, data, level2, mode_p);
         }
     }
 
@@ -1286,22 +1286,22 @@ function fpasim_get_wireout_rec_ctrl(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = FPASIM_ADDR_WIREOUT['REC_CTRL'];
-    data = fpasim_wireout_read_command(addr_p = addr);
+    data = fpasim_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_get_wireout_rec_ctrl]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "rec_adc_en", bit_pos_p = 0, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("rec_adc_en", 0, 1, data, level2, mode_p);
         }
     }
 
@@ -1326,22 +1326,22 @@ function fpasim_get_wireout_rec_conf0(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = FPASIM_ADDR_WIREOUT['REC_CONF0'];
-    data = fpasim_wireout_read_command(addr_p = addr);
+    data = fpasim_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_get_wireout_rec_conf0]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "rec_adc_nb_word_32b_p", bit_pos_p = 0, bit_width_p = 16, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("rec_adc_nb_word_32b_p", 0, 16, data, level2, mode_p);
         }
     }
 
@@ -1366,22 +1366,22 @@ function fpasim_get_wireout_rec_data_count(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = FPASIM_ADDR_WIREOUT['REC_DATA_COUNT'];
-    data = fpasim_wireout_read_command(addr_p = addr);
+    data = fpasim_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_get_wireout_rec_data_count]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "rec_adc_data_count_p", bit_pos_p = 0, bit_width_p = 16, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("rec_adc_data_count_p", 0, 16, data, level2, mode_p);
         }
     }
 
@@ -1406,23 +1406,23 @@ function fpasim_get_wireout_spi_ctrl(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = FPASIM_ADDR_WIREOUT['SPI_CTRL'];
-    data = fpasim_wireout_read_command(addr_p = addr);
+    data = fpasim_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_get_wireout_spi_ctrl]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "rst_p", bit_pos_p = 1, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "en_p", bit_pos_p = 0, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("rst_p", 1, 1, data, level2, mode_p);
+            display_bit_from_data("en_p", 0, 1, data, level2, mode_p);
         }
     }
 
@@ -1447,23 +1447,23 @@ function fpasim_get_wireout_spi_conf0(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = FPASIM_ADDR_WIREOUT['SPI_CONF0'];
-    data = fpasim_wireout_read_command(addr_p = addr);
+    data = fpasim_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_get_wireout_spi_conf0]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "spi_id_p", bit_pos_p = 4, bit_width_p = 2, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "spi_mode_p", bit_pos_p = 0, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("spi_id_p", 4, 2, data, level2, mode_p);
+            display_bit_from_data("spi_mode_p", 0, 1, data, level2, mode_p);
         }
     }
 
@@ -1488,22 +1488,22 @@ function fpasim_get_wireout_spi_conf1(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = FPASIM_ADDR_WIREOUT['SPI_CONF1'];
-    data = fpasim_wireout_read_command(addr_p = addr);
+    data = fpasim_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_get_wireout_spi_conf1]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "spi_dac_tx_enable_p", bit_pos_p = 0, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("spi_dac_tx_enable_p", 0, 1, data, level2, mode_p);
         }
     }
 
@@ -1528,22 +1528,22 @@ function fpasim_get_wireout_spi_wr_data(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = FPASIM_ADDR_WIREOUT['SPI_WR_DATA'];
-    data = fpasim_wireout_read_command(addr_p = addr);
+    data = fpasim_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_get_wireout_spi_wr_data]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "wr_data_p", bit_pos_p = 0, bit_width_p = 32, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("wr_data_p", 0, 32, data, level2, mode_p);
         }
     }
 
@@ -1568,7 +1568,7 @@ function fpasim_get_wireout_spi_rd_data(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = FPASIM_ADDR_WIREOUT['SPI_RD_DATA'];
-    data = fpasim_wireout_read_command(addr_p = addr);
+    data = fpasim_wireout_read_command(addr);
 
 
     if (verbosity_p < 0) {
@@ -1576,15 +1576,15 @@ function fpasim_get_wireout_spi_rd_data(level_p, mode_p, verbosity_p) {
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_get_wireout_spi_rd_data]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "rd_data_p", bit_pos_p = 0, bit_width_p = 32, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("rd_data_p", 0, 32, data, level2, mode_p);
         }
     }
 
@@ -1609,24 +1609,24 @@ function fpasim_get_wireout_spi_status(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = FPASIM_ADDR_WIREOUT['SPI_STATUS'];
-    data = fpasim_wireout_read_command(addr_p = addr);
+    data = fpasim_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_get_wireout_spi_status]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "spi_ready", bit_pos_p = 0, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "cdce_pll_status", bit_pos_p = 4, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "amc_galr_n", bit_pos_p = 8, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("spi_ready", 0, 1, data, level2, mode_p);
+            display_bit_from_data("cdce_pll_status", 4, 1, data, level2, mode_p);
+            display_bit_from_data("amc_galr_n", 8, 1, data, level2, mode_p);
         }
     }
 
@@ -1651,26 +1651,26 @@ function fpasim_get_wireout_debug_ctrl(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = FPASIM_ADDR_WIREOUT['DEBUG_CTRL'];
-    data = fpasim_wireout_read_command(addr_p = addr);
+    data = fpasim_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_get_wireout_debug_ctrl]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "adc1_bypass", bit_pos_p = 9, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "adc0_bypass", bit_pos_p = 8, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "dac_en_pattern", bit_pos_p = 4, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "rst_status", bit_pos_p = 1, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "debug_pulse", bit_pos_p = 0, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("adc1_bypass", 9, 1, data, level2, mode_p);
+            display_bit_from_data("adc0_bypass", 8, 1, data, level2, mode_p);
+            display_bit_from_data("dac_en_pattern", 4, 1, data, level2, mode_p);
+            display_bit_from_data("rst_status", 1, 1, data, level2, mode_p);
+            display_bit_from_data("debug_pulse", 0, 1, data, level2, mode_p);
         }
     }
 
@@ -1695,22 +1695,22 @@ function fpasim_get_wireout_error_sel(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = FPASIM_ADDR_WIREOUT['ERROR_SEL'];
-    data = fpasim_wireout_read_command(addr_p = addr);
+    data = fpasim_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_get_wireout_error_sel]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "sel_error", bit_pos_p = 1, bit_width_p = 4, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("sel_error", 1, 4, data, level2, mode_p);
         }
     }
 
@@ -1736,22 +1736,22 @@ function fpasim_get_wireout_errors(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = FPASIM_ADDR_WIREOUT['ERRORS'];
-    data = fpasim_wireout_read_command(addr_p = addr);
+    data = fpasim_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_get_wireout_errors]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "errors", bit_pos_p = 0, bit_width_p = 32, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("errors", 0, 32, data, level2, mode_p);
         }
     }
 
@@ -1777,22 +1777,22 @@ function fpasim_get_wireout_status(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = FPASIM_ADDR_WIREOUT['STATUS'];
-    data = fpasim_wireout_read_command(addr_p = addr);
+    data = fpasim_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_get_wireout_status]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "status", bit_pos_p = 0, bit_width_p = 32, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("status", 0, 32, data, level2, mode_p);
         }
     }
 
@@ -1817,22 +1817,22 @@ function fpasim_get_wireout_hardware_id(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = FPASIM_ADDR_WIREOUT['HARDWARE_ID'];
-    data = fpasim_wireout_read_command(addr_p = addr);
+    data = fpasim_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_get_wireout_hardware_id]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "board_id_p", bit_pos_p = 0, bit_width_p = 32, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("board_id_p", 0, 32, data, level2, mode_p);
         }
     }
 
@@ -1857,24 +1857,24 @@ function fpasim_get_wireout_firmware_id(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = FPASIM_ADDR_WIREOUT['FIRMWARE_ID'];
-    data = fpasim_wireout_read_command(addr_p = addr);
+    data = fpasim_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_get_wireout_firmware_id]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "firmware_id_p", bit_pos_p = 0, bit_width_p = 32, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("firmware_id_p", 0, 32, data, level2, mode_p);
             msg = "firmware_id_p (ASCII): " + convert_hex_to_ascii(value_p = data, width_p = 32);
-            display(msg_p = msg, level_p = level2, mode_p = mode_p);
+            display(msg_p = msg, level2, mode_p);
         }
     }
 
@@ -1901,22 +1901,22 @@ function fpasim_get_wireout_firmware_version(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     addr = FPASIM_ADDR_WIREOUT['FIRMWARE_VERSION'];
-    data = fpasim_wireout_read_command(addr_p = addr);
+    data = fpasim_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_get_wireout_firmware_version]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = 32, data_p = data, data_width_p = 32, level_p = level1, mode_p = mode_p);
+            display_register(addr, 32, data, 32, level1, mode_p);
         }
 
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "firmware_version_p", bit_pos_p = 0, bit_width_p = 32, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("firmware_version_p", 0, 32, data, level2, mode_p);
         }
     }
 
@@ -1947,57 +1947,57 @@ function fpasim_get_wireout_by_name(reg_name_p, level_p, mode_p, verbosity_p) {
     data = 0;
     switch (reg_name_p) {
         case 'CTRL':  // 00
-            data = fpasim_get_wireout_ctrl(level_p = level0, mode_p, verbosity_p);
+            data = fpasim_get_wireout_ctrl(level0, mode_p, verbosity_p);
             break;
 
         case 'MAKE_PULSE':  // 01
-            data = fpasim_get_wireout_make_pulse(level_p = level0, mode_p, verbosity_p);
+            data = fpasim_get_wireout_make_pulse(level0, mode_p, verbosity_p);
             break;
 
         // case 'RFU':  // 02
             //   break;
 
         case 'MUX_SQ_FB_DELAY':  // 03
-            data = fpasim_get_wireout_mux_sq_fb_delay(level_p = level0, mode_p, verbosity_p);
+            data = fpasim_get_wireout_mux_sq_fb_delay(level0, mode_p, verbosity_p);
             break;
 
         case 'AMP_SQ_OF_DELAY':  // 04
-            data = fpasim_get_wireout_amp_sq_of_delay(level_p = level0, mode_p, verbosity_p);
+            data = fpasim_get_wireout_amp_sq_of_delay(level0, mode_p, verbosity_p);
             break;
 
         case 'ERROR_DELAY':  // 05
-            data = fpasim_get_wireout_error_delay(level_p = level0, mode_p, verbosity_p);
+            data = fpasim_get_wireout_error_delay(level0, mode_p, verbosity_p);
             break;
 
         case 'RA_DELAY':  // 06
-            data = fpasim_get_wireout_ra_delay(level_p = level0, mode_p, verbosity_p);
+            data = fpasim_get_wireout_ra_delay(level0, mode_p, verbosity_p);
             break;
 
         case 'TES_CONF':  // 07
-            data = fpasim_get_wireout_tes_conf(level_p = level0, mode_p, verbosity_p);
+            data = fpasim_get_wireout_tes_conf(level0, mode_p, verbosity_p);
             break;
 
         case 'CONF0':  // 08
-            data = fpasim_get_wireout_conf0(level_p = level0, mode_p, verbosity_p);
+            data = fpasim_get_wireout_conf0(level0, mode_p, verbosity_p);
             break;
 
         // case 'RFU':  // 09
             //   break;
 
         case 'FPASIM_STATUS': // 10
-            data = fpasim_get_wireout_fpasim_status(level_p = level0, mode_p, verbosity_p);
+            data = fpasim_get_wireout_fpasim_status(level0, mode_p, verbosity_p);
             break;
 
         case 'DATA_COUNT': // 11
-            data = fpasim_get_wireout_data_count(level_p = level0, mode_p, verbosity_p);
+            data = fpasim_get_wireout_data_count(level0, mode_p, verbosity_p);
             break;
 
         case 'REC_CTRL': // 12
-            data = fpasim_get_wireout_rec_ctrl(level_p = level0, mode_p, verbosity_p);
+            data = fpasim_get_wireout_rec_ctrl(level0, mode_p, verbosity_p);
             break;
 
         case 'REC_CONF0': // 13
-            data = fpasim_get_wireout_rec_conf0(level_p = level0, mode_p, verbosity_p);
+            data = fpasim_get_wireout_rec_conf0(level0, mode_p, verbosity_p);
             break;
 
             // case 'RFU': // 14
@@ -2010,67 +2010,67 @@ function fpasim_get_wireout_by_name(reg_name_p, level_p, mode_p, verbosity_p) {
             //   break;
 
         case 'REC_DATA_COUNT': // 17
-            data = fpasim_get_wireout_rec_data_count(level_p = level0, mode_p, verbosity_p);
+            data = fpasim_get_wireout_rec_data_count(level0, mode_p, verbosity_p);
             break;
 
         case 'SPI_CTRL': // 18
-            data = fpasim_get_wireout_spi_ctrl(level_p = level0, mode_p, verbosity_p);
+            data = fpasim_get_wireout_spi_ctrl(level0, mode_p, verbosity_p);
             break;
 
         case 'SPI_CONF0': // 19
-            data = fpasim_get_wireout_spi_conf0(level_p = level0, mode_p, verbosity_p);
+            data = fpasim_get_wireout_spi_conf0(level0, mode_p, verbosity_p);
             break;
 
         case 'SPI_CONF1': // 20
-            data = fpasim_get_wireout_spi_conf1(level_p = level0, mode_p, verbosity_p);
+            data = fpasim_get_wireout_spi_conf1(level0, mode_p, verbosity_p);
             break;
 
         case 'SPI_WR_DATA': // 21
-            data = fpasim_get_wireout_spi_wr_data(level_p = level0, mode_p, verbosity_p);
+            data = fpasim_get_wireout_spi_wr_data(level0, mode_p, verbosity_p);
             break;
 
         case 'SPI_RD_DATA': // 22
-            data = fpasim_get_wireout_spi_rd_data(level_p = level0, mode_p, verbosity_p);
+            data = fpasim_get_wireout_spi_rd_data(level0, mode_p, verbosity_p);
             break;
 
         case 'SPI_STATUS': // 23
-            data = fpasim_get_wireout_spi_status(level_p = level0, mode_p, verbosity_p);
+            data = fpasim_get_wireout_spi_status(level0, mode_p, verbosity_p);
             break;
 
         case 'DEBUG_CTRL': // 24
-            data = fpasim_get_wireout_debug_ctrl(level_p = level0, mode_p, verbosity_p);
+            data = fpasim_get_wireout_debug_ctrl(level0, mode_p, verbosity_p);
             break;
 
         case 'ERROR_SEL': // 25
-            data = fpasim_get_wireout_error_sel(level_p = level0, mode_p, verbosity_p);
+            data = fpasim_get_wireout_error_sel(level0, mode_p, verbosity_p);
             break;
 
         case 'ERRORS': // 26
-            data = fpasim_get_wireout_errors(level_p = level0, mode_p, verbosity_p);
+            data = fpasim_get_wireout_errors(level0, mode_p, verbosity_p);
             break;
 
         case 'STATUS': // 27
-            data = fpasim_get_wireout_status(level_p = level0, mode_p, verbosity_p);
+            data = fpasim_get_wireout_status(level0, mode_p, verbosity_p);
             break;
 
             // case 'RFU': // 28
             // break;
 
         case 'HARDWARE_ID': // 29
-            data = fpasim_get_wireout_hardware_id(level_p = level0, mode_p, verbosity_p);
+            data = fpasim_get_wireout_hardware_id(level0, mode_p, verbosity_p);
             break;
 
         case 'FIRMWARE_ID': // 30
-            data = fpasim_get_wireout_firmware_id(level_p = level0, mode_p, verbosity_p);
+            data = fpasim_get_wireout_firmware_id(level0, mode_p, verbosity_p);
             break;
 
         case 'FIRMWARE_VERSION': // 31
-            data = fpasim_get_wireout_firmware_version(level_p = level0, mode_p, verbosity_p);
+            data = fpasim_get_wireout_firmware_version(level0, mode_p, verbosity_p);
             break;
 
         default:
             const msg = "[fpasim_get_wireout_by_name]: Error " + reg_name_p + " doesn't exist."
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
             break;
     }
 
@@ -2097,11 +2097,11 @@ function fpasim_get_error_by_id(sel_error_p, level_p, mode_p, verbosity_p) {
     const level1 = level_p + 1;
 
     // Select the errors to read
-    const data0 = fpasim_build_error_sel(sel_error_p = sel_error_p);
-    fpasim_set_debug_wirein_by_name(reg_name_p = "ERROR_SEL", data_p = data0, level_p = level_p, mode_p = mode_p, verbosity_p = verbosity_p);
+    const data0 = fpasim_build_error_sel(sel_error_p);
+    fpasim_set_debug_wirein_by_name("ERROR_SEL", data0, level_p, mode_p, verbosity_p);
 
     // read the selected errors
-    const data = fpasim_get_wireout_by_name(reg_name_p = "ERRORS", level_p = level_p, mode_p = mode_p, verbosity_p = verbosity_p);
+    const data = fpasim_get_wireout_by_name("ERRORS", level_p, mode_p, verbosity_p);
 
     return data;
 }

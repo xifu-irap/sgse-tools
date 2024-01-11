@@ -56,60 +56,60 @@ function fpasim_script_info(level_p, mode_p, verbosity_p) {
      Print the test info
     */
     const msg = "[fpasim_script_info]";
-    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display(msg, level0, mode_p);
 
     // get the operator name
     const operator_name = get_operator_name();
     const msg = "Operator Name: " + operator_name;
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     // get the session
     const session_name = get_session_name();
     const msg = "Session: " + session_name;
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     // Print the current date
     const date = maDate()
     const msg = "Date: " + date;
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     // get hardware_id
     const reg_name = 'HARDWARE_ID';
     const msg = "Get " + reg_name + ": ";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    const data = fpasim_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    display(msg, level1, mode_p);
+    const data = fpasim_get_wireout_by_name(reg_name, level2, mode_p, verbosity_p);
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     // get firmware id
     const reg_name = 'FIRMWARE_ID';
     const msg = "Get " + reg_name + ": ";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    const data = fpasim_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    display(msg, level1, mode_p);
+    const data = fpasim_get_wireout_by_name(reg_name, level2, mode_p, verbosity_p);
     data0 = 0x46504173; // code ASCII of "FPAs"
-    error = check_equal(value0_p = data0, value1_p = data, msg_p = msg, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    error = check_equal(data0, data, msg, level2, mode_p, verbosity_p);
     if (error == -1) {
         cnt_error_info += 1
     }
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     // get firmware version
     const reg_name = 'FIRMWARE_VERSION';
     const msg = "Get " + reg_name + ": ";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    data = fpasim_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    display(msg, level1, mode_p);
+    data = fpasim_get_wireout_by_name(reg_name, level2, mode_p, verbosity_p);
 
     // build output filename
     //output_filename = operator_name + "_" + session_name + "_" + date;
@@ -135,7 +135,7 @@ function fpasim_reset(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const msg = "[fpasim_reset]";
-    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display(msg, level0, mode_p);
 
     /*
     Enable off
@@ -144,26 +144,26 @@ function fpasim_reset(level_p, mode_p, verbosity_p) {
     const rst = 0;
     const en = 0;
     // build the data to send
-    const data = fpasim_build_ctrl(rst_p = rst, en_p = en);
+    const data = fpasim_build_ctrl(rst, en);
 
     const msg = "Set CTRL: Enable Off";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     sendToFPA_configureControl(data);
     // fpasim_set_ctrl(rst_p=rst,en_p=en, level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     /*
      add tempo
     */
     const tempo = 10;
     const msg = "wait for " + tempo.toString(10) + " ms";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     waitMs(tempo);
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
 
     /*
@@ -173,14 +173,14 @@ function fpasim_reset(level_p, mode_p, verbosity_p) {
     const rst = 1;
     const en = 0;
     // build the data to send
-    const data = fpasim_build_ctrl(rst_p = rst, en_p = en);
+    const data = fpasim_build_ctrl(rst, en);
 
     const msg = "Set CTRL: Reset On"
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     sendToFPA_configureControl(data);
     //fpasim_set_ctrl(rst_p=rst,en_p=en, level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     /*
      reset off
@@ -189,26 +189,26 @@ function fpasim_reset(level_p, mode_p, verbosity_p) {
     const rst = 0;
     const en = 0;
     // build the data to send
-    const data = fpasim_build_ctrl(rst_p = rst, en_p = en);
+    const data = fpasim_build_ctrl(rst, en);
 
     const msg = "Set CTRL: Reset Off"
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     sendToFPA_configureControl(data);
     //fpasim_set_ctrl(rst_p=rst,en_p=en, level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     /*
      add tempo
     */
     const tempo = 10;
     const msg = "wait for " + tempo.toString(10) + " ms";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     waitMs(tempo);
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
 
     /*
@@ -219,11 +219,11 @@ function fpasim_reset(level_p, mode_p, verbosity_p) {
     const en = 0;
 
     const msg = "Set SPI_CTRL: Reset On"
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    fpasim_set_spi_ctrl(rst_p = rst, en_p = en, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    display(msg, level1, mode_p);
+    fpasim_set_spi_ctrl(rst, en, level2, mode_p, verbosity_p);
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     /*
      spi reset off
@@ -233,11 +233,11 @@ function fpasim_reset(level_p, mode_p, verbosity_p) {
     const en = 0;
 
     const msg = "Set SPI_CTRL: Reset Off"
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    fpasim_set_spi_ctrl(rst_p = rst, en_p = en, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    display(msg, level1, mode_p);
+    fpasim_set_spi_ctrl(rst, en, level2, mode_p, verbosity_p);
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     /*
     reset status On
@@ -250,28 +250,28 @@ function fpasim_reset(level_p, mode_p, verbosity_p) {
     // build the data to send
 
     const msg = "Set DEBUG_CTRL: Reset Status On"
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    fpasim_set_debug_ctrl(adc1_bypass_p=adc1_bypass, adc0_bypass_p=adc0_bypass, dac_en_pattern_p = dac_en_pattern, rst_status_p = rst_status, debug_pulse_p = debug_pulse, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    display(msg, level1, mode_p);
+    fpasim_set_debug_ctrl(adc1_bypass, adc0_bypass, dac_en_pattern, rst_status, debug_pulse, level2, mode_p, verbosity_p);
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
 
     /*
      reset status off
     */
     const msg = "Set DEBUG_CTRL: Reset Status Off"
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     const adc1_bypass = 0;
     const adc0_bypass = 0;
     const dac_en_pattern = 0;
     const rst_status = 0;
     const debug_pulse = 0;
     // build the data to send
-    fpasim_set_debug_ctrl(adc1_bypass_p=adc1_bypass, adc0_bypass_p=adc0_bypass, dac_en_pattern_p = dac_en_pattern, rst_status_p = rst_status, debug_pulse_p = debug_pulse, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    fpasim_set_debug_ctrl(adc1_bypass, adc0_bypass, dac_en_pattern, rst_status, debug_pulse, level2, mode_p, verbosity_p);
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     waitMs(10);
 }
@@ -298,13 +298,13 @@ function fpasim_check_error_by_id(error_id_p, error_p, level_p, mode_p, verbosit
     const data1 = error_p;
 
     const msg = "[fpasim_check_error_by_id]";
-    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display(msg, level0, mode_p);
 
-    const data0 = fpasim_get_error_by_id(sel_error_p = error_id_p, level_p = level1, mode_p = mode_p, verbosity_p = -2);
-    const str_data0 = convert_int_to_str_hex(value_p = data0, width_p = 32);
-    const str_data1 = convert_int_to_str_hex(value_p = data1, width_p = 32);
+    const data0 = fpasim_get_error_by_id(error_id_p, level1, mode_p, -2);
+    const str_data0 = convert_int_to_str_hex(data0, 32);
+    const str_data1 = convert_int_to_str_hex(data1, 32);
     const msg_error = "Errors" + error_id_p.toString(10) + ":";
-    error = check_equal(value0_p = data0, value1_p = data1, msg_p = msg_error, level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
+    error = check_equal(data0, data1, msg_error, level1, mode_p, verbosity_p);
     return error;
 }
 
@@ -325,10 +325,10 @@ function fpasim_check_all_errors(level_p, mode_p, verbosity_p) {
     const level1 = level_p + 1;
 
     const msg = "[fpasim_check_all_errors]";
-    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display(msg, level0, mode_p);
     cnt_error = 0;
     for (i = 0; i <= 10; i++) {
-        error = fpasim_check_error_by_id(error_id_p = i, error_p = 0, level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
+        error = fpasim_check_error_by_id(i, 0, level1, mode_p, verbosity_p);
         if (error == -1) {
             cnt_error += 1
         }
@@ -356,9 +356,9 @@ function fpasim_configure(level_p,mode_p,verbosity_p)
     if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
 
     // configure the spi_device of the fmc150 board
-    configure_fmc150_spi_device(level_p=level_p, mode_p=mode_p, verbosity_p=verbosity_p);
+    configure_fmc150_spi_device(level_p, mode_p, verbosity_p);
     // configure the FPAsim RAM with default values
-    error_load_ram_cnt = configure_fpasim_default_ram(level_p=level_p, mode_p=mode_p, verbosity_p=verbosity_p);
+    error_load_ram_cnt = configure_fpasim_default_ram(level_p, mode_p, verbosity_p);
     return error_load_ram_cnt;
 
 }
@@ -383,29 +383,29 @@ function configure_fmc150_spi_device(level_p, mode_p, verbosity_p) {
     const level1 = level_p + 1;
 
     const msg = "[configure_fmc150_spi_device]";
-    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display(msg, level0, mode_p);
 
     /*
     disable the FPASim
     */
     const msg = "Set CTRL: Enable Off"
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     const rst = 0;
     const en = 0;
     // build the data to send
-    const data = fpasim_build_ctrl(rst_p = rst, en_p = en);
+    const data = fpasim_build_ctrl(rst, en);
     sendToFPA_configureControl(data);
-    // fpasim_set_ctrl(rst_p=rst,en_p=en, level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
+    // fpasim_set_ctrl(rst, en, level1, mode_p, verbosity_p);
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     waitMs(10);
 
-    CDCE72010_configure(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
-    ADS62P49_configure(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
-    DAC3283_configure(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
-    AMC7823_configure(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
+    CDCE72010_configure(level1, mode_p, verbosity_p);
+    ADS62P49_configure(level1, mode_p, verbosity_p);
+    DAC3283_configure(level1, mode_p, verbosity_p);
+    AMC7823_configure(level1, mode_p, verbosity_p);
 
     return 0;
 
@@ -430,24 +430,24 @@ function check_equal(value0_p, value1_p, msg_p, level_p, mode_p, verbosity_p) {
     const level0 = level_p;
     const level1 = level_p + 1;
 
-    const str_data0 = convert_int_to_str_hex(value_p = value0_p, width_p = 32);
-    const str_data1 = convert_int_to_str_hex(value_p = value1_p, width_p = 32);
+    const str_data0 = convert_int_to_str_hex(value0_p, 32);
+    const str_data1 = convert_int_to_str_hex(value1_p, 32);
 
     if (value0_p !== value1_p) {
         const msg_tmp = "[KO]: " + msg_p;
-        display(msg_p = msg_tmp, level_p = level0, mode_p = mode_p);
+        display(msg_tmp, level0, mode_p);
         if (verbosity_p > 0) {
             const msg = "[check_equal]: value0_p: 0x" + str_data0 + " !=  value_1_p: 0x" + str_data1;
-            display(msg_p = msg, level_p = level1, mode_p = mode_p);
+            display(msg, level1, mode_p);
 
         }
         return -1
     } else {
         const msg = "[OK]: " + msg_p;
-        display(msg_p = msg, level_p = level0, mode_p = mode_p);
+        display(msg, level0, mode_p);
         if (verbosity_p > 0) {
             const msg = "[check_equal]: value0_p: 0x" + str_data0 + " ==  value_1_p: 0x" + str_data1;
-            display(msg_p = msg, level_p = level1, mode_p = mode_p);
+            display(msg, level1, mode_p);
         }
         return 0
     }
@@ -478,14 +478,14 @@ function check_equal_tab(tab0_p, tab1_p, msg_p, level_p, mode_p, verbosity_p)
         if (value0 != value1) {
             if (verbosity_p > 0) {
                 const msg = "index: " + i.toString(10) + " value0_p: " + value0.toString(10) + " ,value1_p:" + value1.toString(10);
-                display(msg_p = msg, level_p = level_p, mode_p = mode_p);
+                display(msg, level_p, mode_p);
 
             }
             error = 1;
         }
     }
 
-    const error2 = check_equal(value0_p = error, value1_p = 0, msg_p = msg_p, level_p = level_p, mode_p = mode_p, verbosity_p = verbosity_p);
+    const error2 = check_equal(error, 0, msg_p, level_p, mode_p, verbosity_p);
     return error2;
 
 }
@@ -508,18 +508,18 @@ function fpasim_dac_enable_pattern(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const msg = "[fpasim_dac_enable_pattern]";
-    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display(msg, level0, mode_p);
 
     // Enable the dac pattern checker
     // DAC3283_enable_pattern(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
 
     // Enable the SPI on the FPGA board
     const msg = "Enable the FPASim spi bridge";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    dac_spi_enable(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
+    display(msg, level1, mode_p);
+    dac_spi_enable(level1, mode_p, verbosity_p);
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
 
 
@@ -552,16 +552,16 @@ function fpasim_dac_enable_pattern(level_p, mode_p, verbosity_p) {
     const twos = 1;
 
     const msg = "Enable the dac pattern checker (dac device)";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
-    dac_set_config1(qmc_offset_ena_p = qmc_offset_ena, qmc_correct_ena_p = qmc_correct_ena,
-        fir0_ena_p = fir0_ena, fir1_ena_p = fir1_ena,
-        iotest_ena_p = iotest_ena, twos_p = twos,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+    dac_set_config1(qmc_offset_ena, qmc_correct_ena,
+        fir0_ena, fir1_ena,
+        iotest_ena, twos,
+        level1, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
 
     /*
@@ -575,11 +575,11 @@ function fpasim_dac_enable_pattern(level_p, mode_p, verbosity_p) {
     const debug_pulse = 0;
 
     const msg = "Enable the FPASim dac pattern generator";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    fpasim_set_debug_ctrl(adc1_bypass_p=adc1_bypass, adc0_bypass_p=adc0_bypass, dac_en_pattern_p = dac_en_pattern, rst_status_p = rst_status, debug_pulse_p = debug_pulse, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    display(msg, level1, mode_p);
+    fpasim_set_debug_ctrl(adc1_bypass, adc0_bypass, dac_en_pattern, rst_status, debug_pulse, level2, mode_p, verbosity_p);
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     /*
      ***************************************************************************
@@ -588,14 +588,14 @@ function fpasim_dac_enable_pattern(level_p, mode_p, verbosity_p) {
       */
     const rst = 0;
     const en = 1;
-    const data = fpasim_build_ctrl(rst_p = rst, en_p = en);
+    const data = fpasim_build_ctrl(rst, en);
     const msg = "Enable the FPASIM function";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     // sendToFPA_configureControl(data);
-    fpasim_set_ctrl(rst_p = rst, en_p = en, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    fpasim_set_ctrl(rst, en, level2, mode_p, verbosity_p);
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     /*
     run at least 100 pattern sequence
@@ -603,22 +603,22 @@ function fpasim_dac_enable_pattern(level_p, mode_p, verbosity_p) {
     */
     const tempo = 10;
     const msg = "wait for " + tempo.toString(10) + " ms";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     waitMs(tempo);
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     /*
     clear the iotest_results (config8)
     */
     const iotest_results = 0x0;
     const msg = "Reset iotest_results (dac device)";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    dac_set_config8(iotest_results_p = iotest_results, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    display(msg, level1, mode_p);
+    dac_set_config8(iotest_results, level2, mode_p, verbosity_p);
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     /*
     clear the alarm_from_iotest (config7)
     */
@@ -628,11 +628,11 @@ function fpasim_dac_enable_pattern(level_p, mode_p, verbosity_p) {
     const alarm_fifo_2away = 0;
     const alarm_fifo1away = 0;
     const msg = "Reset alarms bits (dac device)";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    dac_set_config7(alarm_from_zerochk_p = alarm_from_zerochk, alarm_fifo_collision_p = alarm_fifo_collision, alarm_from_iotest_p = alarm_from_iotest, alarm_fifo_2away_p = alarm_fifo_2away, alarm_fifo1away_p = alarm_fifo1away, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    display(msg, level1, mode_p);
+    dac_set_config7(alarm_from_zerochk, alarm_fifo_collision, alarm_from_iotest, alarm_fifo_2away, alarm_fifo1away, level2, mode_p, verbosity_p);
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
 
 
@@ -655,7 +655,7 @@ function fpasim_dac_disable_pattern(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const msg = "[fpasim_dac_disable_pattern]";
-    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display(msg, level0, mode_p);
 
 
     // Disable the dac pattern checker (spi device)
@@ -690,16 +690,16 @@ function fpasim_dac_disable_pattern(level_p, mode_p, verbosity_p) {
     const twos = 1;
 
     const msg = "Disable the dac pattern checker (dac device)";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
-    dac_set_config1(qmc_offset_ena_p = qmc_offset_ena, qmc_correct_ena_p = qmc_correct_ena,
-        fir0_ena_p = fir0_ena, fir1_ena_p = fir1_ena,
-        iotest_ena_p = iotest_ena, twos_p = twos,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+    dac_set_config1(qmc_offset_ena, qmc_correct_ena,
+        fir0_ena, fir1_ena,
+        iotest_ena, twos,
+        level1, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     /*
      *
@@ -707,11 +707,11 @@ function fpasim_dac_disable_pattern(level_p, mode_p, verbosity_p) {
      */
     const tempo = 10;
     const msg = "wait for " + tempo.toString(10) + " ms";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     waitMs(tempo);
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     /*
      *
@@ -723,11 +723,11 @@ function fpasim_dac_disable_pattern(level_p, mode_p, verbosity_p) {
     const rst_status = 0;
     const debug_pulse = 0;
     const msg = "Disable the FPASim dac pattern generator";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    fpasim_set_debug_ctrl(adc1_bypass_p=adc1_bypass, adc0_bypass_p=adc0_bypass, dac_en_pattern_p = dac_en_pattern, rst_status_p = rst_status, debug_pulse_p = debug_pulse, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    display(msg, level1, mode_p);
+    fpasim_set_debug_ctrl(adc1_bypass, adc0_bypass, dac_en_pattern, rst_status, debug_pulse, level2, mode_p, verbosity_p);
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
 
     /*
@@ -737,16 +737,16 @@ function fpasim_dac_disable_pattern(level_p, mode_p, verbosity_p) {
     const rst = 0;
     const en = 0;
     // build the data to send
-    const data = fpasim_build_ctrl(rst_p = rst, en_p = en);
+    const data = fpasim_build_ctrl(rst, en);
     const msg = "Set CTRL: Enable Off"
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     // sendToFPA_configureControl(data);
-    fpasim_set_ctrl(rst_p = rst, en_p = en, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    fpasim_set_ctrl(rst, en, level2, mode_p, verbosity_p);
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 }
 
 /**
@@ -767,18 +767,18 @@ function fpasim_dac_get_pattern_result(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const msg = "[fpasim_dac_get_pattern_result]";
-    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display(msg, level0, mode_p);
 
     // get the general errors
     const msg = "Get the alarm_from_iotest error bit (dac device)";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
-    const data = dac_get_config7(level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    const data = dac_get_config7(level2, mode_p, verbosity_p);
     // retrieves only the valid error bits when the dac is in pattern mode.
     const alarm_from_iotest = (data & 0x8);
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
 
     /*
@@ -787,12 +787,12 @@ function fpasim_dac_get_pattern_result(level_p, mode_p, verbosity_p) {
      */
     // get the general errors
     const msg = "Get the error bits on the byte-wide LVDS bus (dac device)";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
-    const iotest_results = dac_get_config8(level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    const iotest_results = dac_get_config8(level2, mode_p, verbosity_p);
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     return iotest_results;
 }
@@ -865,7 +865,7 @@ function loadFromFile(file_p,level_p, mode_p, verbosity_p)
     const level1 = level_p + 1;
 
     const msg = "[loadFromFile]: "+file_p;
-    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display(msg, level0, mode_p);
 
     fileContent = readTextFile(file_p);
 
@@ -882,7 +882,7 @@ function loadFromFile(file_p,level_p, mode_p, verbosity_p)
 
             const array_length = fileDataArray.length;
             const msg = "OK: array size: "+array_length.toString(10);
-            display(msg_p = msg, level_p = level1, mode_p = mode_p);
+            display(msg, level1, mode_p);
             return fileDataArray;
             // return fileDataArray.length
 
@@ -890,7 +890,7 @@ function loadFromFile(file_p,level_p, mode_p, verbosity_p)
         else
         {
             const msg = "KO: bad file format...";
-            display(msg_p = msg, level_p = level1, mode_p = mode_p);
+            display(msg, level1, mode_p);
             // fileDataOffset = parseInt(fileContent[0],16)
             fileDataArray = new Array(1);
             return fileDataArray;
@@ -901,7 +901,7 @@ function loadFromFile(file_p,level_p, mode_p, verbosity_p)
     else
         {
             const msg = "KO: bad file format or file not found...";
-            display(msg_p = msg, level_p = level1, mode_p = mode_p);
+            display(msg, level1, mode_p);
             // fileDataOffset = parseInt(fileContent[0],16)
             fileDataArray = new Array(1);
             return fileDataArray;
@@ -935,25 +935,25 @@ function fpasim_loadTES_PulseShape_From_File(file_p,level_p, mode_p, verbosity_p
 
     // function name
     msg = "[fpasim_loadTES_PulseShape_From_File]";
-    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display(msg, level0, mode_p);
 
     // expected number of read data values from the input file
     const expected_array_size = 32768;
 
     // read value from the file
-    array = loadFromFile(file_p=file_p,level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
+    array = loadFromFile(file_p, level1, mode_p, verbosity_p);
     array_length = array.length;
 
     if (array_length != expected_array_size)
     {
         msg = "[KO]: bad File size";
-        display(msg_p = msg, level_p = level1, mode_p = mode_p);
+        display(msg, level1, mode_p);
 
         msg = "  expected: " + expected_array_size.toString(10);
-        display(msg_p = msg, level_p = level2, mode_p = mode_p);
+        display(msg, level2, mode_p);
 
         msg = "  file size:" + array_length+toString(10);
-        display(msg_p = msg, level_p = level2, mode_p = mode_p);
+        display(msg, level2, mode_p);
 
         // error code
         return -1;
@@ -992,24 +992,24 @@ function fpasim_sendToFPA_loadAmpSQUID_TF_From_File(file_p,level_p, mode_p, verb
 
     // function name
     msg = "[fpasim_sendToFPA_loadAmpSQUID_TF_From_File]";
-    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display(msg, level0, mode_p);
     // expected number of read data values from the input file
     const expected_array_size = 16384;
 
     // read value from the file
-    array = loadFromFile(file_p=file_p,level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
+    array = loadFromFile(file_p, level1, mode_p, verbosity_p);
     array_length = array.length
 
     if (array_length != expected_array_size)
     {
         msg = "[KO]: bad File size";
-        display(msg_p = msg, level_p = level1, mode_p = mode_p);
+        display(msg, level1, mode_p);
 
         msg = "  expected: " + expected_array_size.toString(10);
-        display(msg_p = msg, level_p = level2, mode_p = mode_p);
+        display(msg, level2, mode_p);
 
         msg = "  file size:" + array_length+toString(10);
-        display(msg_p = msg, level_p = level2, mode_p = mode_p);
+        display(msg, level2, mode_p);
 
         // error code
         return -1;
@@ -1048,24 +1048,24 @@ function fpasim_sendToFPA_loadMuxSQUID_TF_From_File(file_p,level_p, mode_p, verb
 
     // function name
     msg = "[fpasim_sendToFPA_loadMuxSQUID_TF_From_File]";
-    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display(msg, level0, mode_p);
     // expected number of read data values from the input file
     const expected_array_size = 8192;
 
     // read value from the file
-    array = loadFromFile(file_p=file_p,level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
+    array = loadFromFile(file_p, level1, mode_p, verbosity_p);
     array_length = array.length
 
     if (array_length != expected_array_size)
     {
         msg = "[KO]: bad File size";
-        display(msg_p = msg, level_p = level1, mode_p = mode_p);
+        display(msg, level1, mode_p);
 
         msg = "  expected: " + expected_array_size.toString(10);
-        display(msg_p = msg, level_p = level2, mode_p = mode_p);
+        display(msg, level2, mode_p);
 
         msg = "  file size:" + array_length+toString(10);
-        display(msg_p = msg, level_p = level2, mode_p = mode_p);
+        display(msg, level2, mode_p);
 
         // error code
         return -1;
@@ -1105,25 +1105,25 @@ function fpasim_sendToFPA_loadTES_SteadyState_From_File(file_p,level_p, mode_p, 
 
     // function name
     msg = "[fpasim_sendToFPA_loadTES_SteadyState_From_File]";
-    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display(msg, level0, mode_p);
 
     // expected number of read data values from the input file
     const expected_array_size = 64;
 
     // read value from the file
-    array = loadFromFile(file_p=file_p,level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
+    array = loadFromFile(file_p, level1, mode_p, verbosity_p);
     array_length = array.length
 
     if (array_length != expected_array_size)
     {
         msg = "[KO]: bad File size";
-        display(msg_p = msg, level_p = level1, mode_p = mode_p);
+        display(msg, level1, mode_p);
 
         msg = "  expected: " + expected_array_size.toString(10);
-        display(msg_p = msg, level_p = level2, mode_p = mode_p);
+        display(msg, level2, mode_p);
 
         msg = "  file size:" + array_length+toString(10);
-        display(msg_p = msg, level_p = level2, mode_p = mode_p);
+        display(msg, level2, mode_p);
 
         // error code
         return -1;
@@ -1164,24 +1164,24 @@ function fpasim_sendToFPA_loadMuxSQUID_Offset_From_File(file_p,level_p, mode_p, 
 
     // function name
     msg = "[fpasim_sendToFPA_loadMuxSQUID_Offset_From_File]";
-    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display(msg, level0, mode_p);
     // expected number of read data values from the input file
     const expected_array_size = 64;
 
     // read value from the file
-    array = loadFromFile(file_p=file_p,level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
+    array = loadFromFile(file_p, level1, mode_p, verbosity_p);
     array_length = array.length
 
     if (array_length != expected_array_size)
     {
         msg = "[KO]: bad File size";
-        display(msg_p = msg, level_p = level1, mode_p = mode_p);
+        display(msg, level1, mode_p);
 
         msg = "  expected: " + expected_array_size.toString(10);
-        display(msg_p = msg, level_p = level2, mode_p = mode_p);
+        display(msg, level2, mode_p);
 
         msg = "  file size:" + array_length+toString(10);
-        display(msg_p = msg, level_p = level2, mode_p = mode_p);
+        display(msg, level2, mode_p);
 
         // error code
         return -1;
@@ -1217,7 +1217,7 @@ function configure_fpasim_default_ram(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const msg = "[configure_fpasim_default_ram]";
-    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display(msg, level0, mode_p);
 
     // relative path from the main script (the calling script path)
     ram_base_path = "./fpasim_default_ram/"
@@ -1228,11 +1228,11 @@ function configure_fpasim_default_ram(level_p, mode_p, verbosity_p) {
     mux_squid_tf_filepath     = ram_base_path + "mux_squid_tf.mem"
     amp_squid_tf_filepath     = ram_base_path + "amp_squid_tf.mem"
 
-    err0 = fpasim_loadTES_PulseShape_From_File(file_p=tes_pulse_shape_filepath,level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
-    err1 = fpasim_sendToFPA_loadTES_SteadyState_From_File(file_p=tes_std_state_filepath,level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
-    err2 = fpasim_sendToFPA_loadMuxSQUID_Offset_From_File(file_p=mux_squid_offset_filepath,level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
-    err3 = fpasim_sendToFPA_loadMuxSQUID_TF_From_File(file_p=mux_squid_tf_filepath,level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
-    err4 = fpasim_sendToFPA_loadAmpSQUID_TF_From_File(file_p=amp_squid_tf_filepath,level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
+    err0 = fpasim_loadTES_PulseShape_From_File(tes_pulse_shape_filepath,level1, mode_p, verbosity_p);
+    err1 = fpasim_sendToFPA_loadTES_SteadyState_From_File(tes_std_state_filepath,level1, mode_p, verbosity_p);
+    err2 = fpasim_sendToFPA_loadMuxSQUID_Offset_From_File(mux_squid_offset_filepath,level1, mode_p, verbosity_p);
+    err3 = fpasim_sendToFPA_loadMuxSQUID_TF_From_File(mux_squid_tf_filepath,level1, mode_p, verbosity_p);
+    err4 = fpasim_sendToFPA_loadAmpSQUID_TF_From_File(amp_squid_tf_filepath,level1, mode_p, verbosity_p);
 
     errors_cnt = err0 + err1 + err2 + err3 + err4;
 
