@@ -98,13 +98,13 @@ function dac_spi_enable(level_p, mode_p, verbosity_p) {
     const level0 = level_p;
 
     //---------------------------------------------------------------------
-    //-- write in the SPI_CTRL register 
+    //-- write in the SPI_CTRL register
     //---------------------------------------------------------------------
 
     // en the spi links
     const rst = 0;
     const en = 1;
-    fpasim_set_spi_ctrl(rst_p = rst, en_p = en, level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
+    fpasim_set_spi_ctrl(rst, en, level0, mode_p, verbosity_p);
 
 }
 
@@ -121,7 +121,7 @@ function dac_write_command(addr_p, data_p) {
     //---------------------------------------------------------------------
     const spi_mode = 1; // 0: rd, 1: wr
     const spi_id = 2; // 0: cdce,1: adc, 2: dac, 3: amc
-    fpasim_set_spi_conf0(spi_id_p = spi_id, spi_mode_p = spi_mode, level_p = 0, mode_p = 0, verbosity_p = -1);
+    fpasim_set_spi_conf0(spi_id, spi_mode, 0, 0, -1);
 
     //---------------------------------------------------------------------
     // build the SPI commands
@@ -141,7 +141,7 @@ function dac_write_command(addr_p, data_p) {
     const cmd = (mode << 7) + (nb_bytes << 5) + addr_p;
     const spi_cmd = (cmd << 8) + data_p;
 
-    fpasim_set_spi_wr_data(data_p = spi_cmd, level_p = 0, mode_p = 0, verbosity_p = -1);
+    fpasim_set_spi_wr_data(spi_cmd, 0, 0, -1);
 
 }
 
@@ -159,7 +159,7 @@ function dac_read_command(addr_p) {
     //---------------------------------------------------------------------
     const spi_mode = 0; // 0: rd, 1: wr
     const spi_id = 2; // 0: cdce,1: adc, 2: dac, 3: amc
-    fpasim_set_spi_conf0(spi_id_p = spi_id, spi_mode_p = spi_mode, level_p = 0, mode_p = 0, verbosity_p = -1);
+    fpasim_set_spi_conf0(spi_id, spi_mode, 0, 0, -1);
 
     //---------------------------------------------------------------------
     // build the SPI commands
@@ -180,13 +180,13 @@ function dac_read_command(addr_p) {
 
     const data = 0x00;
     const spi_cmd = (cmd << 8) + data;
-    fpasim_set_spi_wr_data(data_p = spi_cmd, level_p = 0, mode_p = 0, verbosity_p = -1);
+    fpasim_set_spi_wr_data(spi_cmd, 0, 0, -1);
     waitMs(10);
 
     //---------------------------------------------------------------------
     // Read the register value from the spi device
     //---------------------------------------------------------------------
-    const data = fpasim_get_wireout_spi_rd_data(level_p = 0, mode_p = 0, verbosity_p = -1);
+    const data = fpasim_get_wireout_spi_rd_data(0, 0, -1);
 
     // keep only the data part
     // from: cmd7 .. addr0 data7 .. data0
@@ -252,27 +252,27 @@ function dac_set_config0(fifo_ena_p, fifo_reset_ena_p, multi_sync_ena_p, alarm_o
     const data = data1 + data0;
 
     const addr = DAC_ADDR['reg0'];
-    dac_write_command(addr_p = addr, data_p = data);
+    dac_write_command(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_set_config0]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "fifo_ena_p", bit_value_p = fifo_ena_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "fifo_reset_ena_p", bit_value_p = fifo_reset_ena_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "multi_sync_ena_p", bit_value_p = multi_sync_ena_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "alarm_out_ena_p", bit_value_p = alarm_out_ena_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "alarm_pol_p", bit_value_p = alarm_pol_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "mixer_func_p", bit_value_p = mixer_func_p, bit_width_p = 2, level_p = level2, mode_p = mode_p);
+            display_bit("fifo_ena_p", fifo_ena_p, 1, level2, mode_p);
+            display_bit("fifo_reset_ena_p", fifo_reset_ena_p, 1, level2, mode_p);
+            display_bit("multi_sync_ena_p", multi_sync_ena_p, 1, level2, mode_p);
+            display_bit("alarm_out_ena_p", alarm_out_ena_p, 1, level2, mode_p);
+            display_bit("alarm_pol_p", alarm_pol_p, 1, level2, mode_p);
+            display_bit("mixer_func_p", mixer_func_p, 2, level2, mode_p);
         }
     }
 }
@@ -325,27 +325,27 @@ function dac_set_config1(qmc_offset_ena_p, qmc_correct_ena_p, fir0_ena_p, fir1_e
     const data = data1 + data0;
 
     const addr = DAC_ADDR['reg1'];
-    dac_write_command(addr_p = addr, data_p = data);
+    dac_write_command(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_set_config1]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "qmc_offset_ena_p", bit_value_p = qmc_offset_ena_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "qmc_correct_ena_p", bit_value_p = qmc_correct_ena_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "fir0_ena_p", bit_value_p = fir0_ena_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "fir1_ena_p", bit_value_p = fir1_ena_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "iotest_ena_p", bit_value_p = iotest_ena_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "twos_p", bit_value_p = twos_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
+            display_bit("qmc_offset_ena_p", qmc_offset_ena_p, 1, level2, mode_p);
+            display_bit("qmc_correct_ena_p", qmc_correct_ena_p, 1, level2, mode_p);
+            display_bit("fir0_ena_p", fir0_ena_p, 1, level2, mode_p);
+            display_bit("fir1_ena_p", fir1_ena_p, 1, level2, mode_p);
+            display_bit("iotest_ena_p", iotest_ena_p, 1, level2, mode_p);
+            display_bit("twos_p", twos_p, 1, level2, mode_p);
         }
     }
 }
@@ -382,24 +382,24 @@ function dac_set_config2(sif_sync_p, sif_sync_ena_p, output_delay_p, level_p, mo
     const data = data1 + data0;
 
     const addr = DAC_ADDR['reg2'];
-    dac_write_command(addr_p = addr, data_p = data);
+    dac_write_command(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_set_config2]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "sif_sync_p", bit_value_p = sif_sync_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "sif_sync_ena_p", bit_value_p = sif_sync_ena_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "output_delay_p", bit_value_p = output_delay_p, bit_width_p = 2, level_p = level2, mode_p = mode_p);
+            display_bit("sif_sync_p", sif_sync_p, 1, level2, mode_p);
+            display_bit("sif_sync_ena_p", sif_sync_ena_p, 1, level2, mode_p);
+            display_bit("output_delay_p", output_delay_p, 2, level2, mode_p);
         }
     }
 }
@@ -452,25 +452,25 @@ function dac_set_config3(cnt64_ena_p, fifo_offset_p, alarm_2away_ena_p, alarm_1a
     const data = data1 + data0;
 
     const addr = DAC_ADDR['reg3'];
-    dac_write_command(addr_p = addr, data_p = data);
+    dac_write_command(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_set_config3]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "cnt64_ena_p", bit_value_p = cnt64_ena_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "fifo_offset_p", bit_value_p = fifo_offset_p, bit_width_p = 2, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "alarm_2away_ena_p", bit_value_p = alarm_2away_ena_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "alarm_1away_ena_p", bit_value_p = alarm_1away_ena_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
+            display_bit("cnt64_ena_p", cnt64_ena_p, 1, level2, mode_p);
+            display_bit("fifo_offset_p", fifo_offset_p, 2, level2, mode_p);
+            display_bit("alarm_2away_ena_p", alarm_2away_ena_p, 1, level2, mode_p);
+            display_bit("alarm_1away_ena_p", alarm_1away_ena_p, 1, level2, mode_p);
         }
     }
 }
@@ -509,23 +509,23 @@ function dac_set_config4(coarse_daca_p, coarse_dacb_p, level_p, mode_p, verbosit
     const data = data1 + data0;
 
     const addr = DAC_ADDR['reg4'];
-    dac_write_command(addr_p = addr, data_p = data);
+    dac_write_command(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_set_config4]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "coarse_daca_p", bit_value_p = coarse_daca_p, bit_width_p = 4, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "coarse_dacb_p", bit_value_p = coarse_dacb_p, bit_width_p = 4, level_p = level2, mode_p = mode_p);
+            display_bit("coarse_daca_p", coarse_daca_p, 4, level2, mode_p);
+            display_bit("coarse_dacb_p", coarse_dacb_p, 4, level2, mode_p);
         }
     }
 }
@@ -557,22 +557,22 @@ function dac_set_config5(tempdata_p, level_p, mode_p, verbosity_p) {
     const data = tempdata_p;
 
     const addr = DAC_ADDR['reg5'];
-    dac_write_command(addr_p = addr, data_p = data);
+    dac_write_command(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_set_config5]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "tempdata_p", bit_value_p = tempdata_p, bit_width_p = 8, level_p = level2, mode_p = mode_p);
+            display_bit("tempdata_p", tempdata_p, 8, level2, mode_p);
         }
     }
 }
@@ -597,7 +597,7 @@ function dac_set_config5(tempdata_p, level_p, mode_p, verbosity_p) {
  *       2                     not used (expansion)
  *       1                     alarm_fifo_2away
  *       0                     alarm_fifo_1away
- * [6:0]: R/W: alarm_mask[6:0] 
+ * [6:0]: R/W: alarm_mask[6:0]
  *
  */
 function dac_set_config6(alarm_mask_p, level_p, mode_p, verbosity_p) {
@@ -614,22 +614,22 @@ function dac_set_config6(alarm_mask_p, level_p, mode_p, verbosity_p) {
     const data = alarm_mask_p;
 
     const addr = DAC_ADDR['reg6'];
-    dac_write_command(addr_p = addr, data_p = data);
+    dac_write_command(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_set_config6]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "alarm_mask_p", bit_value_p = alarm_mask_p, bit_width_p = 7, level_p = level2, mode_p = mode_p);
+            display_bit("alarm_mask_p", alarm_mask_p, 7, level2, mode_p);
         }
     }
 }
@@ -684,26 +684,26 @@ function dac_set_config7(alarm_from_zerochk_p, alarm_fifo_collision_p, alarm_fro
     const data = data1 + data0;
 
     const addr = DAC_ADDR['reg7'];
-    dac_write_command(addr_p = addr, data_p = data);
+    dac_write_command(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_set_config7]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "alarm_from_zerochk_p", bit_value_p = alarm_from_zerochk_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "alarm_fifo_collision_p", bit_value_p = alarm_fifo_collision_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "alarm_from_iotest_p", bit_value_p = alarm_from_iotest_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "alarm_fifo_2away_p", bit_value_p = alarm_fifo_2away_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "alarm_fifo1away_p", bit_value_p = alarm_fifo1away_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
+            display_bit("alarm_from_zerochk_p", alarm_from_zerochk_p, 1, level2, mode_p);
+            display_bit("alarm_fifo_collision_p", alarm_fifo_collision_p, 1, level2, mode_p);
+            display_bit("alarm_from_iotest_p", alarm_from_iotest_p, 1, level2, mode_p);
+            display_bit("alarm_fifo_2away_p", alarm_fifo_2away_p, 1, level2, mode_p);
+            display_bit("alarm_fifo1away_p", alarm_fifo1away_p, 1, level2, mode_p);
         }
     }
 }
@@ -735,22 +735,22 @@ function dac_set_config8(iotest_results_p, level_p, mode_p, verbosity_p) {
     const data = iotest_results_p;
 
     const addr = DAC_ADDR['reg8'];
-    dac_write_command(addr_p = addr, data_p = data);
+    dac_write_command(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_set_config8]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "iotest_results_p", bit_value_p = iotest_results_p, bit_width_p = 8, level_p = level2, mode_p = mode_p);
+            display_bit("iotest_results_p", iotest_results_p, 8, level2, mode_p);
         }
     }
 }
@@ -782,22 +782,22 @@ function dac_set_config9(iotest_pattern0_p, level_p, mode_p, verbosity_p) {
     const data = iotest_pattern0_p;
 
     const addr = DAC_ADDR['reg9'];
-    dac_write_command(addr_p = addr, data_p = data);
+    dac_write_command(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_set_config9]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "iotest_pattern0_p", bit_value_p = iotest_pattern0_p, bit_width_p = 8, level_p = level2, mode_p = mode_p);
+            display_bit("iotest_pattern0_p", iotest_pattern0_p, 8, level2, mode_p);
         }
     }
 }
@@ -829,22 +829,22 @@ function dac_set_config10(iotest_pattern1_p, level_p, mode_p, verbosity_p) {
     const data = iotest_pattern1_p;
 
     const addr = DAC_ADDR['reg10'];
-    dac_write_command(addr_p = addr, data_p = data);
+    dac_write_command(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_set_config10]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "iotest_pattern1_p", bit_value_p = iotest_pattern1_p, bit_width_p = 8, level_p = level2, mode_p = mode_p);
+            display_bit("iotest_pattern1_p", iotest_pattern1_p, 8, level2, mode_p);
         }
     }
 }
@@ -876,22 +876,22 @@ function dac_set_config11(iotest_pattern2_p, level_p, mode_p, verbosity_p) {
     const data = iotest_pattern2_p;
 
     const addr = DAC_ADDR['reg11'];
-    dac_write_command(addr_p = addr, data_p = data);
+    dac_write_command(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_set_config11]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "iotest_pattern2_p", bit_value_p = iotest_pattern2_p, bit_width_p = 8, level_p = level2, mode_p = mode_p);
+            display_bit("iotest_pattern2_p", iotest_pattern2_p, 8, level2, mode_p);
         }
     }
 }
@@ -923,22 +923,22 @@ function dac_set_config12(iotest_pattern3_p, level_p, mode_p, verbosity_p) {
     const data = iotest_pattern3_p;
 
     const addr = DAC_ADDR['reg12'];
-    dac_write_command(addr_p = addr, data_p = data);
+    dac_write_command(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_set_config12]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "iotest_pattern3_p", bit_value_p = iotest_pattern3_p, bit_width_p = 8, level_p = level2, mode_p = mode_p);
+            display_bit("iotest_pattern3_p", iotest_pattern3_p, 8, level2, mode_p);
         }
     }
 }
@@ -969,22 +969,22 @@ function dac_set_config13(iotest_pattern4_p, level_p, mode_p, verbosity_p) {
     const data = iotest_pattern4_p;
 
     const addr = DAC_ADDR['reg13'];
-    dac_write_command(addr_p = addr, data_p = data);
+    dac_write_command(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_set_config13]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "iotest_pattern4_p", bit_value_p = iotest_pattern4_p, bit_width_p = 8, level_p = level2, mode_p = mode_p);
+            display_bit("iotest_pattern4_p", iotest_pattern4_p, 8, level2, mode_p);
         }
     }
 }
@@ -1016,22 +1016,22 @@ function dac_set_config14(iotest_pattern5_p, level_p, mode_p, verbosity_p) {
     const data = iotest_pattern5_p;
 
     const addr = DAC_ADDR['reg14'];
-    dac_write_command(addr_p = addr, data_p = data);
+    dac_write_command(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_set_config14]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "iotest_pattern5_p", bit_value_p = iotest_pattern5_p, bit_width_p = 8, level_p = level2, mode_p = mode_p);
+            display_bit("iotest_pattern5_p", iotest_pattern5_p, 8, level2, mode_p);
         }
     }
 }
@@ -1064,22 +1064,22 @@ function dac_set_config15(iotest_pattern6_p, level_p, mode_p, verbosity_p) {
     const data = iotest_pattern6_p;
 
     const addr = DAC_ADDR['reg15'];
-    dac_write_command(addr_p = addr, data_p = data);
+    dac_write_command(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_set_config15]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "iotest_pattern6_p", bit_value_p = iotest_pattern6_p, bit_width_p = 8, level_p = level2, mode_p = mode_p);
+            display_bit("iotest_pattern6_p", iotest_pattern6_p, 8, level2, mode_p);
         }
     }
 }
@@ -1111,22 +1111,22 @@ function dac_set_config16(iotest_pattern7_p, level_p, mode_p, verbosity_p) {
     const data = iotest_pattern7_p;
 
     const addr = DAC_ADDR['reg16'];
-    dac_write_command(addr_p = addr, data_p = data);
+    dac_write_command(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_set_config16]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "iotest_pattern7_p", bit_value_p = iotest_pattern7_p, bit_width_p = 8, level_p = level2, mode_p = mode_p);
+            display_bit("iotest_pattern7_p", iotest_pattern7_p, 8, level2, mode_p);
         }
     }
 }
@@ -1176,25 +1176,25 @@ function dac_set_config17(clk_alarm_mask_p, tx_off_mask_p, clk_alarm_ena_p, tx_o
     const data = data1 + data0;
 
     const addr = DAC_ADDR['reg17'];
-    dac_write_command(addr_p = addr, data_p = data);
+    dac_write_command(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_set_config17]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "clk_alarm_mask_p", bit_value_p = clk_alarm_mask_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "tx_off_mask_p", bit_value_p = tx_off_mask_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "clk_alarm_ena_p", bit_value_p = clk_alarm_ena_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "tx_off_ena_p", bit_value_p = tx_off_ena_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
+            display_bit("clk_alarm_mask_p", clk_alarm_mask_p, 1, level2, mode_p);
+            display_bit("tx_off_mask_p", tx_off_mask_p, 1, level2, mode_p);
+            display_bit("clk_alarm_ena_p", clk_alarm_ena_p, 1, level2, mode_p);
+            display_bit("tx_off_ena_p", tx_off_ena_p, 1, level2, mode_p);
         }
     }
 }
@@ -1241,24 +1241,24 @@ function dac_set_config18(daca_complement_p, dacb_complement_p, clkdiv_sync_ena_
     const data = data1 + data0;
 
     const addr = DAC_ADDR['reg18'];
-    dac_write_command(addr_p = addr, data_p = data);
+    dac_write_command(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_set_config18]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "daca_complement_p", bit_value_p = daca_complement_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "dacb_complement_p", bit_value_p = dacb_complement_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "clkdiv_sync_ena_p", bit_value_p = clkdiv_sync_ena_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
+            display_bit("daca_complement_p", daca_complement_p, 1, level2, mode_p);
+            display_bit("dacb_complement_p", dacb_complement_p, 1, level2, mode_p);
+            display_bit("clkdiv_sync_ena_p", clkdiv_sync_ena_p, 1, level2, mode_p);
         }
     }
 }
@@ -1305,25 +1305,25 @@ function dac_set_config19(bequalsa_p, aequalsb_p, multi_sync_sel_p, rev_p, level
     const data = data1 + data0;
 
     const addr = DAC_ADDR['reg19'];
-    dac_write_command(addr_p = addr, data_p = data);
+    dac_write_command(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_set_config19]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "bequalsa_p", bit_value_p = bequalsa_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "aequalsb_p", bit_value_p = aequalsb_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "multi_sync_sel_p", bit_value_p = multi_sync_sel_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "rev_p", bit_value_p = rev_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
+            display_bit("bequalsa_p", bequalsa_p, 1, level2, mode_p);
+            display_bit("aequalsb_p", aequalsb_p, 1, level2, mode_p);
+            display_bit("multi_sync_sel_p", multi_sync_sel_p, 1, level2, mode_p);
+            display_bit("rev_p", rev_p, 1, level2, mode_p);
         }
     }
 }
@@ -1376,22 +1376,22 @@ function dac_set_config20(qmc_offseta_p, level_p, mode_p, verbosity_p) {
     const data = qmc_offseta;
 
     const addr = DAC_ADDR['reg20'];
-    dac_write_command(addr_p = addr, data_p = data);
+    dac_write_command(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_set_config20]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "qmc_offseta", bit_value_p = qmc_offseta, bit_width_p = 16, level_p = level2, mode_p = mode_p);
+            display_bit("qmc_offseta", qmc_offseta, 16, level2, mode_p);
         }
     }
 }
@@ -1411,22 +1411,22 @@ function dac_set_config21(qmc_offsetb_p, level_p, mode_p, verbosity_p) {
     const data = qmc_offsetb;
 
     const addr = DAC_ADDR['reg21'];
-    dac_write_command(addr_p = addr, data_p = data);
+    dac_write_command(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_set_config21]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "qmc_offsetb", bit_value_p = qmc_offsetb, bit_width_p = 16, level_p = level2, mode_p = mode_p);
+            display_bit("qmc_offsetb", qmc_offsetb, 16, level2, mode_p);
         }
     }
 }
@@ -1448,22 +1448,22 @@ function dac_set_config22(qmc_offseta_p, level_p, mode_p, verbosity_p) {
     const data = data1 + data0;
 
     const addr = DAC_ADDR['reg22'];
-    dac_write_command(addr_p = addr, data_p = data);
+    dac_write_command(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_set_config22]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "qmc_offseta", bit_value_p = qmc_offseta, bit_width_p = 5, level_p = level2, mode_p = mode_p);
+            display_bit("qmc_offseta", qmc_offseta, 5, level2, mode_p);
         }
     }
 }
@@ -1489,25 +1489,25 @@ function dac_set_config23(qmc_offsetb_p, sif4_ena_p, clkpath_sleep_a_p, clkpath_
     const data = data1 + data0;
 
     const addr = DAC_ADDR['reg23'];
-    dac_write_command(addr_p = addr, data_p = data);
+    dac_write_command(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_set_config23]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "qmc_offsetb", bit_value_p = qmc_offsetb, bit_width_p = 5, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "sif4_ena_p", bit_value_p = sif4_ena_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "clkpath_sleep_a_p", bit_value_p = clkpath_sleep_a_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "clkpath_sleep_b_p", bit_value_p = clkpath_sleep_b_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
+            display_bit("qmc_offsetb", qmc_offsetb, 5, level2, mode_p);
+            display_bit("sif4_ena_p", sif4_ena_p, 1, level2, mode_p);
+            display_bit("clkpath_sleep_a_p", clkpath_sleep_a_p, 1, level2, mode_p);
+            display_bit("clkpath_sleep_b_p", clkpath_sleep_b_p, 1, level2, mode_p);
         }
     }
 }
@@ -1554,25 +1554,25 @@ function dac_set_config24(tsense_ena_p, clkrecv_sleep_p, sleepb_p, sleepa_p, lev
     const data = data1 + data0;
 
     const addr = DAC_ADDR['reg24'];
-    dac_write_command(addr_p = addr, data_p = data);
+    dac_write_command(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_set_config24]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "tsense_ena_p", bit_value_p = tsense_ena_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "clkrecv_sleep_p", bit_value_p = clkrecv_sleep_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "sleepb_p", bit_value_p = sleepb_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "sleepa_p", bit_value_p = sleepa_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
+            display_bit("tsense_ena_p", tsense_ena_p, 1, level2, mode_p);
+            display_bit("clkrecv_sleep_p", clkrecv_sleep_p, 1, level2, mode_p);
+            display_bit("sleepb_p", sleepb_p, 1, level2, mode_p);
+            display_bit("sleepa_p", sleepa_p, 1, level2, mode_p);
         }
     }
 }
@@ -1605,22 +1605,22 @@ function dac_set_config25(extref_ena_p, level_p, mode_p, verbosity_p) {
     const data = data1 + data0;
 
     const addr = DAC_ADDR['reg25'];
-    dac_write_command(addr_p = addr, data_p = data);
+    dac_write_command(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_set_config25]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "extref_ena_p", bit_value_p = extref_ena_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
+            display_bit("extref_ena_p", extref_ena_p, 1, level2, mode_p);
         }
     }
 }
@@ -1650,22 +1650,22 @@ function dac_set_config25(extref_ena_p, level_p, mode_p, verbosity_p) {
 //     data = data1 + data0;
 
 //      addr = DAC_ADDR['reg26'];
-//     dac_write_command(addr_p=addr,data_p=data);
+//     dac_write_command(addr, data);
 
 //     if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN)
 //     {
 //       msg = "[dac_set_config26]: Set the register value ";
-//       display(msg_p=msg, level_p=level0, mode_p=mode_p);
+//       display(msg, level0, mode_p);
 //     }
 
 //    if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN)
 //     {
-//      display_register(addr_p=addr,addr_width_p=32,data_p=data,data_width_p=32,level_p=level1,mode_p=mode_p);
+//      display_register(addr, 32, data, 32, level1, mode_p);
 //     }
 
 //    // if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN)
 //    //  {
-//    //    display_bit(bit_name_p="extref_ena_p",bit_value_p=extref_ena_p,bit_width_p=1,level_p=level2,mode_p=mode_p);
+//    //    display_bit("extref_ena_p", extref_ena_p, 1, level2, mode_p);
 //    //  }
 // }
 
@@ -1722,22 +1722,22 @@ function dac_set_config27(qmc_gaina_p, level_p, mode_p, verbosity_p) {
     const data = data1 + data0;
 
     const addr = DAC_ADDR['reg27'];
-    dac_write_command(addr_p = addr, data_p = data);
+    dac_write_command(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_set_config27]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "qmc_gaina", bit_value_p = qmc_gaina, bit_width_p = 8, level_p = level2, mode_p = mode_p);
+            display_bit("qmc_gaina", qmc_gaina, 8, level2, mode_p);
         }
     }
 }
@@ -1759,22 +1759,22 @@ function dac_set_config28(qmc_gainb_p, level_p, mode_p, verbosity_p) {
     const data = data1 + data0;
 
     const addr = DAC_ADDR['reg28'];
-    dac_write_command(addr_p = addr, data_p = data);
+    dac_write_command(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_set_config28]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "qmc_gainb", bit_value_p = qmc_gainb, bit_width_p = 8, level_p = level2, mode_p = mode_p);
+            display_bit("qmc_gainb", qmc_gainb, 8, level2, mode_p);
         }
     }
 }
@@ -1797,22 +1797,22 @@ function dac_set_config29(qmc_phase_p, level_p, mode_p, verbosity_p) {
     const data = data1 + data0;
 
     const addr = DAC_ADDR['reg29'];
-    dac_write_command(addr_p = addr, data_p = data);
+    dac_write_command(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_set_config29]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "qmc_phase", bit_value_p = qmc_phase, bit_width_p = 8, level_p = level2, mode_p = mode_p);
+            display_bit("qmc_phase", qmc_phase, 8, level2, mode_p);
         }
     }
 }
@@ -1841,24 +1841,24 @@ function dac_set_config30(qmc_phase_p, qmc_gaina_p, qmc_gainb_p, level_p, mode_p
     const data = data1 + data0;
 
     const addr = DAC_ADDR['reg30'];
-    dac_write_command(addr_p = addr, data_p = data);
+    dac_write_command(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_set_config30]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "qmc_phase", bit_value_p = qmc_phase, bit_width_p = 6, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "qmc_gaina", bit_value_p = qmc_gaina, bit_width_p = 6, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "qmc_gainb", bit_value_p = qmc_gainb, bit_width_p = 6, level_p = level2, mode_p = mode_p);
+            display_bit("qmc_phase", qmc_phase, 6, level2, mode_p);
+            display_bit("qmc_gaina", qmc_gaina, 6, level2, mode_p);
+            display_bit("qmc_gainb", qmc_gainb, 6, level2, mode_p);
         }
     }
 }
@@ -1878,7 +1878,7 @@ function dac_set_config30(qmc_phase_p, qmc_gaina_p, qmc_gainb_p, level_p, mode_p
  * the DAC outputs are forced to mid-level. Once set, the bit needs
  * to be cleared by writing a '0'.
  * [6]: R: tx_off[0]
- * 
+ *
  * A hardwired register that contains the version of the chip. (Read Only)
  * [5:0]: R: version[5:0]
  *
@@ -1902,24 +1902,24 @@ function dac_set_config31(clk_alarm_p, tx_off_p, version_p, level_p, mode_p, ver
     const data = data1 + data0;
 
     const addr = DAC_ADDR['reg31'];
-    dac_write_command(addr_p = addr, data_p = data);
+    dac_write_command(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_set_config31]: Set the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit(bit_name_p = "clk_alarm_p", bit_value_p = clk_alarm_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "tx_off_p", bit_value_p = tx_off_p, bit_width_p = 1, level_p = level2, mode_p = mode_p);
-            display_bit(bit_name_p = "version_p", bit_value_p = version_p, bit_width_p = 6, level_p = level2, mode_p = mode_p);
+            display_bit("clk_alarm_p", clk_alarm_p, 1, level2, mode_p);
+            display_bit("tx_off_p", tx_off_p, 1, level2, mode_p);
+            display_bit("version_p", version_p, 6, level2, mode_p);
         }
     }
 }
@@ -1970,27 +1970,27 @@ function dac_get_config0(level_p, mode_p, verbosity_p) {
 
 
     const addr = DAC_ADDR['reg0'];
-    const data = dac_read_command(addr_p = addr);
+    const data = dac_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_get_config0]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "fifo_ena_p", bit_pos_p = 6, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "fifo_reset_ena_p", bit_pos_p = 5, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "multi_sync_ena_p", bit_pos_p = 4, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "alarm_out_ena_p", bit_pos_p = 3, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "alarm_pol_p", bit_pos_p = 2, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "mixer_func_p", bit_pos_p = 0, bit_width_p = 2, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("fifo_ena_p", 6, 1, data, level2, mode_p);
+            display_bit_from_data("fifo_reset_ena_p", 5, 1, data, level2, mode_p);
+            display_bit_from_data("multi_sync_ena_p", 4, 1, data, level2, mode_p);
+            display_bit_from_data("alarm_out_ena_p", 3, 1, data, level2, mode_p);
+            display_bit_from_data("alarm_pol_p", 2, 1, data, level2, mode_p);
+            display_bit_from_data("mixer_func_p", 0, 2, data, level2, mode_p);
         }
     }
     return data;
@@ -2035,27 +2035,27 @@ function dac_get_config1(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const addr = DAC_ADDR['reg1'];
-    const data = dac_read_command(addr_p = addr);
+    const data = dac_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_get_config1]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "qmc_offset_ena_p", bit_pos_p = 7, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "qmc_correct_ena_p", bit_pos_p = 6, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "fir0_ena_p", bit_pos_p = 5, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "fir1_ena_p", bit_pos_p = 4, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "iotest_ena_p", bit_pos_p = 2, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "twos_p", bit_pos_p = 0, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("qmc_offset_ena_p", 7, 1, data, level2, mode_p);
+            display_bit_from_data("qmc_correct_ena_p", 6, 1, data, level2, mode_p);
+            display_bit_from_data("fir0_ena_p", 5, 1, data, level2, mode_p);
+            display_bit_from_data("fir1_ena_p", 4, 1, data, level2, mode_p);
+            display_bit_from_data("iotest_ena_p", 2, 1, data, level2, mode_p);
+            display_bit_from_data("twos_p", 0, 1, data, level2, mode_p);
         }
     }
     return data;
@@ -2090,24 +2090,24 @@ function dac_get_config2(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const addr = DAC_ADDR['reg2'];
-    const data = dac_read_command(addr_p = addr);
+    const data = dac_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_get_config2]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "sif_sync_p", bit_post_p = 5, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "sif_sync_ena_p", bit_post_p = 4, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "output_delay_p", bit_post_p = 0, bit_width_p = 2, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("sif_sync_p", bit_post_p = 5, 1, data, level2, mode_p);
+            display_bit_from_data("sif_sync_ena_p", bit_post_p = 4, 1, data, level2, mode_p);
+            display_bit_from_data("output_delay_p", bit_post_p = 0, 2, data, level2, mode_p);
         }
     }
     return data;
@@ -2154,25 +2154,25 @@ function dac_get_config3(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const addr = DAC_ADDR['reg3'];
-    const data = dac_read_command(addr_p = addr);
+    const data = dac_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_get_config3]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "cnt64_ena_p", bit_pos_p = 7, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "fifo_offset_p", bit_pos_p = 2, bit_width_p = 2, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "alarm_2away_ena_p", bit_pos_p = 1, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "alarm_1away_ena_p", bit_pos_p = 0, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("cnt64_ena_p", 7, 1, data, level2, mode_p);
+            display_bit_from_data("fifo_offset_p", 2, 2, data, level2, mode_p);
+            display_bit_from_data("alarm_2away_ena_p", 1, 1, data, level2, mode_p);
+            display_bit_from_data("alarm_1away_ena_p", 0, 1, data, level2, mode_p);
         }
     }
     return data;
@@ -2207,23 +2207,23 @@ function dac_get_config4(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const addr = DAC_ADDR['reg4'];
-    const data = dac_read_command(addr_p = addr);
+    const data = dac_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_get_config4]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "coarse_daca_p", bit_pos_p = 4, bit_width_p = 4, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "coarse_dacb_p", bit_pos_p = 0, bit_width_p = 4, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("coarse_daca_p", 4, 4, data, level2, mode_p);
+            display_bit_from_data("coarse_dacb_p", 0, 4, data, level2, mode_p);
         }
     }
     return data;
@@ -2254,22 +2254,22 @@ function dac_get_config5(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const addr = DAC_ADDR['reg5'];
-    const data = dac_read_command(addr_p = addr);
+    const data = dac_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_get_config5]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "tempdata_p", bit_pos_p = 0, bit_width_p = 8, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("tempdata_p", 0, 8, data, level2, mode_p);
         }
     }
     return data;
@@ -2295,7 +2295,7 @@ function dac_get_config5(level_p, mode_p, verbosity_p) {
  *       2                     not used (expansion)
  *       1                     alarm_fifo_2away
  *       0                     alarm_fifo_1away
- * [6:0]: R/W: alarm_mask[6:0] 
+ * [6:0]: R/W: alarm_mask[6:0]
  *
  */
 function dac_get_config6(level_p, mode_p, verbosity_p) {
@@ -2309,22 +2309,22 @@ function dac_get_config6(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const addr = DAC_ADDR['reg6'];
-    const data = dac_read_command(addr_p = addr);
+    const data = dac_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_get_config6]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "alarm_mask_p", bit_pos_p = 0, bit_width_p = 7, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("alarm_mask_p", 0, 7, data, level2, mode_p);
         }
     }
     return data;
@@ -2373,26 +2373,26 @@ function dac_get_config7(level_p, mode_p, verbosity_p) {
 
 
     const addr = DAC_ADDR['reg7'];
-    const data = dac_read_command(addr_p = addr);
+    const data = dac_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_get_config7]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "alarm_from_zerochk_p", bit_pos_p = 6, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "alarm_fifo_collision_p", bit_pos_p = 5, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "alarm_from_iotest_p", bit_pos_p = 3, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "alarm_fifo_2away_p", bit_pos_p = 1, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "alarm_fifo1away_p", bit_pos_p = 0, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("alarm_from_zerochk_p", 6, 1, data, level2, mode_p);
+            display_bit_from_data("alarm_fifo_collision_p", 5, 1, data, level2, mode_p);
+            display_bit_from_data("alarm_from_iotest_p", 3, 1, data, level2, mode_p);
+            display_bit_from_data("alarm_fifo_2away_p", 1, 1, data, level2, mode_p);
+            display_bit_from_data("alarm_fifo1away_p", 0, 1, data, level2, mode_p);
         }
     }
     return data;
@@ -2423,22 +2423,22 @@ function dac_get_config8(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const addr = DAC_ADDR['reg8'];
-    const data = dac_read_command(addr_p = addr);
+    const data = dac_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_get_config8]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "iotest_results_p", bit_pos_p = 0, bit_width_p = 8, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("iotest_results_p", 0, 8, data, level2, mode_p);
         }
     }
     return data;
@@ -2469,22 +2469,22 @@ function dac_get_config9(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const addr = DAC_ADDR['reg9'];
-    const data = dac_read_command(addr_p = addr);
+    const data = dac_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_get_config9]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "iotest_pattern0_p", bit_pos_p = 0, bit_width_p = 8, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("iotest_pattern0_p", 0, 8, data, level2, mode_p);
         }
     }
     return data;
@@ -2515,22 +2515,22 @@ function dac_get_config10(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const addr = DAC_ADDR['reg10'];
-    const data = dac_read_command(addr_p = addr);
+    const data = dac_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_get_config10]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "iotest_pattern1_p", bit_pos_p = 0, bit_width_p = 8, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("iotest_pattern1_p", 0, 8, data, level2, mode_p);
         }
     }
     return data;
@@ -2561,22 +2561,22 @@ function dac_get_config11(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const addr = DAC_ADDR['reg11'];
-    const data = dac_read_command(addr_p = addr);
+    const data = dac_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_get_config11]: get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "iotest_pattern2_p", bit_pos_p = 0, bit_width_p = 8, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("iotest_pattern2_p", 0, 8, data, level2, mode_p);
         }
     }
     return data;
@@ -2609,22 +2609,22 @@ function dac_get_config12(level_p, mode_p, verbosity_p) {
 
 
     const addr = DAC_ADDR['reg12'];
-    const data = dac_read_command(addr_p = addr);
+    const data = dac_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_get_config12]: get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "iotest_pattern3_p", bit_pos_p = 0, bit_width_p = 8, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("iotest_pattern3_p", 0, 8, data, level2, mode_p);
         }
     }
     return data;
@@ -2655,7 +2655,7 @@ function dac_get_config13(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const addr = DAC_ADDR['reg13'];
-    const data = dac_read_command(addr_p = addr);
+    const data = dac_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
@@ -2663,15 +2663,15 @@ function dac_get_config13(level_p, mode_p, verbosity_p) {
 
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_get_config13]: get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "iotest_pattern4_p", bit_pos_p = 0, bit_width_p = 8, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("iotest_pattern4_p", 0, 8, data, level2, mode_p);
         }
     }
     return data;
@@ -2703,22 +2703,22 @@ function dac_get_config14(level_p, mode_p, verbosity_p) {
 
 
     const addr = DAC_ADDR['reg14'];
-    const data = dac_read_command(addr_p = addr);
+    const data = dac_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_get_config14]: get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "iotest_pattern5_p", bit_pos_p = 0, bit_width_p = 8, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("iotest_pattern5_p", 0, 8, data, level2, mode_p);
         }
     }
     return data;
@@ -2750,22 +2750,22 @@ function dac_get_config15(level_p, mode_p, verbosity_p) {
 
 
     const addr = DAC_ADDR['reg15'];
-    const data = dac_read_command(addr_p = addr);
+    const data = dac_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_get_config15]: get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "iotest_pattern6_p", bit_pos_p = 0, bit_width_p = 8, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("iotest_pattern6_p", 0, 8, data, level2, mode_p);
         }
     }
     return data;
@@ -2797,22 +2797,22 @@ function dac_get_config16(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const addr = DAC_ADDR['reg16'];
-    const data = dac_read_command(addr_p = addr);
+    const data = dac_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_get_config16]: get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "iotest_pattern7_p", bit_pos_p = 0, bit_width_p = 8, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("iotest_pattern7_p", 0, 8, data, level2, mode_p);
         }
     }
     return data;
@@ -2855,25 +2855,25 @@ function dac_get_config17(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const addr = DAC_ADDR['reg17'];
-    const data = dac_read_command(addr_p = addr);
+    const data = dac_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_get_config17]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "clk_alarm_mask_p", bit_post_p = 4, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "tx_off_mask_p", bit_post_p = 3, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "clk_alarm_ena_p", bit_post_p = 1, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "tx_off_ena_p", bit_post_p = 0, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("clk_alarm_mask_p", bit_post_p = 4, 1, data, level2, mode_p);
+            display_bit_from_data("tx_off_mask_p", bit_post_p = 3, 1, data, level2, mode_p);
+            display_bit_from_data("clk_alarm_ena_p", bit_post_p = 1, 1, data, level2, mode_p);
+            display_bit_from_data("tx_off_ena_p", bit_post_p = 0, 1, data, level2, mode_p);
         }
     }
     return data;
@@ -2915,24 +2915,24 @@ function dac_get_config18(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const addr = DAC_ADDR['reg18'];
-    const data = dac_read_command(addr_p = addr);
+    const data = dac_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_get_config18]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "daca_complement_p", bit_pos_p = 3, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "dacb_complement_p", bit_pos_p = 2, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "clkdiv_sync_ena_p", bit_pos_p = 1, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("daca_complement_p", 3, 1, data, level2, mode_p);
+            display_bit_from_data("dacb_complement_p", 2, 1, data, level2, mode_p);
+            display_bit_from_data("clkdiv_sync_ena_p", 1, 1, data, level2, mode_p);
         }
     }
     return data;
@@ -2974,25 +2974,25 @@ function dac_get_config19(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const addr = DAC_ADDR['reg19'];
-    const data = dac_read_command(addr_p = addr);
+    const data = dac_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_get_config19]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "bequalsa_p", bit_pos_p = 7, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "aequalsb_p", bit_pos_p = 6, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "multi_sync_sel_p", bit_pos_p = 1, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "rev_p", bit_pos_p = 0, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("bequalsa_p", 7, 1, data, level2, mode_p);
+            display_bit_from_data("aequalsb_p", 6, 1, data, level2, mode_p);
+            display_bit_from_data("multi_sync_sel_p", 1, 1, data, level2, mode_p);
+            display_bit_from_data("rev_p", 0, 1, data, level2, mode_p);
         }
     }
     return data;
@@ -3020,22 +3020,22 @@ function dac_get_config20(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const addr = DAC_ADDR['reg20'];
-    const data = dac_read_command(addr_p = addr);
+    const data = dac_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_get_config20]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "qmc_offseta[7:0]", bit_pos_p = 0, bit_width_p = 8, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("qmc_offseta[7:0]", 0, 8, data, level2, mode_p);
         }
     }
     return data;
@@ -3064,22 +3064,22 @@ function dac_get_config21(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const addr = DAC_ADDR['reg21'];
-    const data = dac_read_command(addr_p = addr);
+    const data = dac_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_get_config21]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "qmc_offsetb[7:0]", bit_pos_p = 0, bit_width_p = 8, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("qmc_offsetb[7:0]", 0, 8, data, level2, mode_p);
         }
     }
     return data;
@@ -3106,22 +3106,22 @@ function dac_get_config22(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const addr = DAC_ADDR['reg22'];
-    const data = dac_read_command(addr_p = addr);
+    const data = dac_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_get_config22]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "qmc_offseta[12:8]", bit_pos_p = 3, bit_width_p = 5, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("qmc_offseta[12:8]", 3, 5, data, level2, mode_p);
         }
     }
     return data;
@@ -3152,25 +3152,25 @@ function dac_get_config23(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const addr = DAC_ADDR['reg23'];
-    const data = dac_read_command(addr_p = addr);
+    const data = dac_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_get_config23]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "qmc_offsetb[12:8]", bit_pos_p = 3, bit_width_p = 5, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "sif4_ena", bit_pos_p = 2, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "clkpath_sleep_a", bit_pos_p = 1, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "clkpath_sleep_b", bit_pos_p = 0, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("qmc_offsetb[12:8]", 3, 5, data, level2, mode_p);
+            display_bit_from_data("sif4_ena", 2, 1, data, level2, mode_p);
+            display_bit_from_data("clkpath_sleep_a", 1, 1, data, level2, mode_p);
+            display_bit_from_data("clkpath_sleep_b", 0, 1, data, level2, mode_p);
         }
     }
     return data;
@@ -3213,25 +3213,25 @@ function dac_get_config24(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const addr = DAC_ADDR['reg24'];
-    const data = dac_read_command(addr_p = addr);
+    const data = dac_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_get_config24]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "tsense_ena_p", bit_pos_p = 7, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "clkrecv_sleep_p", bit_pos_p = 6, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "sleepb_p", bit_pos_p = 3, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "sleepa_p", bit_pos_p = 2, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("tsense_ena_p", 7, 1, data, level2, mode_p);
+            display_bit_from_data("clkrecv_sleep_p", 6, 1, data, level2, mode_p);
+            display_bit_from_data("sleepb_p", 3, 1, data, level2, mode_p);
+            display_bit_from_data("sleepa_p", 2, 1, data, level2, mode_p);
         }
     }
     return data;
@@ -3261,22 +3261,22 @@ function dac_get_config25(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const addr = DAC_ADDR['reg25'];
-    const data = dac_read_command(addr_p = addr);
+    const data = dac_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_get_config25]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "extref_ena_p", bit_pos_p = 2, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("extref_ena_p", 2, 1, data, level2, mode_p);
         }
     }
     return data;
@@ -3328,22 +3328,22 @@ function dac_get_config27(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const addr = DAC_ADDR['reg27'];
-    const data = dac_read_command(addr_p = addr);
+    const data = dac_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_get_config27]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "qmc_gaina[7:0]", bit_pos_p = 0, bit_width_p = 8, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("qmc_gaina[7:0]", 0, 8, data, level2, mode_p);
         }
     }
     return data;
@@ -3376,22 +3376,22 @@ function dac_get_config28(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const addr = DAC_ADDR['reg28'];
-    const data = dac_read_command(addr_p = addr);
+    const data = dac_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_get_config28]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "qmc_gainb[7:0]", bit_pos_p = 0, bit_width_p = 8, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("qmc_gainb[7:0]", 0, 8, data, level2, mode_p);
         }
     }
     return data;
@@ -3428,22 +3428,22 @@ function dac_get_config29(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const addr = DAC_ADDR['reg29'];
-    const data = dac_read_command(addr_p = addr);
+    const data = dac_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_get_config29]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "qmc_phase[7:0]", bit_pos_p = 0, bit_width_p = 8, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("qmc_phase[7:0]", 0, 8, data, level2, mode_p);
         }
     }
     return data;
@@ -3482,24 +3482,24 @@ function dac_get_config30(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const addr = DAC_ADDR['reg30'];
-    const data = dac_read_command(addr_p = addr);
+    const data = dac_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_get_config30]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "qmc_phase[9:8]", bit_pos_p = 6, bit_width_p = 2, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "qmc_gaina[10:8]", bit_pos_p = 3, bit_width_p = 3, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "qmc_gainb[10:8]", bit_pos_p = 0, bit_width_p = 3, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("qmc_phase[9:8]", 6, 2, data, level2, mode_p);
+            display_bit_from_data("qmc_gaina[10:8]", 3, 3, data, level2, mode_p);
+            display_bit_from_data("qmc_gainb[10:8]", 0, 3, data, level2, mode_p);
         }
     }
     return data;
@@ -3522,7 +3522,7 @@ function dac_get_config30(level_p, mode_p, verbosity_p) {
  * the DAC outputs are forced to mid-level. Once set, the bit needs
  * to be cleared by writing a '0'.
  * [6]: R: tx_off[0]
- * 
+ *
  * A hardwired register that contains the version of the chip. (Read Only)
  * [5:0]: R: version[5:0]
  *
@@ -3539,24 +3539,24 @@ function dac_get_config31(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const addr = DAC_ADDR['reg31'];
-    const data = dac_read_command(addr_p = addr);
+    const data = dac_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_DAC_REG_VERBOSITY_MIN) {
             const msg = "[dac_get_config31]: Get the register value ";
-            display(msg_p = msg, level_p = level0, mode_p = mode_p);
+            display(msg, level0, mode_p);
         }
 
         if (verbosity_p >= c_DAC_ADDR_VERBOSITY_MIN) {
-            display_register(addr_p = addr, addr_width_p = c_DAC_SPI_ADDR_WIDTH, data_p = data, data_width_p = c_DAC_SPI_DATA_WIDTH, level_p = level1, mode_p = mode_p);
+            display_register(addr, c_DAC_SPI_ADDR_WIDTH, data, c_DAC_SPI_DATA_WIDTH, level1, mode_p);
         }
 
         if (verbosity_p >= c_DAC_BIT_VERBOSITY_MIN) {
-            display_bit_from_data(bit_name_p = "clk_alarm_p", bit_pos_p = 7, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "tx_off_p", bit_pos_p = 6, bit_width_p = 1, data_p = data, level_p = level2, mode_p = mode_p);
-            display_bit_from_data(bit_name_p = "version_p", bit_pos_p = 0, bit_width_p = 6, data_p = data, level_p = level2, mode_p = mode_p);
+            display_bit_from_data("clk_alarm_p", 7, 1, data, level2, mode_p);
+            display_bit_from_data("tx_off_p", 6, 1, data, level2, mode_p);
+            display_bit_from_data("version_p", 0, 6, data, level2, mode_p);
         }
     }
     return data;
@@ -3577,38 +3577,38 @@ function dac_display_all_config(level_p, mode_p, verbosity_p) {
     if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
 
     const level0 = level_p;
-    dac_get_config0(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
-    dac_get_config1(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
-    dac_get_config2(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
-    dac_get_config3(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
-    dac_get_config4(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
-    dac_get_config5(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
-    dac_get_config6(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
-    dac_get_config7(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
-    dac_get_config8(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
-    dac_get_config9(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
-    dac_get_config10(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
-    dac_get_config11(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
-    dac_get_config12(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
-    dac_get_config13(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
-    dac_get_config14(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
-    dac_get_config15(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
-    dac_get_config16(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
-    dac_get_config17(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
-    dac_get_config18(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
-    dac_get_config19(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
-    dac_get_config20(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
-    dac_get_config21(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
-    dac_get_config22(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
-    dac_get_config23(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
-    dac_get_config24(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
-    dac_get_config25(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
-    // dac_get_config26(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
-    dac_get_config27(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
-    dac_get_config28(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
-    dac_get_config29(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
-    dac_get_config30(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
-    dac_get_config31(level_p = level0, mode_p = mode_p, verbosity_p = verbosity_p);
+    dac_get_config0(level0, mode_p, verbosity_p);
+    dac_get_config1(level0, mode_p, verbosity_p);
+    dac_get_config2(level0, mode_p, verbosity_p);
+    dac_get_config3(level0, mode_p, verbosity_p);
+    dac_get_config4(level0, mode_p, verbosity_p);
+    dac_get_config5(level0, mode_p, verbosity_p);
+    dac_get_config6(level0, mode_p, verbosity_p);
+    dac_get_config7(level0, mode_p, verbosity_p);
+    dac_get_config8(level0, mode_p, verbosity_p);
+    dac_get_config9(level0, mode_p, verbosity_p);
+    dac_get_config10(level0, mode_p, verbosity_p);
+    dac_get_config11(level0, mode_p, verbosity_p);
+    dac_get_config12(level0, mode_p, verbosity_p);
+    dac_get_config13(level0, mode_p, verbosity_p);
+    dac_get_config14(level0, mode_p, verbosity_p);
+    dac_get_config15(level0, mode_p, verbosity_p);
+    dac_get_config16(level0, mode_p, verbosity_p);
+    dac_get_config17(level0, mode_p, verbosity_p);
+    dac_get_config18(level0, mode_p, verbosity_p);
+    dac_get_config19(level0, mode_p, verbosity_p);
+    dac_get_config20(level0, mode_p, verbosity_p);
+    dac_get_config21(level0, mode_p, verbosity_p);
+    dac_get_config22(level0, mode_p, verbosity_p);
+    dac_get_config23(level0, mode_p, verbosity_p);
+    dac_get_config24(level0, mode_p, verbosity_p);
+    dac_get_config25(level0, mode_p, verbosity_p);
+    // dac_get_config26(level0, mode_p, verbosity_p);
+    dac_get_config27(level0, mode_p, verbosity_p);
+    dac_get_config28(level0, mode_p, verbosity_p);
+    dac_get_config29(level0, mode_p, verbosity_p);
+    dac_get_config30(level0, mode_p, verbosity_p);
+    dac_get_config31(level0, mode_p, verbosity_p);
 }
 
 
@@ -3631,13 +3631,13 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
     const level1 = level_p + 1;
 
     const msg = "DAC3283_configure";
-    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display_title(msg, level0, mode_p);
 
     // Enable the SPI on the FPGA board
-    dac_spi_enable(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
+    dac_spi_enable(level1, mode_p, verbosity_p);
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     //---------------------------------------------------------------------
     // write in the SPI_CONF1 register
@@ -3646,13 +3646,13 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
     // const data = (spi_dac_tx_enable << 0)
 
     const msg = "Set SPI_CONF1: Disable the DAC TX pin";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     // addr = FPASIM_ADDR_WIREIN['SPI_CONF1'];
     // sendToFPA_debugSetWireIn(addr, data);
-    fpasim_set_spi_conf1(spi_dac_tx_en_p = spi_dac_tx_enable, level_p = level_p, mode_p = mode_p, verbosity_p = verbosity_p);
+    fpasim_set_spi_conf1(spi_dac_tx_enable, level_p, mode_p, verbosity_p);
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     //###############################################################
     // dac_config0
@@ -3690,14 +3690,14 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
     const mixer_func = parseInt('00', 2); // Controls the function of the mixer block.
 
     dac_set_config0(
-        fifo_ena_p = fifo_ena, fifo_reset_ena_p = fifo_reset_ena,
-        multi_sync_ena_p = multi_sync_ena, alarm_out_ena_p = alarm_out_ena,
-        alarm_pol_p = alarm_pol, mixer_func_p = mixer_func,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+        fifo_ena, fifo_reset_ena,
+        multi_sync_ena, alarm_out_ena,
+        alarm_pol, mixer_func,
+        level1, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     //###############################################################
     // dac_config1
     //###############################################################
@@ -3726,14 +3726,14 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
     const iotest_ena = 0;
     const twos = 1;
 
-    dac_set_config1(qmc_offset_ena_p = qmc_offset_ena, qmc_correct_ena_p = qmc_correct_ena,
-        fir0_ena_p = fir0_ena, fir1_ena_p = fir1_ena,
-        iotest_ena_p = iotest_ena, twos_p = twos,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+    dac_set_config1(qmc_offset_ena, qmc_correct_ena,
+        fir0_ena, fir1_ena,
+        iotest_ena, twos,
+        level1, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     //###############################################################
     // dac_config2
@@ -3750,13 +3750,13 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
     const sif_sync_ena = 0;
     const output_delay = 0;
 
-    dac_set_config2(sif_sync_p = sif_sync, sif_sync_ena_p = sif_sync_ena,
-        output_delay_p = output_delay,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+    dac_set_config2(sif_sync, sif_sync_ena,
+        output_delay,
+        level1, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     //###############################################################
     // dac_config3
     //###############################################################
@@ -3785,13 +3785,13 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
     const alarm_2away_ena = 0;
     const alarm_1away_ena = 0;
 
-    dac_set_config3(cnt64_ena_p = cnt64_ena, fifo_offset_p = fifo_offset,
-        alarm_2away_ena_p = alarm_2away_ena, alarm_1away_ena_p = alarm_1away_ena,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+    dac_set_config3(cnt64_ena, fifo_offset,
+        alarm_2away_ena, alarm_1away_ena,
+        level1, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     //###############################################################
     // dac_config4
     //###############################################################
@@ -3805,12 +3805,12 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
     const coarse_dacb = parseInt('1111', 2);
 
     dac_set_config4(
-        coarse_daca_p = coarse_daca, coarse_dacb_p = coarse_dacb,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+        coarse_daca, coarse_dacb,
+        level1, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     //###############################################################
     // dac_config5 (Read only)
     //###############################################################
@@ -3837,16 +3837,16 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
     //       2                     not used (expansion)
     //       1                     alarm_fifo_2away
     //       0                     alarm_fifo_1away
-    // [6:0]: R/W: alarm_mask[6:0] 
+    // [6:0]: R/W: alarm_mask[6:0]
     const alarm_mask = 0;
 
     dac_set_config6(
-        alarm_mask_p = alarm_mask,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+        alarm_mask,
+        level1, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     //###############################################################
     // dac_config7
     //###############################################################
@@ -3878,17 +3878,17 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
     const alarm_fifo1away = 0;
 
     dac_set_config7(
-        alarm_from_zerochk_p = alarm_from_zerochk,
-        alarm_fifo_collision_p = alarm_fifo_collision,
-        alarm_from_iotest_p = alarm_from_iotest,
-        alarm_fifo_2away_p = alarm_fifo_2away,
-        alarm_fifo1away_p = alarm_fifo1away,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+        alarm_from_zerochk,
+        alarm_fifo_collision,
+        alarm_from_iotest,
+        alarm_fifo_2away,
+        alarm_fifo1away,
+        level1, mode_p, verbosity_p
     );
 
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     //###############################################################
     // dac_config8
     //###############################################################
@@ -3898,12 +3898,12 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
     const iotest_results = parseInt('00000000', 2);
 
     dac_set_config8(
-        iotest_results_p = iotest_results,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+        iotest_results,
+        level1, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     //###############################################################
     // dac_config9
     //###############################################################
@@ -3914,12 +3914,12 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
     const iotest_pattern0 = 0x55; // this value should match the pkg_fpasim.vhd/pkg_DAC_PATTERN0
 
     dac_set_config9(
-        iotest_pattern0_p = iotest_pattern0,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+        iotest_pattern0,
+        level1, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     //###############################################################
     // dac_config10
     //###############################################################
@@ -3929,12 +3929,12 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
     const iotest_pattern1 = 0x55; // this value should match the pkg_fpasim.vhd/pkg_DAC_PATTERN1
 
     dac_set_config10(
-        iotest_pattern1_p = iotest_pattern1,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+        iotest_pattern1,
+        level1, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     //###############################################################
     // dac_config11
     //###############################################################
@@ -3944,12 +3944,12 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
     const iotest_pattern2 = 0x01; // this value should match the pkg_fpasim.vhd/pkg_DAC_PATTERN2
 
     dac_set_config11(
-        iotest_pattern2_p = iotest_pattern2,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+        iotest_pattern2,
+        level1, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     //###############################################################
     // dac_config12
     //###############################################################
@@ -3959,12 +3959,12 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
     const iotest_pattern3 = 0x02; // this value should match the pkg_fpasim.vhd/pkg_DAC_PATTERN3
 
     dac_set_config12(
-        iotest_pattern3_p = iotest_pattern3,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+        iotest_pattern3,
+        level1, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     //###############################################################
     // dac_config13
     //###############################################################
@@ -3974,12 +3974,12 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
     const iotest_pattern4 = 0xAA; // this value should match the pkg_fpasim.vhd/pkg_DAC_PATTERN4
 
     dac_set_config13(
-        iotest_pattern4_p = iotest_pattern4,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+        iotest_pattern4,
+        level1, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     //###############################################################
     // dac_config14
     //###############################################################
@@ -3989,12 +3989,12 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
     const iotest_pattern5 = 0xAA; // this value should match the pkg_fpasim.vhd/pkg_DAC_PATTERN5
 
     dac_set_config14(
-        iotest_pattern5_p = iotest_pattern5,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+        iotest_pattern5,
+        level1, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     //###############################################################
     // dac_config15
     //###############################################################
@@ -4004,12 +4004,12 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
     const iotest_pattern6 = 0x03; // this value should match the pkg_fpasim.vhd/pkg_DAC_PATTERN6
 
     dac_set_config15(
-        iotest_pattern6_p = iotest_pattern6,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+        iotest_pattern6,
+        level1, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     //###############################################################
     // dac_config16
     //###############################################################
@@ -4019,12 +4019,12 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
     const iotest_pattern7 = 0x04; // this value should match the pkg_fpasim.vhd/pkg_DAC_PATTERN7
 
     dac_set_config16(
-        iotest_pattern7_p = iotest_pattern7,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+        iotest_pattern7,
+        level1, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     //###############################################################
     // dac_config17
     //###############################################################
@@ -4050,13 +4050,13 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
     const tx_off_ena = 0;
 
     dac_set_config17(
-        clk_alarm_mask_p = clk_alarm_mask, tx_off_mask_p = tx_off_mask,
-        clk_alarm_ena_p = clk_alarm_ena, tx_off_ena_p = tx_off_ena,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+        clk_alarm_mask, tx_off_mask,
+        clk_alarm_ena, tx_off_ena,
+        level1, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     //###############################################################
     // dac_config18
     //###############################################################
@@ -4078,14 +4078,14 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
     const dacb_complement = 0;
     const clkdiv_sync_ena = 1;
 
-    dac_set_config18(daca_complement_p = daca_complement,
-        dacb_complement_p = dacb_complement,
-        clkdiv_sync_ena_p = clkdiv_sync_ena,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+    dac_set_config18(daca_complement,
+        dacb_complement,
+        clkdiv_sync_ena,
+        level1, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     //###############################################################
     // dac_config19
     //###############################################################
@@ -4108,13 +4108,13 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
     const multi_sync_sel = 1;
     const rev = 0;
 
-    dac_set_config19(bequalsa_p = bequalsa, aequalsb_p = aequalsb,
-        multi_sync_sel_p = multi_sync_sel, rev_p = rev,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+    dac_set_config19(bequalsa, aequalsb,
+        multi_sync_sel, rev,
+        level1, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     //###############################################################
     // dac_config20 - 23
     //###############################################################
@@ -4150,37 +4150,37 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
     const clkpath_sleep_b = 0;
 
     dac_set_config21(
-        qmc_offsetb_p = qmc_offsetb,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+        qmc_offsetb,
+        level1, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     dac_set_config22(
-        qmc_offseta_p = qmc_offseta,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+        qmc_offseta,
+        level1, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     dac_set_config23(
-        qmc_offsetb_p = qmc_offsetb, sif4_ena_p = sif4_ena,
-        clkpath_sleep_a_p = clkpath_sleep_a, clkpath_sleep_b_p = clkpath_sleep_b,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+        qmc_offsetb, sif4_ena,
+        clkpath_sleep_a, clkpath_sleep_b,
+        level1, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
-    
+
     dac_set_config20(
-        qmc_offseta_p = qmc_offseta,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+        qmc_offseta,
+        level1, mode_p, verbosity_p
     );
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     //###############################################################
     // dac_config24
@@ -4203,13 +4203,13 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
     const sleepa = 0;
 
 
-    dac_set_config24(tsense_ena_p = tsense_ena, clkrecv_sleep_p = clkrecv_sleep,
-        sleepb_p = sleepb, sleepa_p = sleepa,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+    dac_set_config24(tsense_ena, clkrecv_sleep,
+        sleepb, sleepa,
+        level1, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     //###############################################################
     // dac_config25
     //###############################################################
@@ -4220,12 +4220,12 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
 
 
     dac_set_config25(
-        extref_ena_p = extref_ena,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+        extref_ena,
+        level1, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     //###############################################################
     // dac_config26
     //###############################################################
@@ -4271,38 +4271,38 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
     // const qmc_phase = parseInt('000000000', 2);
 
     dac_set_config28(
-        qmc_gainb_p = qmc_gainb,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+        qmc_gainb,
+        level1, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     dac_set_config29(
-        qmc_phase_p = qmc_phase,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+        qmc_phase,
+        level1, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     dac_set_config30(
-        qmc_phase_p = qmc_phase,
-        qmc_gaina_p = qmc_gaina,
-        qmc_gainb_p = qmc_gainb,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+        qmc_phase,
+        qmc_gaina,
+        qmc_gainb,
+        level1, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     dac_set_config27(
-        qmc_gaina_p = qmc_gaina,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+        qmc_gaina,
+        level1, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
 
     //###############################################################
@@ -4316,7 +4316,7 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
     // the DAC outputs are forced to mid-level. Once set, the bit needs
     // to be cleared by writing a '0'.
     // [6]: R: tx_off[0]
-    // 
+    //
     // A hardwired register that contains the version of the chip. (Read Only)
     // [5:0]: R: version[5:0]
     const clk_alarm = 0;
@@ -4324,14 +4324,14 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
     const version = parseInt('10010', 2);
 
     dac_set_config31(
-        clk_alarm_p = clk_alarm,
-        tx_off_p = tx_off,
-        version_p = version,
-        level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+        clk_alarm,
+        tx_off,
+        version,
+        level1, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     //---------------------------------------------------------------------
     // write in the SPI_CONF1 register
     //---------------------------------------------------------------------
@@ -4339,14 +4339,14 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
     // const data = (spi_dac_tx_enable << 0)
 
     const msg = "Set SPI_CONF1: Enable the DAC TX pin";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     // addr = FPASIM_ADDR_WIREIN['SPI_CONF1'];
     // sendToFPA_debugSetWireIn(addr, data);
 
-    fpasim_set_spi_conf1(spi_dac_tx_en_p = spi_dac_tx_enable, level_p = level_p, mode_p = mode_p, verbosity_p = verbosity_p);
+    fpasim_set_spi_conf1(spi_dac_tx_enable, level_p, mode_p, verbosity_p);
 
     const msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 }
 
 /**
@@ -4368,15 +4368,15 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
 //     const level1 = level_p + 1;
 
 //     const msg = "[DAC3283_enable_pattern]";
-//     display(msg_p = msg, level_p = level0, mode_p = mode_p);
+//     display(msg, level0, mode_p);
 
 //     // Enable the SPI on the FPGA board
 //     const msg = "Enable the FPASim spi bridge";
-//     display(msg_p = msg, level_p = level1, mode_p = mode_p);
-//     dac_spi_enable(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
+//     display(msg, level1, mode_p);
+//     dac_spi_enable(level1, mode_p, verbosity_p);
 
 //     const msg = "";
-//     display(msg_p = msg, level_p = level1, mode_p = mode_p);
+//     display(msg, level1, mode_p);
 
 
 //     //###############################################################
@@ -4408,16 +4408,16 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
 //     const twos = 1;
 
 //     const msg = "Enable the spi dac pattern checker";
-//     display(msg_p = msg, level_p = level1, mode_p = mode_p);
+//     display(msg, level1, mode_p);
 
-//     dac_set_config1(qmc_offset_ena_p = qmc_offset_ena, qmc_correct_ena_p = qmc_correct_ena,
-//         fir0_ena_p = fir0_ena, fir1_ena_p = fir1_ena,
-//         iotest_ena_p = iotest_ena, twos_p = twos,
-//         level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+//     dac_set_config1(qmc_offset_ena, qmc_correct_ena,
+//         fir0_ena, fir1_ena,
+//         iotest_ena, twos,
+//         level1, mode_p, verbosity_p
 //     );
 
 //     const msg = "";
-//     display(msg_p = msg, level_p = level1, mode_p = mode_p);
+//     display(msg, level1, mode_p);
 
 
 
@@ -4442,7 +4442,7 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
 //     const level1 = level_p + 1;
 
 //     const msg = "[DAC3283_disable_pattern]";
-//     display(msg_p = msg, level_p = level0, mode_p = mode_p);
+//     display(msg, level0, mode_p);
 
 
 //     //###############################################################
@@ -4474,16 +4474,16 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
 //     const twos = 1;
 
 //     const msg = "Disable the spi dac pattern checker";
-//     display(msg_p = msg, level_p = level1, mode_p = mode_p);
+//     display(msg, level1, mode_p);
 
-//     dac_set_config1(qmc_offset_ena_p = qmc_offset_ena, qmc_correct_ena_p = qmc_correct_ena,
-//         fir0_ena_p = fir0_ena, fir1_ena_p = fir1_ena,
-//         iotest_ena_p = iotest_ena, twos_p = twos,
-//         level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p
+//     dac_set_config1(qmc_offset_ena, qmc_correct_ena,
+//         fir0_ena, fir1_ena,
+//         iotest_ena, twos,
+//         level1, mode_p, verbosity_p
 //     );
 
 //     const msg = "";
-//     display(msg_p = msg, level_p = level1, mode_p = mode_p);
+//     display(msg, level1, mode_p);
 
 
 
@@ -4509,15 +4509,15 @@ function DAC3283_get_dacclk_errors(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const msg = "[DAC3283_get_dacclk_errors]";
-    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display(msg, level0, mode_p);
 
     // Enable the SPI on the FPGA board
     const msg = "Enable the FPASim SPI bridge";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    dac_spi_enable(level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    display(msg, level1, mode_p);
+    dac_spi_enable(level2, mode_p, verbosity_p);
 
     const msg = "";
-    display(msg_p = msg, level_p = level2, mode_p = mode_p);
+    display(msg, level2, mode_p);
 
     //###############################################################
     // dac_config17
@@ -4544,16 +4544,16 @@ function DAC3283_get_dacclk_errors(level_p, mode_p, verbosity_p) {
     const tx_off_ena = 0;
 
     const msg = "(clk_alarm,tx_off) bits: are masked and disabled";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     dac_set_config17(
-        clk_alarm_mask_p = clk_alarm_mask, tx_off_mask_p = tx_off_mask,
-        clk_alarm_ena_p = clk_alarm_ena, tx_off_ena_p = tx_off_ena,
-        level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p
+        clk_alarm_mask, tx_off_mask,
+        clk_alarm_ena, tx_off_ena,
+        level2, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level2, mode_p = mode_p);
+    display(msg, level2, mode_p);
 
     //###############################################################
     // dac_config17
@@ -4580,16 +4580,16 @@ function DAC3283_get_dacclk_errors(level_p, mode_p, verbosity_p) {
     const tx_off_ena = 1;
 
     const msg = "(clk_alarm,tx_off) bits: masked and enabled";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     dac_set_config17(
-        clk_alarm_mask_p = clk_alarm_mask, tx_off_mask_p = tx_off_mask,
-        clk_alarm_ena_p = clk_alarm_ena, tx_off_ena_p = tx_off_ena,
-        level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p
+        clk_alarm_mask, tx_off_mask,
+        clk_alarm_ena, tx_off_ena,
+        level2, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level2, mode_p = mode_p);
+    display(msg, level2, mode_p);
 
     //###############################################################
     // dac_config17
@@ -4616,27 +4616,27 @@ function DAC3283_get_dacclk_errors(level_p, mode_p, verbosity_p) {
     const tx_off_ena = 1;
 
     const msg = "(clk_alarm,tx_off) bits: unmasked and enabled";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     dac_set_config17(
-        clk_alarm_mask_p = clk_alarm_mask, tx_off_mask_p = tx_off_mask,
-        clk_alarm_ena_p = clk_alarm_ena, tx_off_ena_p = tx_off_ena,
-        level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p
+        clk_alarm_mask, tx_off_mask,
+        clk_alarm_ena, tx_off_ena,
+        level2, mode_p, verbosity_p
     );
 
     const msg = "";
-    display(msg_p = msg, level_p = level2, mode_p = mode_p);
+    display(msg, level2, mode_p);
 
     /*
      * Tempo
      *
      */
     const msg = "wait for 10ms";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     waitMs(10);
     const msg = "";
-    display(msg_p = msg, level_p = level2, mode_p = mode_p);
+    display(msg, level2, mode_p);
 
     /**
      * Get the register31 value from the spi device.
@@ -4654,26 +4654,26 @@ function DAC3283_get_dacclk_errors(level_p, mode_p, verbosity_p) {
      * the DAC outputs are forced to mid-level. Once set, the bit needs
      * to be cleared by writing a '0'.
      * [6]: R: tx_off[0]
-     * 
+     *
      * A hardwired register that contains the version of the chip. (Read Only)
      * [5:0]: R: version[5:0]
      *
      */
     // msg = "check clk_alarm and tx_off";
-    // display_title(msg_p = msg, level_p = level1, mode_p = mode_p);
+    // display_title(msg, level1, mode_p);
 
-    const data = dac_get_config31(level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    const data = dac_get_config31(level2, mode_p, verbosity_p);
     const clk_alarm = (data >> 7) & 0x1;
     const tx_off = (data >> 7) & 0x1;
 
     if ((clk_alarm == 1) && (tx_off == 1)) {
 
         const msg = "[KO]: clk_alarm=1 and tx_off=1";
-        display(msg_p = msg, level_p = level1, mode_p = mode_p);
+        display(msg, level1, mode_p);
         return 1;
     } else {
         const msg = "[OK]: clk_alarm=0 and tx_off=0";
-        display(msg_p = msg, level_p = level1, mode_p = mode_p);
+        display(msg, level1, mode_p);
         return 0;
     }
 
