@@ -314,24 +314,36 @@ function check_equal_tab(tab0_p, tab1_p, msg_p, level_p, mode_p, verbosity_p) {
     if (typeof (level_p) === 'undefined') level_p = 0;
     if (typeof (mode_p) === 'undefined') mode_p = 0;
     if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
+    
+    const level0 = level_p;
+    const level1 = level_p + 1;
 
     error = 0;
+    
+    str_tab0_len = tab0_p.length.toString(10);
+    str_tab1_len = tab1_p.length.toString(10);
+    
+    msg = "[check_equal_tab]: compare tab0["+str_tab0_len+"] and tab1["+str_tab1_len+"]";
+    display(msg, level0, mode_p);
 
     for (i = 0; i <= tab0_p.length; i++) {
-        const value0 = tab0_p[i];
-        const value1 = tab1_p[i];
+        value0 = tab0_p[i];
+        value1 = tab1_p[i];
 
         if (value0 != value1) {
+            str_i = i.toString(10);
+            str_value0 = value0.toString(10);
+            str_value1 = value1.toString(10);
             if (verbosity_p > 0) {
-                const msg = "index: " + i.toString(10) + " value0_p: " + value0.toString(10) + " ,value1_p:" + value1.toString(10);
-                display(msg, level_p, mode_p);
+                msg = "Bad values: index: " + str_i + ", value0_p: " + str_value0 + " ,value1_p:" + str_value1;
+                display(msg, level1, mode_p);
 
             }
             error = 1;
         }
     }
 
-    const error2 = check_equal(error, 0, msg_p, level_p, mode_p, verbosity_p);
+    error2 = check_equal(error, 0, msg_p, level0, mode_p, verbosity_p);
     return error2;
 
 }
