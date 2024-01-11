@@ -17,7 +17,7 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                   kenji.delarosa@alten.com
-//    @file                   fpasim_test_make_pulse_generation.dscript
+//    @file                   fpasim_startup.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    Automatic Generation    No
 //    Code Rules Reference
@@ -60,12 +60,15 @@ function main(level_p, mode_p, verbosity_p) {
     const mode_p = 0;
     const verbosity_p = 0;
 
+    // script name
+    script_name = "fpasim_startup";
+
     /*
      ***************************************************************************
      * display the test description
      ***************************************************************************
      */
-    msg = "Startup Script";
+    msg = "Test description: " + script_name;
     display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
 
     msg = "This test does the following steps:"
@@ -84,8 +87,13 @@ function main(level_p, mode_p, verbosity_p) {
      * display the script info
      ***************************************************************************
      */
-    //error_info_cnt = 0;
-    //error_info_cnt = fpasim_script_info(level_p = level0, mode_p = mode_p, verbosity_p = 2);
+    list_tmp       = fpasim_script_info(level_p = level0, mode_p = mode_p, verbosity_p = 2);
+    error_info_cnt = list_tmp[0];
+    info           = list_tmp[1];
+
+    // build output filename
+    output_filename = script_name + "__" + info + ".txt";
+
 
     /*
      ***************************************************************************
@@ -315,6 +323,13 @@ function main(level_p, mode_p, verbosity_p) {
      */
     msg = "End of script";
     display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+
+    /*
+     ***************************************************************************
+     * Save the Log content
+     ***************************************************************************
+     */
+    saveLogContent(output_filename);
 
 
 }

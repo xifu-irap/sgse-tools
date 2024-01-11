@@ -1600,12 +1600,15 @@ function main(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
 
+    // script name
+    script_name = "fpasim_test_check_tmtc_link";
+
     /*
      ***************************************************************************
      * display the test description
      ***************************************************************************
      */
-    msg = "FPAsim Test Description: check_tmtc_link";
+    msg = "Test description: " + script_name;
     display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
 
     msg = "Contexte et objet du test";
@@ -1668,8 +1671,12 @@ function main(level_p, mode_p, verbosity_p) {
      * display the script info
      ***************************************************************************
      */
-    error_info_cnt = 0;
-    error_info_cnt = fpasim_script_info(level_p = level0, mode_p = mode_p, 2);
+    list_tmp       = fpasim_script_info(level_p = level0, mode_p = mode_p, verbosity_p = 2);
+    error_info_cnt = list_tmp[0];
+    info           = list_tmp[1];
+
+    // build output filename
+    output_filename = script_name + "__" + info + ".txt";
 
 
     /*
@@ -1962,6 +1969,13 @@ function main(level_p, mode_p, verbosity_p) {
      */
     msg = "End of Test";
     display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+
+    /*
+     ***************************************************************************
+     * Save the Log content
+     ***************************************************************************
+     */
+    saveLogContent(output_filename);
 
 }
 
