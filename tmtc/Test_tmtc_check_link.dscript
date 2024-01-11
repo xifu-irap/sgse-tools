@@ -60,10 +60,13 @@ function configure_tmtc(level_p, mode_p, verbosity_p) {
      */
 
     // Set the CTRL register.
-    msg = "TMTC: Set register: CTRL";
+    msg = "TMTC: Set the register: CTRL";
     display(msg, level1, mode_p);
     rst = 0 // reset isn't set. Otherwise, we have a risk to lose the synchronization at the Xifu studio side => generate error.
     tmtc_set_ctrl(rst, level1, mode_p, verbosity_p);
+
+	msg = "";
+    display(msg, level1, mode_p);
 
     // set the register: TC_HK_CONF.
     // spi_select: 0: DEMUX, 1: RAS
@@ -78,7 +81,7 @@ function configure_tmtc(level_p, mode_p, verbosity_p) {
     // set the register: icu_conf.
     // icu_select : 0 for main, 1 for redundant
     icu_select = 0x0;
-    msg = "TMTC: Set the ICU_CONF register.";
+    msg = "TMTC: Set the register: ICU_CONF.";
     display(msg, level1, mode_p);
     tmtc_set_icu_conf(icu_select, level1, mode_p);
 
@@ -89,7 +92,7 @@ function configure_tmtc(level_p, mode_p, verbosity_p) {
     science_pattern_en_fifo_out = 0x0;
     rst_status = 0x0;
     debug_pulse = 0x0;
-    msg = "Set register: DEBUG_CTRL.";
+    msg = "TMTC: Set the register:  DEBUG_CTRL";
     display(msg, level1, mode_p);
     tmtc_set_debug_ctrl(science_pattern_en_fifo_out, rst_status, debug_pulse, level1, mode_p);
 
@@ -128,7 +131,7 @@ function test_wire(level_p, mode_p, verbosity_p) {
     mask_rst = 0xFFFFFFFE; // don't touch the rst bit
     data0 = 0x9ABCEF0 & mask_rst;
 
-    msg = "Set register: CTRL.";
+    msg = "TMTC: Set the register: CTRL.";
     display(msg, level1, mode_p);
 
     // set register
@@ -138,7 +141,7 @@ function test_wire(level_p, mode_p, verbosity_p) {
     data1 = tmtc_get_wireout_by_name("CTRL", level2, mode_p, verbosity_p);
 
     // check the read data Vs the written data
-    msg = "Check register: CTRL.";
+    msg = "TMTC: Check register: CTRL.";
     error = check_equal(data0, data1, msg, level2, mode_p, verbosity_p);
     if (error == -1)
     {
@@ -154,7 +157,7 @@ function test_wire(level_p, mode_p, verbosity_p) {
      ***************************************************************************
      */
     data0 = 0x00000F1;
-    msg = "Set register: TC_HK_CONF.";
+    msg = "TMTC: Set the register: TC_HK_CONF.";
     display(msg, level1, mode_p);
 
     // set register
@@ -166,7 +169,7 @@ function test_wire(level_p, mode_p, verbosity_p) {
     data1 = tmtc_get_wireout_by_name("TC_HK_CONF", level2, mode_p, verbosity_p);
 
     // check the read data Vs the written data
-    msg = "Check register (access0): TC_HK_CONF.";
+    msg = "TMTC: Check register (access0): TC_HK_CONF.";
     error = check_equal(data0, data1, msg, level2, mode_p, verbosity_p);
     if (error == -1)
     {
@@ -178,7 +181,7 @@ function test_wire(level_p, mode_p, verbosity_p) {
     data1 =  DRELINKBOARD_SPI_CS;
 
     // check the read data Vs the written data
-    msg = "Check register (access1): TC_HK_CONF";
+    msg = "TMTC: Check register (access1): TC_HK_CONF";
     error = check_equal(data0, data1, msg, level2, mode_p, verbosity_p);
     if (error == -1)
     {
@@ -195,7 +198,7 @@ function test_wire(level_p, mode_p, verbosity_p) {
      ***************************************************************************
      */
     data0 = 0x000000D0;
-    msg = "Set register: ICU_CONF.";
+    msg = "TMTC: Set the register: ICU_CONF";
     display(msg, level1, mode_p);
 
     // set register
@@ -206,7 +209,7 @@ function test_wire(level_p, mode_p, verbosity_p) {
     data1 = tmtc_get_wireout_by_name("ICU_CONF", level2, mode_p, verbosity_p);
 
     // check the read data Vs the written data
-    msg = "Check register (access0): ICU_CONF.";
+    msg = "TMTC: Check register (access0): ICU_CONF.";
     error = check_equal(data0, data1, msg, level2, mode_p, verbosity_p);
     if (error == -1)
     {
@@ -217,7 +220,7 @@ function test_wire(level_p, mode_p, verbosity_p) {
     // Use the Xifu Studio specific access
     getLatestValue("DRELINKBOARD_ICU_Selection");
     data1 =  DRELINKBOARD_ICU_Selection;
-    msg = "Check register (access1): ICU_CONF.";
+    msg = "TMTC: Check register (access1): ICU_CONF.";
     error = check_equal(data0, data1, msg, level2, mode_p, verbosity_p);
     if (error == -1)
     {
@@ -239,7 +242,7 @@ function test_wire(level_p, mode_p, verbosity_p) {
     // build the data to send
     data0 = tmtc_build_debug_ctrl(science_pattern_en_fifo_out, rst_status, debug_pulse);
 
-    msg = "Set register: DEBUG_CTRL.";
+    msg = "TMTC: Set the register: DEBUG_CTRL.";
     display(msg, level1, mode_p);
 
     // set register
@@ -249,7 +252,7 @@ function test_wire(level_p, mode_p, verbosity_p) {
     data1 = tmtc_get_wireout_by_name("DEBUG_CTRL", level2, mode_p, verbosity_p);
 
     // check the read data Vs the written data
-    msg = "Check register: DEBUG_CTRL.";
+    msg = "TMTC: Check register: DEBUG_CTRL.";
     error = check_equal(data0, data1, msg, level2, mode_p, verbosity_p);
     if (error == -1)
     {
@@ -267,7 +270,7 @@ function test_wire(level_p, mode_p, verbosity_p) {
     // build the data to send
     data0 = tmtc_build_error_sel(sel_error);
 
-    msg = "Set register: ERROR_SEL.";
+    msg = "TMTC: Set the register:  ERROR_SEL.";
     display(msg, level1, mode_p);
 
     // set register
@@ -277,7 +280,7 @@ function test_wire(level_p, mode_p, verbosity_p) {
     data1 = tmtc_get_wireout_by_name("ERROR_SEL", level2, mode_p, verbosity_p);
 
     // check the read data Vs the written data
-    msg = "Check register: ERROR_SEL";
+    msg = "TMTC: Check register: ERROR_SEL";
     error = check_equal(data0, data1, msg, level2, mode_p, verbosity_p);
     if (error == -1)
     {
@@ -303,7 +306,7 @@ function test_wire(level_p, mode_p, verbosity_p) {
     data1 = DRELINKBOARD_HARDWARE_ID;
 
     // check the read data Vs the written data
-    msg = "Check register: HARDWARE_ID";
+    msg = "TMTC: Check register: HARDWARE_ID";
     error = check_equal(data0, data1, msg, level2, mode_p, verbosity_p);
     if (error == -1)
     {
@@ -329,7 +332,7 @@ function test_wire(level_p, mode_p, verbosity_p) {
     data1 = DRELINKBOARD_FIRMWARE_NAME;
 
     // check the read data Vs the written data
-    msg = "Check register: FIRMWARE_NAME";
+    msg = "TMTC: Check register: FIRMWARE_NAME";
     error = check_equal(data0, data1, msg, level2, mode_p, verbosity_p);
     if (error == -1)
     {
@@ -355,7 +358,7 @@ function test_wire(level_p, mode_p, verbosity_p) {
     data1 = DRELINKBOARD_FIRMWARE_ID;
 
     // check the read data Vs the written data
-    msg = "Check register: FIRMWARE_ID";
+    msg = "TMTC: Check register: FIRMWARE_ID";
     error = check_equal(data0, data1, msg, level2, mode_p, verbosity_p);
     if (error == -1)
     {

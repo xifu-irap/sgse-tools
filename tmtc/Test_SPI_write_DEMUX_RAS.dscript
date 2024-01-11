@@ -28,16 +28,16 @@
 //      . Write data to the DEMUX/RAS SPI links. Then, readback the written values.
 //          The steps are:
 //           . TMTC: Select the DEMUX SPI link.
-//           . From the DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+//           . From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
 //           . To the DEMUX:   Write 34 consecutive values to the DEMUX AMP_SQ_OFFSET_FINE table (col0).
-//           . From the DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+//           . From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
 //
 //           . TMTC: Select the RAS SPI link.
 //           . To the RAS: Write 34 consecutive values at the same address as the DEMUX AMP_SQ_OFFSET_FINE table (col0).
-//           . From the RAS: Read 16 consecutive values at the same address as the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+//           . From the RAS: Read 34 consecutive values at the same address as the DEMUX AMP_SQ_OFFSET_FINE table (col0).
 //
 //           . TMTC: Select the DEMUX SPI link.
-//           . From the DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+//           . From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
 //
 //   Important:
 //      . This test assumes the RAS link is not connected. If the RAS link is connected, the user could need to
@@ -58,16 +58,16 @@ include("./tmtc/tmtc_tools.dscript");
  * Test: Write data to the DEMUX/RAS SPI links. Then, readback the written values.
  *   The steps are:
  *      . TMTC: Select the DEMUX SPI link.
- *      . From the DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+ *      . From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
  *      . To the DEMUX:   Write 34 consecutive values to the DEMUX AMP_SQ_OFFSET_FINE table (col0).
- *      . From the DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+ *      . From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
  *
  *      . Select the RAS SPI link.
  *      . To the RAS: Write 34 consecutive values at the same address as the DEMUX AMP_SQ_OFFSET_FINE table (col0).
- *      . From the RAS: Read 16 consecutive values at the same address as the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+ *      . From the RAS: Read 34 consecutive values at the same address as the DEMUX AMP_SQ_OFFSET_FINE table (col0).
  *
  *      . Select the DEMUX SPI link.
- *      . From the DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+ *      . From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
  *
  * @param {number} level_p - level of indentation at the beginning.
  * @param {number} mode_p - define the print output.
@@ -105,14 +105,18 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
     display(msg, level0, mode_p);
 
     /*
-      From the DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+      From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
       Expected values:  see .vhd code
      */
-    msg = "From the DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).";
+    msg = "From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).";
     display(msg, level0, mode_p);
-    nb_data= 16;
+    nb_data= 34;
     addr = 0x0400;
     sendToDREReadRegisters(addr, nb_data);
+
+	// read values
+    getLatestValue("DRE_registers");
+    read_values_tab0 = extract_sub_table(DRE_registers, addr, nb_data, level1, mode_p, verbosity_p)
 
     /*
      To the DEMUX: Write 34 consecutive values to the DEMUX AMP_SQ_OFFSET_FINE table (col0).
@@ -129,10 +133,10 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
     sendToDREWritePixelsRegisters(0x0400,value_test);
 
     /*
-      From the DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+      From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
       Expected values: the reading should be identical to the written values (previously access).
      */
-    msg = "From the DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).";
+    msg = "From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).";
     display(msg, level0, mode_p);
     nb_data= 34;
     addr = 0x0400;
@@ -187,11 +191,11 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
     sendToDREWritePixelsRegisters(0x0400, ras_value_test);
 
     /*
-     From the RAS: Read 16 consecutive values at the same address as the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+     From the RAS: Read 34 consecutive values at the same address as the DEMUX AMP_SQ_OFFSET_FINE table (col0).
      Expected values:
        . return identical values (0x0) if the RAS link is not connected.
      */
-    msg = "From the RAS: Read 16 consecutive values at the same address as the DEMUX AMP_SQ_OFFSET_FINE table (col0).";
+    msg = "From the RAS: Read 34 consecutive values at the same address as the DEMUX AMP_SQ_OFFSET_FINE table (col0).";
     display(msg, level0, mode_p);
     nb_data= 34;
     addr = 0x0400;
@@ -236,10 +240,10 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
     display(msg, level0, mode_p);
 
     /*
-     From the DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+     From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
      Expected values:  see .vhd code
      */
-    msg = "From the DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).";
+    msg = "From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).";
     display(msg, level0, mode_p);
     nb_data= 34;
     addr = 0x0400;
@@ -298,16 +302,16 @@ function main(level_p, mode_p, verbosity_p) {
      "This test does the writting/reading of the DEMUX/RAS SPI links.",
      "The steps are:",
      "   1. TMTC: Select the DEMUX SPI link.",
-     "   2. From the DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).",
+     "   2. From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).",
      "   3. To the DEMUX:   Write 34 consecutive values to the DEMUX AMP_SQ_OFFSET_FINE table (col0).",
-     "   4. From the DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).",
+     "   4. From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).",
      "",
      "   5. TMTC: Select the RAS SPI link.",
      "   6. To the RAS: Write 34 consecutive values at the same address as the DEMUX AMP_SQ_OFFSET_FINE table (col0).",
-     "   7. From the RAS: Read 16 consecutive values at the same address as the DEMUX AMP_SQ_OFFSET_FINE table (col0).",
+     "   7. From the RAS: Read 34 consecutive values at the same address as the DEMUX AMP_SQ_OFFSET_FINE table (col0).",
      "",
      "   8. TMTC: Select the DEMUX SPI link.",
-     "   9. From the DEMUX: Read 16 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).",
+     "   9. From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).",
      "",
      "Expected Result:",
      "    . check the written values in 3. are equal to the read values in 4.",
