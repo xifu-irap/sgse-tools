@@ -72,20 +72,20 @@ function main(level_p, mode_p, verbosity_p) {
      ***************************************************************************
      */
     msg = "Test description: " + script_name;
-    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display_title(msg, level0, mode_p);
 
     msg = "This test does the following steps:"
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     msg = [
         "1. reset the FPASim function",
         "2. configure the FPASIM RAMs",
         "3. configure the FPASIM registers",
         "4. generate a make_pulse command (one pixel)",
     ]
-    display(msg_p = msg, level_p = level2, mode_p = mode_p);
+    display(msg, level2, mode_p);
 
     msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     /*
      ***************************************************************************
@@ -93,8 +93,7 @@ function main(level_p, mode_p, verbosity_p) {
      *    operator_name, session_name, etc.
      ***************************************************************************
      */
-    error_info_cnt = 0;
-    list_tmp       = fpasim_script_info(level_p = level0, mode_p = mode_p, verbosity_p = 2);
+    list_tmp       = fpasim_script_info(level0, mode_p, 2);
     error_info_cnt = list_tmp[0];
     info           = list_tmp[1];
 
@@ -107,8 +106,8 @@ function main(level_p, mode_p, verbosity_p) {
      ***************************************************************************
      */
     msg = "Reset the fpasim function";
-    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
-    fpasim_reset(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
+    display_title(msg, level0, mode_p);
+    fpasim_reset(level1, mode_p, verbosity_p);
      /*
      ***************************************************************************
      * Configure the FPASIM RAMs
@@ -116,7 +115,7 @@ function main(level_p, mode_p, verbosity_p) {
      */
 
     msg = "Configure the fpasim RAMs";
-    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display_title(msg, level0, mode_p);
 
     // RAM tes_pulse_shape filepath (*.mem)
     tes_pulse_shape_filepath  = "./fpasim_specific_ram/tes_linear_shape.mem"
@@ -129,11 +128,11 @@ function main(level_p, mode_p, verbosity_p) {
     // RAM amp_squid_tf filepath (*.mem)
     amp_squid_tf_filepath     = "./fpasim_default_ram/amp_squid_tf.mem"
 
-    err0 = fpasim_loadTES_PulseShape_From_File(file_p=tes_pulse_shape_filepath,level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
-    err1 = fpasim_sendToFPA_loadTES_SteadyState_From_File(file_p=tes_std_state_filepath,level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
-    err2 = fpasim_sendToFPA_loadMuxSQUID_Offset_From_File(file_p=mux_squid_offset_filepath,level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
-    err3 = fpasim_sendToFPA_loadMuxSQUID_TF_From_File(file_p=mux_squid_tf_filepath,level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
-    err4 = fpasim_sendToFPA_loadAmpSQUID_TF_From_File(file_p=amp_squid_tf_filepath,level_p=level1, mode_p=mode_p, verbosity_p=verbosity_p);
+    err0 = fpasim_loadTES_PulseShape_From_File(tes_pulse_shape_filepath, level1, mode_p, verbosity_p);
+    err1 = fpasim_sendToFPA_loadTES_SteadyState_From_File(tes_std_state_filepath, level1, mode_p, verbosity_p);
+    err2 = fpasim_sendToFPA_loadMuxSQUID_Offset_From_File(mux_squid_offset_filepath, level1, mode_p, verbosity_p);
+    err3 = fpasim_sendToFPA_loadMuxSQUID_TF_From_File(mux_squid_tf_filepath, level1, mode_p, verbosity_p);
+    err4 = fpasim_sendToFPA_loadAmpSQUID_TF_From_File(amp_squid_tf_filepath, level1, mode_p, verbosity_p);
     error_load_ram_cnt = err0 + err1 + err2 + err3 + err4;
     // negative -> positive value
     error_load_ram_cnt = error_load_ram_cnt * -1;
@@ -145,46 +144,46 @@ function main(level_p, mode_p, verbosity_p) {
      */
 
     msg = "Configure the fpasim function";
-    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display_title(msg, level0, mode_p);
 
     // set the register: MUX_SQ_FB_DELAY
     mux_sq_fb_delay = 0x0; // 0 to 63
     msg = "Set register: MUX_SQ_FB_DELAY";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     sendToFPA_configureMuxDelay(mux_sq_fb_delay);
 
     msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
 
     // set the register: AMP_SQ_OF_DELAY
     amp_sq_of_delay = 0x0; // 0 to 63
     msg = "Set register: AMP_SQ_OF_DELAY";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     sendToFPA_configureAmpDelay(amp_sq_of_delay);
 
     msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
 
     // set the register: ERROR_DELAY
     error_delay = 0x0; // 0 to 63
     msg = "Set register: ERROR_DELAY";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     sendToFPA_configureErrorDelay(error_delay);
 
     msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
 
     // set the register: RA_DELAY
     ra_delay = 0x0; // 0 to 63
     msg = "Set register: RA_DELAY";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     sendToFPA_configureRaDelay(ra_delay);
 
     msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
 
     // set the register: TES_CONF
@@ -201,11 +200,11 @@ function main(level_p, mode_p, verbosity_p) {
     totalFrameSize = totalFrameSize - 1; // add -1 because we start from 0
 
     msg = "Set register: TES_CONF";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    sendToFPA_configureTES_conf(nbPixels = nbPixels, nbSamplesPerPixel = nbSamplesPerPixel, totalFrameSize = totalFrameSize);
+    display(msg, level1, mode_p);
+    sendToFPA_configureTES_conf(nbPixels, nbSamplesPerPixel, totalFrameSize);
 
     msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     // set the register: CONF0
     //   formula:
@@ -217,12 +216,12 @@ function main(level_p, mode_p, verbosity_p) {
     //         . inter_squid_gain_bis: values defined in the documentation
     inter_squid_gain = 0x40; // [0 to 255]
     msg = "Set register: CONF0";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    data = fpasim_build_conf0(inter_squid_gain_p = inter_squid_gain);
-    fpasim_set_debug_wirein_by_name(reg_name_p = 'CONF0', data_p = data, level_p = level2, mode_p = mode_p);
+    display(msg, level1, mode_p);
+    data = fpasim_build_conf0(inter_squid_gain);
+    fpasim_set_debug_wirein_by_name('CONF0', data, level2, mode_p);
 
     msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
 
     /*
@@ -236,11 +235,11 @@ function main(level_p, mode_p, verbosity_p) {
     rst_status = 0; // 1: reset internal error, 0: do nothing
     debug_pulse = 1; // 1: latch the internal error, 0: otherwise
     // build the data to send
-    data0 = fpasim_build_debug_ctrl(adc1_bypass_p=adc1_bypass,adc0_bypass_p=adc0_bypass, dac_en_pattern_p = dac_en_pattern, rst_status_p = rst_status, debug_pulse_p = debug_pulse);
+    data0 = fpasim_build_debug_ctrl(adc1_bypass, adc0_bypass, dac_en_pattern, rst_status, debug_pulse);
 
     msg = "Set register: DEBUG_CTRL";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    fpasim_set_debug_wirein_by_name(reg_name_p = 'DEBUG_CTRL', data_p = data0, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+    display(msg, level1, mode_p);
+    fpasim_set_debug_wirein_by_name('DEBUG_CTRL', data0, level2, mode_p, verbosity_p);
 
     /*
      ***************************************************************************
@@ -250,13 +249,13 @@ function main(level_p, mode_p, verbosity_p) {
 
     rst = 0; // 1: reset the fpasim function, 0: otherwise
     en = 1;  // 1: enable the fpasim function, 0: otherwise
-    data = fpasim_build_ctrl(rst_p = rst, en_p = en);
+    data = fpasim_build_ctrl(rst, en);
     msg = "Enable the FPASIM function";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     sendToFPA_configureControl(data);
 
     msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
 
     /*
@@ -265,20 +264,20 @@ function main(level_p, mode_p, verbosity_p) {
      ***************************************************************************
      */
     msg = "Test sequence 1";
-    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display_title(msg, level0, mode_p);
 
     pixel_id = 0; // 0 to 63
     time_shift = 0; // 0 to 15
-    pulse_height = fpasim_convert_percentage_to_pulse_height(percentage_p = 12.49);//0 to 65535
+    pulse_height = fpasim_convert_percentage_to_pulse_height(12.49);//0 to 65535
 
     msg = "Set Make_pulse (1 pixel): pixel_id: " + pixel_id.toString(10) + ", time_shift: " + time_shift.toString(10) + ", pulse_height: 0x" + pulse_height.toString(16);
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
-    sendToFPA_makePulse(pixelId = pixel_id, timeShift = time_shift, pulseHeight = pulse_height);
+    sendToFPA_makePulse(pixel_id, time_shift, pulse_height);
 
 
     msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     /*
      ***************************************************************************
@@ -287,8 +286,8 @@ function main(level_p, mode_p, verbosity_p) {
      */
     error_debug_cnt = 0;
     msg = "Check Debug Errors";
-    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
-    error_debug_cnt = fpasim_check_all_errors(level_p = level1, mode_p = 0, verbosity_p = 0);
+    display_title(msg, level0, mode_p);
+    error_debug_cnt = fpasim_check_all_errors(level1, 0, 0);
 
     /*
      ***************************************************************************
@@ -297,34 +296,34 @@ function main(level_p, mode_p, verbosity_p) {
      */
 
     msg = "Summary: Errors";
-    display_title(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display_title(msg, level1, mode_p);
 
     // get HARDWARE_ID
     reg_name = 'HARDWARE_ID';
     msg = "Get " + reg_name + ": ";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    data = fpasim_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 2);
+    display(msg, level1, mode_p);
+    data = fpasim_get_wireout_by_name(reg_name, level2, mode_p, 2);
 
     msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     // get the firmware Id
     reg_name = 'FIRMWARE_ID';
     msg = "Get " + reg_name + ": ";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    data = fpasim_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 2);
+    display(msg, level1, mode_p);
+    data = fpasim_get_wireout_by_name(reg_name, level2, mode_p, 2);
 
     msg = " ";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     // get firmware version
     reg_name = 'FIRMWARE_VERSION';
     msg = "Get " + reg_name + ": ";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    data = fpasim_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 2);
+    display(msg, level1, mode_p);
+    data = fpasim_get_wireout_by_name(reg_name, level2, mode_p, 2);
 
     msg = " ";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
      // summary of the fpasim_script_info errors
     if (error_info_cnt == 0) {
@@ -345,7 +344,7 @@ function main(level_p, mode_p, verbosity_p) {
     }
 
     msg = "Summary: Errors";
-    display_title(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display_title(msg, level1, mode_p);
 
     if (error_debug_cnt == 0) {
         msg_tmp = "[OK]: Debug internal errors: " + error_debug_cnt.toString(10) + " error";
@@ -362,15 +361,15 @@ function main(level_p, mode_p, verbosity_p) {
      ***************************************************************************
      */
     msg = "End of Test";
-    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
-
+    display_title(msg, level0, mode_p);
 
     /*
      ***************************************************************************
      * Save the Log content
      ***************************************************************************
      */
-   saveLogContent(output_filename);
+    saveLogContent(output_filename);
+
 }
 
 /**
@@ -379,4 +378,4 @@ function main(level_p, mode_p, verbosity_p) {
  * @param {number} mode_p - define the print output
  * @param {number} verbosity_p - level of verbosity
  */
-main(level_p = 0, mode_p = 0, verbosity_p = 2);
+main(0, 0, 2);
