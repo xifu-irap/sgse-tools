@@ -134,10 +134,10 @@ function main(level_p, mode_p, verbosity_p) {
      ***************************************************************************
      */
     msg = "Test description: " + script_name;
-    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display_title(msg, level0, mode_p);
 
     msg = "This test does the following steps:"
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     msg = [
         "1. configure the spi devices",
         "2. reset the FPASim functions",
@@ -146,17 +146,17 @@ function main(level_p, mode_p, verbosity_p) {
         "5. generate few make_pulse commands",
         "6. generate few make_pulse_all commands"
     ]
-    display(msg_p = msg, level_p = level2, mode_p = mode_p);
+    display(msg, level2, mode_p);
 
     msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     /*
      ***************************************************************************
      * display the script info
      ***************************************************************************
      */
-    list_tmp       = fpasim_script_info(level_p = level0, mode_p = mode_p, verbosity_p = 2);
+    list_tmp       = fpasim_script_info(level0, mode_p, 2);
     error_info_cnt = list_tmp[0];
     info           = list_tmp[1];
 
@@ -169,8 +169,8 @@ function main(level_p, mode_p, verbosity_p) {
      ***************************************************************************
      */
     msg = "Configure spi devices + FPAsim RAMs with default values";
-    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
-    error_load_ram_cnt = fpasim_configure(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
+    display_title(msg, level0, mode_p);
+    error_load_ram_cnt = fpasim_configure(level1, mode_p, verbosity_p);
 
 
     /*
@@ -179,8 +179,8 @@ function main(level_p, mode_p, verbosity_p) {
      ***************************************************************************
      */
     msg = "Reset the fpasim function";
-    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
-    fpasim_reset(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
+    display_title(msg, level0, mode_p);
+    fpasim_reset(level1, mode_p, verbosity_p);
 
 
     /*
@@ -190,47 +190,47 @@ function main(level_p, mode_p, verbosity_p) {
      */
 
     msg = "Configure the fpasim function";
-    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display_title(msg, level0, mode_p);
 
     // set the register: MUX_SQ_FB_DELAY
     mux_sq_fb_delay = 0x0;
     msg = "Set register: MUX_SQ_FB_DELAY";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     sendToFPA_configureMuxDelay(mux_sq_fb_delay);
 
     msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
 
 
     // set the register: AMP_SQ_OF_DELAY
     amp_sq_of_delay = 0x0;
     msg = "Set register: AMP_SQ_OF_DELAY";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     sendToFPA_configureAmpDelay(amp_sq_of_delay);
 
     msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
 
     // set the register: ERROR_DELAY
     error_delay = 0x0;
     msg = "Set register: ERROR_DELAY";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     sendToFPA_configureErrorDelay(error_delay);
 
     msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
 
     // set the register: RA_DELAY
     ra_delay = 0x0;
     msg = "Set register: RA_DELAY";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     sendToFPA_configureRaDelay(ra_delay);
 
     msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
 
     // set the register: TES_CONF
@@ -242,21 +242,21 @@ function main(level_p, mode_p, verbosity_p) {
     nbSamplesPerPixel = nbSamplesPerPixel - 1; // add -1 because we start from 0
     totalFrameSize = totalFrameSize - 1; // add -1 because we start from 0
     msg = "Set register: TES_CONF";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    sendToFPA_configureTES_conf(nbPixels = nbPixels, nbSamplesPerPixel = nbSamplesPerPixel, totalFrameSize = totalFrameSize);
+    display(msg, level1, mode_p);
+    sendToFPA_configureTES_conf(nbPixels, nbSamplesPerPixel, totalFrameSize);
 
     msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     // set the register: CONF0
     inter_squid_gain = 0xFF;
     msg = "Set register: CONF0";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    data = fpasim_build_conf0(inter_squid_gain_p = inter_squid_gain);
-    fpasim_set_debug_wirein_by_name(reg_name_p = 'CONF0', data_p = data, level_p = level2, mode_p = mode_p);
+    display(msg, level1, mode_p);
+    data = fpasim_build_conf0(inter_squid_gain);
+    fpasim_set_debug_wirein_by_name('CONF0', data, level2, mode_p);
 
     msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     /*
      ***************************************************************************
@@ -264,11 +264,11 @@ function main(level_p, mode_p, verbosity_p) {
       ***************************************************************************
       */
     msg = "Configure the FPASim mux_squid_tf RAM: ramp";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     mux_quid_tf_conf_ram();
 
     msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     /*
      ***************************************************************************
@@ -276,11 +276,11 @@ function main(level_p, mode_p, verbosity_p) {
       ***************************************************************************
       */
     msg = "Configure the FPASim amp_squid_tf RAM: ramp";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     amp_quid_tf_conf_ram();
 
     msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     /*
      ***************************************************************************
@@ -288,11 +288,11 @@ function main(level_p, mode_p, verbosity_p) {
       ***************************************************************************
       */
     msg = "Configure the FPASim tes_steady_state RAM: constant (max value)";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     tes_steady_state_conf_ram();
 
     msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
 
     /*
@@ -305,13 +305,13 @@ function main(level_p, mode_p, verbosity_p) {
 
     rst = 0;
     en = 1;
-    data = fpasim_build_ctrl(rst_p = rst, en_p = en);
+    data = fpasim_build_ctrl(rst, en);
     msg = "Enable the FPASIM function";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
     sendToFPA_configureControl(data);
 
     msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
 
     /*
@@ -319,12 +319,10 @@ function main(level_p, mode_p, verbosity_p) {
      * Generate make_pulse commands (1 pixel)
      ***************************************************************************
      */
-    // tempo = 1000; // tempo (in ms) between the make_pulse command
     nb_iteration = 5; // number of make_pulse command
-    // msg0 = "nb_iteration= " + nb_iteration.toString(10) + ", tempo= " + tempo.toString(10);
     msg0 = "nb_iteration= " + nb_iteration.toString(10);
     msg = "Generate make_pulse commands: " + msg0;
-    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display_title(msg, level0, mode_p);
 
     // declare tab
     pixel_id_tab = Array(nb_iteration);
@@ -344,11 +342,11 @@ function main(level_p, mode_p, verbosity_p) {
     time_shift_tab[1] = 0;
     time_shift_tab[0] = 0;
 
-    pulse_height_tab[4] = fpasim_convert_percentage_to_pulse_height(percentage_p = 14);
-    pulse_height_tab[3] = fpasim_convert_percentage_to_pulse_height(percentage_p = 12);
-    pulse_height_tab[2] = fpasim_convert_percentage_to_pulse_height(percentage_p = 10);
-    pulse_height_tab[1] = fpasim_convert_percentage_to_pulse_height(percentage_p = 8);
-    pulse_height_tab[0] = fpasim_convert_percentage_to_pulse_height(percentage_p = 6);
+    pulse_height_tab[4] = fpasim_convert_percentage_to_pulse_height(14);
+    pulse_height_tab[3] = fpasim_convert_percentage_to_pulse_height(12);
+    pulse_height_tab[2] = fpasim_convert_percentage_to_pulse_height(10);
+    pulse_height_tab[1] = fpasim_convert_percentage_to_pulse_height(8);
+    pulse_height_tab[0] = fpasim_convert_percentage_to_pulse_height(6);
 
 
     session_name = getText("Start loop");
@@ -364,27 +362,24 @@ function main(level_p, mode_p, verbosity_p) {
         session_name = getText("make_pulse iteration" + i.toString(10) + ", pulse_height:" + pulse_height.toString(16));
 
         msg = "Set Make_pulse (1 pixel): pixel_id: " + pixel_id.toString(10) + ", time_shift: " + time_shift.toString(10) + ", pulse_height: 0x" + pulse_height.toString(16);
-        display(msg_p = msg, level_p = level1, mode_p = mode_p);
+        display(msg, level1, mode_p);
 
-        sendToFPA_makePulse(pixelId = pixel_id, timeShift = time_shift, pulseHeight = pulse_height);
+        sendToFPA_makePulse(pixel_id, time_shift, pulse_height);
 
-        // waitMs(tempo);
     }
 
     msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     /*
      ***************************************************************************
      * Generate make_pulses commands (all pixels)
      ***************************************************************************
      */
-    // tempo = 1000; // tempo (in ms) between the make_pulse command
     nb_iteration = 5; // number of make_pulse command
-    // msg0 = "nb_iteration= " + nb_iteration.toString(10) + ", tempo= " + tempo.toString(10);
     msg0 = "nb_iteration= " + nb_iteration.toString(10);
     msg = "Generate make_pulses commands: " + msg0;
-    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display_title(msg, level0, mode_p);
 
     // declare
     time_shift_tab = Array(nb_iteration);
@@ -397,11 +392,11 @@ function main(level_p, mode_p, verbosity_p) {
     time_shift_tab[1] = 0;
     time_shift_tab[0] = 0;
 
-    pulse_height_tab[4] = fpasim_convert_percentage_to_pulse_height(percentage_p = 14);
-    pulse_height_tab[3] = fpasim_convert_percentage_to_pulse_height(percentage_p = 12);
-    pulse_height_tab[2] = fpasim_convert_percentage_to_pulse_height(percentage_p = 10);
-    pulse_height_tab[1] = fpasim_convert_percentage_to_pulse_height(percentage_p = 8);
-    pulse_height_tab[0] = fpasim_convert_percentage_to_pulse_height(percentage_p = 6);
+    pulse_height_tab[4] = fpasim_convert_percentage_to_pulse_height(14);
+    pulse_height_tab[3] = fpasim_convert_percentage_to_pulse_height(12);
+    pulse_height_tab[2] = fpasim_convert_percentage_to_pulse_height(10);
+    pulse_height_tab[1] = fpasim_convert_percentage_to_pulse_height(8);
+    pulse_height_tab[0] = fpasim_convert_percentage_to_pulse_height(6);
 
 
     // loop
@@ -414,32 +409,27 @@ function main(level_p, mode_p, verbosity_p) {
         session_name = getText("make_pulseS iteration" + i.toString(10) + ", pulse_height:" + pulse_height.toString(16));
 
         msg = "Set Make_pulse (all pixels): pixel_id: N/A, time_shift: " + time_shift.toString(10) + ", pulse_height: 0x" + pulse_height.toString(16);
-        display(msg_p = msg, level_p = level1, mode_p = mode_p);
+        display(msg, level1, mode_p);
 
-        sendToFPA_makePulses(timeShift = time_shift, pulseHeight = pulse_height);
-        //data = fpasim_build_make_pulse(pixel_all_p=1, pixel_id_p=pixel_id, time_shift_p=time_shift, pulse_height_p=pulse_height);
-        //fpasim_set_debug_wirein_by_name(reg_name_p="MAKE_PULSE", data_p=data, level_p=0, mode_p=0, verbosity_p=-1);
-
-        //waitMs(tempo);
+        sendToFPA_makePulses(time_shift, pulse_height);
     }
 
     msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     /*
     disable the FPASim
     */
     msg = "Set CTRL: Enable Off"
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     rst = 0;
     en = 0;
     // build the data to send
-    data = fpasim_build_ctrl(rst_p = rst, en_p = en);
+    data = fpasim_build_ctrl(rst, en);
     sendToFPA_configureControl(data);
-    //fpasim_set_debug_wirein_by_name(reg_name_p = 'CTRL', data_p = data, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
     msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
 
     /*
@@ -449,8 +439,8 @@ function main(level_p, mode_p, verbosity_p) {
      */
     error_debug_cnt = 0;
     msg = "Check Debug Errors";
-    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
-    error_debug_cnt = fpasim_check_all_errors(level_p = level1, mode_p = 0, verbosity_p = 0);
+    display_title(msg, level0, mode_p);
+    error_debug_cnt = fpasim_check_all_errors(level1, 0, 0);
 
 
     /*
@@ -460,35 +450,35 @@ function main(level_p, mode_p, verbosity_p) {
      */
 
     msg = "Summary: Errors";
-    display_title(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display_title(msg, level1, mode_p);
 
     // get hardware_id
     reg_name = 'HARDWARE_ID';
     msg = "Get " + reg_name + ": ";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    data = fpasim_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 2);
+    display(msg, level1, mode_p);
+    data = fpasim_get_wireout_by_name(reg_name, level2, mode_p, 2);
 
     msg = "";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     // get the firmware Id
     reg_name = 'FIRMWARE_ID';
     msg = "Get " + reg_name + ": ";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    data = fpasim_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 2);
+    display(msg, level1, mode_p);
+    data = fpasim_get_wireout_by_name(reg_name, level2, mode_p, 2);
 
 
     msg = " ";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
     // get firmware version
     reg_name = 'FIRMWARE_VERSION';
     msg = "Get " + reg_name + ": ";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
-    data = fpasim_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, 2);
+    display(msg, level1, mode_p);
+    data = fpasim_get_wireout_by_name(reg_name, level2, mode_p, 2);
 
     msg = " ";
-    display(msg_p = msg, level_p = level1, mode_p = mode_p);
+    display(msg, level1, mode_p);
 
      // summary of the fpasim_script_info errors
     if (error_info_cnt == 0) {
@@ -524,7 +514,7 @@ function main(level_p, mode_p, verbosity_p) {
      ***************************************************************************
      */
     msg = "End of Test";
-    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display_title(msg, level0, mode_p);
 
     /*
      ***************************************************************************
@@ -541,4 +531,4 @@ function main(level_p, mode_p, verbosity_p) {
  * @param {number} mode_p - define the print output
  * @param {number} verbosity_p - level of verbosity
  */
-main(level_p = 0, mode_p = 0, verbosity_p = 2);
+main(0, 0, 2);
