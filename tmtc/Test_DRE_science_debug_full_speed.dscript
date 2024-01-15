@@ -32,7 +32,7 @@
 //                . science_pattern_fifo_out (enabled) -> Science FIFO out -> Xifu Studio.
 //         .The steps are:
 //            . Enable the science pattern generator at the input of the science output FIFO.
-//            . Infinite loop: Get statistics on the science link.
+//            . Infinite/Finite loop: Get statistics on the science link.
 //   Note:
 //      . Tested with javascript.
 //
@@ -48,12 +48,13 @@ include("./tmtc/tmtc_tools.dscript");
  * Test the science USB link full speed without the DEMUX (debug mode): Continuously read the science data from the science pattern generator.
  *   The steps are:
  *     . Enable the science pattern generator at the input of the science output FIFO
- *     . Infinite loop: Get statistics on the science link.
+ *     . Infinite/finite loop: Get statistics on the science link.
+ * @param {number} time_p - 0: infinite time, >=1: finite time
  * @param {number} level_p - level of indentation at the beginning.
  * @param {number} mode_p - define the print output.
  * @param {number} verbosity_p - level of verbosity.
  */
-function test_science(level_p, mode_p, verbosity_p) {
+function test_science(time_p, level_p, mode_p, verbosity_p) {
 
   // default function parameter values
   if (typeof (level_p) === 'undefined') level_p = 0;
@@ -78,7 +79,9 @@ function test_science(level_p, mode_p, verbosity_p) {
 
   // infinite loop: Get statistics on the science USB link
   req = getNextValue("DRE_controlLink0,DRE_controlLink1,DRE_DataCol0,DRE_DataCol3,DRE_DataCol2,DRE_DataCol1,DRE_LinkCounterError,DISP_SubsystemsDataTransferred", "toutes les 1000 ms");
-  while (1)
+  cnt = 1; // count the number of seconds
+  test = 1;
+  while (test)
   {
     waitingForNextValue(req)
     clearLastLogLine()
@@ -89,7 +92,17 @@ function test_science(level_p, mode_p, verbosity_p) {
       unit = "To"
       dataTransferred = dataTransferred / 1024
     }
-    print(dataTransferred.toPrecision(3) + " " + unit + " received, " + DRE_LinkCounterError + " errors detected, " + DRE_controlLink0, DRE_DataCol0, DRE_DataCol1, DRE_DataCol2, DRE_DataCol3)
+    print(dataTransferred.toPrecision(3) + " " + unit + " received, " + DRE_LinkCounterError + " errors detected, " + DRE_controlLink0, DRE_DataCol0, DRE_DataCol1, DRE_DataCol2, DRE_DataCol3);
+
+  if (time_p >= 1)
+  { // finite time
+     if (cnt == time_p)
+      {
+        test = 0;
+      }
+      cnt +=1;
+    }
+
   }
 
 }
@@ -129,7 +142,7 @@ function main(level_p, mode_p, verbosity_p) {
     "This test (debug mode) allows testing the supported maximum speed of the science USB link (without DEMUX) by using data from the science pattern generator.",
     "The steps are:",
     "   . Enable the science pattern generator at the input of the science output FIFO.",
-    "   . Infinite loop: Get statistics on the science link."
+    "   . Infinite/finite loop: Get statistics on the science link."
   ];
   display(msg, level2, mode_p);
 
@@ -154,6 +167,10 @@ function main(level_p, mode_p, verbosity_p) {
   str_en_science = "1";
   en_science = parseInt(str_en_science, 10);
 
+  // define the time (~ expressed in seconds)
+  str_time = getText("Define a Test time (0: infinite time, >=1: finite time (in s)).", "0");
+  time_tmp = parseInt(str_time, 10);
+
   /*
    ***************************************************************************
    * Check: Science Link
@@ -163,7 +180,7 @@ function main(level_p, mode_p, verbosity_p) {
   {
     msg = "Test: Run the science USB link full speed test (debug mode).";
     display_title(msg, level0, mode_p);
-    test_science(level1, mode_p, verbosity_p);
+    test_science(time_tmp,level1, mode_p, verbosity_p);
   }
 
 
