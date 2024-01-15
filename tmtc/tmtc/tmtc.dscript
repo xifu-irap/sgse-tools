@@ -1,0 +1,1281 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Ken-ji de la Rosa, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE Focal Plane Assembly simulator.
+//
+//                              tmtc-fw is free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                   kenji.delarosa@alten.com
+//    @file                   tmtc.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    Automatic Generation    No
+//    Code Rules Reference
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This script defines base functions to access (read/write) to the TMTC functions.
+//    In particular, functions associated to the SPI module bridge are defined for the downstream javascript.
+//
+//    Note:
+//      . This script only implemented function to access registers not yet implemented by the Xifu Studio application.
+//
+// -------------------------------------------------------------------------------------------------------------
+include("./tmtc/utils_tools.dscript")
+
+// verbosity min to display register access
+const c_TMTC_REG_VERBOSITY_MIN = 0;
+// verbosity min to display (addr,data)
+const c_TMTC_ADDR_VERBOSITY_MIN = 1;
+// verbosity min to display register bit
+const c_TMTC_BIT_VERBOSITY_MIN = c_TMTC_ADDR_VERBOSITY_MIN + 1;
+
+
+/*
+  Wire in addresses
+*/
+const TMTC_ADDR_WIREIN = {};
+TMTC_ADDR_WIREIN['CTRL'] = 0x00; // 0
+TMTC_ADDR_WIREIN['TC_HK_CONF'] = 0x01; // 1
+TMTC_ADDR_WIREIN['ICU_CONF'] = 0x02; // 2
+// TMTC_ADDR_WIREIN['RFU'] = 0x03; // 3
+// TMTC_ADDR_WIREIN['RFU'] = 0x04; // 4
+// TMTC_ADDR_WIREIN['RFU'] = 0x05; // 5
+// TMTC_ADDR_WIREIN['RFU'] = 0x06; // 6
+// TMTC_ADDR_WIREIN['RFU'] = 0x07; // 7
+// TMTC_ADDR_WIREIN['RFU'] = 0x08; // 8
+// TMTC_ADDR_WIREIN['RFU'] = 0x09; // 9
+// TMTC_ADDR_WIREIN['RFU'] = 0x0A; // 10
+// TMTC_ADDR_WIREIN['RFU'] = 0x0B; // 11
+// TMTC_ADDR_WIREIN['RFU'] = 0x0C; // 12
+// TMTC_ADDR_WIREIN['RFU'] = 0x0D; // 13
+// TMTC_ADDR_WIREIN['RFU'] = 0x0E; // 14
+// TMTC_ADDR_WIREIN['RFU'] = 0x0F; // 15
+// TMTC_ADDR_WIREIN['RFU'] = 0x10; // 16
+// TMTC_ADDR_WIREIN['RFU'] = 0x11; // 17
+// TMTC_ADDR_WIREIN['RFU'] = 0x12; // 18
+// TMTC_ADDR_WIREIN['RFU'] = 0x13; // 19
+// TMTC_ADDR_WIREIN['RFU'] = 0x14; // 20
+// TMTC_ADDR_WIREIN['SCIENCE_STAMP_LSB'] = 0x15; // 21
+// TMTC_ADDR_WIREIN['SCIENCE_FIFO_OUT_RD_DATA_COUNT'] = 0x16; // 22
+// TMTC_ADDR_WIREIN['HK_FIFO_OUT_RD_DATA_COUNT'] = 0x37; // 23
+TMTC_ADDR_WIREIN['DEBUG_CTRL'] = 0x18; // 24
+TMTC_ADDR_WIREIN['ERROR_SEL'] = 0x19; // 25
+// TMTC_ADDR_WIREIN['ERRORS'] = 0x1A; // 26
+// TMTC_ADDR_WIREIN['STATUS'] = 0x1B; // 27
+// TMTC_ADDR_WIREIN['RFU'] = 0x1C; // 28
+// TMTC_ADDR_WIREIN['HARDWARE_ID'] = 0x1D; // 29
+// TMTC_ADDR_WIREIN['FIRMWARE_NAME'] = 0x1E; // 30
+// TMTC_ADDR_WIREIN['FIRMWARE_ID'] = 0x1F; // 31
+
+
+/*
+  Wire out addresses
+*/
+const TMTC_ADDR_WIREOUT = {};
+TMTC_ADDR_WIREOUT['CTRL'] = 0x20; // 0
+TMTC_ADDR_WIREOUT['TC_HK_CONF'] = 0x21; // 1
+TMTC_ADDR_WIREOUT['ICU_CONF'] = 0x22; // 2
+// TMTC_ADDR_WIREOUT['RFU'] = 0x23; // 3
+// TMTC_ADDR_WIREOUT['RFU'] = 0x24; // 4
+// TMTC_ADDR_WIREOUT['RFU'] = 0x25; // 5
+// TMTC_ADDR_WIREOUT['RFU'] = 0x26; // 6
+// TMTC_ADDR_WIREOUT['RFU'] = 0x27; // 7
+// TMTC_ADDR_WIREOUT['RFU'] = 0x28; // 8
+// TMTC_ADDR_WIREOUT['RFU'] = 0x29; // 9
+// TMTC_ADDR_WIREOUT['RFU'] = 0x2A; // 10
+// TMTC_ADDR_WIREOUT['RFU'] = 0x2B; // 11
+// TMTC_ADDR_WIREOUT['RFU'] = 0x2C; // 12
+// TMTC_ADDR_WIREOUT['RFU'] = 0x2D; // 13
+// TMTC_ADDR_WIREOUT['RFU'] = 0x2E; // 14
+// TMTC_ADDR_WIREOUT['RFU'] = 0x2F; // 15
+// TMTC_ADDR_WIREOUT['RFU'] = 0x30; // 16
+// TMTC_ADDR_WIREOUT['RFU'] = 0x31; // 17
+// TMTC_ADDR_WIREOUT['RFU'] = 0x32; // 18
+// TMTC_ADDR_WIREOUT['RFU'] = 0x33; // 19
+// TMTC_ADDR_WIREOUT['RFU'] = 0x34; // 20
+TMTC_ADDR_WIREOUT['SCIENCE_STAMP_LSB'] = 0x35; // 21
+TMTC_ADDR_WIREOUT['SCIENCE_FIFO_OUT_RD_DATA_COUNT'] = 0x36; // 22
+TMTC_ADDR_WIREOUT['HK_FIFO_OUT_RD_DATA_COUNT'] = 0x37; // 23
+TMTC_ADDR_WIREOUT['DEBUG_CTRL'] = 0x38; // 24
+TMTC_ADDR_WIREOUT['ERROR_SEL'] = 0x39; // 25
+TMTC_ADDR_WIREOUT['ERRORS'] = 0x3A; // 26
+TMTC_ADDR_WIREOUT['STATUS'] = 0x3B; // 27
+// TMTC_ADDR_WIREOUT['RFU'] = 0x3C; // 28
+TMTC_ADDR_WIREOUT['HARDWARE_ID'] = 0x3D; // 29
+TMTC_ADDR_WIREOUT['FIRMWARE_NAME'] = 0x3E; // 30
+TMTC_ADDR_WIREOUT['FIRMWARE_ID'] = 0x3F; // 31
+
+
+
+/**
+ * Build the word to write in the "CTRL" register.
+ *   Note: fields ( defintion, range, ...) are defined in the "TMTC-D_commands_dictionnary_v5.0.xlsx" document.
+ * @param {number} rst_p - reset.
+ * @return {number} built word.
+ */
+function tmtc_build_ctrl(rst_p) {
+    data = (rst_p << 0);
+
+    return data;
+}
+
+/**
+ * Build the word to write in the "TC_HK_CONF" register.
+ *   Note: fields ( defintion, range, ...) are defined in the "TMTC-D_commands_dictionnary_v5.0.xlsx" document.
+ * @param {number} spi_select_p - '1': Select the RAS device, '0': Select the DEMUX device
+ * @return {number} built word.
+ */
+function tmtc_build_tc_hk_conf(spi_select_p) {
+    data = spi_select_p
+    return data;
+}
+
+
+/**
+ * Build the word to write in the "ICU_CONF" register.
+ *   Note: fields ( defintion, range, ...) are defined in the "TMTC-D_commands_dictionnary_v5.0.xlsx" document.
+ * @param {number} icu_select_p - ICU selection : 0 for main, 1 for redundant
+ * @return {number} built word.
+ */
+function tmtc_build_icu_conf(icu_select_p) {
+    data = icu_select_p;
+    return data;
+}
+
+
+/**
+ * Build the word to write in the "debug_ctrl" register.
+ *   Note: fields ( defintion, range, ...) are defined in the "TMTC-D_commands_dictionnary_v5.0.xlsx" document.
+ * @param {number} science_pattern_en_fifo_out_p - '1': Fill the science output FIFO with a pre-defined pattern, '0': fill the science output FIFO with data from the DDR
+ * @param {number} rst_status_p - reset errors.
+ * @param {number} debug_pulse_p - '1': errors are pipelined, 0': errors are latches.
+ * @return {number} built word.
+ */
+function tmtc_build_debug_ctrl(science_pattern_en_fifo_out_p, rst_status_p, debug_pulse_p) {
+    data = (science_pattern_en_fifo_out_p << 4) + (rst_status_p << 1) + debug_pulse_p;
+    return data;
+}
+
+/**
+ * Build the word to write in the "ERROR_SEL" register.
+ *   Note: fields ( defintion, range, ...) are defined in the "TMTC-D_commands_dictionnary_v5.0.xlsx" document.
+ * @param {number} sel_error_p - id of the selected error and status register
+ * @return {number} built word.
+ */
+function tmtc_build_error_sel(sel_error_p) {
+    data = sel_error_p;
+    return data;
+}
+
+
+
+/**
+ * Set the "CTRL" register.
+ *   Note: fields ( defintion, range, ...) are defined in the "TMTC-D_commands_dictionnary_v5.0.xlsx" document.
+ * @param {number} rst_p - reset
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ */
+function tmtc_set_ctrl(rst_p, level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    data = tmtc_build_ctrl(rst_p);
+    addr = TMTC_ADDR_WIREIN["CTRL"];
+
+    sendToDRELinkBoard_SetWireIn(addr, data);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
+            msg = "[tmtc_set_ctrl]: Set the register value ";
+            display(msg, level0, mode_p);
+        }
+
+        if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
+            display_register(addr, 32, data, 32, level1, mode_p);
+        }
+        if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
+            display_bit("rst_p", rst_p, 1, level2, mode_p);
+
+        }
+
+    }
+
+
+}
+
+/**
+ * Set the "TC_HK_CONF" register.
+ *   Note: fields ( defintion, range, ...) are defined in the "TMTC-D_commands_dictionnary_v5.0.xlsx" document.
+ * @param {number} spi_select_p - '1': Select the RAS device, '0': Select the DEMUX device
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ */
+function tmtc_set_tc_hk_conf(spi_select_p, level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    data = tmtc_build_tc_hk_conf(spi_select_p);
+    addr = TMTC_ADDR_WIREIN["TC_HK_CONF"];
+
+    sendToDRELinkBoard_SetWireIn(addr, data);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
+            msg = "[tmtc_set_tc_hk_conf]: Set the register value ";
+            display(msg, level0, mode_p);
+        }
+
+        if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
+            display_register(addr, 32, data, 32, level1, mode_p);
+        }
+        if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
+            display_bit("spi_select_p", spi_select_p, 1, level2, mode_p);
+
+        }
+
+    }
+
+}
+
+/**
+ * Set the "ICU_CONF" register.
+ *   Note: fields ( defintion, range, ...) are defined in the "TMTC-D_commands_dictionnary_v5.0.xlsx" document.
+ * @param {number} icu_select_p - ICU selection : 0 for main, 1 for redundant
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ */
+function tmtc_set_icu_conf(icu_select_p, level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    data = tmtc_build_icu_conf(icu_select_p);
+    addr = TMTC_ADDR_WIREIN["ICU_CONF"];
+
+    sendToDRELinkBoard_SetWireIn(addr, data);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
+            msg = "[tmtc_set_icu_conf]: Set the register value ";
+            display(msg, level0, mode_p);
+        }
+
+        if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
+            display_register(addr, 32, data, 32, level1, mode_p);
+        }
+        if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
+            display_bit("icu_select_p", spi_select_p, 1, level2, mode_p);
+
+        }
+
+    }
+
+}
+
+
+/**
+ * Set the "DEBUG_CTRL" register.
+ *   Note: fields ( defintion, range, ...) are defined in the "TMTC-D_commands_dictionnary_v5.0.xlsx" document.
+ * @param {number} science_pattern_en_fifo_out_p - '1': Fill the science output FIFO with a pre-defined pattern, '0': fill the science output FIFO with data from the DDR
+ * @param {number} rst_status_p - reset errors.
+ * @param {number} debug_pulse_p - '1': errors are pipelined, 0': errors are latches.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ */
+function tmtc_set_debug_ctrl(science_pattern_en_fifo_out_p, rst_status_p, debug_pulse_p, level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    data = tmtc_build_debug_ctrl(science_pattern_en_fifo_out_p, rst_status_p, debug_pulse_p);
+    addr = TMTC_ADDR_WIREIN["DEBUG_CTRL"];
+
+    sendToDRELinkBoard_SetWireIn(addr, data);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
+            msg = "[tmtc_set_debug_ctrl]: Set the register value ";
+            display(msg, level0, mode_p);
+        }
+
+        if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
+            display_register(addr, 32, data, 32, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
+            display_bit("science_pattern_en_fifo_out_p", science_pattern_en_fifo_out_p, 1, level2, mode_p);
+            display_bit("rst_status_p", rst_status_p, 1, level2, mode_p);
+            display_bit("debug_pulse_p", debug_pulse_p, 1, level2, mode_p);
+
+        }
+    }
+
+
+}
+
+
+/**
+ * Set the selected register value.
+ * @param {string} reg_name_p - Name of the TMTC register.
+ * @param {number} data_p - data to write in the register.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ */
+
+function tmtc_set_debug_wirein_by_name(reg_name_p, data_p, level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+
+    data = data_p;
+    addr = 0;
+
+    error = 0;
+    switch (reg_name_p) {
+        case 'CTRL': // 00
+            addr = TMTC_ADDR_WIREIN[reg_name_p];
+            break;
+        case 'TC_HK_CONF': // 01
+            addr = TMTC_ADDR_WIREIN[reg_name_p];
+            break;
+        case 'ICU_CONF': // 02
+            addr = TMTC_ADDR_WIREIN[reg_name_p];
+            break;
+        // case 'RFU': // 03
+        //     addr = TMTC_ADDR_WIREIN[reg_name_p];
+        //     break;
+
+        // case 'RFU': // 04
+        //     addr = TMTC_ADDR_WIREIN[reg_name_p];
+        //     break;
+
+        // case 'RFU': // 05
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
+
+        // case 'RFU': // 06
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
+
+        // case 'RFU': // 07
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
+
+        // case 'RFU': // 08
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
+
+        // case 'RFU': // 09
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
+
+        // case 'RFU': // 10
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
+
+        // case 'RFU': // 11
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
+
+        // case 'RFU': // 12
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
+
+        // case 'RFU': // 13
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
+
+        // case 'RFU': // 14
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
+
+        // case 'RFU': // 15
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
+
+        // case 'RFU': // 16
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
+
+        // case 'RFU': // 17
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
+
+        // case 'RFU': // 18
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
+
+        // case 'RFU': // 19
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
+
+        // case 'SCIENCE_STAMP_LSB': // 21
+        //     addr = TMTC_ADDR_WIREIN[reg_name_p];
+        //     break;
+
+        // case 'SCIENCE_FIFO_OUT_RD_DATA_COUNT': // 22
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
+
+        // case 'HK_FIFO_OUT_RD_DATA_COUNT': // 23
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
+
+        case 'DEBUG_CTRL': // 24
+            addr = TMTC_ADDR_WIREIN[reg_name_p];
+            break;
+
+        case 'ERROR_SEL': // 25
+            addr = TMTC_ADDR_WIREIN[reg_name_p];
+            break;
+
+        // case 'ERRORS':  // 26
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
+
+        // case 'STATUS': // 27
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
+
+        // case 'RFU': // 28
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
+
+        // case 'HARDWARE_ID': // 29
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
+
+        // case 'FIRMWARE_NAME': // 30
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
+
+        // case 'FIRMWARE_ID': // 31
+        // addr = TMTC_ADDR_WIREIN[reg_name_p];
+        // break;
+        default:
+            msg = "[KO][tmtc_set_debug_wirein_by_name]: The register " + reg_name_p + " doesn't exist."
+            display(msg, level0, mode_p);
+            error = 1;
+            break;
+    }
+
+    if (error == 0) {
+
+        sendToDRELinkBoard_SetWireIn(addr, data);
+
+
+        if (verbosity_p < 0) {
+            // do nothing
+        } else {
+
+            if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
+                msg = "[tmtc_set_debug_wirein_by_name]: Set " + reg_name_p;
+                display(msg, level0, mode_p);
+            }
+
+            if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
+                display_register(addr, 32, data, 32, level1, mode_p);
+            }
+
+
+        }
+
+
+    }
+
+}
+
+/**
+ * Get the register value (wireout access).
+ * @param {number} addr_p - data to write in the register.
+ * @return {number} read register value.
+ */
+function tmtc_wireout_read_command(addr_p) {
+    // shift address
+    index = addr_p - 0x20;
+    //---------------------------------------------------------------------
+    // Read wire out registers
+    //---------------------------------------------------------------------
+    // waitMs(50);
+    getLatestValue("DRELINKBOARD_WireOuts_x20_to_x3F");
+    data = DRELINKBOARD_WireOuts_x20_to_x3F[index];
+
+    return data;
+}
+
+/**
+ * Get the "CTRL" register value.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} read register value.
+ */
+function tmtc_get_wireout_ctrl(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    addr = TMTC_ADDR_WIREOUT['CTRL'];
+    data = tmtc_wireout_read_command(addr);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+
+        if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
+            msg = "[tmtc_get_wireout_ctrl]: Get the register value ";
+            display(msg, level0, mode_p);
+        }
+
+        if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
+            display_register(addr, 32, data, 32, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
+            display_bit_from_data("rst", 0, 1, data, level2, mode_p);
+        }
+    }
+
+    return data;
+}
+
+/**
+ * Get the "TC_HK_CONF" register value.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} read register value.
+ */
+function tmtc_get_wireout_tc_hk_conf(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    addr = TMTC_ADDR_WIREOUT['TC_HK_CONF'];
+    data = tmtc_wireout_read_command(addr);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
+            msg = "[tmtc_get_wireout_tc_hk_conf]: Get the register value ";
+            display(msg, level0, mode_p);
+        }
+
+        if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
+            display_register(addr, 32, data, 32, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
+            display_bit_from_data("spi_select", 0, 1, data, level2, mode_p);
+        }
+    }
+
+    return data;
+}
+
+
+/**
+ * Get the "ICU_CONF" register value.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} read register value.
+ */
+function tmtc_get_wireout_icu_conf(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    addr = TMTC_ADDR_WIREOUT['ICU_CONF'];
+    data = tmtc_wireout_read_command(addr);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
+            msg = "[tmtc_get_wireout_icu_conf]: Get the register value ";
+            display(msg, level0, mode_p);
+        }
+
+        if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
+            display_register(addr, 32, data, 32, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
+            display_bit_from_data("icu_select", 0, 1, data, level2, mode_p);
+        }
+    }
+
+    return data;
+}
+
+
+
+/**
+ * Get the "SCIENCE_STAMP_LSB" register value.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} read register value.
+ */
+function tmtc_get_wireout_science_stamp_lsb(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    addr = TMTC_ADDR_WIREOUT['SCIENCE_STAMP_LSB'];
+    data = tmtc_wireout_read_command(addr);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
+            msg = "[tmtc_get_wireout_science_stamp_lsb]: Get the register value ";
+            display(msg, level0, mode_p);
+        }
+
+        if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
+            display_register(addr, 32, data, 32, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
+            display_bit_from_data("DDR delta words (DDR occupation)", 0, 32, data, level2, mode_p);
+        }
+    }
+
+    return data;
+}
+
+/**
+ * Get the "SCIENCE_FIFO_OUT_RD_DATA_COUNT" register value.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} read register value.
+ */
+function tmtc_get_wireout_science_fifo_out_rd_data_count(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    addr = TMTC_ADDR_WIREOUT['SCIENCE_FIFO_OUT_RD_DATA_COUNT'];
+    data = tmtc_wireout_read_command(addr);
+
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
+            msg = "[tmtc_get_wireout_science_fifo_out_rd_data_count]: Get the register value ";
+            display(msg, level0, mode_p);
+        }
+
+        if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
+            display_register(addr, 32, data, 32, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
+            display_bit_from_data("science data count", 0, 17, data, level2, mode_p);
+        }
+    }
+
+    return data;
+}
+
+/**
+ * Get the "HK_FIFO_OUT_RD_DATA_COUNT" register value.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} read register value.
+ */
+function tmtc_get_wireout_hk_fifo_out_rd_data_count(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    addr = TMTC_ADDR_WIREOUT['HK_FIFO_OUT_RD_DATA_COUNT'];
+    data = tmtc_wireout_read_command(addr);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
+            msg = "[tmtc_get_wireout_hk_fifo_out_rd_data_count]: Get the register value ";
+            display(msg, level0, mode_p);
+        }
+
+        if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
+            display_register(addr, 32, data, 32, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
+            display_bit_from_data("hk data count", 0, 16, data, level2, mode_p);
+        }
+    }
+
+    return data;
+}
+
+/**
+ * Get the "DEBUG_CTRL" register value.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} read register value.
+ */
+function tmtc_get_wireout_debug_ctrl(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    addr = TMTC_ADDR_WIREOUT['DEBUG_CTRL'];
+    data = tmtc_wireout_read_command(addr);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
+            msg = "[tmtc_get_wireout_debug_ctrl]: Get the register value ";
+            display(msg, level0, mode_p);
+        }
+
+        if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
+            display_register(addr, 32, data, 32, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
+            display_bit_from_data("science_pattern_en_fifo_out_p", 4, 1, data, level2, mode_p);
+            display_bit_from_data("rst_status", 1, bit_width_p = 1, data, level2, mode_p);
+            display_bit_from_data("debug_pulse", 0, bit_width_p = 1, data, level2, mode_p);
+        }
+    }
+
+    return data;
+}
+
+/**
+ * Get the "ERROR_SEL" register value.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} read register value.
+ */
+function tmtc_get_wireout_error_sel(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    addr = TMTC_ADDR_WIREOUT['ERROR_SEL'];
+    data = tmtc_wireout_read_command(addr);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
+            msg = "[tmtc_get_wireout_error_sel]: Get the register value ";
+            display(msg, level0, mode_p);
+        }
+
+        if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
+            display_register(addr, 32, data, 32, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
+            display_bit_from_data("sel_error", 0, 3, data, level2, mode_p);
+        }
+    }
+
+    return data;
+}
+
+/**
+ * Get the selected "ERRORS" register value.
+ *   Note: the register to read is defined by the "ERROR_SEL" register
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} read register value.
+ */
+function tmtc_get_wireout_errors(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    addr = TMTC_ADDR_WIREOUT['ERRORS'];
+    data = tmtc_wireout_read_command(addr);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
+            msg = "[tmtc_get_wireout_errors]: Get the register value ";
+            display(msg, level0, mode_p);
+        }
+
+        if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
+            display_register(addr, 32, data, 32, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
+            display_bit_from_data("errors", 0, 32, data, level2, mode_p);
+        }
+    }
+
+    return data;
+}
+
+/**
+ * Get the selected "STATUS" register value.
+ *   Note: the register to read is defined by the "ERROR_SEL" register
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} read register value.
+ */
+function tmtc_get_wireout_status(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    addr = TMTC_ADDR_WIREOUT['STATUS'];
+    data = tmtc_wireout_read_command(addr);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
+            msg = "[tmtc_get_wireout_status]: Get the register value ";
+            display(msg, level0, mode_p);
+        }
+
+        if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
+            display_register(addr, 32, data, 32, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
+            display_bit_from_data("status", 0, 32, data, level2, mode_p);
+        }
+    }
+
+    return data;
+}
+
+/**
+ * Get the selected "HARDWARE_ID" register value.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} read register value.
+ */
+function tmtc_get_wireout_hardware_id(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    addr = TMTC_ADDR_WIREOUT['HARDWARE_ID'];
+    data = tmtc_wireout_read_command(addr);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
+            msg = "[tmtc_get_wireout_hardware_id]: Get the register value ";
+            display(msg, level0, mode_p);
+        }
+
+        if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
+            display_register(addr, 32, data, 32, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
+            display_bit_from_data("hardware_id_p", 0, 8, data, level2, mode_p);
+        }
+    }
+
+    return data;
+}
+
+/**
+ * Get the selected "FIRMWARE_NAME" register value.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} read register value.
+ */
+function tmtc_get_wireout_firmware_name(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    addr = TMTC_ADDR_WIREOUT['FIRMWARE_NAME'];
+    data = tmtc_wireout_read_command(addr);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
+            msg = "[tmtc_get_wireout_firmware_name]: Get the register value ";
+            display(msg, level0, mode_p);
+        }
+
+        if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
+            display_register(addr, 32, data, 32, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
+            display_bit_from_data("firmware_name_p", 0, 32, data, level2, mode_p);
+            msg = "firmware_name_p (ASCII): " + convert_hex_to_ascii(data, 32);
+            display(msg, level2, mode_p);
+        }
+    }
+
+
+
+    return data;
+}
+
+/**
+ * Get the selected "FIRMWARE_ID" register value.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} read register value.
+ */
+function tmtc_get_wireout_firmware_id(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    addr = TMTC_ADDR_WIREOUT['FIRMWARE_ID'];
+    data = tmtc_wireout_read_command(addr);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_TMTC_REG_VERBOSITY_MIN) {
+            msg = "[tmtc_get_wireout_firmware_id]: Get the register value ";
+            display(msg, level0, mode_p);
+        }
+
+        if (verbosity_p >= c_TMTC_ADDR_VERBOSITY_MIN) {
+            display_register(addr, 32, data, 32, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_TMTC_BIT_VERBOSITY_MIN) {
+            display_bit_from_data("firmware_id_p", 0, 8, data, level2, mode_p);
+        }
+    }
+
+    return data;
+}
+
+
+
+/**
+ * Get a register value by name.
+ * @param {string} reg_name_p - register name.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {object} dic.data - data value (all read bits).
+ * @return {object} dic.error - error value.
+ * @return {object} dic.field_name(s) - (optional) value(s) of the differents fields, if exist.
+ */
+function tmtc_get_wireout_by_name(reg_name_p, level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+
+    data = 0;
+    switch (reg_name_p) {
+        case 'CTRL': //00
+            data = tmtc_get_wireout_ctrl(level0, mode_p, verbosity_p);
+            break;
+        case 'TC_HK_CONF': //01
+            data = tmtc_get_wireout_tc_hk_conf(level0, mode_p, verbosity_p);
+            break;
+        case 'ICU_CONF': //02
+            data = tmtc_get_wireout_icu_conf(level0, mode_p, verbosity_p);
+            break;
+
+        // case 'RFU': //03
+        //     break;
+
+        // case 'RFU': //04
+        //     break;
+
+        // case 'RFU': //05
+        //     break;
+
+        // case 'RFU': //06
+        //     break;
+
+        // case 'RFU': //07
+        //     break;
+
+        // case 'RFU': //08
+        //     break;
+
+        // case 'RFU': //09
+        //     break;
+
+        // case 'RFU': //10
+        //     break;
+
+        // case 'RFU': //11
+        //     break;
+
+        // case 'RFU': //12
+        //     break;
+
+        // case 'RFU': //13
+        //     break;
+
+        // case 'RFU': //14
+        //     break;
+
+        // case 'RFU': //15
+        //     break;
+
+        // case 'RFU': //16
+        //     break;
+
+        // case 'RFU': //17
+        //     break;
+
+        // case 'RFU': //18
+        //     break;
+
+        // case 'RFU': //19
+        //     break;
+
+        // case 'RFU': //20
+        //     break;
+
+        case 'SCIENCE_STAMP_LSB': //21
+            data = tmtc_get_wireout_science_stamp_lsb(level0, mode_p, verbosity_p);
+            break;
+
+        case 'SCIENCE_FIFO_OUT_RD_DATA_COUNT': //22
+            data = tmtc_get_wireout_science_fifo_out_rd_data_count(level0, mode_p, verbosity_p);
+            break;
+
+        case 'HK_FIFO_OUT_RD_DATA_COUNT': //23
+            data = tmtc_get_wireout_hk_fifo_out_rd_data_count(level0, mode_p, verbosity_p);
+            break;
+
+        case 'DEBUG_CTRL': //24
+            data = tmtc_get_wireout_debug_ctrl(level0, mode_p, verbosity_p);
+            break;
+
+        case 'ERROR_SEL': //25
+            data = tmtc_get_wireout_error_sel(level0, mode_p, verbosity_p);
+            break;
+
+        case 'ERRORS': //26
+            data = tmtc_get_wireout_errors(level0, mode_p, verbosity_p);
+            break;
+
+        case 'STATUS': //27
+            data = tmtc_get_wireout_status(level0, mode_p, verbosity_p);
+            break;
+
+        // case 'RFU': //28
+        // break;
+
+        case 'HARDWARE_ID': //29
+            data = tmtc_get_wireout_hardware_id(level0, mode_p, verbosity_p);
+            break;
+        case 'FIRMWARE_NAME': //30
+            data = tmtc_get_wireout_firmware_name(level0, mode_p, verbosity_p);
+            break;
+        case 'FIRMWARE_ID': //31
+            data = tmtc_get_wireout_firmware_id(level0, mode_p, verbosity_p);
+            break;
+        default:
+            msg = "[tmtc_get_wireout_by_name]: Error " + reg_name_p + " doesn't exist."
+            display(msg, level0, mode_p);
+            break;
+    }
+
+    return data;
+
+
+}
+
+/**
+ * Get the selected "ERRORS" register value by id.
+ * @param {number} sel_error_p - define the error/status register to read. The value range is [0;4].
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} Read register value.
+ */
+function tmtc_get_error_by_id(sel_error_p, level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+
+    // Select the errors/status to read
+    data0 = tmtc_build_error_sel(sel_error_p);
+    tmtc_set_debug_wirein_by_name("ERROR_SEL", data0, level_p, mode_p, verbosity_p);
+
+    // read the selected errors
+    data = tmtc_get_wireout_by_name("ERRORS", level_p, mode_p, verbosity_p);
+
+    return data;
+}
+
+
+/**
+ * Get the selected status register value.
+ * @param {number} sel_error_p - define the error/status register to read. The value range is [0;4].
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} read register value.
+ */
+function tmtc_get_status_by_id(sel_error_p, level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+
+    // Select the errors/status to read
+    index = sel_error_p;
+    tmtc_set_debug_wirein_by_name("ERROR_SEL", index, level_p, mode_p, verbosity_p);
+
+    // read the selected status
+    tmtc_get_wireout_by_name("STATUS", level_p, mode_p, verbosity_p);
+
+    return data;
+}
