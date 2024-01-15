@@ -17,7 +17,7 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                   kenji.delarosa@alten.com
-//    @file                   Test_DRE_science.dscript
+//    @file                   Test_DRE_science_debug_full_speed.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    Automatic Generation    No
 //    Code Rules Reference
@@ -25,11 +25,13 @@
 //    @details
 //
 //   This test does the following tests:
-//      . test_science: test the science link with the DEMUX (normal mode).
+//      . test_science: test the science link without the DEMUX (full USB speed): debug mode.
 //         . The FPGA architecture is as follows:
-//            . DEMUX(input) -> Science FIFO IN -> DDR -> science_pattern_fifo_out (bypassed) -> Science FIFO out -> Xifu Studio
+//            . DEMUX (ignored inputs) -> Science FIFO IN (ignored) -> DDR (ignored) -> science_pattern_fifo_out (enabled) -> Science FIFO out -> Xifu Studio
+//            . So, the reduced architecture is:
+//                . science_pattern_fifo_out (enabled) -> Science FIFO out -> Xifu Studio.
 //         .The steps are:
-//            . Disable the science pattern generator at the input of the science output FIFO.
+//            . Enable the science pattern generator at the input of the science output FIFO.
 //            . Infinite/Finite loop: Get statistics on the science link.
 //   Note:
 //      . Tested with javascript.
@@ -43,9 +45,9 @@ include("./tmtc/tmtc_tools.dscript");
 
 
 /**
- * Test the science USB link speed (normal mode): Continuously read the science data from the DEMUX.
+ * Test the science USB link full speed without the DEMUX (debug mode): Continuously read the science data from the science pattern generator.
  *   The steps are:
- *     . Disable the science pattern generator at the input of the science output FIFO.
+ *     . Enable the science pattern generator at the input of the science output FIFO
  *     . Infinite/finite loop: Get statistics on the science link.
  * @param {number} time_p - 0: infinite time, >=1: finite time
  * @param {number} level_p - level of indentation at the beginning.
@@ -68,7 +70,7 @@ function test_science(time_p, level_p, mode_p, verbosity_p) {
     TMTC: DEBUG_PULSE register.
    */
   // set the register: DEBUG_CTRL.
-  science_pattern_en_fifo_out = 0x0; //0: normal mode, 1: science output fifo full speed
+  science_pattern_en_fifo_out = 0x1; //0: normal mode, 1: science output fifo full speed
   rst_status = 0x0;
   debug_pulse = 0x0;
   msg = "Set register: DEBUG_CTRL";
@@ -123,23 +125,23 @@ function main(level_p, mode_p, verbosity_p) {
   const level2 = level_p + 2;
 
   // script name
-    script_name = "Test_DRE_science";
+    script_name = "Test_DRE_science_debug_full_speed";
 
   /*
    ***************************************************************************
    * display the test description
    ***************************************************************************
    */
-  msg = "tmtc Test Description: " + script_name + " (normal mode).";
+  msg = "tmtc Test Description: " + script_name + " (debug mode).";
   display_title(msg, level0, mode_p);
 
   msg = "Context and purpose of the test.";
   display_subtitle(msg, level1, mode_p);
 
   msg = [
-    "This test (normal mode) allows testing the science USB link speed with science data from the DEMUX.",
+    "This test (debug mode) allows testing the supported maximum speed of the science USB link (without DEMUX) by using data from the science pattern generator.",
     "The steps are:",
-    "   . Disable the science pattern generator at the input of the science output FIFO.",
+    "   . Enable the science pattern generator at the input of the science output FIFO.",
     "   . Infinite/finite loop: Get statistics on the science link."
   ];
   display(msg, level2, mode_p);
@@ -161,7 +163,7 @@ function main(level_p, mode_p, verbosity_p) {
   output_filename = script_name + "__" + info + ".txt";
 
   // 1st Test to execute
-  // str_en_science = getText("Test: Science (0 or 1).", "0");
+  // str_en_science = getText("Test: Science USB full speed (0 or 1).", "0");
   str_en_science = "1";
   en_science = parseInt(str_en_science, 10);
 
@@ -176,7 +178,7 @@ function main(level_p, mode_p, verbosity_p) {
    */
   if (en_science == 1)
   {
-    msg = "Test: Run the science USB link speed test (normal mode).";
+    msg = "Test: Run the science USB link full speed test (debug mode).";
     display_title(msg, level0, mode_p);
     test_science(time_tmp,level1, mode_p, verbosity_p);
   }

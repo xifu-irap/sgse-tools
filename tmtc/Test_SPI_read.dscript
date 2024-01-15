@@ -1,46 +1,382 @@
-/*
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Ken-ji de la Rosa, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE Focal Plane Assembly simulator.
+//
+//                              tmtc-fw is free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                   kenji.delarosa@alten.com
+//    @file                   Test_SPI_read.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    Automatic Generation    No
+//    Code Rules Reference
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//   This test does the following tests:
+//      . Read the HK/Status data from the DEMUX SPI link.
+//        The steps are:
+//          . TMTC: Select the DEMUX SPI link.
+//          . From the DEMUX, read 16 consecutive values of the Pulse shape Table (col0).
+//          . From the DEMUX, read the 'SQ2 LockPoint offset' register value.
+//          . From the DEMUX, read the 'Firmware version' register value.
+//   Note:
+//      . Tested with javascript.
+//
+// -------------------------------------------------------------------------------------------------------------
 
-This test allows testing the DEMUX spi reading.
+// import javascript
+include("./tmtc/utils_tools.dscript");
+include("./tmtc/tmtc_tools.dscript");
 
- It has 3 sub-tests:
 
-    1. read registers
+/**
+ * Test: Read HK/Status data from the DEMUX SPI link.
+ *   The steps are:
+ *      . TMTC: Select the DEMUX SPI link.
+ *      . From the DEMUX, read 16 consecutive values of the Pulse shape Table (Col0).
+ *      . From the DEMUX, read the 'SQ2 LockPoint offset' register value.
+ *      . From the DEMUX, read the 'Firmware version' register value.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ */
+function test_spi_read(level_p, mode_p, verbosity_p) {
 
-    2. read a single user-defined register
+  // default function parameter values
+  if (typeof(level_p) === 'undefined') level_p = 0;
+  if (typeof(mode_p) === 'undefined') mode_p = 0;
+  if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
 
-    3. read a single user-defined register
+  //
+  const level0 = level_p;
+  const level1 = level_p + 1;
+  const level2 = level_p + 2;
 
-  Expected Result: 
+  // count errors
+  cnt_err = 0;
 
-    . the reading in 1. have predefined values
+  //////////////////////////////////////////////////////////
+  // DEMUX reading
+  //////////////////////////////////////////////////////////
 
-    . The reading in 2. has a predefined value
+  /*
+      TMTC: TC_HK_CONF register.
+   */
+  msg = "TMTC: Select the DEMUX SPI link (TC_HK_CONF register).";
+  display_subtitle(msg, level0, mode_p);
+  // spi_select: 0: DEMUX, 1: RAS
+  spi_select = 0;
+  sendToDRELinkBoard_ConfigureSPI_CS(spi_select);
 
-    . The reading in 3. has a predefined value
+  msg = "";
+  display(msg, level0, mode_p);
 
-*/
+  /*
+    From the DEMUX, read 16 consecutive values of the Pulse shape Table (Col0).
+    Expected values:  see .vhd code
+   */
+  msg = "From the DEMUX, read 16 consecutive values of the Pulse shape Table (Col0).";
+  display(msg, level0, mode_p);
 
-/*
-  select the DEMUX SPI Link
-     .cs_select: 0: DEMUX, 1: RAS
-*/
-cs_select = 0;
-sendToDRELinkBoard_ConfigureSPI_CS(cs_select);
+  // Send command to read registers
+  nb_data = 16;// number of data to read
+  addr      = 0x0800;
+  sendToDREReadRegisters(addr, nb_data);
 
-/*
-  sub-test1 : read 16 register value of the Pulse Shaping table
-  Expected values:  see .vhd code
-*/
-sendToDREReadRegisters(0x0800, 16)
+  // read values
+  getLatestValue("DRE_registers");
+  read_values_tab = extract_sub_table(DRE_registers, addr, nb_data, level1, mode_p, verbosity_p);
 
-/*
-  sub-test2 : read the "SQ2 LockPoint offset" register value
-  Expected value: return = 0
-*/
-sendToDREReadRegister(0x0423)
+  // expected values to read
+  expected_values_tab = Array(nb_data);
+  expected_values_tab[0]= 0x91F4;
+  expected_values_tab[1]= 0x5336;
+  expected_values_tab[2]= 0x2F71;
+  expected_values_tab[3]= 0x1B0C;
+  expected_values_tab[4]= 0x0F6C;
+  expected_values_tab[5]= 0x08CB;
+  expected_values_tab[6]= 0x0503;
+  expected_values_tab[7]= 0x02DC;
+  expected_values_tab[8]= 0x01A1;
+  expected_values_tab[9]= 0x00EE;
+  expected_values_tab[10]= 0x0088;
+  expected_values_tab[11]= 0x004D;
+  expected_values_tab[12]= 0x002C;
+  expected_values_tab[13]= 0x0019;
+  expected_values_tab[14]= 0x000E;
+  expected_values_tab[15]= 0x0008;
 
-/*
-  sub-test2 : read the "REG version" register value
-  Expected value: return = DF
-*/
-sendToDREReadRegister(0x6001)
+  msg = "Reading of the DEMUX Pulse Shape Table (Col0).";
+  error = check_equal_tab(read_values_tab, expected_values_tab, msg, level1, mode_p, verbosity_p);
+  if (error == -1)
+  {
+    cnt_err += 1;
+  }
+
+  msg = "";
+  display(msg, level0, mode_p);
+
+  /*
+    From the DEMUX, read the 'SQ2 LockPoint offset' register value.
+    Expected value: return = 0x0
+   */
+  msg = "From the DEMUX, read the 'SQ2 LockPoint offset' register value.";
+  display(msg, level0, mode_p);
+
+  // Send command to read register
+  addr = 0x0423;
+  sendToDREReadRegister(addr);
+
+  // read values
+  getLatestValue("DRE_registers");
+  read_values_tab = extract_sub_table(DRE_registers, addr, 1, level1, mode_p, verbosity_p);
+
+  // check values with the expected ones;
+  expected_value = 0x0;
+  msg = "Reading of the DEMUX 'SQ2 LockPoint offset' register value.";
+  error = check_equal(read_values_tab[0], expected_value, msg, level1, mode_p, verbosity_p);
+  if (error == -1)
+  {
+    cnt_err += 1;
+  }
+
+  msg = "";
+  display(msg, level0, mode_p);
+
+  /*
+    From the DEMUX, read the 'Firmware version' register value."
+    Expected value: return = 0xDF
+   */
+  msg = "From the DEMUX, read the 'Firmware version' register value.";
+  display(msg, level0, mode_p);
+
+  // Send command to read register
+  addr = 0x6001;
+  sendToDREReadRegister(addr);
+
+  // read values
+  getLatestValue("DRE_registers");
+  read_values_tab = extract_sub_table(DRE_registers, addr, 1, level1, mode_p, verbosity_p);
+
+
+  // check values with the expected ones;
+  expected_value = 0xDF;
+  msg = "Reading of the DEMUX 'Firmware version' register value.";
+  error = check_equal(read_values_tab[0], expected_value, msg, level1, mode_p, verbosity_p);
+  if (error == -1)
+  {
+      cnt_err += 1;
+  }
+
+
+
+  return cnt_err;
+}
+
+/**
+ * Script Entry Point.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ */
+function main(level_p, mode_p, verbosity_p) {
+
+  // default function parameter values
+  if (typeof(level_p) === 'undefined') level_p = 0;
+  if (typeof(mode_p) === 'undefined') mode_p = 0;
+  if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+  const level0 = level_p;
+  const level1 = level_p + 1;
+  const level2 = level_p + 2;
+
+  // script name
+  script_name = "Test_SPI_read";
+
+  /*
+   ***************************************************************************
+   * display the test description
+   ***************************************************************************
+   */
+  msg = "tmtc Test Description: " + script_name;
+  display_title(msg, level0, mode_p);
+
+  msg = 'Context and purpose of the test.'
+  display_subtitle(msg, level1, mode_p);
+
+
+  msg = [
+    "This test does the reading of the DEMUX SPI link.",
+    "The steps are:",
+    "  1. TMTC: Select the DEMUX SPI link.",
+    "  2. From the DEMUX, read 16 consecutive values of the Pulse shape Table (Col0).",
+    "  3. From the DEMUX, read the 'SQ2 LockPoint offset' register value.",
+    "  4. From the DEMUX, read the 'Firmware version' register value.",
+    "",
+    "  Expected Result:",
+    "    . The reading in 2. has a predefined values.",
+    "    . The reading in 3. has a predefined value.",
+    "    . The reading in 4. has a predefined value."
+    ];
+
+  display(msg, level2, mode_p);
+
+  msg = "";
+  display(msg, level0, mode_p);
+
+  /*
+   ***************************************************************************
+   * display the script info
+   ***************************************************************************
+   */
+  error_info_cnt = 0;
+  list_tmp       = tmtc_script_info(level1, mode_p, 2);
+  error_info_cnt = list_tmp[0];
+  info           = list_tmp[1];
+
+  // build output filename
+  output_filename = script_name + "__" + info + ".txt";
+
+  // 1st Test to execute
+  // str_en_spi_read = getText("Test: Check the read HK/Status data from the DEMUX SPI link (0 or 1).", "0");
+  str_en_spi_read = "1";
+  en_spi_read = parseInt(str_en_spi_read, 10);
+
+
+  /*
+   ***************************************************************************
+   * Check: SPI read
+   ***************************************************************************
+   */
+  if (en_spi_read == 1)
+   {
+    msg = "Test: Check the read HK/Status data from the DEMUX SPI link.";
+    display_title(msg, level0, mode_p);
+    error_spi_read_cnt = test_spi_read(level1, mode_p, verbosity_p);
+    }
+
+  /*
+   ***************************************************************************
+   * check all errors
+   ***************************************************************************
+   */
+  error_debug_cnt = 0;
+  msg = "Check Debug Errors";
+  display_title(msg, level0, mode_p);
+  error_debug_cnt = tmtc_check_all_errors(level1, mode_p, verbosity_p);
+
+  /*
+   ***************************************************************************
+   * Summary
+   ***************************************************************************
+   */
+  msg = "Summary: Errors";
+  display_title(msg, level1, mode_p);
+
+   // get HARDWARE_ID
+  reg_name = 'HARDWARE_ID';
+  msg = "TMTC: Get " + reg_name + ": ";
+  display(msg, level1, mode_p);
+  data = tmtc_get_wireout_by_name(reg_name, level2, mode_p, 1);
+
+  msg = "";
+  display(msg, level1, mode_p);
+
+  // get the FIRMWARE_NAME
+  reg_name = 'FIRMWARE_NAME';
+  msg = "TMTC: Get " + reg_name + ": ";
+  display(msg, level1, mode_p);
+  data = tmtc_get_wireout_by_name(reg_name, level2, mode_p, 2);
+
+  msg = " ";
+  display(msg, level1, mode_p);
+
+  // get FIRMWARE_ID
+  reg_name = 'FIRMWARE_ID';
+  msg = "TMTC: Get " + reg_name + ": ";
+  display(msg, level1, mode_p);
+  data = tmtc_get_wireout_by_name(reg_name, level2, mode_p, 1);
+
+  msg = " ";
+  display(msg, level1, mode_p);
+
+  // summary of the script_info errors.
+  if (error_info_cnt == 0)
+  {
+    msg_tmp = "[OK]: Script Info has " + error_info_cnt.toString(10) + " error.";
+    display(msg_tmp, level1, mode_p);
+  }
+  else
+  {
+    msg_tmp = "[KO]: Script Info has " + error_info_cnt.toString(10) + " errors.";
+    display(msg_tmp, level1, mode_p);
+  }
+
+  // summary of the spi_read errors
+  if (en_spi_read == 0)
+    {
+      msg_tmp = "[N/A]: Test: The DEMUX SPI reading was not performed.";
+      display(msg_tmp, level1, mode_p);
+    }
+    else
+    {
+      if (error_spi_read_cnt == 0)
+      {
+        msg_tmp = "[OK]: Test: The DEMUX SPI reading has " + error_spi_read_cnt.toString(10) + " error.";
+        display(msg_tmp, level1, mode_p);
+      }
+      else
+      {
+        msg_tmp = "[KO]: Test: The DEMUX SPI reading has " + error_spi_read_cnt.toString(10) + " errors.";
+        display(msg_tmp, level1, mode_p);
+      }
+    }
+
+  // summary of the internal errors
+  if (error_debug_cnt == 0)
+  {
+    msg_tmp = "[OK]: Debug errors has " + error_debug_cnt.toString(10) + " error.";
+    display(msg_tmp, level1, mode_p);
+  }
+  else
+  {
+    msg_tmp = "[KO]: Debug errors generation has " + error_debug_cnt.toString(10) + " errors.";
+    display(msg_tmp, level1, mode_p);
+  }
+
+  /*
+   ***************************************************************************
+   * End of Test
+   ***************************************************************************
+   */
+  msg = "End of Test";
+  display_title(msg, level0, mode_p);
+
+  /*
+   ***************************************************************************
+   * Save the Log content
+   ***************************************************************************
+   */
+  saveLogContent(output_filename);
+
+}
+
+/**
+ * Execute the main function.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ */
+main(0, 0, 2);

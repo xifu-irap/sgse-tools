@@ -1,79 +1,468 @@
-/*
-
-This test allows testing the spi selection.
-
- It has 3 sub-tests:
-
-    1. read, write and read on the DEMUX SPI Link
-
-    2. write and read on the RAS SPI link
-
-    3. read on the DEMUX spi link
-
-  Expected Result: 
-
-    1. the reading in 1. should be identical to the writting in 1.*
-
-    2. The reading in 2. should be different of the writting (if the RAS is not present).
-
-    3. The reading in 1. and 3. should be identical
-
-*/
-
-
-
-/*
-  sub-test1 : write and read on the DEMUX SPI Link
-  Expected values: reading is equal to the writting
-*/
-// Select the DEMUX SPI Link
-//   cs_select: 0: DEMUX, 1: RAS
-cs_select = 0;
-sendToDRELinkBoard_ConfigureSPI_CS(cs_select);
-
-// Read the registers
-sendToDREReadRegisters(0x0400, 16);
-
-// Write registers with value_test table
-value_test = [0x0007, 0x0006, 0x0005, 0x0004, 0x0003, 0x0002, 0x0001, 0x0000, 
-           0x0000, 0x0007, 0x0006, 0x0005, 0x0004, 0x0003, 0x0002, 0x0001,
-           0x0000, 0x0000, 0x0007, 0x0006, 0x0005, 0x0003, 0x0002, 0x0001,
-           0x0000, 0x0000, 0x0007, 0x0006, 0x0005, 0x0004, 0x0003, 0x0002,
-           0x0001, 0x0000];
-sendToDREWritePixelsRegisters(0x0400,value_test);
-
-// Read the written DEMUX registers
-sendToDREReadRegisters(0x0400, 16);
-
-/*
-  sub-test2: write and read on the RAS SPI link
-  Expected values: reading is differerent of the writting (if RAS not present)
-*/
-// Select the RAS SPI Link
-//   cs_select: 0: DEMUX, 1: RAS
-cs_select = 1;
-sendToDRELinkBoard_ConfigureSPI_CS(cs_select);
-
-// Write registers with value_test table
-value_test = [0x0001, 0x0001, 0x0002, 0x0002, 0x0003, 0x0003, 0x0004, 0x0004, 
-           0x0005, 0x0005, 0x0006, 0x0006, 0x0007, 0x0007, 0x0000, 0x0000,
-           0x0001, 0x0001, 0x0002, 0x0002, 0x0003, 0x0003, 0x0004, 0x0004,
-           0x0005, 0x0005, 0x0006, 0x0006, 0x0007, 0x0007, 0x0000, 0x0000,
-           0x0001, 0x0001];
-sendToDREWritePixelsRegisters(0x0400,value_test);
-
-// Read the RAS registers
-sendToDREReadRegisters(0x0400, 16);
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Ken-ji de la Rosa, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE Focal Plane Assembly simulator.
+//
+//                              tmtc-fw is free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                   kenji.delarosa@alten.com
+//    @file                   Test_SPI_write_DEMUX_RAS.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    Automatic Generation    No
+//    Code Rules Reference
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//   This test does the following tests:
+//      . Write data to the DEMUX/RAS SPI links. Then, readback the written values.
+//          The steps are:
+//           . TMTC: Select the DEMUX SPI link.
+//           . From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+//           . To the DEMUX:   Write 34 consecutive values to the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+//           . From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+//
+//           . TMTC: Select the RAS SPI link.
+//           . To the RAS: Write 34 consecutive values at the same address as the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+//           . From the RAS: Read 34 consecutive values at the same address as the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+//
+//           . TMTC: Select the DEMUX SPI link.
+//           . From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+//
+//   Important:
+//      . This test assumes the RAS link is not connected. If the RAS link is connected, the user could need to
+//        update the code to reflect the change.
+//
+//   Note:
+//      . Tested with javascript
+//
+// -------------------------------------------------------------------------------------------------------------
 
 
-/*
-  sub-test3: read on the DEMUX spi link
-  Expected values: reading is equal to the reading of the sub-test1
-*/
-// Select the DEMUX SPI Link
-//   cs_select: 0: DEMUX, 1: RAS
-cs_select = 0;
-sendToDRELinkBoard_ConfigureSPI_CS(cs_select);
-// Read the DEMUX registers
-sendToDREReadRegisters(0x0400, 16);
+// import javascript
+include("./tmtc/utils_tools.dscript");
+include("./tmtc/tmtc_tools.dscript");
 
+
+/**
+ * Test: Write data to the DEMUX/RAS SPI links. Then, readback the written values.
+ *   The steps are:
+ *      . TMTC: Select the DEMUX SPI link.
+ *      . From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+ *      . To the DEMUX:   Write 34 consecutive values to the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+ *      . From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+ *
+ *      . Select the RAS SPI link.
+ *      . To the RAS: Write 34 consecutive values at the same address as the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+ *      . From the RAS: Read 34 consecutive values at the same address as the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+ *
+ *      . Select the DEMUX SPI link.
+ *      . From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+ *
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ */
+function test_spi_write(level_p, mode_p, verbosity_p) {
+
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    //
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    // count errors
+    cnt_err = 0;
+
+    //////////////////////////////////////////////////////////
+    // DEMUX reading/writting
+    //////////////////////////////////////////////////////////
+
+    /*
+     TMTC: TC_HK_CONF register.
+     */
+    msg = "TMTC: Select the DEMUX SPI link (TC_HK_CONF register).";
+    display_subtitle(msg, level0, mode_p);
+    // spi_select: 0: DEMUX, 1: RAS
+    spi_select = 0;
+    sendToDRELinkBoard_ConfigureSPI_CS(spi_select);
+
+    msg = "";
+    display(msg, level0, mode_p);
+
+    /*
+      From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+      Expected values:  see .vhd code
+     */
+    msg = "From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).";
+    display(msg, level0, mode_p);
+    nb_data= 34;
+    addr = 0x0400;
+    sendToDREReadRegisters(addr, nb_data);
+
+	// read values
+    getLatestValue("DRE_registers");
+    read_values_tab0 = extract_sub_table(DRE_registers, addr, nb_data, level1, mode_p, verbosity_p)
+
+    /*
+     To the DEMUX: Write 34 consecutive values to the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+     */
+    msg = "To the DEMUX: Write 34 consecutive values to the DEMUX AMP_SQ_OFFSET_FINE table (col0).";
+    display(msg, level0, mode_p);
+
+    value_test = [
+                0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007, 0x0001,
+                0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007, 0x0001,
+                0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007, 0x0001,
+                0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007, 0x0001,
+                0x0001, 0x0002];
+    sendToDREWritePixelsRegisters(0x0400,value_test);
+
+    /*
+      From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+      Expected values: the reading should be identical to the written values (previously access).
+     */
+    msg = "From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).";
+    display(msg, level0, mode_p);
+    nb_data= 34;
+    addr = 0x0400;
+    sendToDREReadRegisters(addr, nb_data);
+
+    // read values
+    getLatestValue("DRE_registers");
+    read_values_tab = extract_sub_table(DRE_registers, addr, nb_data, level1, mode_p, verbosity_p)
+
+    // expected values to read
+    expected_values_tab = value_test;
+
+    msg = "Reading of the DEMUX Pulse Shape Table (Col0)";
+    error = check_equal_tab(read_values_tab, expected_values_tab, msg, level1, mode_p, verbosity_p);
+    if (error == -1)
+    {
+      cnt_err += 1;
+    }
+
+    msg = "";
+    display(msg, level0, mode_p);
+
+
+    //////////////////////////////////////////////////////////
+    // RAS reading/writting
+    //////////////////////////////////////////////////////////
+
+    /*
+     TMTC: TC_HK_CONF register.
+     */
+    msg = "TMTC: Select the RAS SPI link (TC_HK_CONF register).";
+    display_subtitle(msg, level0, mode_p);
+    // spi_select: 0: DEMUX, 1: RAS
+    spi_select = 1;
+    sendToDRELinkBoard_ConfigureSPI_CS(spi_select);
+
+    msg = "";
+    display(msg, level0, mode_p);
+
+    /*
+       To the RAS: Write 34 consecutive values at the same address as the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+     */
+    msg = "To the RAS: Write 34 consecutive values at the same address as the DEMUX AMP_SQ_OFFSET_FINE table (col0).";
+    display(msg, level0, mode_p);
+
+    ras_value_test = [
+       0x0007, 0x0006, 0x0005, 0x0004, 0x0003, 0x0002, 0x0001, 0x0000,
+       0x0000, 0x0007, 0x0006, 0x0005, 0x0004, 0x0003, 0x0002, 0x0001,
+       0x0000, 0x0000, 0x0007, 0x0006, 0x0005, 0x0003, 0x0002, 0x0001,
+       0x0000, 0x0000, 0x0007, 0x0006, 0x0005, 0x0004, 0x0003, 0x0002,
+       0x0001, 0x0000];
+    sendToDREWritePixelsRegisters(0x0400, ras_value_test);
+
+    /*
+     From the RAS: Read 34 consecutive values at the same address as the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+     Expected values:
+       . return identical values (0x0) if the RAS link is not connected.
+     */
+    msg = "From the RAS: Read 34 consecutive values at the same address as the DEMUX AMP_SQ_OFFSET_FINE table (col0).";
+    display(msg, level0, mode_p);
+    nb_data= 34;
+    addr = 0x0400;
+    sendToDREReadRegisters(addr, nb_data);
+
+
+    // read values
+    getLatestValue("RA_registers");
+    read_values_tab = extract_sub_table(RA_registers, addr, nb_data, level1, mode_p, verbosity_p)
+
+    // expected values to read (if RAS not connected)
+    expected_values_tab = Array(nb_data);
+    for (i = 0; i < expected_values_tab.length; i++)
+       {
+          expected_values_tab[i]= 0x0000;
+       }
+
+    msg = "Reading at the same address as the DEMUX Pulse Shape Table (Col0)";
+    error = check_equal_tab(read_values_tab, expected_values_tab, msg, level1, mode_p, verbosity_p);
+    if (error == -1)
+    {
+      cnt_err += 1;
+    }
+
+    msg = "";
+    display(msg, level0, mode_p);
+
+    //////////////////////////////////////////////////////////
+    // DEMUX reading
+    //////////////////////////////////////////////////////////
+
+    /*
+     TMTC: TC_HK_CONF register.
+     */
+    msg = "TMTC: Select the DEMUX SPI link (TC_HK_CONF register).";
+    display_subtitle(msg, level0, mode_p);
+    // spi_select: 0: DEMUX, 1: RAS
+    spi_select = 0;
+    sendToDRELinkBoard_ConfigureSPI_CS(spi_select);
+
+    msg = "";
+    display(msg, level0, mode_p);
+
+    /*
+     From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
+     Expected values:  see .vhd code
+     */
+    msg = "From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).";
+    display(msg, level0, mode_p);
+    nb_data= 34;
+    addr = 0x0400;
+    sendToDREReadRegisters(addr, nb_data);
+
+    // read values
+    getLatestValue("DRE_registers");
+    read_values_tab = extract_sub_table(DRE_registers, addr, nb_data, level1, mode_p, verbosity_p);
+
+    // expected values to read
+    expected_values_tab = value_test;
+
+    msg = "Reading of the DEMUX Pulse Shape Table (Col0)";
+    error = check_equal_tab(read_values_tab, expected_values_tab, msg, level1, mode_p, verbosity_p);
+    if (error == -1)
+    {
+      cnt_err += 1;
+    }
+
+    return cnt_err;
+
+}
+
+/**
+ * Script Entry Point.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ */
+function main(level_p, mode_p, verbosity_p) {
+
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    // script name
+    script_name = "Test_SPI_write_DEMUX_RAS";
+
+    /*
+     ***************************************************************************
+     * display the test description
+     ***************************************************************************
+     */
+    msg = "tmtc Test Description: " + script_name;
+    display_title(msg, level0, mode_p);
+
+    msg = 'Context and purpose of the test.'
+    display_subtitle(msg, level1, mode_p);
+
+    msg = [
+     "This test does the writting/reading of the DEMUX/RAS SPI links.",
+     "The steps are:",
+     "   1. TMTC: Select the DEMUX SPI link.",
+     "   2. From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).",
+     "   3. To the DEMUX:   Write 34 consecutive values to the DEMUX AMP_SQ_OFFSET_FINE table (col0).",
+     "   4. From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).",
+     "",
+     "   5. TMTC: Select the RAS SPI link.",
+     "   6. To the RAS: Write 34 consecutive values at the same address as the DEMUX AMP_SQ_OFFSET_FINE table (col0).",
+     "   7. From the RAS: Read 34 consecutive values at the same address as the DEMUX AMP_SQ_OFFSET_FINE table (col0).",
+     "",
+     "   8. TMTC: Select the DEMUX SPI link.",
+     "   9. From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).",
+     "",
+     "Expected Result:",
+     "    . check the written values in 3. are equal to the read values in 4.",
+     "    . check the written values in 6. is different of the reading in 6. if not RAS link is connected.",
+     "    . check the written values in 3. are equal to the read values in 9."
+    ];
+    display(msg, level2, mode_p);
+
+    msg = "";
+    display(msg, level0, mode_p);
+
+    /*
+     ***************************************************************************
+     * display the script info
+     ***************************************************************************
+     */
+    error_info_cnt = 0;
+    list_tmp       = tmtc_script_info(level1, mode_p, 2);
+    error_info_cnt = list_tmp[0];
+    info           = list_tmp[1];
+
+    // build output filename
+    output_filename = script_name + "__" + info + ".txt";
+
+    // 1st Test to execute
+    // str_en_spi_write = getText("Test: Check the read HK/Status data from the DEMUX/RAS SPI links (0 or 1).", "0");
+    str_en_spi_write = "1";
+    en_spi_write = parseInt(str_en_spi_write, 10);
+
+     /*
+     ***************************************************************************
+     * Check: SPI write
+     ***************************************************************************
+     */
+    if (en_spi_write == 1)
+    {
+        msg = "Test: Check the read HK/Status data from the DEMUX/RAS SPI links.";
+        display_title(msg, level0, mode_p);
+        error_spi_write_cnt = test_spi_write(level1, mode_p, verbosity_p);
+    }
+
+    /*
+     ***************************************************************************
+     * check all errors
+     ***************************************************************************
+     */
+    error_debug_cnt = 0;
+    msg = "Check Debug Errors.";
+    display_title(msg, level0, mode_p);
+    error_debug_cnt = tmtc_check_all_errors(level1, mode_p, verbosity_p);
+
+    /*
+     ***************************************************************************
+     * Summary
+     ***************************************************************************
+     */
+    msg = "Summary: Errors.";
+    display_title(msg, level1, mode_p);
+
+    // get HARDWARE_ID
+    reg_name = 'HARDWARE_ID';
+    msg = "TMTC: Get " + reg_name + ": ";
+    display(msg, level1, mode_p);
+    data = tmtc_get_wireout_by_name(reg_name, level2, mode_p, 1);
+
+    msg = "";
+    display(msg, level1, mode_p);
+
+    // get the FIRMWARE_NAME
+    reg_name = 'FIRMWARE_NAME';
+    msg = "TMTC: Get " + reg_name + ": ";
+    display(msg, level1, mode_p);
+    data = tmtc_get_wireout_by_name(reg_name, level2, mode_p, 1);
+
+    msg = " ";
+    display(msg, level1, mode_p);
+
+    // get FIRMWARE_ID
+    reg_name = 'FIRMWARE_ID';
+    msg = "TMTC: Get " + reg_name + ": ";
+    display(msg, level1, mode_p);
+    data = tmtc_get_wireout_by_name(reg_name, level2, mode_p, 1);
+
+    msg = " ";
+    display(msg, level1, mode_p);
+
+    // summary of the script_info errors.
+    if (error_info_cnt == 0)
+    {
+        msg_tmp = "[OK]: Script Info has " + error_info_cnt.toString(10) + " error.";
+        display(msg_tmp, level1, mode_p);
+    }
+    else
+    {
+        msg_tmp = "[KO]: Script Info has " + error_info_cnt.toString(10) + " errors.";
+        display(msg_tmp, mode_p);
+    }
+
+    // summary of the spi_write errors
+    if (en_spi_write == 0)
+    {
+        msg_tmp = "[N/A]: Test: The DEMUX/RAS SPI writting/reading was not performed. ";
+        display(msg_tmp, level1, mode_p);
+    }
+    else
+    {
+        if (error_spi_write_cnt == 0)
+        {
+            msg_tmp = "[OK]: Test: The DEMUX/RAS SPI writting/reading has " + error_spi_write_cnt.toString(10) + " error.";
+            display(msg_tmp, level1, mode_p);
+        }
+        else
+        {
+            msg_tmp = "[KO]: Test: The DEMUX/RAS SPI writting/reading has " + error_spi_write_cnt.toString(10) + " errors.";
+            display(msg_tmp, level1, mode_p);
+        }
+    }
+
+    // summary of the internal errors
+    if (error_debug_cnt == 0)
+    {
+      msg_tmp = "[OK]: Debug errors has " + error_debug_cnt.toString(10) + " error.";
+      display(msg_tmp, level1, mode_p);
+    }
+    else
+    {
+      msg_tmp = "[KO]: Debug errors generation has " + error_debug_cnt.toString(10) + " errors.";
+      display(msg_tmp, level1, mode_p);
+    }
+
+    /*
+     ***************************************************************************
+     * End of Test
+     ***************************************************************************
+     */
+    msg = "End of Test.";
+    display_title(msg, level0, mode_p);
+
+    /*
+     ***************************************************************************
+     * Save the Log content
+     ***************************************************************************
+     */
+    saveLogContent(output_filename);
+
+}
+
+/**
+ * Execute the main function.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ */
+main(0, 0, 2);

@@ -1,0 +1,598 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Ken-ji de la Rosa, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE Focal Plane Assembly simulator.
+//
+//                              tmtc-fw is free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                   kenji.delarosa@alten.com
+//    @file                   Test_tmtc_check_link.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    Automatic Generation    No
+//    Code Rules Reference
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//   This test does the following tests:
+//      . test_wire: check the main TMTC register access.
+//          . For the main TMTC registers, do the following steps:
+//             . write -> read back -> check
+//   Note:
+//      . Tested with javascript.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// import javascript
+include("./tmtc/utils_tools.dscript");
+include("./tmtc/tmtc_tools.dscript");
+
+/**
+ * Configure the TMTC registers with default values.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ */
+function configure_tmtc(level_p, mode_p, verbosity_p) {
+
+    // default function parameter values
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+    /*
+     ***************************************************************************
+     * Configure the TMTC functions
+     ***************************************************************************
+     */
+
+    // Set the CTRL register.
+    msg = "TMTC: Set the register: CTRL";
+    display(msg, level1, mode_p);
+    rst = 0 // reset isn't set. Otherwise, we have a risk to lose the synchronization at the Xifu studio side => generate error.
+    tmtc_set_ctrl(rst, level1, mode_p, verbosity_p);
+
+	msg = "";
+    display(msg, level1, mode_p);
+
+    // set the register: TC_HK_CONF.
+    // spi_select: 0: DEMUX, 1: RAS
+    spi_select = 0x0;
+    msg = "TMTC: Select the DEMUX device (TC_HK_CONF register).";
+    display(msg, level1, mode_p);
+    tmtc_set_tc_hk_conf(spi_select, level1, mode_p);
+
+    msg = "";
+    display(msg, level1, mode_p);
+
+    // set the register: icu_conf.
+    // icu_select : 0 for main, 1 for redundant
+    icu_select = 0x0;
+    msg = "TMTC: Set the register: ICU_CONF.";
+    display(msg, level1, mode_p);
+    tmtc_set_icu_conf(icu_select, level1, mode_p);
+
+    msg = ''
+    display(msg, level1, mode_p)
+
+    // set the register: DEBUG_CTRL.
+    science_pattern_en_fifo_out = 0x0;
+    rst_status = 0x0;
+    debug_pulse = 0x0;
+    msg = "TMTC: Set the register:  DEBUG_CTRL";
+    display(msg, level1, mode_p);
+    tmtc_set_debug_ctrl(science_pattern_en_fifo_out, rst_status, debug_pulse, level1, mode_p);
+
+    msg = "";
+    display(msg, level1, mode_p);
+}
+
+/**
+ * Test the wire register access:
+ *   For each defined wire register, do the following steps:
+ *      . write the register (wire_in)
+ *      . read the register (wire_out)
+ *      . check if the written data and the read data are equal.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ */
+function test_wire(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
+
+    //
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    cnt_error_wire = 0;
+
+    /*
+     ***************************************************************************
+     * check: CTRL
+     ***************************************************************************
+     */
+    mask_rst = 0xFFFFFFFE; // don't touch the rst bit
+    data0 = 0x9ABCEF0 & mask_rst;
+
+    msg = "TMTC: Set the register: CTRL.";
+    display(msg, level1, mode_p);
+
+    // set register
+    tmtc_set_debug_wirein_by_name("CTRL", data0, level2, mode_p, verbosity_p);
+
+    // read register
+    data1 = tmtc_get_wireout_by_name("CTRL", level2, mode_p, verbosity_p);
+
+    // check the read data Vs the written data
+    msg = "TMTC: Check register: CTRL.";
+    error = check_equal(data0, data1, msg, level2, mode_p, verbosity_p);
+    if (error == -1)
+    {
+        cnt_error_wire += 1
+    }
+
+    msg = "";
+    display(msg, level1, mode_p);
+
+    /*
+     ***************************************************************************
+     * check: TC_HK_CONF
+     ***************************************************************************
+     */
+    data0 = 0x00000F1;
+    msg = "TMTC: Set the register: TC_HK_CONF.";
+    display(msg, level1, mode_p);
+
+    // set register
+    // Use the Xifu Studio specific access.
+    sendToDRELinkBoard_ConfigureSPI_CS(data0);
+    // tmtc_set_debug_wirein_by_name(reg_name_p = "TC_HK_CONF", data_p = data0, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
+
+    // read register
+    data1 = tmtc_get_wireout_by_name("TC_HK_CONF", level2, mode_p, verbosity_p);
+
+    // check the read data Vs the written data
+    msg = "TMTC: Check register (access0): TC_HK_CONF.";
+    error = check_equal(data0, data1, msg, level2, mode_p, verbosity_p);
+    if (error == -1)
+    {
+        cnt_error_wire += 1
+    }
+
+    // Read register: Use the Xifu Studio specific access.
+    getLatestValue("DRELINKBOARD_SPI_CS");
+    data1 =  DRELINKBOARD_SPI_CS;
+
+    // check the read data Vs the written data
+    msg = "TMTC: Check register (access1): TC_HK_CONF";
+    error = check_equal(data0, data1, msg, level2, mode_p, verbosity_p);
+    if (error == -1)
+    {
+        cnt_error_wire += 1
+    }
+
+    msg = "";
+    display(msg, level1, mode_p);
+
+
+    /*
+     ***************************************************************************
+     * check: ICU_CONF
+     ***************************************************************************
+     */
+    data0 = 0x000000D0;
+    msg = "TMTC: Set the register: ICU_CONF";
+    display(msg, level1, mode_p);
+
+    // set register
+    // Use the Xifu Studio specific access.
+    sendToDRELinkBoard_ConfigureICU(data0);
+
+    // read register
+    data1 = tmtc_get_wireout_by_name("ICU_CONF", level2, mode_p, verbosity_p);
+
+    // check the read data Vs the written data
+    msg = "TMTC: Check register (access0): ICU_CONF.";
+    error = check_equal(data0, data1, msg, level2, mode_p, verbosity_p);
+    if (error == -1)
+    {
+        cnt_error_wire += 1
+    }
+
+    // read register
+    // Use the Xifu Studio specific access
+    getLatestValue("DRELINKBOARD_ICU_Selection");
+    data1 =  DRELINKBOARD_ICU_Selection;
+    msg = "TMTC: Check register (access1): ICU_CONF.";
+    error = check_equal(data0, data1, msg, level2, mode_p, verbosity_p);
+    if (error == -1)
+    {
+        cnt_error_wire += 1
+    }
+
+    msg = "";
+    display(msg, level1, mode_p);
+
+
+    /*
+     ***************************************************************************
+     * check: DEBUG_CTRL
+     ***************************************************************************
+     */
+    science_pattern_en_fifo_out = 0;
+    rst_status = 0;
+    debug_pulse = 1;
+    // build the data to send
+    data0 = tmtc_build_debug_ctrl(science_pattern_en_fifo_out, rst_status, debug_pulse);
+
+    msg = "TMTC: Set the register: DEBUG_CTRL.";
+    display(msg, level1, mode_p);
+
+    // set register
+    tmtc_set_debug_wirein_by_name('DEBUG_CTRL', data0, level2, mode_p, verbosity_p);
+
+    // read the register
+    data1 = tmtc_get_wireout_by_name("DEBUG_CTRL", level2, mode_p, verbosity_p);
+
+    // check the read data Vs the written data
+    msg = "TMTC: Check register: DEBUG_CTRL.";
+    error = check_equal(data0, data1, msg, level2, mode_p, verbosity_p);
+    if (error == -1)
+    {
+        cnt_error_wire += 1
+    }
+    msg = "";
+    display(msg, level1, mode_p);
+
+    /*
+     ***************************************************************************
+     * check: ERROR_SEL
+     ***************************************************************************
+     */
+    sel_error = 2;
+    // build the data to send
+    data0 = tmtc_build_error_sel(sel_error);
+
+    msg = "TMTC: Set the register:  ERROR_SEL.";
+    display(msg, level1, mode_p);
+
+    // set register
+    tmtc_set_debug_wirein_by_name('ERROR_SEL', data0, level2, mode_p, verbosity_p);
+
+    // read the register
+    data1 = tmtc_get_wireout_by_name("ERROR_SEL", level2, mode_p, verbosity_p);
+
+    // check the read data Vs the written data
+    msg = "TMTC: Check register: ERROR_SEL";
+    error = check_equal(data0, data1, msg, level2, mode_p, verbosity_p);
+    if (error == -1)
+    {
+        cnt_error_wire += 1
+    }
+
+    msg = "";
+    display(msg, level1, mode_p);
+
+    /*
+     ***************************************************************************
+     * check: HARDWARE_ID
+     ***************************************************************************
+     */
+
+    // read register
+    // debug access
+    data0 = tmtc_get_wireout_hardware_id(level2, mode_p, verbosity_p);
+
+    // read register
+    // Xifu Studio specific access
+    getLatestValue("DRELINKBOARD_HARDWARE_ID");
+    data1 = DRELINKBOARD_HARDWARE_ID;
+
+    // check the read data Vs the written data
+    msg = "TMTC: Check register: HARDWARE_ID";
+    error = check_equal(data0, data1, msg, level2, mode_p, verbosity_p);
+    if (error == -1)
+    {
+        cnt_error_wire += 1
+    }
+
+    msg = "";
+    display(msg, level1, mode_p);
+
+   /*
+     ***************************************************************************
+     * check: FIRMWARE_NAME
+     ***************************************************************************
+     */
+
+    // read register
+    // debug access
+    data0 = tmtc_get_wireout_firmware_name(level2, mode_p, verbosity_p);
+
+    // read register
+    // Xifu Studio specific access
+    getLatestValue("DRELINKBOARD_FIRMWARE_NAME");
+    data1 = DRELINKBOARD_FIRMWARE_NAME;
+
+    // check the read data Vs the written data
+    msg = "TMTC: Check register: FIRMWARE_NAME";
+    error = check_equal(data0, data1, msg, level2, mode_p, verbosity_p);
+    if (error == -1)
+    {
+        cnt_error_wire += 1
+    }
+
+    msg = "";
+    display(msg, level1, mode_p);
+
+   /*
+     ***************************************************************************
+     * check: FIRMWARE_ID
+     ***************************************************************************
+     */
+
+    // read register
+    // debug access
+     data0 = tmtc_get_wireout_firmware_id(level2, mode_p, verbosity_p);
+
+    // read register
+    // Xifu Studio specific access
+    getLatestValue("DRELINKBOARD_FIRMWARE_ID");
+    data1 = DRELINKBOARD_FIRMWARE_ID;
+
+    // check the read data Vs the written data
+    msg = "TMTC: Check register: FIRMWARE_ID";
+    error = check_equal(data0, data1, msg, level2, mode_p, verbosity_p);
+    if (error == -1)
+    {
+        cnt_error_wire += 1
+    }
+
+    msg = "";
+    display(msg, level1, mode_p);
+
+    return cnt_error_wire
+
+}
+
+
+/**
+ * Script Entry Point.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ */
+function main(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof (level_p) === 'undefined') level_p = 0;
+    if (typeof (mode_p) === 'undefined') mode_p = 0;
+    if (typeof (verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    // script name
+    script_name = "Test_tmtc_check_link";
+
+    /*
+     ***************************************************************************
+     * display the test description
+     ***************************************************************************
+     */
+    msg = "tmtc Test Description: " + script_name;
+    display_title(msg, level0, mode_p);
+
+    msg = 'Context and purpose of the test.';
+    display_subtitle(msg, level1, mode_p);
+
+    msg = [
+    'The test purpose is to check the communication between the TMTC firmware and XIFU Studio application by writting and reading the TMTC registers.'
+    ];
+    display(msg, level2, mode_p);
+
+    msg = 'Test progress.'
+    display_subtitle(msg, level1, mode_p);
+    msg = [
+    "Read constant register values (example: FIRMWARE_ID, FIRMWARE_NAME, etc.)",
+    "Test the TMTC register configuration.",
+    "    . For each main register, do the following steps:",
+    "      . write -> read back -> check (written value = reading value?)"
+    ];
+    display(msg, level2, mode_p);
+
+    msg = "";
+    display(msg, level0, mode_p);
+
+    /*
+     ***************************************************************************
+     * display the script info
+     ***************************************************************************
+     */
+    error_info_cnt = 0;
+    list_tmp       = tmtc_script_info(level1, mode_p, 2);
+    error_info_cnt = list_tmp[0];
+    info           = list_tmp[1];
+
+    // build output filename
+    output_filename = script_name + "__" + info + ".txt";
+
+    /*
+     ***************************************************************************
+     * Get the test to execute
+     ***************************************************************************
+     */
+    msg = "Tests to execute:";
+    display_title(msg, level0, mode_p);
+
+    // 1st Test to execute
+    //str_en_wire = getText("Test: Check wire registers (0 or 1).", "0");
+    str_en_wire = "1";
+    en_wire = parseInt(str_en_wire, 10);
+    msg = "Test: Check wire registers: " + str_en_wire;
+    display(msg, level1, mode_p);
+
+    /*
+     ***************************************************************************
+     * configure spi devices, tmtc RAM with default values
+     ***************************************************************************
+     */
+    msg = "Configure TMTC register with default values.";
+    display_title(msg, level0, mode_p);
+    configure_tmtc(level1, mode_p, verbosity_p);
+
+    /*
+     ***************************************************************************
+     * reset the tmtc function
+     ***************************************************************************
+     */
+    // msg = "Reset the tmtc function";
+    // display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+    // tmtc_reset(level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
+
+    error_wire_cnt = 0;
+
+    /*
+     ***************************************************************************
+     * Check: Wire registers
+     ***************************************************************************
+     */
+    if (en_wire == 1) {
+        msg = "Test: wire Registers.";
+        display_title(msg, level0, mode_p);
+        error_wire_cnt = test_wire(level1, mode_p, verbosity_p);
+    }
+
+    /*
+     ***************************************************************************
+     * check all errors
+     ***************************************************************************
+     */
+    error_debug_cnt = 0;
+    msg = "Check Debug Errors.";
+    display_title(msg, level0, mode_p);
+    error_debug_cnt = tmtc_check_all_errors(level1, mode_p, verbosity_p);
+
+    /*
+     ***************************************************************************
+     * Summary
+     ***************************************************************************
+     */
+    msg = "Summary: Errors.";
+    display_title(msg, level1, mode_p);
+
+    // get HARDWARE_ID
+    reg_name = 'HARDWARE_ID';
+    msg = "TMTC: Get " + reg_name + ": ";
+    display(msg, level1, mode_p);
+    data = tmtc_get_wireout_by_name(reg_name, level2, mode_p, 2);
+
+    msg = "";
+    display(msg, level1, mode_p);
+
+    // get the FIRMWARE_NAME
+    reg_name = 'FIRMWARE_NAME';
+    msg = "TMTC: Get " + reg_name + ": ";
+    display(msg, level1, mode_p);
+    data = tmtc_get_wireout_by_name(reg_name, level2, mode_p, 2);
+
+
+    msg = " ";
+    display(msg, level1, mode_p);
+
+    // get FIRMWARE_ID
+    reg_name = 'FIRMWARE_ID';
+    msg = "TMTC: Get " + reg_name + ": ";
+    display(msg, level1, mode_p);
+    data = tmtc_get_wireout_by_name(reg_name, level2, mode_p, 2);
+
+    msg = " ";
+    display(msg, level1, mode_p);
+
+
+    // summary of the script_info errors.
+    if (error_info_cnt == 0)
+    {
+        msg_tmp = "[OK]: Script Info has " + error_info_cnt.toString(10) + " error.";
+        display(msg_tmp, level1, mode_p);
+    }
+    else
+    {
+        msg_tmp = "[KO]: Script Info has " + error_info_cnt.toString(10) + " errors.";
+        display(msg_tmp, level1, mode_p);
+    }
+
+
+    // summary of the test_wire errors.
+    if (en_wire == 0)
+    {
+        msg_tmp = "[N/A]: Test: Wire Registers was not performed.";
+        display(msg_tmp, level1, mode_p);
+    }
+    else
+    {
+        if (error_wire_cnt == 0)
+        {
+            msg_tmp = "[OK]: Test: Wire Registers has " + error_wire_cnt.toString(10) + " error.";
+            display(msg_tmp, level1, mode_p);
+        }
+        else
+        {
+            msg_tmp = "[KO]: Test: Wire Registers has " + error_wire_cnt.toString(10) + " errors.";
+            display(msg_tmp, level1, mode_p);
+        }
+    }
+
+
+    if (error_debug_cnt == 0)
+    {
+        msg_tmp = "[OK]: Debug errors has " + error_debug_cnt.toString(10) + " error.";
+        display(msg_tmp, level1, mode_p);
+    }
+    else
+    {
+        msg_tmp = "[KO]: Debug errors generation has " + error_debug_cnt.toString(10) + " errors.";
+        display(msg_tmp, level1, mode_p);
+    }
+
+    /*
+     ***************************************************************************
+     * End of Test
+     ***************************************************************************
+     */
+    msg = "End of Test.";
+    display_title(msg, level0, mode_p);
+
+    /*
+     ***************************************************************************
+     * Save the Log content
+     ***************************************************************************
+     */
+    saveLogContent(output_filename);
+
+}
+
+/**
+ * Execute the main function.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ */
+main(0, 0, 2);
