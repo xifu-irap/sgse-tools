@@ -125,7 +125,7 @@ TMTC_ADDR_WIREOUT['FIRMWARE_ID'] = 0x3F; // 31
  * @return {number} built word.
  */
 function tmtc_build_ctrl(rst_p) {
-    const data = (rst_p << 0);
+    data = (rst_p << 0);
 
     return data;
 }
@@ -137,7 +137,7 @@ function tmtc_build_ctrl(rst_p) {
  * @return {number} built word.
  */
 function tmtc_build_tc_hk_conf(spi_select_p) {
-    const data = spi_select_p
+    data = spi_select_p
     return data;
 }
 
@@ -149,7 +149,7 @@ function tmtc_build_tc_hk_conf(spi_select_p) {
  * @return {number} built word.
  */
 function tmtc_build_icu_conf(icu_select_p) {
-    const data = icu_select_p;
+    data = icu_select_p;
     return data;
 }
 
@@ -163,7 +163,7 @@ function tmtc_build_icu_conf(icu_select_p) {
  * @return {number} built word.
  */
 function tmtc_build_debug_ctrl(science_pattern_en_fifo_out_p, rst_status_p, debug_pulse_p) {
-    const data = (science_pattern_en_fifo_out_p << 4) + (rst_status_p << 1) + debug_pulse_p;
+    data = (science_pattern_en_fifo_out_p << 4) + (rst_status_p << 1) + debug_pulse_p;
     return data;
 }
 
@@ -174,7 +174,7 @@ function tmtc_build_debug_ctrl(science_pattern_en_fifo_out_p, rst_status_p, debu
  * @return {number} built word.
  */
 function tmtc_build_error_sel(sel_error_p) {
-    const data = sel_error_p;
+    data = sel_error_p;
     return data;
 }
 
@@ -198,8 +198,8 @@ function tmtc_set_ctrl(rst_p, level_p, mode_p, verbosity_p) {
     const level1 = level_p + 1;
     const level2 = level_p + 2;
 
-    const data = tmtc_build_ctrl(rst_p);
-    const addr = TMTC_ADDR_WIREIN["CTRL"];
+    data = tmtc_build_ctrl(rst_p);
+    addr = TMTC_ADDR_WIREIN["CTRL"];
 
     sendToDRELinkBoard_SetWireIn(addr, data);
 
@@ -242,8 +242,8 @@ function tmtc_set_tc_hk_conf(spi_select_p, level_p, mode_p, verbosity_p) {
     const level1 = level_p + 1;
     const level2 = level_p + 2;
 
-    const data = tmtc_build_tc_hk_conf(spi_select_p);
-    const addr = TMTC_ADDR_WIREIN["TC_HK_CONF"];
+    data = tmtc_build_tc_hk_conf(spi_select_p);
+    addr = TMTC_ADDR_WIREIN["TC_HK_CONF"];
 
     sendToDRELinkBoard_SetWireIn(addr, data);
 
@@ -285,8 +285,8 @@ function tmtc_set_icu_conf(icu_select_p, level_p, mode_p, verbosity_p) {
     const level1 = level_p + 1;
     const level2 = level_p + 2;
 
-    const data = tmtc_build_icu_conf(icu_select_p);
-    const addr = TMTC_ADDR_WIREIN["ICU_CONF"];
+    data = tmtc_build_icu_conf(icu_select_p);
+    addr = TMTC_ADDR_WIREIN["ICU_CONF"];
 
     sendToDRELinkBoard_SetWireIn(addr, data);
 
@@ -331,8 +331,8 @@ function tmtc_set_debug_ctrl(science_pattern_en_fifo_out_p, rst_status_p, debug_
     const level1 = level_p + 1;
     const level2 = level_p + 2;
 
-    const data = tmtc_build_debug_ctrl(science_pattern_en_fifo_out_p, rst_status_p, debug_pulse_p);
-    const addr = TMTC_ADDR_WIREIN["DEBUG_CTRL"];
+    data = tmtc_build_debug_ctrl(science_pattern_en_fifo_out_p, rst_status_p, debug_pulse_p);
+    addr = TMTC_ADDR_WIREIN["DEBUG_CTRL"];
 
     sendToDRELinkBoard_SetWireIn(addr, data);
 
@@ -543,13 +543,13 @@ function tmtc_set_debug_wirein_by_name(reg_name_p, data_p, level_p, mode_p, verb
  */
 function tmtc_wireout_read_command(addr_p) {
     // shift address
-    const index = addr_p - 0x20;
+    index = addr_p - 0x20;
     //---------------------------------------------------------------------
     // Read wire out registers
     //---------------------------------------------------------------------
     // waitMs(50);
     getLatestValue("DRELINKBOARD_WireOuts_x20_to_x3F");
-    const data = DRELINKBOARD_WireOuts_x20_to_x3F[index];
+    data = DRELINKBOARD_WireOuts_x20_to_x3F[index];
 
     return data;
 }
@@ -1215,7 +1215,7 @@ function tmtc_get_wireout_by_name(reg_name_p, level_p, mode_p, verbosity_p) {
             data = tmtc_get_wireout_firmware_id(level0, mode_p, verbosity_p);
             break;
         default:
-            const msg = "[tmtc_get_wireout_by_name]: Error " + reg_name_p + " doesn't exist."
+            msg = "[tmtc_get_wireout_by_name]: Error " + reg_name_p + " doesn't exist."
             display(msg, level0, mode_p);
             break;
     }
@@ -1243,11 +1243,11 @@ function tmtc_get_error_by_id(sel_error_p, level_p, mode_p, verbosity_p) {
     const level1 = level_p + 1;
 
     // Select the errors/status to read
-    const data0 = tmtc_build_error_sel(sel_error_p);
+    data0 = tmtc_build_error_sel(sel_error_p);
     tmtc_set_debug_wirein_by_name("ERROR_SEL", data0, level_p, mode_p, verbosity_p);
 
     // read the selected errors
-    const data = tmtc_get_wireout_by_name("ERRORS", level_p, mode_p, verbosity_p);
+    data = tmtc_get_wireout_by_name("ERRORS", level_p, mode_p, verbosity_p);
 
     return data;
 }
@@ -1271,7 +1271,7 @@ function tmtc_get_status_by_id(sel_error_p, level_p, mode_p, verbosity_p) {
     const level1 = level_p + 1;
 
     // Select the errors/status to read
-    const index = sel_error_p;
+    index = sel_error_p;
     tmtc_set_debug_wirein_by_name("ERROR_SEL", index, level_p, mode_p, verbosity_p);
 
     // read the selected status
