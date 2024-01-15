@@ -316,9 +316,9 @@ function convert_hex_to_ascii(value_p, width_p) {
  */
 function convert_uint_to_int(data_p, width_p) {
     if (data_p >= Math.pow(2, width_p - 1)) {
-        const val = data_p - Math.pow(2, width_p);
+        val = data_p - Math.pow(2, width_p);
     } else {
-        const val = data_p;
+        val = data_p;
     }
     return val
 }
@@ -331,9 +331,9 @@ function convert_uint_to_int(data_p, width_p) {
  */
 function convert_int_to_uint(data_p, width_p) {
     if (data_p < 0) {
-        const val = Math.pow(2, width_p) + data_p;
+        val = Math.pow(2, width_p) + data_p;
     } else {
-        const val = data_p;
+        val = data_p;
     }
     return val;
 }
