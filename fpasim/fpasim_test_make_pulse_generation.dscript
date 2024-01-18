@@ -122,9 +122,6 @@ function main(level_p, mode_p, verbosity_p) {
     const level1 = level0 + 1;
     const level2 = level0 + 2;
 
-    const mode_p = 0;
-    const verbosity_p = 0;
-
     // script name
     script_name = "fpasim_test_make_pulse_generation";
 
