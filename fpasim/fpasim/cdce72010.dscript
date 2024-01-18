@@ -275,7 +275,7 @@ function cdce_set_config0(
     const data = data5 + data4 + data3 + data2 + data1 + data0;
 
     const addr = CDCE_ADDR['reg0'];
-    cdce_write_command(addr_p = addr, data);
+    cdce_write_command(addr, data);
     if (verbosity_p < 0) {
         // do nothing
     } else {
