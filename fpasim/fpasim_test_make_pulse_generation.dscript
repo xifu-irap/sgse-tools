@@ -491,10 +491,10 @@ function main(level_p, mode_p, verbosity_p) {
 
     // summary of the RAM loading with default value
     if (error_load_ram_cnt == 0) {
-        msg_tmp = "[OK]: RAM loading:" + error_load_ram_cnt.toString(10) + " error";
+        msg_tmp = "[OK]: RAM loading :" + error_load_ram_cnt.toString(10) + " error";
         display(msg_tmp, level1, mode_p);
     } else {
-        msg_tmp = "[KO]: RAM loading:" + error_load_ram_cnt.toString(10) + " errors";
+        msg_tmp = "[KO]: RAM loading :" + error_load_ram_cnt.toString(10) + " errors";
         display(msg_tmp, level1, mode_p);
     }
 
