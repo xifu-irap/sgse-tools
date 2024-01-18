@@ -20,14 +20,14 @@
 //    @file                   utils_tools.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    Automatic Generation    No
-//    Code Rules Reference    
+//    Code Rules Reference
 // -------------------------------------------------------------------------------------------------------------
-//    @details      
-//          
+//    @details
+//
 //     This script defines 2 main types of functions:
 //        . printing/displaying functions. Thoses functions are used to beautify the report.
 //        . helping function such as: convert_hex_to_ascii
-//       
+//
 //
 // -------------------------------------------------------------------------------------------------------------
 
@@ -71,9 +71,9 @@ function display_title(msg_p, level_p, mode_p, color_p) {
 
     // color = colors[color_p];
     // color_rst = colors['reset'];
-    msg_array = _convert_str_to_array(msg_p = msg_p)
-    str_indent = duplicate_str(str_p = CHAR_INDENT, nb_times_p = NB_CHAR_INDENT * level_p);
-    str_char = duplicate_str(str_p = CHAR_SECTION, nb_times_p = NB_CHAR_SECTION);
+    msg_array = _convert_str_to_array(msg_p)
+    str_indent = duplicate_str(CHAR_INDENT, NB_CHAR_INDENT * level_p);
+    str_char = duplicate_str(CHAR_SECTION, NB_CHAR_SECTION);
     // str_sep = color + str_indent + str_char;
     str_sep = str_indent + str_char;
 
@@ -107,9 +107,9 @@ function display_subtitle(msg_p, level_p, mode_p, color_p) {
 
     // color = colors[color_p];
     // color_rst = colors['reset'];
-    msg_array = _convert_str_to_array(msg_p = msg_p)
-    str_indent = duplicate_str(str_p = CHAR_INDENT, nb_times_p = NB_CHAR_INDENT * level_p);
-    str_char = duplicate_str(str_p = CHAR_SECTION, nb_times_p = NB_CHAR_SECTION);
+    msg_array = _convert_str_to_array(msg_p)
+    str_indent = duplicate_str(CHAR_INDENT, NB_CHAR_INDENT * level_p);
+    str_char = duplicate_str(CHAR_SECTION, NB_CHAR_SECTION);
     // str_sep = color + str_indent + str_char;
     str_sep = str_indent + str_char;
 
@@ -140,8 +140,8 @@ function display(msg_p, level_p, mode_p, color_p) {
 
     // color = colors[color_p]
     // color_rst = colors['reset']
-    msg_array = _convert_str_to_array(msg_p = msg_p)
-    str_indent = duplicate_str(str_p = CHAR_INDENT, nb_times_p = NB_CHAR_INDENT * level_p);
+    msg_array = _convert_str_to_array(msg_p)
+    str_indent = duplicate_str(CHAR_INDENT, NB_CHAR_INDENT * level_p);
 
     for (var i = 0; i < msg_array.length; i++) {
         msg = msg_array[i];
@@ -169,11 +169,11 @@ function display_error(msg_p, level_p, mode_p, color_p) {
     const level1 = level_p + 1;
 
     msg = "Errors"
-    display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
+    display_title(msg, level0, mode_p);
     // color = colors[color_p]
     // color_rst = colors['reset']
-    msg_array = _convert_str_to_array(msg_p = msg_p)
-    str_indent = duplicate_str(str_p = CHAR_INDENT, nb_times_p = NB_CHAR_INDENT * level1);
+    msg_array = _convert_str_to_array(msg_p)
+    str_indent = duplicate_str(CHAR_INDENT, NB_CHAR_INDENT * level1);
 
     for (var i = 0; i < msg_array.length; i++) {
         msg_tmp = msg_array[i];
@@ -198,10 +198,10 @@ function display_register(addr_p, addr_width_p, data_p, data_width_p, level_p, m
 
     const level0 = level_p;
 
-    msg = 'addr: 0x' + convert_int_to_str_hex(value_p = addr_p, width_p = addr_width_p);
-    display(msg_p = msg, level_p = level0, mode_p = mode_p);
-    msg = 'data: 0x' + convert_int_to_str_hex(value_p = data_p, width_p = data_width_p);
-    display(msg_p = msg, level_p = level0, mode_p = mode_p);
+    msg = 'addr: 0x' + convert_int_to_str_hex(addr_p, addr_width_p);
+    display(msg, level0, mode_p);
+    msg = 'data: 0x' + convert_int_to_str_hex(data_p, data_width_p);
+    display(msg, level0, mode_p);
 
 }
 
@@ -227,7 +227,7 @@ function display_bit_from_data(bit_name_p, bit_pos_p, bit_width_p, data_p, level
         value += (1 << 30) * 4;
     }
 
-    display_bit(bit_name_p = bit_name_p, bit_value_p = value, bit_width_p = bit_width_p, level_p = level_p, mode_p = mode_p);
+    display_bit(bit_name_p, value, bit_width_p, level_p, mode_p);
 
 
 }
@@ -245,8 +245,8 @@ function display_bit(bit_name_p, bit_value_p, bit_width_p, level_p, mode_p) {
     if (typeof(level_p) === 'undefined') level_p = 0;
     if (typeof(mode_p) === 'undefined') mode_p = 0;
 
-    msg = bit_name_p + ': 0x' + convert_int_to_str_hex(value_p = bit_value_p, width_p = bit_width_p);
-    display(msg_p = msg, level_p = level_p, mode_p = mode_p);
+    msg = bit_name_p + ': 0x' + convert_int_to_str_hex(bit_value_p, bit_width_p);
+    display(msg, level_p, mode_p);
 }
 
 
@@ -279,7 +279,7 @@ function convert_int_to_str_hex(value_p, width_p) {
     // compute the number of hex decimal to output
     nb_hex_char = Math.ceil(width_p / 4);
     str_hex = value_p.toString(16);
-    
+
     // extends on the left side the hexadecimal string with 0
     while (str_hex.length < nb_hex_char) {
         str_hex = "0" + str_hex;
