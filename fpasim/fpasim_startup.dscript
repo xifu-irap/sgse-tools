@@ -296,21 +296,18 @@ function main(level_p, mode_p, verbosity_p) {
 
     // summary of the RAM loading with default value
     if (error_load_ram_cnt == 0) {
-        msg_tmp = "[OK]: Default RAM loading " + error_load_ram_cnt.toString(10) + " error";
+        msg_tmp = "[OK]: Default RAM loading:" + error_load_ram_cnt.toString(10) + " error";
         display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
     } else {
-        msg_tmp = "[KO]: Default RAM loading " + error_load_ram_cnt.toString(10) + " errors";
+        msg_tmp = "[KO]: Default RAM loading:" + error_load_ram_cnt.toString(10) + " errors";
         display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
     }
 
-    msg = "Summary: Errors";
-    display_title(msg_p = msg, level_p = level1, mode_p = mode_p);
-
     if (error_debug_cnt == 0) {
-        msg_tmp = "[OK]: Debug errors has " + error_debug_cnt.toString(10) + " error";
+        msg_tmp = "[OK]: Debug internal errors: " + error_debug_cnt.toString(10) + " error";
         display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
     } else {
-        msg_tmp = "[KO]: Debug errors generation has " + error_debug_cnt.toString(10) + " errors";
+        msg_tmp = "[KO]: Debug internal errors: " + error_debug_cnt.toString(10) + " errors";
         display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
     }
 
