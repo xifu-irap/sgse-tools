@@ -63,12 +63,15 @@ function main(level_p, mode_p, verbosity_p) {
     const mode_p = 0;
     const verbosity_p = 0;
 
+    // script name
+    script_name = "fpasim_load_tables_mux_squid";
+
     /*
      ***************************************************************************
      * display the test description
      ***************************************************************************
      */
-    msg = "Test description";
+    msg = "Test description: " + script_name;
     display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
 
     msg = "This test does the following steps:"
@@ -90,8 +93,12 @@ function main(level_p, mode_p, verbosity_p) {
      *    operator_name, session_name, etc.
      ***************************************************************************
      */
-    error_info_cnt = 0;
-    error_info_cnt = fpasim_script_info(level_p = level0, mode_p = mode_p, verbosity_p = 2);
+    list_tmp       = fpasim_script_info(level_p = level0, mode_p = mode_p, verbosity_p = 2);
+    error_info_cnt = list_tmp[0];
+    info           = list_tmp[1];
+
+    // build output filename
+    output_filename = script_name + "__" + info + ".txt";
 
     /*
      ***************************************************************************
@@ -343,30 +350,27 @@ function main(level_p, mode_p, verbosity_p) {
 
      // summary of the fpasim_script_info errors
     if (error_info_cnt == 0) {
-        msg_tmp = "[OK]: Script Info has " + error_info_cnt.toString(10) + " error";
+        msg_tmp = "[OK]: Script Info: " + error_info_cnt.toString(10) + " error";
         display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
     } else {
-        msg_tmp = "[KO]: Script Info has " + error_info_cnt.toString(10) + " errors";
+        msg_tmp = "[KO]: Script Info: " + error_info_cnt.toString(10) + " errors";
         display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
     }
 
     // summary of the RAM loading with default value
     if (error_load_ram_cnt == 0) {
-        msg_tmp = "[OK]: Default RAM loading " + error_load_ram_cnt.toString(10) + " error";
+        msg_tmp = "[OK]: RAM loading: " + error_load_ram_cnt.toString(10) + " error";
         display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
     } else {
-        msg_tmp = "[KO]: Default RAM loading " + error_load_ram_cnt.toString(10) + " errors";
+        msg_tmp = "[KO]: RAM loading: " + error_load_ram_cnt.toString(10) + " errors";
         display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
     }
 
-    msg = "Summary: Errors";
-    display_title(msg_p = msg, level_p = level1, mode_p = mode_p);
-
     if (error_debug_cnt == 0) {
-        msg_tmp = "[OK]: Debug errors has " + error_debug_cnt.toString(10) + " error";
+        msg_tmp = "[OK]: Debug internal errors: " + error_debug_cnt.toString(10) + " error";
         display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
     } else {
-        msg_tmp = "[KO]: Debug errors generation has " + error_debug_cnt.toString(10) + " errors";
+        msg_tmp = "[KO]: Debug internal errors: " + error_debug_cnt.toString(10) + " errors";
         display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
     }
 
@@ -379,6 +383,12 @@ function main(level_p, mode_p, verbosity_p) {
     msg = "End of Test";
     display_title(msg_p = msg, level_p = level0, mode_p = mode_p);
 
+    /*
+     ***************************************************************************
+     * Save the Log content
+     ***************************************************************************
+     */
+    saveLogContent(output_filename);
 }
 
 /**

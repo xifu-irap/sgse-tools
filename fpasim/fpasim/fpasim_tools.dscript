@@ -111,7 +111,11 @@ function fpasim_script_info(level_p, mode_p, verbosity_p) {
     display(msg_p = msg, level_p = level1, mode_p = mode_p);
     data = fpasim_get_wireout_by_name(reg_name_p = reg_name, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
 
-    return cnt_error_info;
+    // build output filename
+    //output_filename = operator_name + "_" + session_name + "_" + date;
+    output_filename = date + "_" + operator_name;
+
+    return [cnt_error_info,output_filename];
 }
 
 /**
