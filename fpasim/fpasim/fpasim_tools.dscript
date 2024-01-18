@@ -806,14 +806,14 @@ function fpasim_dac_get_pattern_result(level_p, mode_p, verbosity_p) {
  * @return {string} Name of the operator.
  */
 function get_operator_name() {
-    const OperatorTab = ["", "David", "Corentin", "Odile", "Laurent", "Ken", "Yann"]
-    const OperatorId = getItem("Please, select the operator name:", OperatorTab)
-    if (OperatorId == -1) {
-        const Operator_name = getText("Please, type the operator name:", "")
+    operator_tab = ["", "David", "Corentin", "Odile", "Laurent", "Ken", "Yann"]
+    operator_id = getItem("Please, select the operator name:", operator_tab)
+    if (operator_id == -1) {
+        operator_name = getText("Please, type the operator name:", "")
     } else {
-        const Operator_name = OperatorTab[OperatorId]
+        operator_name = operator_tab[operator_id]
     }
-    return (Operator_name)
+    return (operator_name)
 }
 
 /**
