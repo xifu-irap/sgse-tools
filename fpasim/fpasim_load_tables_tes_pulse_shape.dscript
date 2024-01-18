@@ -328,28 +328,28 @@ function main(level_p, mode_p, verbosity_p) {
      // summary of the fpasim_script_info errors
     if (error_info_cnt == 0) {
         msg_tmp = "[OK]: Script Info: " + error_info_cnt.toString(10) + " error";
-        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+        display(msg_tmp, level1, mode_p);
     } else {
         msg_tmp = "[KO]: Script Info: " + error_info_cnt.toString(10) + " errors";
-        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+        display(msg_tmp, level1, mode_p);
     }
 
     // summary of the RAM loading with default value
     if (error_load_ram_cnt == 0) {
         msg_tmp = "[OK]: RAM loading: " + error_load_ram_cnt.toString(10) + " error";
-        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+        display(msg_tmp, level1, mode_p);
     } else {
         msg_tmp = "[KO]: RAM loading: " + error_load_ram_cnt.toString(10) + " errors";
-        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+        display(msg_tmp, level1, mode_p);
     }
 
 
     if (error_debug_cnt == 0) {
         msg_tmp = "[OK]: Debug internal errors: " + error_debug_cnt.toString(10) + " error";
-        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+        display(msg_tmp, level1, mode_p);
     } else {
         msg_tmp = "[KO]: Debug internal errors: " + error_debug_cnt.toString(10) + " errors";
-        display(msg_p = msg_tmp, level_p = level1, mode_p = mode_p);
+        display(msg_tmp, level1, mode_p);
     }
 
 
