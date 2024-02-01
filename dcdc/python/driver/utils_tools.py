@@ -207,13 +207,13 @@ def check_equal(display_p,value0_p, value1_p, msg_p,level_p):
     if value0_p != value1_p:
         msg = "[KO]: " + msg_p
         disp.display(msg,level0)
-        msg = "[check_equal]: value0_p: 0x" + str_data0 + " !=  value_1_p: 0x" + str_data1;
+        msg = "[check_equal]: value0_p: 0x" + str_data0 + " != value_1_p: 0x" + str_data1;
         disp.display(msg,level1)
         return -1
     else:
         msg = "[OK]: " + msg_p
         disp.display(msg,level0)
-        msg = "[check_equal]: value0_p: 0x" + str_data0 + " !=  value_1_p: 0x" + str_data1;
+        msg = "[check_equal]: value0_p: 0x" + str_data0 + " = value_1_p: 0x" + str_data1;
         disp.display(msg,level1)
         return 0
 
