@@ -24,7 +24,7 @@
 # -------------------------------------------------------------------------------------------------------------
 #   @details
 #
-#   Provide functions (write/read) in order to access to all DCDC registers.
+#   Test: check the DCDC register access.
 #
 # ------------------------------------------------------------------------------------------------------------
 
@@ -37,13 +37,14 @@ import time
 script_base_path = str(Path(__file__).parents[0])
 script_name      = str(Path(__file__).stem)
 
-
 # custom library
 from driver import DCDC,Display,check_equal
 
 
 def test_wire(device_p):
     device = device_p
+
+    level0 = device.level
 
     # count error
     cnt_error_wire = 0
@@ -63,10 +64,11 @@ def test_wire(device_p):
 
     # check the read data Vs the written data
     msg = "DCDC: Check register: CTRL.";
-    error = check_equal(device,data0, data1, msg)
+    error = check_equal(device,data0, data1, msg,level0)
     if error == -1:
         cnt_error_wire += 1
 
+    device.display("")
 
     ############################################
     # check the POWER_CTRL register
@@ -83,10 +85,11 @@ def test_wire(device_p):
 
     # check the read data Vs the written data
     msg = "DCDC: Check register: POWER_CTRL"
-    error = check_equal(device,data0, data1, msg)
+    error = check_equal(device,data0, data1, msg, level0)
     if error == -1:
         cnt_error_wire += 1
 
+    device.display("")
 
     ############################################
     # check the DEBUG_CTRL register
@@ -104,9 +107,11 @@ def test_wire(device_p):
 
     # check the read data Vs the written data
     msg = "DCDC: Check register: DEBUG_CTRL";
-    error = check_equal(device,data0, data1, msg)
+    error = check_equal(device,data0, data1, msg, level0)
     if error == -1:
         cnt_error_wire += 1
+
+    device.display("")
 
     ############################################
     # check the ERROR_SEL register
@@ -122,9 +127,11 @@ def test_wire(device_p):
 
     # check the read data Vs the written data
     msg = "DCDC: Check register: ERROR_SEL"
-    error = check_equal(device,data0, data1, msg)
+    error = check_equal(device,data0, data1, msg, level0)
     if error == -1:
         cnt_error_wire += 1
+
+    device.display("")
 
     return cnt_error_wire
 
@@ -132,14 +139,25 @@ def test_wire(device_p):
 
 if __name__ == '__main__':
 
+    ###########################################
+    # User-defined parameters
+    ###########################################
     # path to the firmware
     firmware_filepath =  str(Path(script_base_path,"..\\..\\dcdc-fw_001.bit").resolve())
+    # level of verbosity
+    verbosity = 2
+
+
+    ###########################################
+    # Start script
+    ###########################################
 
     # Program the FPGA
     board = DCDC()
     board.open(firmware_filepath_p=firmware_filepath)
 
-    ###########################################
+    board.set_verbosity(verbosity)
+
     # display the test description
     ###########################################
     msg = "tmtc Test Description: " + script_name
@@ -165,31 +183,32 @@ if __name__ == '__main__':
 
     msg = ""
     board.display(msg)
-    ###########################################
+
     # Test to execute
     ###########################################
     msg = "Tests to execute:"
     board.display_title(msg)
 
-    ###########################################
     # test wire access
     ###########################################
     error_wire_cnt = test_wire(board)
 
 
-    ###########################################
     # check internal error
     ###########################################
-    cnt_error = board.check_internal_errors()
-
+    board.display_subtitle("Check internal errors")
+    error_internal_cnt = board.check_internal_errors()
+    board.display("")
     ###########################################
     # summary
     ###########################################
+    board.display_title("SUMMARY")
+
     # get HARDWARE_ID
     reg_name = 'HARDWARE_ID'
     msg = "DCDC: Get " + reg_name + ": "
     board.display(msg)
-    data = board.get_wireout_by_name(reg_name)
+    data = board.get_hardware_id()
 
     msg = ""
     board.display(msg)
@@ -198,7 +217,7 @@ if __name__ == '__main__':
     reg_name = 'FIRMWARE_NAME'
     msg = "TMTC: Get " + reg_name + ": "
     board.display(msg)
-    data = board.get_wireout_by_name(reg_name)
+    data = board.get_firmware_name()
 
 
     msg = " "
@@ -208,12 +227,12 @@ if __name__ == '__main__':
     reg_name = 'FIRMWARE_ID'
     msg = "TMTC: Get " + reg_name + ": "
     board.display(msg)
-    data = board.get_wireout_by_name(reg_name)
+    data = board.get_firmware_id()
 
     msg = " "
     board.display(msg)
 
-    # summary of the test_wire errors.
+    # summary of the test_wire.
     if (error_wire_cnt == 0):
         msg_tmp = "[OK]: test_wire has " + str(error_wire_cnt) + " error.";
         board.display(msg_tmp)
@@ -222,10 +241,10 @@ if __name__ == '__main__':
         board.display(msg_tmp)
 
     # summary of the internal errors.
-    if (error_wire_cnt == 0):
-        msg_tmp = "[OK]: Internal errors has " + str(error_wire_cnt) + " error.";
+    if (error_internal_cnt == 0):
+        msg_tmp = "[OK]: Internal errors has " + str(error_internal_cnt) + " error.";
         board.display(msg_tmp)
     else:
-        msg_tmp = "[KO]: Internal errors has " + str(error_wire_cnt) + " errors.";
+        msg_tmp = "[KO]: Internal errors has " + str(error_internal_cnt) + " errors.";
         board.display(msg_tmp)
 

@@ -24,7 +24,7 @@
 # -------------------------------------------------------------------------------------------------------------
 #   @details
 #
-#   Provide functions (write/read) in order to access to all DCDC registers.
+#   test: check the loading of the FPGA firmware.
 #
 # ------------------------------------------------------------------------------------------------------------
 
@@ -42,13 +42,59 @@ from driver import DCDC
 
 if __name__ == '__main__':
 
+    ###########################################
+    # User-defined parameters
+    ###########################################
     # path to the firmware
     firmware_filepath =  str(Path(script_base_path,"..\\..\\dcdc-fw_001.bit").resolve())
+    # level of verbosity
+    verbosity = 2
+
+
+    ###########################################
+    # Start script
+    ###########################################
 
     # Program the FPGA
     board = DCDC()
     board.open(firmware_filepath_p=firmware_filepath)
 
-    result = board.get_firmware_name()
-    print(hex(result))
+    board.set_verbosity(verbosity)
 
+    # check internal error
+    ###########################################
+    board.display_subtitle("Check internal errors")
+    error_internal_cnt = board.check_internal_errors()
+    board.display("")
+    ###########################################
+    # summary
+    ###########################################
+    board.display_title("SUMMARY")
+
+    # get HARDWARE_ID
+    reg_name = 'HARDWARE_ID'
+    msg = "DCDC: Get " + reg_name + ": "
+    board.display(msg)
+    data = board.get_hardware_id()
+
+    msg = ""
+    board.display(msg)
+
+    # get the FIRMWARE_NAME
+    reg_name = 'FIRMWARE_NAME'
+    msg = "TMTC: Get " + reg_name + ": "
+    board.display(msg)
+    data = board.get_firmware_name()
+
+
+    msg = " "
+    board.display(msg)
+
+    # get FIRMWARE_ID
+    reg_name = 'FIRMWARE_ID'
+    msg = "TMTC: Get " + reg_name + ": "
+    board.display(msg)
+    data = board.get_firmware_id()
+
+    msg = " "
+    board.display(msg)
