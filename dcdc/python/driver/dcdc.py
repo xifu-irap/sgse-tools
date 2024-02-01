@@ -128,7 +128,10 @@ class DCDC(Driver):
 
         # Trig in: index of the bit
         #######################################
+        self._addr_trigin = {}
         self._addr_trigin['TRIG_CTRL']  = 0x40;
+        
+        self._pos_trigin = {}
         self._pos_trigin['power_valid'] = 0;
         self._pos_trigin['adc_valid']   = 4;
 
@@ -205,9 +208,15 @@ class DCDC(Driver):
             ras_power_on_off_p (uint1_t): RAS- 1: power up, 0: power down
             wfee_power_on_off_p (uint1_t): WFEE- 1: power up, 0: power down
         """
-
+        # print
+        ####################################
+        level0 = self.level
+        if self._verbosity >= self._c_VERBOSITY_REG:
+            msg = "[dcdc.set_power]: Set the register value ";
+            self.display(msg,level0)
+            
         self.set_power_trig()
-        self.set_power_conf(dmx0_power_on_off_p,dmx1_power_on_off,ras_power_on_off_p,wfee_power_on_off_p)
+        self.set_power_conf(dmx0_power_on_off_p,dmx1_power_on_off_p,ras_power_on_off_p,wfee_power_on_off_p)
 
     def set_power_trig(self):
         """
@@ -234,9 +243,23 @@ class DCDC(Driver):
             if self._verbosity >= self._c_VERBOSITY_ADDR:
                 self.display_register(addr, self._c_REG_ADDR_WIDTH, data, self._c_REG_DATA_WIDTH, level1)
             if self._verbosity >= self._c_VERBOSITY_BIT:
-                self.display_bit("power_valid index", set_power_trig, 0, level2)
+                self.display_bit("power_valid index", data, 0, level2)
 
-    def set_power_conf(self,dmx0_power_on_off_p,dmx1_power_on_off_p,ras_power_on_off_p,wfee_power_on_off_pONF']
+    def set_power_conf(self,dmx0_power_on_off_p,dmx1_power_on_off_p,ras_power_on_off_p,wfee_power_on_off_p):
+        """ 
+        Configure the POWER_CONF register
+
+        Args:
+            dmx0_power_on_off_p (uint1_t): DMX0- 1: power up, 0: power down
+            dmx1_power_on_off_p (uint1_t): DMX1- 1: power up, 0: power down
+            ras_power_on_off_p (uint1_t): RAS- 1: power up, 0: power down
+            wfee_power_on_off_p (uint1_t): WFEE- 1: power up, 0: power down
+        """
+        data1 = (wfee_power_on_off_p << 3) + (ras_power_on_off_p << 2)
+        data0 = (dmx1_power_on_off_p << 1 ) + (dmx0_power_on_off_p << 0)
+        
+        data = data1 + data0
+        addr = self._addr_wire_out['POWER_CONF']
         self.set_wire_in(addr,data)
 
         # print
@@ -265,6 +288,13 @@ class DCDC(Driver):
             Start the dcdc_top function
 
         """
+        # print
+        ####################################
+        level0 = self.level
+        if self._verbosity >= self._c_VERBOSITY_REG:
+            msg = "[dcdc.set_adc]: Set the register value ";
+            self.display(msg,level0)
+            
         self.set_adc_trig()
 
     def set_adc_trig(self):
@@ -287,12 +317,12 @@ class DCDC(Driver):
             pass
         else:
             if self._verbosity >= self._c_VERBOSITY_REG:
-                msg = "[dcdc.set_power_trig]: Set the register value ";
+                msg = "[dcdc.set_adc_trig]: Set the register value ";
                 self.display(msg,level0)
             if self._verbosity >= self._c_VERBOSITY_ADDR:
                 self.display_register(addr, self._c_REG_ADDR_WIDTH, data, self._c_REG_DATA_WIDTH, level1)
             if self._verbosity >= self._c_VERBOSITY_BIT:
-                self.display_bit("adc_valid index", set_power_trig, 0, level2)
+                self.display_bit("adc_valid index", data, 0, level2)
 
     def set_debug_ctrl(self,rst_status_p,debug_pulse_p):
         """Configure the DEBUG_CTRL register
