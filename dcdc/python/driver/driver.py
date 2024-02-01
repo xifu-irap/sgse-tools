@@ -36,16 +36,18 @@ from pathlib import Path
 #sys.path.append(script_base_path)
 
 from .ok import *
+from utils_tools import Display
 
-class Driver:
-    """ 
+class Driver(Display):
+    """
        Programm the FPGA and provide low level functions for the read/write register access
     """
 
     def __init__(self):
         """init the variable
         """
-
+        # init the parent class
+        super().__init__()
         self.dev = None
 
     def open(self,firmware_filepath_p):
@@ -54,33 +56,51 @@ class Driver:
         Args:
             firmware_filepath_p (file): path to the FPGA bitstream (firmware file)
         """
+        # print("********************************************************")
+        # print("** Opal Kelly Board Info:")
+        # print("********************************************************")
+        msg = "Opal Kelly Board Info:"
+        self.display_title(msg)
+
+
         # Open the first device we find.
         dev = ok.FrontPanelDevices().Open()
         if not dev:
-            print ("A device could not be opened.  Is one connected?")
+            # print ("A device could not be opened.  Is one connected?")
+            msg = "A device could not be opened.  Is one connected?"
+            self.display(msg)
 
         devInfo = ok.okTDeviceInfo()
         if (dev.NoError != dev.GetDeviceInfo(devInfo)):
-            print ("Unable to retrieve device information.")
+            # print ("Unable to retrieve device information.")
+            msg = "Unable to retrieve device information."
+            self.display(msg)
 
-        print("********************************************************")
-        print("** Opal Kelly Board Info:")
-        print("********************************************************")
-        print("         Product: " + devInfo.productName)
-        print("Firmware version: %d.%d" % (devInfo.deviceMajorVersion, devInfo.deviceMinorVersion))
-        print("   Serial Number: %s" % devInfo.serialNumber)
-        print("       Device ID: %s" % devInfo.deviceID)
+        # print("         Product: " + devInfo.productName)
+        # print("Firmware version: %d.%d" % (devInfo.deviceMajorVersion, devInfo.deviceMinorVersion))
+        # print("   Serial Number: %s" % devInfo.serialNumber)
+        # print("       Device ID: %s" % devInfo.deviceID)
+        msg_list = []
+        msg_list.append("         Product: " + devInfo.productName)
+        msg_list.append("Firmware version: %d.%d" % (devInfo.deviceMajorVersion, devInfo.deviceMinorVersion))
+        msg_list.append("   Serial Number: %s" % devInfo.serialNumber)
+        msg_list.append("       Device ID: %s" % devInfo.deviceID)
+        self.display(msg_list)
 
         # Configures the PLL with settings stored in EEPROM.
         dev.LoadDefaultPLLConfiguration()
 
         # Download the configuration file.
         if (dev.NoError != dev.ConfigureFPGA(firmware_filepath_p)):
-            print ("FPGA configuration failed.")
+            # print ("FPGA configuration failed.")
+            msg = "FPGA configuration failed."
+            self.display(msg)
 
         # Check for FrontPanel support in the FPGA configuration.
         if (False == dev.IsFrontPanelEnabled()):
-            print ("FrontPanel support is not available.")
+            # print ("FrontPanel support is not available.")
+            msg = "FrontPanel support is not available."
+            self.display(msg)
 
 
         self.dev = dev
