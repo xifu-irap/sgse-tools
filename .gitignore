@@ -1,3 +1,7 @@
 # remove files
 ##########################
 fpasim/archive
+
+# untracked dcdc files
+/dcdc/python/**/__pycache__
+/dcdc/python/driver/ok
