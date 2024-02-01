@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------------------------------------
-#                            Copyright (C) 2023-2030 Ken-ji de la ROSA, IRAP Toulouse.
+#                            Copyright (C) 2024-2030 Ken-ji de la ROSA, IRAP Toulouse.
 # ------------------------------------------------------------------------------------------------------------
 #                            This file is part of the ATHENA X-IFU DRE Telemetry and Telecommand Firmware.
 #
@@ -33,8 +33,10 @@ import sys
 from pathlib import Path
 import time
 
+# get the script base path
 script_base_path = str(Path(__file__).parents[0])
 
+# custom library
 from driver import DCDC
 
 
@@ -43,7 +45,7 @@ if __name__ == '__main__':
     # path to the firmware
     firmware_filepath =  str(Path(script_base_path,"..\\..\\dcdc-fw_001.bit").resolve())
 
-    # Open
+    # Program the FPGA
     board = DCDC()
     board.open(firmware_filepath_p=firmware_filepath)
 
