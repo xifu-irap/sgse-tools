@@ -49,14 +49,14 @@ def test_power(device_p):
     while test:
         device.display_title("test_power "+'{0:02d}'.format(cnt))
         cnt += 1
-        str_value = input("Set the power value (bit3:wfee,bit2:ras,bit1:dmx1,bit0:dwx0), -1: to stop ")
+        str_value = input("Set the power: value (bit3:wfee,bit2:ras,bit1:dmx1,bit0:dwx0), -1: to stop: ")
         if str_value.isnumeric():
             # get the value
             value = int(str_value)
         else:
             if str_value == "-1":
                 # stop the test
-                test = 0
+                break;
             else:
                 # string: not a numeric, not "-1" => re-ask because we must have a numeric input value
                 continue
@@ -82,7 +82,7 @@ if __name__ == '__main__':
     # User-defined parameters
     ###########################################
     # path to the firmware
-    firmware_filepath =  str(Path(script_base_path,"..\\..\\dcdc-fw_001.bit").resolve())
+    firmware_filepath =  str(Path(script_base_path,"..\\..\\dcdc-fw_002.bit").resolve())
     # level of verbosity
     verbosity = 2
 

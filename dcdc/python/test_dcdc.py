@@ -46,7 +46,7 @@ if __name__ == '__main__':
     # User-defined parameters
     ###########################################
     # path to the firmware
-    firmware_filepath =  str(Path(script_base_path,"..\\..\\dcdc-fw_001.bit").resolve())
+    firmware_filepath =  str(Path(script_base_path,"..\\..\\dcdc-fw_002.bit").resolve())
     # level of verbosity
     verbosity = 2
 

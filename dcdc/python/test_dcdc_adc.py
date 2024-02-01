@@ -57,7 +57,7 @@ def test_adc(device_p):
         else:
             if str_value == "-1":
                 # stop the test
-                test = 0
+                break;
             else:
                 # string: not numeric, not "-1"
                 pass
@@ -126,7 +126,7 @@ if __name__ == '__main__':
     # User-defined parameters
     ###########################################
     # path to the firmware
-    firmware_filepath =  str(Path(script_base_path,"..\\..\\dcdc-fw_001.bit").resolve())
+    firmware_filepath =  str(Path(script_base_path,"..\\..\\dcdc-fw_002.bit").resolve())
     # level of verbosity
     verbosity = 2
 
