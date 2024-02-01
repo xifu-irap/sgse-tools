@@ -67,13 +67,13 @@ class Driver(Display):
         dev = ok.FrontPanelDevices().Open()
         if not dev:
             # print ("A device could not be opened.  Is one connected?")
-            msg = "A device could not be opened.  Is one connected?"
+            msg = "[KO]: A device could not be opened.  Is one connected?"
             self.display(msg)
 
         devInfo = ok.okTDeviceInfo()
         if (dev.NoError != dev.GetDeviceInfo(devInfo)):
             # print ("Unable to retrieve device information.")
-            msg = "Unable to retrieve device information."
+            msg = "[KO]: Unable to retrieve device information."
             self.display(msg)
 
         # print("         Product: " + devInfo.productName)
@@ -93,13 +93,16 @@ class Driver(Display):
         # Download the configuration file.
         if (dev.NoError != dev.ConfigureFPGA(firmware_filepath_p)):
             # print ("FPGA configuration failed.")
-            msg = "FPGA configuration failed."
+            msg = "[KO]: Load FPGA firmware: "+ firmware_filepath_p
+            self.display(msg)
+        else:
+            msg = "[OK]: Load FPGA firmware: "+ firmware_filepath_p
             self.display(msg)
 
         # Check for FrontPanel support in the FPGA configuration.
         if (False == dev.IsFrontPanelEnabled()):
             # print ("FrontPanel support is not available.")
-            msg = "FrontPanel support is not available."
+            msg = "[KO]: FrontPanel support is not available."
             self.display(msg)
 
 
