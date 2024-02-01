@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------------------------------------
-#                            Copyright (C) 2023-2030 Ken-ji de la ROSA, IRAP Toulouse.
+#                            Copyright (C) 2024-2030 Ken-ji de la ROSA, IRAP Toulouse.
 # ------------------------------------------------------------------------------------------------------------
 #                            This file is part of the ATHENA X-IFU DRE Telemetry and Telecommand Firmware.
 #
@@ -49,9 +49,9 @@ class DCDC(Driver):
         """
         # init the parent class
         super().__init__()
-        
+
         # list all wire_in addresses
-        ################################################# 
+        #################################################
         self.addr_wire_in = {}
         self.addr_wire_in['CTRL'] = 0x00
         self.addr_wire_in['POWER_CTRL'] = 0x01
@@ -87,7 +87,7 @@ class DCDC(Driver):
         # self.addr_wire_in['FIRMWARE_ID'] = 0x1F
 
         # list all wire_out addresses
-        ################################################# 
+        #################################################
         self.addr_wire_out = {}
         self.addr_wire_out['CTRL'] = 0x20
         self.addr_wire_out['POWER_CTRL'] = 0x21
@@ -387,3 +387,71 @@ class DCDC(Driver):
         addr = self.addr_wire_out['FIRMWARE_ID']
         res = self.get_wire_out(addr_p=addr)
         return res
+
+    ###########################################
+    # debugging
+    def set_debug_wirein_by_name(self,reg_name_p,data_p):
+        """By register name, set the wire_in register value
+
+        Args:
+            reg_name_p (str): register name (wire_in)
+            data_p (uint32_t): value to write
+        """
+
+        addr = self.addr_wire_in.get(reg_name_p)
+        if addr is None:
+            print("[KO]: " + reg_name_p + "register doesn't exist")
+        else:
+            self.set_wire_in(addr_p=addr,data_p=data_p)
+
+    def get_debug_wireout_by_name(self,reg_name_p):
+        """By register name, get the wire_out register value.
+
+        Args:
+            reg_name_p (str): register name (wire_out)
+        """
+        addr = self.addr_wire_out.get(reg_name_p)
+        if addr is None:
+            print("[KO]: " + reg_name_p + "register doesn't exist")
+            return -1
+        
+        if reg_name_p == 'CTRL':
+            value = self.get_ctrl()
+        elif reg_name_p == "POWER_CTRL":
+            value = self.get_power_ctrl()
+        elif reg_name_p == "ADC_CTRL":
+            value = self.get_adc_ctrl()
+        elif reg_name_p == "ADC_STATUS":
+            value = self.get_adc_status()
+        elif reg_name_p == "ADC0":
+            value = self.get_adc0()
+        elif reg_name_p == "ADC1":
+            value = self.get_adc1()
+        elif reg_name_p == "ADC2":
+            value = self.get_adc2()
+        elif reg_name_p == "ADC3":
+            value = self.get_adc3()
+        elif reg_name_p == "ADC4":
+            value = self.get_adc4()
+        elif reg_name_p == "ADC5":
+            value = self.get_adc5()
+        elif reg_name_p == "ADC6":
+            value = self.get_adc6()
+        elif reg_name_p == "ADC7":
+            value = self.get_adc7()
+        elif reg_name_p == "DEBUG_CTRL":
+            value = self.get_debug_ctrl()
+        elif reg_name_p == "ERROR_SEL":
+            value = self.get_error_sel()
+        elif reg_name_p == "ERRORS":
+            value = self.get_errors()
+        elif reg_name_p == "STATUS":
+            value = self.get_status()
+        elif reg_name_p == "HARDWARE_ID":
+            value = self.get_hardware_id()
+        elif reg_name_p == "FIRMWARE_NAME":
+            value = self.get_firmware_name()
+        elif reg_name_p == "FIRMWARE_ID":
+            value = self.get_firmware_id()
+
+        return value
