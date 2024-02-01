@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------------------------------------
-#                            Copyright (C) 2023-2030 Ken-ji de la ROSA, IRAP Toulouse.
+#                            Copyright (C) 2024-2030 Ken-ji de la ROSA, IRAP Toulouse.
 # ------------------------------------------------------------------------------------------------------------
 #                            This file is part of the ATHENA X-IFU DRE Telemetry and Telecommand Firmware.
 #
