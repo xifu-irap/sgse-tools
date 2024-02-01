@@ -31,6 +31,7 @@
 # standard library
 import sys
 from pathlib import Path
+import time
 
 # compute the script path
 script_base_path = str(Path(__file__).parents[0])
@@ -184,7 +185,6 @@ class DCDC(Driver):
         data = sel_error_p
         addr = self.addr_wire_out['ERROR_SEL']
         self.set_wire_in(addr_p=addr,data_p=data)
-
 
     def get_ctrl(self):
         """Retrieve the value from the CTRL register (wire_out)
@@ -458,3 +458,20 @@ class DCDC(Driver):
             value = self.get_firmware_id()
 
         return value
+
+    def check_internal_errors(self):
+
+        # number of internal error/status
+        nb_errors = 1
+
+        cnt = 0
+        for i in range(nb_errors):
+            self.set_debug_wirein_by_name("ERROR_SEL",i)
+            # sleep (in s)
+            time.sleep(0.2)
+            value = self.get_debug_wireout_by_name("ERRORS")
+            if value != 0:
+                msg = "[KO]: errors" + str(i)
+                cnt += 1
+        return cnt
+
