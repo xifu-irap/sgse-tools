@@ -51,6 +51,8 @@ class Display:
         # level of indentation
         self.level = 0
 
+
+
     def _compute_indent(self):
         """compute the string for the indentation
 
@@ -87,7 +89,6 @@ class Display:
             print(str0)
         print(str_sep)
 
-
     def display_subtitle(self,msg_p):
         """print a subtitle to the console
 
@@ -106,7 +107,6 @@ class Display:
             str0 = str_indent + " " + msg
             print(str0)
         print(str_sep)
-
 
     def display(self,msg_p):
         """print a subtitle to the console
@@ -154,7 +154,7 @@ class Display:
 
         self.display_bit(bit_name_p,value, bit_width_p)
 
-    def display_bit(bit_name_p, bit_value_p, bit_width_p):
+    def display_bit(self,bit_name_p, bit_value_p, bit_width_p):
         """print the bit field value
 
         Args:
@@ -169,6 +169,37 @@ class Display:
             bit_value = bit_value_p
 
         msg = bit_name_p + ": 0x" + convert_uint_to_str_hex(bit_value,bit_width_p)
+        self.display(msg)
+
+def check_equal(display_p,value0_p, value1_p, msg_p):
+    """check if 2 values are equal
+
+    Args:
+        display_p (Display class): instance of the Display class
+        value0_p (int): first value to compare
+        value1_p (int): second value to compare
+        msg_p (str): message to print
+
+    Returns:
+        int: error status
+    """
+
+    disp = display_p
+    str_data0 = convert_uint_to_str_hex(value0_p,32)
+    str_data1 = convert_uint_to_str_hex(value1_p,32)
+
+    if value0_p != value1_p:
+        msg = "[KO]: " + msg_p
+        disp.display(msg)
+        msg = "[check_equal]: value0_p: 0x" + str_data0 + " !=  value_1_p: 0x" + str_data1;
+        disp.display(msg)
+        return -1
+    else:
+        msg = "[OK]: " + msg_p
+        disp.display(msg)
+        msg = "[check_equal]: value0_p: 0x" + str_data0 + " !=  value_1_p: 0x" + str_data1;
+        disp.display(msg)
+        return 0
 
 
 def convert_str_to_str_list(msg_p):
