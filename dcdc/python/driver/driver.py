@@ -131,3 +131,15 @@ class Driver(Display):
         self.dev.UpdateWireOuts()
         result = self.dev.GetWireOutValue(addr_p)
         return result
+
+
+    def set_trig_in(self,addr_p,value_p):
+        """configure a USB wire (register)
+
+        Args:
+            addr_p (uint8_t): address of the wire_in
+            value_p (uint32_t): value to write
+        """
+
+        self.dev.ActivateTriggerIn(addr_p,value_p)
+

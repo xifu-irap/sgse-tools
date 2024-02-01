@@ -58,10 +58,10 @@ class DCDC(Driver):
         #################################################
         self._addr_wire_in = {}
         self._addr_wire_in['CTRL'] = 0x00
-        self._addr_wire_in['POWER_CTRL'] = 0x01
+        self._addr_wire_in['POWER_CONF'] = 0x01
         # self._addr_wire_in['RFU'] = 0x02
         # self._addr_wire_in['RFU'] = 0x03
-        self._addr_wire_in['ADC_CTRL'] = 0x04
+        # self._addr_wire_in['RFU'] = 0x04
         # self._addr_wire_in['ADC_STATUS'] = 0x05
         # self._addr_wire_in['RFU'] = 0x06
         # self._addr_wire_in['RFU'] = 0x07
@@ -94,10 +94,10 @@ class DCDC(Driver):
         #################################################
         self._addr_wire_out = {}
         self._addr_wire_out['CTRL'] = 0x20
-        self._addr_wire_out['POWER_CTRL'] = 0x21
+        self._addr_wire_out['POWER_CONF'] = 0x21
         # self._addr_wire_out['RFU'] = 0x22
         # self._addr_wire_out['RFU'] = 0x23
-        self._addr_wire_out['ADC_CTRL'] = 0x24
+        # self._addr_wire_out['RFU'] = 0x24
         self._addr_wire_out['ADC_STATUS'] = 0x25
         # self._addr_wire_out['RFU'] = 0x26
         # self._addr_wire_out['RFU'] = 0x27
@@ -125,6 +125,12 @@ class DCDC(Driver):
         self._addr_wire_out['HARDWARE_ID'] = 0x3D
         self._addr_wire_out['FIRMWARE_NAME'] = 0x3E
         self._addr_wire_out['FIRMWARE_ID'] = 0x3F
+
+        # Trig in: index of the bit
+        #######################################
+        self._addr_trigin['TRIG_CTRL']  = 0x40;
+        self._pos_trigin['power_valid'] = 0;
+        self._pos_trigin['adc_valid']   = 4;
 
         # ADC
         #######################################
@@ -190,8 +196,8 @@ class DCDC(Driver):
             if self._verbosity >= self._c_VERBOSITY_BIT:
                 self.display_bit("rst_p", rst_p, 0, level2)
 
-    def set_power_ctrl(self,dmx0_power_on_off_p,dmx1_power_on_off_p,ras_power_on_off_p,wfee_power_on_off_p):
-        """Configure the POWER_CTRL register
+    def set_power(self,dmx0_power_on_off_p,dmx1_power_on_off_p,ras_power_on_off_p,wfee_power_on_off_p):
+        """ Start the power_top function
 
         Args:
             dmx0_power_on_off_p (uint1_t): DMX0- 1: power up, 0: power down
@@ -199,10 +205,38 @@ class DCDC(Driver):
             ras_power_on_off_p (uint1_t): RAS- 1: power up, 0: power down
             wfee_power_on_off_p (uint1_t): WFEE- 1: power up, 0: power down
         """
-        data1 = (wfee_power_on_off_p << 3) + (ras_power_on_off_p << 2 )
-        data0 = (dmx1_power_on_off_p << 1) + dmx0_power_on_off_p
-        data = data1 + data0
-        addr = self._addr_wire_out['POWER_CTRL']
+
+        self.set_power_trig()
+        self.set_power_conf(dmx0_power_on_off_p,dmx1_power_on_off,ras_power_on_off_p,wfee_power_on_off_p)
+
+    def set_power_trig(self):
+        """
+         Activate the power_valid trig
+
+        """
+
+        addr = self._addr_trigin['TRIG_CTRL']
+        data = self._pos_trigin['power_valid']
+
+        # print
+        ####################################
+        level0 = self.level
+        level1 = self.level + 1
+        level2 = self.level + 2
+
+        if self._verbosity < 0:
+            # no print
+            pass
+        else:
+            if self._verbosity >= self._c_VERBOSITY_REG:
+                msg = "[dcdc.set_power_trig]: Set the register value ";
+                self.display(msg,level0)
+            if self._verbosity >= self._c_VERBOSITY_ADDR:
+                self.display_register(addr, self._c_REG_ADDR_WIDTH, data, self._c_REG_DATA_WIDTH, level1)
+            if self._verbosity >= self._c_VERBOSITY_BIT:
+                self.display_bit("power_valid index", set_power_trig, 0, level2)
+
+    def set_power_conf(self,dmx0_power_on_off_p,dmx1_power_on_off_p,ras_power_on_off_p,wfee_power_on_off_pONF']
         self.set_wire_in(addr,data)
 
         # print
@@ -216,7 +250,7 @@ class DCDC(Driver):
             pass
         else:
             if self._verbosity >= self._c_VERBOSITY_REG:
-                msg = "[dcdc.set_power_ctrl]: Set the register value ";
+                msg = "[dcdc.set_power_conf]: Set the register value ";
                 self.display(msg,level0)
             if self._verbosity >= self._c_VERBOSITY_ADDR:
                 self.display_register(addr, self._c_REG_ADDR_WIDTH, data, self._c_REG_DATA_WIDTH, level1)
@@ -226,16 +260,21 @@ class DCDC(Driver):
                 self.display_bit("ras_power_on_off_p", ras_power_on_off_p, 2, level2)
                 self.display_bit("wfee_power_on_off_p", wfee_power_on_off_p, 3, level2)
 
-    def set_adc_ctrl(self,adc_start_p):
-        """Configure the ADC_CTRL register
+    def set_adc(self):
+        """
+            Start the dcdc_top function
 
-        Args:
-            adc_start_p (uint1_t): software reset
+        """
+        self.set_adc_trig()
+
+    def set_adc_trig(self):
+        """
+           Activate the adc_valid trig
+
         """
 
-        data = adc_start_p & 0x1
-        addr = self._addr_wire_out['ADC_CTRL']
-        self.set_wire_in(addr,data)
+        addr = self._addr_trigin['TRIG_CTRL']
+        data = self._pos_trigin['adc_valid']
 
         # print
         ####################################
@@ -248,12 +287,12 @@ class DCDC(Driver):
             pass
         else:
             if self._verbosity >= self._c_VERBOSITY_REG:
-                msg = "[dcdc.set_adc_ctrl]: Set the register value ";
+                msg = "[dcdc.set_power_trig]: Set the register value ";
                 self.display(msg,level0)
             if self._verbosity >= self._c_VERBOSITY_ADDR:
                 self.display_register(addr, self._c_REG_ADDR_WIDTH, data, self._c_REG_DATA_WIDTH, level1)
             if self._verbosity >= self._c_VERBOSITY_BIT:
-                self.display_bit("adc_start_p", adc_start_p, 0, level2)
+                self.display_bit("adc_valid index", set_power_trig, 0, level2)
 
     def set_debug_ctrl(self,rst_status_p,debug_pulse_p):
         """Configure the DEBUG_CTRL register
@@ -344,13 +383,13 @@ class DCDC(Driver):
 
         return data
 
-    def get_power_ctrl(self):
-        """Retrieve the value from the POWER_CTRL register (wire_out)
+    def get_power_conf(self):
+        """Retrieve the value from the POWER_CONF register (wire_out)
 
         Returns:
             uint32_t: read value
         """
-        addr = self._addr_wire_out['POWER_CTRL']
+        addr = self._addr_wire_out['POWER_CONF']
         data = self.get_wire_out(addr_p=addr)
 
         # print
@@ -364,7 +403,7 @@ class DCDC(Driver):
             pass
         else:
             if self._verbosity >= self._c_VERBOSITY_REG:
-                msg = "[dcdc.get_ctrl]: Set the register value ";
+                msg = "[dcdc.get_power_conf]: Set the register value ";
                 self.display(msg,level0)
             if self._verbosity >= self._c_VERBOSITY_ADDR:
                 self.display_register(addr, self._c_REG_ADDR_WIDTH, data, self._c_REG_DATA_WIDTH, level1)
@@ -373,35 +412,6 @@ class DCDC(Driver):
                 self.display_bit_from_data("dmx1_power_on_off", 1, 1, data, level2)
                 self.display_bit_from_data("ras_power_on_off", 2, 1, data, level2)
                 self.display_bit_from_data("wfee_power_on_off", 3, 1, data, level2)
-
-        return data
-
-    def get_adc_ctrl(self):
-        """Retrieve the value from the ADC_CTRL register (wire_out)
-
-        Returns:
-            uint32_t: read value
-        """
-        addr = self._addr_wire_out['ADC_CTRL']
-        data = self.get_wire_out(addr_p=addr)
-
-        # print
-        ####################################
-        level0 = self.level
-        level1 = self.level + 1
-        level2 = self.level + 2
-
-        if self._verbosity < 0:
-            # no print
-            pass
-        else:
-            if self._verbosity >= self._c_VERBOSITY_REG:
-                msg = "[dcdc.get_ctrl]: Set the register value ";
-                self.display(msg,level0)
-            if self._verbosity >= self._c_VERBOSITY_ADDR:
-                self.display_register(addr, self._c_REG_ADDR_WIDTH, data, self._c_REG_DATA_WIDTH, level1)
-            if self._verbosity >= self._c_VERBOSITY_BIT:
-                self.display_bit_from_data("adc_start", 0, 1, data, level2)
 
         return data
 
@@ -425,7 +435,7 @@ class DCDC(Driver):
             pass
         else:
             if self._verbosity >= self._c_VERBOSITY_REG:
-                msg = "[dcdc.get_ctrl]: Set the register value ";
+                msg = "[dcdc.get_adc_status]: Set the register value ";
                 self.display(msg,level0)
             if self._verbosity >= self._c_VERBOSITY_ADDR:
                 self.display_register(addr, self._c_REG_ADDR_WIDTH, data, self._c_REG_DATA_WIDTH, level1)
@@ -974,10 +984,8 @@ class DCDC(Driver):
 
         if reg_name_p == 'CTRL':
             value = self.get_ctrl()
-        elif reg_name_p == "POWER_CTRL":
-            value = self.get_power_ctrl()
-        elif reg_name_p == "ADC_CTRL":
-            value = self.get_adc_ctrl()
+        elif reg_name_p == "POWER_CONF":
+            value = self.get_power_conf()
         elif reg_name_p == "ADC_STATUS":
             value = self.get_adc_status()
         elif reg_name_p == "ADC0":

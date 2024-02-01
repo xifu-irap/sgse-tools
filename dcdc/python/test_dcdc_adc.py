@@ -47,7 +47,7 @@ def test_adc(device_p):
     test = 1
     cnt = 0
     while test:
-        device.display_title("test_power "+'{0:02d}'.format(cnt))
+        device.display_title("test_adc "+'{0:02d}'.format(cnt))
         cnt += 1
         str_value = input("Get ADCs value, press: -1 (to stop), 0 (default: to continue): ")
         print("str_value ", str_value)
@@ -64,13 +64,9 @@ def test_adc(device_p):
 
 
 
-        msg = "DCDC: Set the register: ADC_CTRL"
+        msg = "DCDC: Start the ADCs acquisition"
         device.display(msg)
-        adc_start = 1
-        device.set_adc_ctrl(adc_start)
-
-        adc_start = 0
-        device.set_adc_ctrl(adc_start)
+        device.set_adc()
 
         device.display("")
 
