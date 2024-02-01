@@ -36,7 +36,7 @@ from pathlib import Path
 #sys.path.append(script_base_path)
 
 from .ok import *
-from utils_tools import Display
+from .utils_tools import Display
 
 class Driver(Display):
     """
@@ -59,7 +59,7 @@ class Driver(Display):
         # print("********************************************************")
         # print("** Opal Kelly Board Info:")
         # print("********************************************************")
-        msg = "Opal Kelly Board Info:"
+        msg = "Opal Kelly Board Info"
         self.display_title(msg)
 
 
