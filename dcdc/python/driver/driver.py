@@ -116,7 +116,7 @@ class Driver(Display):
             value_p (uint32_t): value to write
         """
 
-        self.dev.setWireInValue(addr_p,value_p)
+        self.dev.SetWireInValue(addr_p,value_p)
         self.dev.UpdateWireIns()
 
     def get_wire_out(self,addr_p):
