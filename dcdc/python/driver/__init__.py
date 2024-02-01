@@ -34,7 +34,7 @@
 #__all__ = ['driver']
 
 # deprecated to keep older scripts who import this from breaking
-from .utils_tools import Display
+from .utils_tools import Display,check_equal
 from .driver import Driver
 from .dcdc import DCDC
 
