@@ -53,13 +53,20 @@ class Display:
 
 
 
-    def _compute_indent(self):
+    def _compute_indent(self,level_p):
         """compute the string for the indentation
+
+        Args:
+            level_p (uint): level of indentation
 
         Returns:
             str: string for the indentation
         """
-        return self.char_indent * self.nb_char_indent * self.level
+        if level_p is None:
+            level = self.level
+        else:
+            level = level_p
+        return self.char_indent * self.nb_char_indent * level
 
     def _compute_section(self):
         """Compute the string for the section (separator)
@@ -69,15 +76,16 @@ class Display:
         """
         return self.char_section * self.nb_char_section
 
-    def display_title(self,msg_p):
+    def display_title(self,msg_p,level_p=None):
         """print a title to the console
 
         Args:
             msg_p (str or list of str): message to print
+            level_p (uint): level of indentation
         """
 
         msg_list = convert_str_to_str_list(msg_p=msg_p)
-        str_indent = self._compute_indent()
+        str_indent = self._compute_indent(level_p=level_p)
         str_section = self._compute_section()
 
         str_sep = str_indent + str_section
@@ -89,15 +97,16 @@ class Display:
             print(str0)
         print(str_sep)
 
-    def display_subtitle(self,msg_p):
+    def display_subtitle(self,msg_p,level_p=None):
         """print a subtitle to the console
 
         Args:
             msg_p (str or list of str): message to print
+            level_p (uint): level of indentation
         """
 
         msg_list = convert_str_to_str_list(msg_p=msg_p)
-        str_indent = self._compute_indent()
+        str_indent = self._compute_indent(level_p=level_p)
         str_section = self._compute_section()
 
         str_sep = str_indent + str_section
@@ -108,21 +117,22 @@ class Display:
             print(str0)
         print(str_sep)
 
-    def display(self,msg_p):
+    def display(self,msg_p,level_p=None):
         """print a subtitle to the console
 
         Args:
             msg_p (str or list of str): message to print
+            level_p (uint): level of indentation
         """
 
         msg_list = convert_str_to_str_list(msg_p=msg_p)
-        str_indent = self._compute_indent()
+        str_indent = self._compute_indent(level_p=level_p)
 
         for msg in msg_list:
             str0 = str_indent + " " + msg
             print(str0)
 
-    def display_register(self,addr_p, addr_width_p, data_p, data_width_p):
+    def display_register(self,addr_p, addr_width_p, data_p, data_width_p,level_p=None):
         """print the register (addr, data)
 
         Args:
@@ -130,14 +140,15 @@ class Display:
             addr_width_p (uint): address width (expressed in bits: start@1)
             data_p (uint): data value
             data_width_p (uint): data width (expressed in bits: start@1)
+            level_p (uint): level of indentation
         """
 
         msg = "addr: 0x" + convert_uint_to_str_hex(addr_p,addr_width_p)
-        self.display(msg)
+        self.display(msg,level_p)
         msg = "data: 0x" + convert_uint_to_str_hex(data_p,data_width_p)
-        self.display(msg)
+        self.display(msg,level_p)
 
-    def display_bit_from_data(self,bit_name_p, bit_pos_p, bit_width_p, data_p):
+    def display_bit_from_data(self,bit_name_p, bit_pos_p, bit_width_p, data_p,level_p=None):
         """print the bit field value
 
         Args:
@@ -145,6 +156,7 @@ class Display:
             bit_pos_p (uint): index low of the position of the bit field (start from @0)
             bit_width_p (uint): bit width (expressed in bits: start@1)
             data_p (int): data where to extract the bit field
+            level_p (uint): level of indentation
         """
 
         #  build mask for the data bit field
@@ -152,15 +164,16 @@ class Display:
         # keep the bit field value
         value = (data_p >> bit_pos_p) & mask
 
-        self.display_bit(bit_name_p,value, bit_width_p)
+        self.display_bit(bit_name_p,value, bit_width_p,level_p)
 
-    def display_bit(self,bit_name_p, bit_value_p, bit_width_p):
+    def display_bit(self,bit_name_p, bit_value_p, bit_width_p,level_p=None):
         """print the bit field value
 
         Args:
             bit_name_p (str): bit field name
             bit_value_p (int): bit field value
             bit_width_p (uint): bit field width (expressed in bits: start@1)
+            level_p (uint): level of indentation
         """
         # convert int to uint
         if bit_value_p < 0:
@@ -169,9 +182,9 @@ class Display:
             bit_value = bit_value_p
 
         msg = bit_name_p + ": 0x" + convert_uint_to_str_hex(bit_value,bit_width_p)
-        self.display(msg)
+        self.display(msg,level_p)
 
-def check_equal(display_p,value0_p, value1_p, msg_p):
+def check_equal(display_p,value0_p, value1_p, msg_p,level_p):
     """check if 2 values are equal
 
     Args:
@@ -179,26 +192,29 @@ def check_equal(display_p,value0_p, value1_p, msg_p):
         value0_p (int): first value to compare
         value1_p (int): second value to compare
         msg_p (str): message to print
+        level_p (uint): level of indentation
 
     Returns:
         int: error status
     """
-
+    level0 = level_p
+    level1 = level_p + 1
+    
     disp = display_p
     str_data0 = convert_uint_to_str_hex(value0_p,32)
     str_data1 = convert_uint_to_str_hex(value1_p,32)
 
     if value0_p != value1_p:
         msg = "[KO]: " + msg_p
-        disp.display(msg)
+        disp.display(msg,level0)
         msg = "[check_equal]: value0_p: 0x" + str_data0 + " !=  value_1_p: 0x" + str_data1;
-        disp.display(msg)
+        disp.display(msg,level1)
         return -1
     else:
         msg = "[OK]: " + msg_p
-        disp.display(msg)
+        disp.display(msg,level0)
         msg = "[check_equal]: value0_p: 0x" + str_data0 + " !=  value_1_p: 0x" + str_data1;
-        disp.display(msg)
+        disp.display(msg,level1)
         return 0
 
 
@@ -230,7 +246,7 @@ def convert_uint_to_str_hex(value_p, width_p):
     # compute the number of hex characters
     nb_hex_char = math.ceil(width_p/4)
     # compute the formatting string
-    str_format = '{0:0' + nb_hex_char + 'x}'
+    str_format = '{0:0' + str(nb_hex_char) + 'x}'
     # convert value to hexadecimal string
     str_hex = str_format.format(value_p)
 
