@@ -27,9 +27,12 @@
 #   Provide functions (write/read) in order to access to all DCDC registers.
 #
 # ------------------------------------------------------------------------------------------------------------
+
+# standard library
 import sys
 from pathlib import Path
 
+# compute the script path
 script_base_path = str(Path(__file__).parents[0])
 sys.path.append(script_base_path)
 
@@ -414,7 +417,7 @@ class DCDC(Driver):
         if addr is None:
             print("[KO]: " + reg_name_p + "register doesn't exist")
             return -1
-        
+
         if reg_name_p == 'CTRL':
             value = self.get_ctrl()
         elif reg_name_p == "POWER_CTRL":
