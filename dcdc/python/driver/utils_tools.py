@@ -67,7 +67,7 @@ class Display:
         Returns:
             str: string for the section
         """
-        return self.char_section * self.nb_char_section * self.level
+        return self.char_section * self.nb_char_section
 
     def display_title(self,msg_p):
         """print a title to the console
