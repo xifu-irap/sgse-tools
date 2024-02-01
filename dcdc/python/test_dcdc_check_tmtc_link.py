@@ -71,20 +71,20 @@ def test_wire(device_p):
     device.display("")
 
     ############################################
-    # check the POWER_CTRL register
+    # check the POWER_CONF register
     ############################################
     mask  = 0xFFFF_FFF0; # don't touch the rst bit
     data0 = 0xBCDE_FEAB & mask
 
-    msg = "DCDC: Set the register: POWER_CTRL"
+    msg = "DCDC: Set the register: POWER_CONF"
     device.display(msg)
     # set register
-    device.set_debug_wirein_by_name("POWER_CTRL",data0)
+    device.set_debug_wirein_by_name("POWER_CONF",data0)
     # read register
-    data1 = device.get_debug_wireout_by_name("POWER_CTRL")
+    data1 = device.get_debug_wireout_by_name("POWER_CONF")
 
     # check the read data Vs the written data
-    msg = "DCDC: Check register: POWER_CTRL"
+    msg = "DCDC: Check register: POWER_CONF"
     error = check_equal(device,data0, data1, msg, level0)
     if error == -1:
         cnt_error_wire += 1
