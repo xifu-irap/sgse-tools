@@ -215,10 +215,10 @@ if __name__ == '__main__':
 
     # summary of the test_wire errors.
     if (error_wire_cnt == 0):
-        msg_tmp = "[OK]: Test: Wire Registers has " + str(error_wire_cnt) + " error.";
+        msg_tmp = "[OK]: test_wire has " + str(error_wire_cnt) + " error.";
         board.display(msg_tmp)
     else:
-        msg_tmp = "[KO]: Test: Wire Registers has " + str(error_wire_cnt) + " errors.";
+        msg_tmp = "[KO]: test_wire has " + str(error_wire_cnt) + " errors.";
         board.display(msg_tmp)
 
     # summary of the internal errors.
