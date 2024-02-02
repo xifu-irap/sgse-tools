@@ -106,7 +106,9 @@ if __name__ == '__main__':
     board.display_subtitle(msg)
 
     msg_list = [
-    'The test purpose is to check the power control.'
+    "The test purpose is to check the power control.",
+    "  IMPORTANT:",
+    "      . The test is not full automatized => visually check the ADC voltage"
     ]
     board.display(msg_list)
 
@@ -170,12 +172,12 @@ if __name__ == '__main__':
     board.display(msg)
 
     # summary of the test_power.
-    if (error_power_cnt == 0):
-        msg_tmp = "[OK]: test_power has " + str(error_power_cnt) + " error.";
-        board.display(msg_tmp)
-    else:
-        msg_tmp = "[KO]: test_power has " + str(error_power_cnt) + " errors.";
-        board.display(msg_tmp)
+    # if (error_power_cnt == 0):
+    #     msg_tmp = "[OK]: test_power has " + str(error_power_cnt) + " error.";
+    #     board.display(msg_tmp)
+    # else:
+    #     msg_tmp = "[KO]: test_power has " + str(error_power_cnt) + " errors.";
+    #     board.display(msg_tmp)
 
     # summary of the internal errors.
     if (error_internal_cnt == 0):
