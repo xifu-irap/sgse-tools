@@ -62,7 +62,7 @@ class DCDC(Driver):
         # self._addr_wire_in['RFU'] = 0x02
         # self._addr_wire_in['RFU'] = 0x03
         # self._addr_wire_in['RFU'] = 0x04
-        # self._addr_wire_in['ADC_STATUS'] = 0x05
+        # self._addr_wire_in['POWER_ADC_STATUS'] = 0x05
         # self._addr_wire_in['RFU'] = 0x06
         # self._addr_wire_in['RFU'] = 0x07
         # self._addr_wire_in['RFU'] = 0x08
@@ -98,7 +98,7 @@ class DCDC(Driver):
         # self._addr_wire_out['RFU'] = 0x22
         # self._addr_wire_out['RFU'] = 0x23
         # self._addr_wire_out['RFU'] = 0x24
-        self._addr_wire_out['ADC_STATUS'] = 0x25
+        self._addr_wire_out['POWER_ADC_STATUS'] = 0x25
         # self._addr_wire_out['RFU'] = 0x26
         # self._addr_wire_out['RFU'] = 0x27
         # self._addr_wire_out['RFU'] = 0x28
@@ -215,6 +215,13 @@ class DCDC(Driver):
             msg = "[dcdc.set_power]: Set the register value ";
             self.display(msg,level0)
 
+        # check the status of the DCDC FSM
+        data = self.get_power_adc_status()
+        power_ready = (data >> 0) & 0x1
+        if power_ready != 0x1:
+            msg= "[KO]: the ADC FSM isn't ready"
+            self.display(msg)
+
         self.set_power_conf(dmx0_power_on_off_p,dmx1_power_on_off_p,ras_power_on_off_p,wfee_power_on_off_p)
         self.set_power_trig()
 
@@ -296,13 +303,14 @@ class DCDC(Driver):
         if self._verbosity >= self._c_VERBOSITY_REG:
             msg = "[dcdc.set_adc]: Set the register value ";
             self.display(msg,level0)
-        
+
         # check the status of the DCDC FSM
-        data = self.get_adc_status()
-        if data != 0x1:
-            msg= "[KO]: the DCDC FSM isn't ready"
+        data = self.get_power_adc_status()
+        adc_ready = (data >> 4) & 0x1
+        if adc_ready != 0x1:
+            msg= "[KO]: the ADC FSM isn't ready"
             self.display(msg)
-        
+
         self.set_adc_trig()
 
     def set_adc_trig(self):
@@ -455,13 +463,13 @@ class DCDC(Driver):
 
         return data
 
-    def get_adc_status(self):
-        """Retrieve the value from the ADC_STATUS register (wire_out)
+    def get_power_adc_status(self):
+        """Retrieve the value from the POWER_ADC_STATUS register (wire_out)
 
         Returns:
             uint32_t: read value
         """
-        addr = self._addr_wire_out['ADC_STATUS']
+        addr = self._addr_wire_out['POWER_ADC_STATUS']
         data = self.get_wire_out(addr_p=addr)
 
         # print
@@ -475,12 +483,13 @@ class DCDC(Driver):
             pass
         else:
             if self._verbosity >= self._c_VERBOSITY_REG:
-                msg = "[dcdc.get_adc_status]: Get the register value ";
+                msg = "[dcdc.get_power_adc_status]: Get the register value ";
                 self.display(msg,level0)
             if self._verbosity >= self._c_VERBOSITY_ADDR:
                 self.display_register(addr, self._c_REG_ADDR_WIDTH, data, self._c_REG_DATA_WIDTH, level1)
             if self._verbosity >= self._c_VERBOSITY_BIT:
-                self.display_bit_from_data("adc_ready", 0, 1, data, level2)
+                self.display_bit_from_data("adc_ready", 4, 1, data, level2)
+                self.display_bit_from_data("power_ready", 0, 1, data, level2)
 
         return data
 
@@ -1025,8 +1034,8 @@ class DCDC(Driver):
             value = self.get_ctrl()
         elif reg_name_p == "POWER_CONF":
             value = self.get_power_conf()
-        elif reg_name_p == "ADC_STATUS":
-            value = self.get_adc_status()
+        elif reg_name_p == "POWER_ADC_STATUS":
+            value = self.get_power_adc_status()
         elif reg_name_p == "ADC0":
             value = self.get_adc0()
         elif reg_name_p == "ADC1":

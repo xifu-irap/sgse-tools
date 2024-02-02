@@ -90,20 +90,23 @@ def test_wire(device_p):
         cnt_error_wire += 1
 
     device.display("")
-    
+
     ############################################
-    # check the ADC_STATUS register
+    # check the POWER_ADC_STATUS register
     ############################################
-    msg = "DCDC: Get the register: ADC_STATUS"
+    msg = "DCDC: Get the register: POWER_ADC_STATUS"
     device.display(msg)
+
     # expected value
-    data0 = 0x1
+    adc_ready = 1
+    power_ready = 1
+    data0 = (adc_ready << 4) + power_ready
 
     # read register
-    data1 = device.get_debug_wireout_by_name("ADC_STATUS")
+    data1 = device.get_debug_wireout_by_name("POWER_ADC_STATUS")
 
     # check the read data Vs the written data
-    msg = "DCDC: Check register: ADC_STATUS"
+    msg = "DCDC: Check register: POWER_ADC_STATUS"
     error = check_equal(device,data0, data1, msg, level0)
     if error == -1:
         cnt_error_wire += 1
