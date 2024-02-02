@@ -130,7 +130,7 @@ class DCDC(Driver):
         #######################################
         self._addr_trigin = {}
         self._addr_trigin['TRIG_CTRL']  = 0x40;
-        
+
         self._pos_trigin = {}
         self._pos_trigin['power_valid'] = 0;
         self._pos_trigin['adc_valid']   = 4;
@@ -178,7 +178,7 @@ class DCDC(Driver):
         """
 
         data = rst_p & 0x1
-        addr = self._addr_wire_out['CTRL']
+        addr = self._addr_wire_in['CTRL']
         self.set_wire_in(addr,data)
 
         # print
@@ -214,7 +214,7 @@ class DCDC(Driver):
         if self._verbosity >= self._c_VERBOSITY_REG:
             msg = "[dcdc.set_power]: Set the register value ";
             self.display(msg,level0)
-            
+
         self.set_power_trig()
         self.set_power_conf(dmx0_power_on_off_p,dmx1_power_on_off_p,ras_power_on_off_p,wfee_power_on_off_p)
 
@@ -246,7 +246,7 @@ class DCDC(Driver):
                 self.display_bit("power_valid index", data, 0, level2)
 
     def set_power_conf(self,dmx0_power_on_off_p,dmx1_power_on_off_p,ras_power_on_off_p,wfee_power_on_off_p):
-        """ 
+        """
         Configure the POWER_CONF register
 
         Args:
@@ -257,9 +257,9 @@ class DCDC(Driver):
         """
         data1 = (wfee_power_on_off_p << 3) + (ras_power_on_off_p << 2)
         data0 = (dmx1_power_on_off_p << 1 ) + (dmx0_power_on_off_p << 0)
-        
+
         data = data1 + data0
-        addr = self._addr_wire_out['POWER_CONF']
+        addr = self._addr_wire_in['POWER_CONF']
         self.set_wire_in(addr,data)
 
         # print
@@ -294,7 +294,7 @@ class DCDC(Driver):
         if self._verbosity >= self._c_VERBOSITY_REG:
             msg = "[dcdc.set_adc]: Set the register value ";
             self.display(msg,level0)
-            
+
         self.set_adc_trig()
 
     def set_adc_trig(self):
@@ -333,7 +333,7 @@ class DCDC(Driver):
         """
 
         data = ( rst_status_p << 1) + debug_pulse_p
-        addr = self._addr_wire_out['DEBUG_CTRL']
+        addr = self._addr_wire_in['DEBUG_CTRL']
         self.set_wire_in(addr,data)
 
         # print
@@ -363,7 +363,7 @@ class DCDC(Driver):
         """
 
         data = sel_error_p
-        addr = self._addr_wire_out['ERROR_SEL']
+        addr = self._addr_wire_in['ERROR_SEL']
         self.set_wire_in(addr,data)
 
         # print
@@ -483,7 +483,6 @@ class DCDC(Driver):
 
         voltage = data_p * self._c_ADC_VA/(2**self._c_ADC_res)
         return voltage
-
 
     def get_adc0(self):
         """Retrieve the read ADC0 value from the ADC device.
