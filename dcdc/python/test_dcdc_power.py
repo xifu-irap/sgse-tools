@@ -108,7 +108,7 @@ if __name__ == '__main__':
     msg_list = [
     "The test purpose is to check the power control.",
     "  IMPORTANT:",
-    "      . The test is not full automatized => visually check the ADC voltage"
+    "      . The test is not full automatized => visually check the power enable/disable"
     ]
     board.display(msg_list)
 
