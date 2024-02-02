@@ -215,8 +215,8 @@ class DCDC(Driver):
             msg = "[dcdc.set_power]: Set the register value ";
             self.display(msg,level0)
 
-        self.set_power_trig()
         self.set_power_conf(dmx0_power_on_off_p,dmx1_power_on_off_p,ras_power_on_off_p,wfee_power_on_off_p)
+        self.set_power_trig()
 
     def set_power_trig(self):
         """
