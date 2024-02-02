@@ -68,7 +68,7 @@ def test_power(device_p):
         ras_power_on_off  = (value >> 2) & 0x1
         wfee_power_on_off = (value >> 3) & 0x1
 
-        msg = "DCDC: Set the register: POWER_CTRL"
+        msg = "DCDC: Set the POWER"
         device.display(msg)
         device.set_power(dmx0_power_on_off,dmx1_power_on_off,ras_power_on_off,wfee_power_on_off)
         device.display("")
