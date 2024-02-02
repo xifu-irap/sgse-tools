@@ -296,7 +296,13 @@ class DCDC(Driver):
         if self._verbosity >= self._c_VERBOSITY_REG:
             msg = "[dcdc.set_adc]: Set the register value ";
             self.display(msg,level0)
-
+        
+        # check the status of the DCDC FSM
+        data = self.get_adc_status()
+        if data != 0x1:
+            msg= "[KO]: the DCDC FSM isn't ready"
+            self.display(msg)
+        
         self.set_adc_trig()
 
     def set_adc_trig(self):
@@ -408,7 +414,7 @@ class DCDC(Driver):
             pass
         else:
             if self._verbosity >= self._c_VERBOSITY_REG:
-                msg = "[dcdc.get_ctrl]: Set the register value ";
+                msg = "[dcdc.get_ctrl]: Get the register value ";
                 self.display(msg,level0)
             if self._verbosity >= self._c_VERBOSITY_ADDR:
                 self.display_register(addr, self._c_REG_ADDR_WIDTH, data, self._c_REG_DATA_WIDTH, level1)
@@ -437,7 +443,7 @@ class DCDC(Driver):
             pass
         else:
             if self._verbosity >= self._c_VERBOSITY_REG:
-                msg = "[dcdc.get_power_conf]: Set the register value ";
+                msg = "[dcdc.get_power_conf]: Get the register value ";
                 self.display(msg,level0)
             if self._verbosity >= self._c_VERBOSITY_ADDR:
                 self.display_register(addr, self._c_REG_ADDR_WIDTH, data, self._c_REG_DATA_WIDTH, level1)
@@ -469,7 +475,7 @@ class DCDC(Driver):
             pass
         else:
             if self._verbosity >= self._c_VERBOSITY_REG:
-                msg = "[dcdc.get_adc_status]: Set the register value ";
+                msg = "[dcdc.get_adc_status]: Get the register value ";
                 self.display(msg,level0)
             if self._verbosity >= self._c_VERBOSITY_ADDR:
                 self.display_register(addr, self._c_REG_ADDR_WIDTH, data, self._c_REG_DATA_WIDTH, level1)
@@ -510,7 +516,7 @@ class DCDC(Driver):
             pass
         else:
             if self._verbosity >= self._c_VERBOSITY_REG:
-                msg = "[dcdc.get_adc0]: Set the register value ";
+                msg = "[dcdc.get_adc0]: Get the register value ";
                 self.display(msg,level0)
             if self._verbosity >= self._c_VERBOSITY_ADDR:
                 self.display_register(addr, self._c_REG_ADDR_WIDTH, data, self._c_REG_DATA_WIDTH, level1)
@@ -544,7 +550,7 @@ class DCDC(Driver):
             pass
         else:
             if self._verbosity >= self._c_VERBOSITY_REG:
-                msg = "[dcdc.get_adc1]: Set the register value ";
+                msg = "[dcdc.get_adc1]: Get the register value ";
                 self.display(msg,level0)
             if self._verbosity >= self._c_VERBOSITY_ADDR:
                 self.display_register(addr, self._c_REG_ADDR_WIDTH, data, self._c_REG_DATA_WIDTH, level1)
@@ -578,7 +584,7 @@ class DCDC(Driver):
             pass
         else:
             if self._verbosity >= self._c_VERBOSITY_REG:
-                msg = "[dcdc.get_adc2]: Set the register value ";
+                msg = "[dcdc.get_adc2]: Get the register value ";
                 self.display(msg,level0)
             if self._verbosity >= self._c_VERBOSITY_ADDR:
                 self.display_register(addr, self._c_REG_ADDR_WIDTH, data, self._c_REG_DATA_WIDTH, level1)
@@ -612,7 +618,7 @@ class DCDC(Driver):
             pass
         else:
             if self._verbosity >= self._c_VERBOSITY_REG:
-                msg = "[dcdc.get_adc3]: Set the register value ";
+                msg = "[dcdc.get_adc3]: Get the register value ";
                 self.display(msg,level0)
             if self._verbosity >= self._c_VERBOSITY_ADDR:
                 self.display_register(addr, self._c_REG_ADDR_WIDTH, data, self._c_REG_DATA_WIDTH, level1)
@@ -646,7 +652,7 @@ class DCDC(Driver):
             pass
         else:
             if self._verbosity >= self._c_VERBOSITY_REG:
-                msg = "[dcdc.get_adc4]: Set the register value ";
+                msg = "[dcdc.get_adc4]: Get the register value ";
                 self.display(msg,level0)
             if self._verbosity >= self._c_VERBOSITY_ADDR:
                 self.display_register(addr, self._c_REG_ADDR_WIDTH, data, self._c_REG_DATA_WIDTH, level1)
@@ -680,7 +686,7 @@ class DCDC(Driver):
             pass
         else:
             if self._verbosity >= self._c_VERBOSITY_REG:
-                msg = "[dcdc.get_adc5]: Set the register value ";
+                msg = "[dcdc.get_adc5]: Get the register value ";
                 self.display(msg,level0)
             if self._verbosity >= self._c_VERBOSITY_ADDR:
                 self.display_register(addr, self._c_REG_ADDR_WIDTH, data, self._c_REG_DATA_WIDTH, level1)
@@ -714,7 +720,7 @@ class DCDC(Driver):
             pass
         else:
             if self._verbosity >= self._c_VERBOSITY_REG:
-                msg = "[dcdc.get_adc6]: Set the register value ";
+                msg = "[dcdc.get_adc6]: Get the register value ";
                 self.display(msg,level0)
             if self._verbosity >= self._c_VERBOSITY_ADDR:
                 self.display_register(addr, self._c_REG_ADDR_WIDTH, data, self._c_REG_DATA_WIDTH, level1)
@@ -748,7 +754,7 @@ class DCDC(Driver):
             pass
         else:
             if self._verbosity >= self._c_VERBOSITY_REG:
-                msg = "[dcdc.get_adc7]: Set the register value ";
+                msg = "[dcdc.get_adc7]: Get the register value ";
                 self.display(msg,level0)
             if self._verbosity >= self._c_VERBOSITY_ADDR:
                 self.display_register(addr, self._c_REG_ADDR_WIDTH, data, self._c_REG_DATA_WIDTH, level1)
@@ -780,7 +786,7 @@ class DCDC(Driver):
             pass
         else:
             if self._verbosity >= self._c_VERBOSITY_REG:
-                msg = "[dcdc.get_debug_ctrl]: Set the register value ";
+                msg = "[dcdc.get_debug_ctrl]: Get the register value ";
                 self.display(msg,level0)
             if self._verbosity >= self._c_VERBOSITY_ADDR:
                 self.display_register(addr, self._c_REG_ADDR_WIDTH, data, self._c_REG_DATA_WIDTH, level1)
@@ -810,7 +816,7 @@ class DCDC(Driver):
             pass
         else:
             if self._verbosity >= self._c_VERBOSITY_REG:
-                msg = "[dcdc.get_error_sel]: Set the register value ";
+                msg = "[dcdc.get_error_sel]: Get the register value ";
                 self.display(msg,level0)
             if self._verbosity >= self._c_VERBOSITY_ADDR:
                 self.display_register(addr, self._c_REG_ADDR_WIDTH, data, self._c_REG_DATA_WIDTH, level1)
@@ -841,7 +847,7 @@ class DCDC(Driver):
             pass
         else:
             if self._verbosity >= self._c_VERBOSITY_REG:
-                msg = "[dcdc.get_errors]: Set the register value ";
+                msg = "[dcdc.get_errors]: Get the register value ";
                 self.display(msg,level0)
             if self._verbosity >= self._c_VERBOSITY_ADDR:
                 self.display_register(addr, self._c_REG_ADDR_WIDTH, data, self._c_REG_DATA_WIDTH, level1)
@@ -871,7 +877,7 @@ class DCDC(Driver):
             pass
         else:
             if self._verbosity >= self._c_VERBOSITY_REG:
-                msg = "[dcdc.get_status]: Set the register value ";
+                msg = "[dcdc.get_status]: Get the register value ";
                 self.display(msg,level0)
             if self._verbosity >= self._c_VERBOSITY_ADDR:
                 self.display_register(addr, self._c_REG_ADDR_WIDTH, data, self._c_REG_DATA_WIDTH, level1)
@@ -898,7 +904,7 @@ class DCDC(Driver):
             pass
         else:
             if self._verbosity >= self._c_VERBOSITY_REG:
-                msg = "[dcdc.get_hardware_id]: Set the register value ";
+                msg = "[dcdc.get_hardware_id]: Get the register value ";
                 self.display(msg,level0)
             if self._verbosity >= self._c_VERBOSITY_ADDR:
                 self.display_register(addr, self._c_REG_ADDR_WIDTH, data, self._c_REG_DATA_WIDTH, level1)
@@ -926,7 +932,7 @@ class DCDC(Driver):
             pass
         else:
             if self._verbosity >= self._c_VERBOSITY_REG:
-                msg = "[dcdc.get_firmware_name]: Set the register value ";
+                msg = "[dcdc.get_firmware_name]: Get the register value ";
                 self.display(msg,level0)
             if self._verbosity >= self._c_VERBOSITY_ADDR:
                 self.display_register(addr, self._c_REG_ADDR_WIDTH, data, self._c_REG_DATA_WIDTH, level1)
@@ -956,7 +962,7 @@ class DCDC(Driver):
             pass
         else:
             if self._verbosity >= self._c_VERBOSITY_REG:
-                msg = "[dcdc.get_firmware_id]: Set the register value ";
+                msg = "[dcdc.get_firmware_id]: Get the register value ";
                 self.display(msg,level0)
             if self._verbosity >= self._c_VERBOSITY_ADDR:
                 self.display_register(addr, self._c_REG_ADDR_WIDTH, data, self._c_REG_DATA_WIDTH, level1)
@@ -1009,7 +1015,7 @@ class DCDC(Driver):
             pass
         else:
             if self._verbosity >= self._c_VERBOSITY_REG:
-                msg = "[dcdc.set_debug_wirein_by_name]: Set the register value of "+ reg_name_p;
+                msg = "[dcdc.set_debug_wirein_by_name]: Get the register value of "+ reg_name_p;
         addr = self._addr_wire_out.get(reg_name_p)
         if addr is None:
             print("[KO]: " + reg_name_p + "register doesn't exist")
@@ -1073,6 +1079,7 @@ class DCDC(Driver):
             value = self.get_errors()
             if value != 0:
                 msg = "[KO]: errors" + str(i)
+                self.display(msg)
                 cnt += 1
         return cnt
 
