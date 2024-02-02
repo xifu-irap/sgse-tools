@@ -133,13 +133,13 @@ class Driver(Display):
         return result
 
 
-    def set_trig_in(self,addr_p,value_p):
+    def set_trig_in(self,addr_p,index_bit_p):
         """configure a USB wire (register)
 
         Args:
-            addr_p (uint8_t): address of the wire_in
-            value_p (uint32_t): value to write
+            addr_p (uint8_t): address of the trig_in
+            value_p (uint32_t): index bit to trig
         """
 
-        self.dev.ActivateTriggerIn(addr_p,value_p)
+        self.dev.ActivateTriggerIn(addr_p,index_bit_p)
 
