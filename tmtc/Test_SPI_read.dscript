@@ -96,8 +96,8 @@ function test_spi_read(level_p, mode_p, verbosity_p) {
   sendToDREReadRegisters(addr, nb_data);
 
   // read values
-  getLatestValue("DRE_registers");
-  read_values_tab = extract_sub_table(DRE_registers, addr, nb_data, level1, mode_p, verbosity_p);
+  getLatestValue("DMX_registers");
+  read_values_tab = extract_sub_table(DMX_registers, addr, nb_data, level1, mode_p, verbosity_p);
 
   // expected values to read
   expected_values_tab = Array(nb_data);
@@ -140,8 +140,8 @@ function test_spi_read(level_p, mode_p, verbosity_p) {
   sendToDREReadRegister(addr);
 
   // read values
-  getLatestValue("DRE_registers");
-  read_values_tab = extract_sub_table(DRE_registers, addr, 1, level1, mode_p, verbosity_p);
+  getLatestValue("DMX_registers");
+  read_values_tab = extract_sub_table(DMX_registers, addr, 1, level1, mode_p, verbosity_p);
 
   // check values with the expected ones;
   expected_value = 0x0;
@@ -167,8 +167,8 @@ function test_spi_read(level_p, mode_p, verbosity_p) {
   sendToDREReadRegister(addr);
 
   // read values
-  getLatestValue("DRE_registers");
-  read_values_tab = extract_sub_table(DRE_registers, addr, 1, level1, mode_p, verbosity_p);
+  getLatestValue("DMX_registers");
+  read_values_tab = extract_sub_table(DMX_registers, addr, 1, level1, mode_p, verbosity_p);
 
 
   // check values with the expected ones;
