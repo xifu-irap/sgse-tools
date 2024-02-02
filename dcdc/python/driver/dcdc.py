@@ -227,6 +227,8 @@ class DCDC(Driver):
         addr = self._addr_trigin['TRIG_CTRL']
         data = self._pos_trigin['power_valid']
 
+        self.set_trig_in(addr,data)
+
         # print
         ####################################
         level0 = self.level
@@ -305,6 +307,8 @@ class DCDC(Driver):
 
         addr = self._addr_trigin['TRIG_CTRL']
         data = self._pos_trigin['adc_valid']
+
+        self.set_trig_in(addr,data)
 
         # print
         ####################################
