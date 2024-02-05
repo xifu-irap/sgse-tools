@@ -137,7 +137,7 @@ function test_spi_read(level_p, mode_p, verbosity_p) {
 
   // Send command to read register
   addr = 0x0423;
-  sendToDREReadRegister(addr);
+  sendToDMXReadRegister(addr);
 
   // read values
   getLatestValue("DMX_registers");
@@ -164,7 +164,7 @@ function test_spi_read(level_p, mode_p, verbosity_p) {
 
   // Send command to read register
   addr = 0x6001;
-  sendToDREReadRegister(addr);
+  sendToDMXReadRegister(addr);
 
   // read values
   getLatestValue("DMX_registers");
