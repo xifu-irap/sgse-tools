@@ -1089,14 +1089,14 @@ function test_ram_conf(level_p, mode_p, verbosity_p) {
     msg = "Read the mux_squid_offset RAM (pipeout access)";
     display_subtitle(msg, level0, mode_p);
 
-    getLatestValue("FPA_MUX_SQUID_OFFSET");
+    getLatestValue("FPAsim_SQM_offset");
 
-    msg = "FPA_MUX_SQUID_OFFSET: length=" + FPA_MUX_SQUID_OFFSET.length;
+    msg = "FPAsim_SQM_offset: length=" + FPAsim_SQM_offset.length;
     display(msg, level1, mode_p);
-    print(FPA_MUX_SQUID_OFFSET);
+    print(FPAsim_SQM_offset);
 
     msg = "Check: the FPASim mux_squid_offset RAM";
-    error = check_equal_tab(FPA_MUX_SQUID_OFFSET, mux_squid_offset_tab, msg, level1, mode_p, verbosity_p);
+    error = check_equal_tab(FPAsim_SQM_offset, mux_squid_offset_tab, msg, level1, mode_p, verbosity_p);
     if (error != 0) {
         cnt_error_ram_conf += 1;
 
