@@ -1037,15 +1037,15 @@ function test_ram_conf(level_p, mode_p, verbosity_p) {
     msg = "Read the mux_squid_tf RAM (pipeout access)";
     display_subtitle(msg, level0, mode_p);
 
-    getLatestValue("FPA_MUX_SQUID_TF");
+    getLatestValue("FPAsim_SQM_TF");
 
-    msg = "FPA_MUX_SQUID_TF: length=" + FPA_MUX_SQUID_TF.length;
+    msg = "FPAsim_SQM_TF: length=" + FPAsim_SQM_TF.length;
     display(msg, level1, mode_p);
 
-    print(FPA_MUX_SQUID_TF);
+    print(FPAsim_SQM_TF);
 
     msg = "Check: the FPASim mux_squid_tf RAM";
-    error = check_equal_tab(FPA_MUX_SQUID_TF, mux_squid_tf_tab, msg, level1, mode_p, verbosity_p);
+    error = check_equal_tab(FPAsim_SQM_TF, mux_squid_tf_tab, msg, level1, mode_p, verbosity_p);
     if (error != 0) {
         cnt_error_ram_conf += 1;
 
