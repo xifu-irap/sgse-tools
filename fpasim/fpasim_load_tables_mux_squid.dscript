@@ -226,7 +226,7 @@ function main(level_p, mode_p, verbosity_p) {
      * check: DEBUG_CTRL
      ***************************************************************************
      */
-    adc1_bypass = 1; // 1: bypass adc1 (FPA_adc_amp_squid_offset_correction) (force data to 0), 0: otherwise
+    adc1_bypass = 1; // 1: bypass adc1 (FPAsim_ADC_offsetComp_record) (force data to 0), 0: otherwise
     adc0_bypass = 1; // 1: bypass adc0 (FPAsim_ADC_feedback_record) (force data to 0), 0: otherwise
     dac_en_pattern = 0; // 1: enable dac pattern, 0: do nothing
     rst_status = 0; // 1: reset internal error, 0: do nothing
