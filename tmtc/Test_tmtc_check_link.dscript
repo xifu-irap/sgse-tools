@@ -203,7 +203,7 @@ function test_wire(level_p, mode_p, verbosity_p) {
 
     // set register
     // Use the Xifu Studio specific access.
-    sendToDRELinkBoard_ConfigureICU(data0);
+    sendToTMTC_selectICU(data0);
 
     // read register
     data1 = tmtc_get_wireout_by_name("ICU_CONF", level2, mode_p, verbosity_p);
