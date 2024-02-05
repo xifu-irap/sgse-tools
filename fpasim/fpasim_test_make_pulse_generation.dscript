@@ -408,7 +408,7 @@ function main(level_p, mode_p, verbosity_p) {
         msg = "Set Make_pulse (all pixels): pixel_id: N/A, time_shift: " + time_shift.toString(10) + ", pulse_height: 0x" + pulse_height.toString(16);
         display(msg, level1, mode_p);
 
-        sendToFPA_makePulses(time_shift, pulse_height);
+        sendToFPAsim_makePulses(time_shift, pulse_height);
     }
 
     msg = "";
