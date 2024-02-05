@@ -984,15 +984,15 @@ function test_ram_conf(level_p, mode_p, verbosity_p) {
 
     msg = "Read the tes_pulse_shape RAM (pipeout access)";
     display_subtitle(msg, level0, mode_p);
-    getLatestValue("FPA_TES_PULSE_SHAPE");
+    getLatestValue("FPAsim_TES_pulseShape");
 
-    msg = "FPA_TES_PULSE_SHAPE: length:" + FPA_TES_PULSE_SHAPE.length;
+    msg = "FPAsim_TES_pulseShape: length:" + FPAsim_TES_pulseShape.length;
     display(msg, level1, mode_p);
 
-    print(FPA_TES_PULSE_SHAPE);
+    print(FPAsim_TES_pulseShape);
 
     msg = "Check: the FPASim tes_pulse_shape";
-    error = check_equal_tab(FPA_TES_PULSE_SHAPE, tes_pulse_shape_tab, msg, level1, mode_p, verbosity_p);
+    error = check_equal_tab(FPAsim_TES_pulseShape, tes_pulse_shape_tab, msg, level1, mode_p, verbosity_p);
     if (error != 0) {
         cnt_error_ram_conf += 1;
 
