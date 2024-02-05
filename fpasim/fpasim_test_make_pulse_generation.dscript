@@ -99,7 +99,7 @@ function amp_quid_tf_conf_ram() {
         }
     }
 
-    sendToFPA_loadAmpSQUID_TF(pulse_shape);
+    sendToFPAsim_loadSQA_TF(pulse_shape);
 
 }
 
