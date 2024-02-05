@@ -548,8 +548,8 @@ function tmtc_wireout_read_command(addr_p) {
     // Read wire out registers
     //---------------------------------------------------------------------
     // waitMs(50);
-    getLatestValue("DRELINKBOARD_WireOuts_x20_to_x3F");
-    data = DRELINKBOARD_WireOuts_x20_to_x3F[index];
+    getLatestValue("TMTC_WireOuts_x20_to_x3F");
+    data = TMTC_WireOuts_x20_to_x3F[index];
 
     return data;
 }
