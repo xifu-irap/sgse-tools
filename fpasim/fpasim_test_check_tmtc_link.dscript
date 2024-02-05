@@ -125,7 +125,7 @@ function configure_fpasim(level_p, mode_p, verbosity_p) {
 
     msg = "Set register: TES_CONF";
     display(msg, level1, mode_p);
-    sendToFPA_configureTES_conf(nbPixels, nbSamplesPerPixel, totalFrameSize);
+    sendToFPAsim_configureTES_conf(nbPixels, nbSamplesPerPixel, totalFrameSize);
 
     msg = "";
     display(msg, level1, mode_p);
@@ -319,7 +319,7 @@ function test_wire(level_p, mode_p, verbosity_p) {
 
     msg = "Set register: TES_CONF";
     display(msg, level1, mode_p);
-    sendToFPA_configureTES_conf(nbPixels, nbSamplesPerPixel, totalFrameSize);
+    sendToFPAsim_configureTES_conf(nbPixels, nbSamplesPerPixel, totalFrameSize);
     // build the data to send
     data0 = fpasim_build_tes_conf(nbPixels, nbSamplesPerPixel, totalFrameSize);
     // read the register

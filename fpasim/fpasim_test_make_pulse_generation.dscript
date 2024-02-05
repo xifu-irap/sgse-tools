@@ -240,7 +240,7 @@ function main(level_p, mode_p, verbosity_p) {
     totalFrameSize = totalFrameSize - 1; // add -1 because we start from 0
     msg = "Set register: TES_CONF";
     display(msg, level1, mode_p);
-    sendToFPA_configureTES_conf(nbPixels, nbSamplesPerPixel, totalFrameSize);
+    sendToFPAsim_configureTES_conf(nbPixels, nbSamplesPerPixel, totalFrameSize);
 
     msg = "";
     display(msg, level1, mode_p);
