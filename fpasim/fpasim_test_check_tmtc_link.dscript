@@ -969,7 +969,7 @@ function test_ram_conf(level_p, mode_p, verbosity_p) {
      */
     msg = "Set the read_all bit: read the FPASim RAMs";
     display_subtitle(msg, level0, mode_p);
-    sendToFPA_readAllRegisters();
+    sendToFPAsim_readAllRegisters();
 
     tempo = 2000
     msg = "Wait for " + tempo.toString(10) + " ms";
