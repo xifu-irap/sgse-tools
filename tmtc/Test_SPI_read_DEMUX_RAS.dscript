@@ -222,7 +222,7 @@ function test_spi_read(level_p, mode_p, verbosity_p) {
   // Send command to read registers
   nb_data = 16;// number of data to read
   addr      = 0x0800;
-  sendToDMXReadMultiRegisters(addr, nb_data);
+  sendToRASReadMultiRegisters(addr, nb_data);
 
   // read values
   getLatestValue("RAS_registers");
@@ -256,7 +256,7 @@ function test_spi_read(level_p, mode_p, verbosity_p) {
 
   // Send command to read register
   addr = 0x6001;
-  sendToDMXReadRegister(addr);
+  sendToRASReadRegister(addr);
 
   // read values
   getLatestValue("RAS_registers");
