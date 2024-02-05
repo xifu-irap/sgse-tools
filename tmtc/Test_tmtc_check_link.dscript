@@ -302,8 +302,8 @@ function test_wire(level_p, mode_p, verbosity_p) {
 
     // read register
     // Xifu Studio specific access
-    getLatestValue("DRELINKBOARD_HARDWARE_ID");
-    data1 = DRELINKBOARD_HARDWARE_ID;
+    getLatestValue("CDIF_hardwareID");
+    data1 = CDIF_hardwareID;
 
     // check the read data Vs the written data
     msg = "TMTC: Check register: HARDWARE_ID";
