@@ -381,7 +381,7 @@ function fpasim_set_ctrl(rst_p, en_p, level_p, mode_p, verbosity_p) {
 
     const trig_pos = FPASIM_POS_TRIGIN['ctrl_valid'];
     const trig_addr = FPASIM_ADDR_TRIGIN['TRIG'];
-    sendToFPA_debugSetTriggerIn(trig_addr, trig_pos);
+    sendToFPAsim_debugSetTriggerIn(trig_addr, trig_pos);
 
 
     if (verbosity_p < 0) {
@@ -569,7 +569,7 @@ function fpasim_set_spi_wr_data(data_p, level_p, mode_p, verbosity_p) {
 
     const trig_pos = FPASIM_POS_TRIGIN['spi_valid'];
     const trig_addr = FPASIM_ADDR_TRIGIN['TRIG'];
-    sendToFPA_debugSetTriggerIn(trig_addr, trig_pos);
+    sendToFPAsim_debugSetTriggerIn(trig_addr, trig_pos);
 
 
     if (verbosity_p < 0) {
@@ -618,7 +618,7 @@ function fpasim_set_debug_ctrl(adc1_bypass_p, adc0_bypass_p, dac_en_pattern_p, r
 
     const trig_pos = FPASIM_POS_TRIGIN['debug_valid'];
     const trig_addr = FPASIM_ADDR_TRIGIN['TRIG'];
-    sendToFPA_debugSetTriggerIn(trig_addr, trig_pos);
+    sendToFPAsim_debugSetTriggerIn(trig_addr, trig_pos);
 
     if (verbosity_p < 0) {
         // do nothing
@@ -647,7 +647,7 @@ function fpasim_set_debug_ctrl(adc1_bypass_p, adc0_bypass_p, dac_en_pattern_p, r
 
 /**
  * Set the selected register value.
- *   Note: for few registers, the sendToFPA_debugSetTriggerIn function is called.
+ *   Note: for few registers, the sendToFPAsim_debugSetTriggerIn function is called.
  * @param {string} reg_name_p - Name of the FPASIM register.
  * @param {number} data_p - data to write in the register.
  * @param {number} level_p - level of indentation at the beginning.
@@ -810,7 +810,7 @@ function fpasim_set_debug_wirein_by_name(reg_name_p, data_p, level_p, mode_p, ve
         sendToFPAsim_debugSetWireIn(addr, data);
 
         if (trig_pos != -1) {
-            sendToFPA_debugSetTriggerIn(trig_addr, trig_pos);
+            sendToFPAsim_debugSetTriggerIn(trig_addr, trig_pos);
         }
         if (verbosity_p < 0) {
             // do nothing
@@ -841,7 +841,7 @@ function fpasim_set_debug_wirein_by_name(reg_name_p, data_p, level_p, mode_p, ve
 
 /**
  * Get the register value (wireout access).
- *   Note: for few registers, the sendToFPA_debugSetTriggerIn function is also called.
+ *   Note: for few registers, the sendToFPAsim_debugSetTriggerIn function is also called.
  * @param {number} addr_p - data to write in the register.
  * @return {number} read register value.
  */
