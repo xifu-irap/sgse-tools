@@ -3648,7 +3648,7 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
     const msg = "Set SPI_CONF1: Disable the DAC TX pin";
     display(msg, level1, mode_p);
     // addr = FPASIM_ADDR_WIREIN['SPI_CONF1'];
-    // sendToFPA_debugSetWireIn(addr, data);
+    // sendToFPAsim_debugSetWireIn(addr, data);
     fpasim_set_spi_conf1(spi_dac_tx_enable, level_p, mode_p, verbosity_p);
 
     const msg = "";
@@ -4341,7 +4341,7 @@ function DAC3283_configure(level_p, mode_p, verbosity_p) {
     const msg = "Set SPI_CONF1: Enable the DAC TX pin";
     display(msg, level1, mode_p);
     // addr = FPASIM_ADDR_WIREIN['SPI_CONF1'];
-    // sendToFPA_debugSetWireIn(addr, data);
+    // sendToFPAsim_debugSetWireIn(addr, data);
 
     fpasim_set_spi_conf1(spi_dac_tx_enable, level_p, mode_p, verbosity_p);
 

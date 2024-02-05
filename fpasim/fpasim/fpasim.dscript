@@ -377,7 +377,7 @@ function fpasim_set_ctrl(rst_p, en_p, level_p, mode_p, verbosity_p) {
     const data = fpasim_build_ctrl(rst_p, en_p);
     const addr = FPASIM_ADDR_WIREIN["CTRL"];
 
-    sendToFPA_debugSetWireIn(addr, data);
+    sendToFPAsim_debugSetWireIn(addr, data);
 
     const trig_pos = FPASIM_POS_TRIGIN['ctrl_valid'];
     const trig_addr = FPASIM_ADDR_TRIGIN['TRIG'];
@@ -429,7 +429,7 @@ function fpasim_set_spi_ctrl(rst_p, en_p, level_p, mode_p, verbosity_p) {
     const data = fpasim_build_spi_ctrl(rst_p, en_p);
     const addr = addr = FPASIM_ADDR_WIREIN["SPI_CTRL"];
 
-    sendToFPA_debugSetWireIn(addr, data);
+    sendToFPAsim_debugSetWireIn(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
@@ -475,7 +475,7 @@ function fpasim_set_spi_conf0(spi_id_p, spi_mode_p, level_p, mode_p, verbosity_p
     const data = fpasim_build_spi_conf0(spi_id_p, spi_mode_p);
     const addr = addr = FPASIM_ADDR_WIREIN["SPI_CONF0"];
 
-    sendToFPA_debugSetWireIn(addr, data);
+    sendToFPAsim_debugSetWireIn(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
@@ -521,7 +521,7 @@ function fpasim_set_spi_conf1(spi_dac_tx_en_p, level_p, mode_p, verbosity_p) {
     const data = fpasim_build_spi_conf1(spi_dac_tx_en_p);
     const addr = addr = FPASIM_ADDR_WIREIN["SPI_CONF1"];
 
-    sendToFPA_debugSetWireIn(addr, data);
+    sendToFPAsim_debugSetWireIn(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
@@ -565,7 +565,7 @@ function fpasim_set_spi_wr_data(data_p, level_p, mode_p, verbosity_p) {
     const data = fpasim_build_spi_wr_data(data_p);
     const addr = addr = FPASIM_ADDR_WIREIN["SPI_WR_DATA"];
 
-    sendToFPA_debugSetWireIn(addr, data);
+    sendToFPAsim_debugSetWireIn(addr, data);
 
     const trig_pos = FPASIM_POS_TRIGIN['spi_valid'];
     const trig_addr = FPASIM_ADDR_TRIGIN['TRIG'];
@@ -614,7 +614,7 @@ function fpasim_set_debug_ctrl(adc1_bypass_p, adc0_bypass_p, dac_en_pattern_p, r
     const data = fpasim_build_debug_ctrl(adc1_bypass_p, adc0_bypass_p, dac_en_pattern_p, rst_status_p, debug_pulse_p)
     const addr = FPASIM_ADDR_WIREIN["DEBUG_CTRL"];
 
-    sendToFPA_debugSetWireIn(addr, data);
+    sendToFPAsim_debugSetWireIn(addr, data);
 
     const trig_pos = FPASIM_POS_TRIGIN['debug_valid'];
     const trig_addr = FPASIM_ADDR_TRIGIN['TRIG'];
@@ -807,7 +807,7 @@ function fpasim_set_debug_wirein_by_name(reg_name_p, data_p, level_p, mode_p, ve
 
     if (error == 0) {
 
-        sendToFPA_debugSetWireIn(addr, data);
+        sendToFPAsim_debugSetWireIn(addr, data);
 
         if (trig_pos != -1) {
             sendToFPA_debugSetTriggerIn(trig_addr, trig_pos);
