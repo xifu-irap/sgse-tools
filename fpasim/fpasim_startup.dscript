@@ -251,7 +251,7 @@ function main(level_p, mode_p, verbosity_p) {
      ***************************************************************************
      */
     error_debug_cnt = 0;
-    msg = "Check Debug Errors";
+    msg = "Check internal errors (debug)";
     display_title(msg, level0, mode_p);
     error_debug_cnt = fpasim_check_all_errors(level1, 0, 0);
 
@@ -293,10 +293,10 @@ function main(level_p, mode_p, verbosity_p) {
 
     // summary of the RAM loading with default value
     if (error_load_ram_cnt == 0) {
-        msg_tmp = "[OK]: Default RAM loading:" + error_load_ram_cnt.toString(10) + " error";
+        msg_tmp = "[OK]: RAM loading:" + error_load_ram_cnt.toString(10) + " error";
         display(msg_tmp, level1, mode_p);
     } else {
-        msg_tmp = "[KO]: Default RAM loading:" + error_load_ram_cnt.toString(10) + " errors";
+        msg_tmp = "[KO]: RAM loading:" + error_load_ram_cnt.toString(10) + " errors";
         display(msg_tmp, level1, mode_p);
     }
 

@@ -1807,7 +1807,7 @@ function main(level_p, mode_p, verbosity_p) {
      ***************************************************************************
      */
     error_debug_cnt = 0;
-    msg = "Check Debug Errors";
+    msg = "Check internal errors (debug)";
     display_title(msg, level0, mode_p);
     error_debug_cnt = fpasim_check_all_errors(level1, 0, 0);
 
@@ -1870,16 +1870,16 @@ function main(level_p, mode_p, verbosity_p) {
     // summary of the test_wire errors
     if (en_wire == 0)
     {
-        msg_tmp = "[N/A]: Test: Wire Registers was not performed ";
+        msg_tmp = "[N/A]: test_wire was not performed ";
         display(msg_tmp, level1, mode_p);
     }
     else
     {
         if (error_wire_cnt == 0) {
-            msg_tmp = "[OK]: Test: Wire Registers: " + error_wire_cnt.toString(10) + " error";
+            msg_tmp = "[OK]: test_wire: " + error_wire_cnt.toString(10) + " error";
             display(msg_tmp, level1, mode_p);
         } else {
-            msg_tmp = "[KO]: Test: Wire Registers: " + error_wire_cnt.toString(10) + " errors";
+            msg_tmp = "[KO]: test_wire: " + error_wire_cnt.toString(10) + " errors";
             display(msg_tmp, level1, mode_p);
         }
     }
@@ -1887,16 +1887,16 @@ function main(level_p, mode_p, verbosity_p) {
 
     if (en_rec == 0)
     {
-        msg_tmp = "[N/A]: Test: ADC recording was not performed ";
+        msg_tmp = "[N/A]: test_recording (ADC) was not performed ";
         display(msg_tmp, level1, mode_p);
     }
     else
     {
         if (error_rec_cnt == 0) {
-            msg_tmp = "[OK]: Test: ADC recording: " + error_rec_cnt.toString(10) + " error";
+            msg_tmp = "[OK]: test_recording (ADC): " + error_rec_cnt.toString(10) + " error";
             display(msg_tmp, level1, mode_p);
         } else {
-            msg_tmp = "[KO]: Test: ADC recording: " + error_rec_cnt.toString(10) + " errors";
+            msg_tmp = "[KO]: test_recording (ADC): " + error_rec_cnt.toString(10) + " errors";
             display(msg_tmp, level1, mode_p);
         }
     }
@@ -1904,16 +1904,16 @@ function main(level_p, mode_p, verbosity_p) {
     // summary of the test_ram_conf errors
     if (en_ram_conf == 0)
     {
-        msg_tmp = "[N/A]: Test: RAM configuration was not performed ";
+        msg_tmp = "[N/A]: test_ram_conf was not performed ";
         display(msg_tmp, level1, mode_p);
     }
     else
     {
         if (error_ram_conf_cnt == 0) {
-            msg_tmp = "[OK]: Test: RAM configuration: " + error_ram_conf_cnt.toString(10) + " error";
+            msg_tmp = "[OK]: test_ram_conf: " + error_ram_conf_cnt.toString(10) + " error";
             display(msg_tmp, level1, mode_p);
         } else {
-            msg_tmp = "[KO]: Test: RAM configuration: " + error_ram_conf_cnt.toString(10) + " errors";
+            msg_tmp = "[KO]: test_ram_conf: " + error_ram_conf_cnt.toString(10) + " errors";
             display(msg_tmp, level1, mode_p);
         }
     }
@@ -1921,16 +1921,16 @@ function main(level_p, mode_p, verbosity_p) {
     // summary of the test_dac_pattern errors
      if (en_dac_pattern == 0)
     {
-        msg_tmp = "[N/A]: Test: DAC pattern generation was not performed ";
+        msg_tmp = "[N/A]: test_dac_pattern (generation) was not performed ";
         display(msg_tmp, level1, mode_p);
     }
     else
     {
         if (error_dac_pattern_cnt == 0) {
-            msg_tmp = "[OK]: Test: DAC pattern generation: " + error_dac_pattern_cnt.toString(10) + " error";
+            msg_tmp = "[OK]: test_dac_pattern (generation): " + error_dac_pattern_cnt.toString(10) + " error";
             display(msg_tmp, level1, mode_p);
         } else {
-            msg_tmp = "[KO]: Test: DAC pattern generation: " + error_dac_pattern_cnt.toString(10) + " errors";
+            msg_tmp = "[KO]: test_dac_pattern (generation): " + error_dac_pattern_cnt.toString(10) + " errors";
             display(msg_tmp, level1, mode_p);
         }
     }
@@ -1938,16 +1938,16 @@ function main(level_p, mode_p, verbosity_p) {
     // summary of the test_bypass_adc errors
      if (en_bypass_adc == 0)
     {
-        msg_tmp = "[N/A]: Test: bypass ADCs was not performed ";
+        msg_tmp = "[N/A]: test_adc_bypass was not performed ";
         display(msg_tmp, level1, mode_p);
     }
     else
     {
         if (error_adc_bypass_cnt == 0) {
-            msg_tmp = "[OK]: Test: bypass ADCs: " + error_adc_bypass_cnt.toString(10) + " error";
+            msg_tmp = "[OK]: test_adc_bypass: " + error_adc_bypass_cnt.toString(10) + " error";
             display(msg_tmp, level1, mode_p);
         } else {
-            msg_tmp = "[KO]: Test: bypass ADCs: " + error_adc_bypass_cnt.toString(10) + " errors";
+            msg_tmp = "[KO]: test_adc_bypass: " + error_adc_bypass_cnt.toString(10) + " errors";
             display(msg_tmp, level1, mode_p);
         }
     }
