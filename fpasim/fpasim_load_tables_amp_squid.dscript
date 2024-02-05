@@ -249,7 +249,7 @@ function main(level_p, mode_p, verbosity_p) {
     data = fpasim_build_ctrl(rst, en);
     msg = "Enable the FPASIM function";
     display(msg, level1, mode_p);
-    sendToFPA_configureControl(data);
+    sendToFPAsim_configureControl(data);
 
     msg = "";
     display(msg, level1, mode_p);
