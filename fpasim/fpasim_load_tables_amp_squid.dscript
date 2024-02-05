@@ -167,7 +167,7 @@ function main(level_p, mode_p, verbosity_p) {
     error_delay = 0x0; // 0 to 63
     msg = "Set register: ERROR_DELAY";
     display(msg, level1, mode_p);
-    sendToFPA_configureErrorDelay(error_delay);
+    sendToFPAsim_configureErrorDelay(error_delay);
 
     msg = "";
     display(msg, level1, mode_p);
