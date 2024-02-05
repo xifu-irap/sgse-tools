@@ -93,7 +93,7 @@ FPASIM_ADDR_WIREIN['ERROR_SEL'] = 0x19; // 25
 // FPASIM_ADDR_WIREIN['RFU'] = 0x1C; // 28
 // FPASIM_ADDR_WIREIN['HARDWARE_ID'] = 0x1D; // 29
 // FPASIM_ADDR_WIREIN['FIRMWARE_NAME'] = 0x1E; // 30
-// FPASIM_ADDR_WIREIN['FIRMWARE_VERSION'] = 0x1F; // 31
+// FPASIM_ADDR_WIREIN['FIRMWARE_ID'] = 0x1F; // 31
 
 
 /*
@@ -131,7 +131,7 @@ FPASIM_ADDR_WIREOUT['STATUS'] = 0x3B; // 27
 // FPASIM_ADDR_WIREOUT['RFU'] = 0x3C; // 28
 FPASIM_ADDR_WIREOUT['HARDWARE_ID'] = 0x3D; // 29
 FPASIM_ADDR_WIREOUT['FIRMWARE_NAME'] = 0x3E; // 30
-FPASIM_ADDR_WIREOUT['FIRMWARE_VERSION'] = 0x3F; // 31
+FPASIM_ADDR_WIREOUT['FIRMWARE_ID'] = 0x3F; // 31
 
 
 
@@ -796,7 +796,7 @@ function fpasim_set_debug_wirein_by_name(reg_name_p, data_p, level_p, mode_p, ve
             // case 'FIRMWARE_NAME': // 30
             //     break;
 
-            // case 'FIRMWARE_VERSION': // 31
+            // case 'FIRMWARE_ID': // 31
             //     break;
         default:
             msg = "[KO][fpasim_set_debug_wirein_by_name]: The register " + reg_name_p + " doesn't exist."
@@ -1884,13 +1884,13 @@ function fpasim_get_wireout_firmware_name(level_p, mode_p, verbosity_p) {
 }
 
 /**
- * Get the selected "FIRMWARE_VERSION" register value.
+ * Get the selected "FIRMWARE_ID" register value.
  * @param {number} level_p - level of indentation at the beginning.
  * @param {number} mode_p - define the print output.
  * @param {number} verbosity_p - level of verbosity.
  * @return {number} read register value.
  */
-function fpasim_get_wireout_firmware_version(level_p, mode_p, verbosity_p) {
+function fpasim_get_wireout_firmware_id(level_p, mode_p, verbosity_p) {
     // default function parameter values
     if (typeof(level_p) === 'undefined') level_p = 0;
     if (typeof(mode_p) === 'undefined') mode_p = 0;
@@ -1900,14 +1900,14 @@ function fpasim_get_wireout_firmware_version(level_p, mode_p, verbosity_p) {
     const level1 = level_p + 1;
     const level2 = level_p + 2;
 
-    addr = FPASIM_ADDR_WIREOUT['FIRMWARE_VERSION'];
+    addr = FPASIM_ADDR_WIREOUT['FIRMWARE_ID'];
     data = fpasim_wireout_read_command(addr);
 
     if (verbosity_p < 0) {
         // do nothing
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
-            msg = "[fpasim_get_wireout_firmware_version]: Get the register value ";
+            msg = "[fpasim_get_wireout_firmware_id]: Get the register value ";
             display(msg, level0, mode_p);
         }
 
@@ -2064,8 +2064,8 @@ function fpasim_get_wireout_by_name(reg_name_p, level_p, mode_p, verbosity_p) {
             data = fpasim_get_wireout_firmware_name(level0, mode_p, verbosity_p);
             break;
 
-        case 'FIRMWARE_VERSION': // 31
-            data = fpasim_get_wireout_firmware_version(level0, mode_p, verbosity_p);
+        case 'FIRMWARE_ID': // 31
+            data = fpasim_get_wireout_firmware_id(level0, mode_p, verbosity_p);
             break;
 
         default:
