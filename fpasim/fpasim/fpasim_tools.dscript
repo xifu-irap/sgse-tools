@@ -1016,7 +1016,7 @@ function fpasim_sendToFPA_loadAmpSQUID_TF_From_File(file_p,level_p, mode_p, verb
     }
 
     // send the array to the fpasim
-    sendToFPA_loadAmpSQUID_TF(array);
+    sendToFPAsim_loadSQA_TF(array);
 
    // no error
     return 0;
