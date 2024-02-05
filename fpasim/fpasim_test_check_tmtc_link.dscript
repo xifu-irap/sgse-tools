@@ -678,7 +678,7 @@ function test_recording(level_p, mode_p, verbosity_p) {
     msg = "Get the ADC samples (adc0 and adc1)";
     display_subtitle(msg, level1, mode_p);
 
-    getLatestValue("FPA_adc_mux_squid_feedback,FPA_adc_amp_squid_offset_correction,FPA_rec_adc_size");
+    getLatestValue("FPA_adc_mux_squid_feedback,FPA_adc_amp_squid_offset_correction,FPAsim_ADC_recordSize");
 
 
     msg = "Read FPA_adc_mux_squid_feedback tab";
@@ -695,7 +695,7 @@ function test_recording(level_p, mode_p, verbosity_p) {
     msg = "";
     display(msg, level2, mode_p);
 
-    msg = "Number of read data (pipeout access): FPA_rec_adc_size=" + FPA_rec_adc_size.toString(10);
+    msg = "Number of read data (pipeout access): FPAsim_ADC_recordSize=" + FPAsim_ADC_recordSize.toString(10);
     display(msg, level2, mode_p);
 
     msg = "";
@@ -724,7 +724,7 @@ function test_recording(level_p, mode_p, verbosity_p) {
     // expected pattern
     adc0_word0 = 5461;
     adc0_word1 = -5462; //
-    for (i = 0; i < FPA_rec_adc_size; i++) {
+    for (i = 0; i < FPAsim_ADC_recordSize; i++) {
         // data from the FPGA
         adc0 = FPA_adc_mux_squid_feedback[i];
         // initial pattern
@@ -782,7 +782,7 @@ function test_recording(level_p, mode_p, verbosity_p) {
     v_last_data = 0;
     adc1_word_max = 8191; //16383 (considered as signed value) + 2 extension bits (signe)
     adc1_word_min = -8192; //16383 (considered as signed value) + 2 extension bits (signe)
-    for (i = 0; i < FPA_rec_adc_size; i++) {
+    for (i = 0; i < FPAsim_ADC_recordSize; i++) {
         // data from the FPGA
         adc1 = FPA_adc_amp_squid_offset_correction[i];
         // initial value for v_last_data
@@ -1341,7 +1341,7 @@ function test_adc_bypass(level_p, mode_p, verbosity_p) {
     msg = "Get the ADC samples: (ADC0, ADC1)";
     display_subtitle(msg, level1, mode_p);
 
-    getLatestValue("FPA_adc_mux_squid_feedback,FPA_adc_amp_squid_offset_correction,FPA_rec_adc_size");
+    getLatestValue("FPA_adc_mux_squid_feedback,FPA_adc_amp_squid_offset_correction,FPAsim_ADC_recordSize");
 
 
     msg = "Read ADC0:  FPA_adc_mux_squid_feedback tab";
@@ -1358,7 +1358,7 @@ function test_adc_bypass(level_p, mode_p, verbosity_p) {
     msg = "";
     display(msg, level2, mode_p);
 
-    msg = "Number of read data (pipeout access): FPA_rec_adc_size=" + FPA_rec_adc_size.toString(10);
+    msg = "Number of read data (pipeout access): FPAsim_ADC_recordSize=" + FPAsim_ADC_recordSize.toString(10);
     display(msg, level2, mode_p);
 
     msg = "";
@@ -1380,7 +1380,7 @@ function test_adc_bypass(level_p, mode_p, verbosity_p) {
     adc0_sum = 0
     adc1_sum = 0
 
-    for (i = 0; i < FPA_rec_adc_size; i++) {
+    for (i = 0; i < FPAsim_ADC_recordSize; i++) {
         // data from the FPGA
         adc0 = FPA_adc_mux_squid_feedback[i];
         adc1 = FPA_adc_amp_squid_offset_correction[i];
@@ -1492,7 +1492,7 @@ function test_adc_bypass(level_p, mode_p, verbosity_p) {
     msg = "Get the ADC samples: (ADC0, ADC1)";
     display_subtitle(msg, level1, mode_p);
 
-    getLatestValue("FPA_adc_mux_squid_feedback,FPA_adc_amp_squid_offset_correction,FPA_rec_adc_size");
+    getLatestValue("FPA_adc_mux_squid_feedback,FPA_adc_amp_squid_offset_correction,FPAsim_ADC_recordSize");
 
 
     msg = "Read ADC0: FPA_adc_mux_squid_feedback";
@@ -1509,7 +1509,7 @@ function test_adc_bypass(level_p, mode_p, verbosity_p) {
     msg = "";
     display(msg, level2, mode_p);
 
-    msg = "Number of read data (pipeout access): FPA_rec_adc_size=" + FPA_rec_adc_size.toString(10);
+    msg = "Number of read data (pipeout access): FPAsim_ADC_recordSize=" + FPAsim_ADC_recordSize.toString(10);
     display(msg, level2, mode_p);
 
     msg = "";
@@ -1531,7 +1531,7 @@ function test_adc_bypass(level_p, mode_p, verbosity_p) {
     adc0_sum = 0
     adc1_sum = 0
 
-    for (i = 0; i < FPA_rec_adc_size; i++) {
+    for (i = 0; i < FPAsim_ADC_recordSize; i++) {
         // data from the FPGA
         adc0 = FPA_adc_mux_squid_feedback[i];
         adc1 = FPA_adc_amp_squid_offset_correction[i];
