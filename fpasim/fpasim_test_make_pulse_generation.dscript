@@ -224,7 +224,7 @@ function main(level_p, mode_p, verbosity_p) {
     ra_delay = 0x0;
     msg = "Set register: RA_DELAY";
     display(msg, level1, mode_p);
-    sendToFPA_configureRaDelay(ra_delay);
+    sendToFPAsim_configureRaDelay(ra_delay);
 
     msg = "";
     display(msg, level1, mode_p);
