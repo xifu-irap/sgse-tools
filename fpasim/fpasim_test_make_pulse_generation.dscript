@@ -55,7 +55,7 @@ function tes_steady_state_conf_ram() {
         pulse_shape[i] = 0xFFFF;
     }
 
-    sendToFPA_loadTES_SteadyState(pulse_shape);
+    sendToFPAsim_loadTES_steadyState(pulse_shape);
 
 }
 

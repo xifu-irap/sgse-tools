@@ -849,7 +849,7 @@ function test_ram_conf(level_p, mode_p, verbosity_p) {
     //sendToFPAsim_loadTES_pulseShape(32768);
     //sendToFPAsim_loadSQA_TF(16384);
     //sendToFPAsim_loadSQM_TF(8192);
-    //sendToFPA_loadTES_SteadyState(64);
+    //sendToFPAsim_loadTES_steadyState(64);
     //sendToFPA_loadMuxSQUID_Offset(64);
 
     // count the number of error message
@@ -938,7 +938,7 @@ function test_ram_conf(level_p, mode_p, verbosity_p) {
             cnt = cnt + 4;
         }
     }
-    sendToFPA_loadTES_SteadyState(tes_steady_state_tab);
+    sendToFPAsim_loadTES_steadyState(tes_steady_state_tab);
 
     /*
      ***************************************************************************
