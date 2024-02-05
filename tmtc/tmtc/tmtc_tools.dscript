@@ -86,7 +86,7 @@ function tmtc_script_info(level_p, mode_p, verbosity_p) {
     msg = "";
     display(msg, level1, mode_p);
 
-    // get firmware id
+    // get firmware name
     reg_name = 'FIRMWARE_NAME';
     msg = "TMTC: Get " + reg_name + ".";
     display(msg, level1, mode_p);
@@ -102,7 +102,7 @@ function tmtc_script_info(level_p, mode_p, verbosity_p) {
     msg = "";
     display(msg, level1, mode_p);
 
-    // get firmware version
+    // get firmware id
     reg_name = 'FIRMWARE_ID';
     msg = "TMTC: Get " + reg_name + ".";
     display(msg, level1, mode_p);
