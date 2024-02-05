@@ -204,7 +204,7 @@ function main(level_p, mode_p, verbosity_p) {
     amp_sq_of_delay = 0x0;
     msg = "Set register: AMP_SQ_OF_DELAY";
     display(msg, level1, mode_p);
-    sendToFPA_configureAmpDelay(amp_sq_of_delay);
+    sendToFPAsim_configureOffsetCompDelay(amp_sq_of_delay);
 
     msg = "";
     display(msg, level1, mode_p);
