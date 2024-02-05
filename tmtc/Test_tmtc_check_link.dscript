@@ -218,8 +218,8 @@ function test_wire(level_p, mode_p, verbosity_p) {
 
     // read register
     // Use the Xifu Studio specific access
-    getLatestValue("DRELINKBOARD_ICU_Selection");
-    data1 =  DRELINKBOARD_ICU_Selection;
+    getLatestValue("TMTC_ICU_selection");
+    data1 =  TMTC_ICU_selection;
     msg = "TMTC: Check register (access1): ICU_CONF.";
     error = check_equal(data0, data1, msg, level2, mode_p, verbosity_p);
     if (error == -1)
