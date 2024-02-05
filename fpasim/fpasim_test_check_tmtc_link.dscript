@@ -77,7 +77,7 @@ function configure_fpasim(level_p, mode_p, verbosity_p) {
     mux_sq_fb_delay = 0x0;
     msg = "Set register: MUX_SQ_FB_DELAY";
     display(msg, level1, mode_p);
-    sendToFPA_configureMuxDelay(mux_sq_fb_delay);
+    sendToFPAsim_configureFeedbackDelay(mux_sq_fb_delay);
 
     msg = "";
     display(msg, level1, mode_p);
@@ -224,7 +224,7 @@ function test_wire(level_p, mode_p, verbosity_p) {
 
     msg = "Set register: MUX_SQ_FB_DELAY";
     display(msg, level1, mode_p);
-    sendToFPA_configureMuxDelay(mux_sq_fb_delay);
+    sendToFPAsim_configureFeedbackDelay(mux_sq_fb_delay);
     // build the data to send
     data0 = fpasim_build_mux_sq_fb_delay(mux_sq_fb_delay);
     // read the register

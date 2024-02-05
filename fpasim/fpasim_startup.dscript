@@ -154,7 +154,7 @@ function main(level_p, mode_p, verbosity_p) {
     mux_sq_fb_delay = 0x0; // 0 to 63
     msg = "Set register: MUX_SQ_FB_DELAY";
     display(msg, level1, mode_p);
-    sendToFPA_configureMuxDelay(mux_sq_fb_delay);
+    sendToFPAsim_configureFeedbackDelay(mux_sq_fb_delay);
 
     msg = "";
     display(msg, level1, mode_p);
