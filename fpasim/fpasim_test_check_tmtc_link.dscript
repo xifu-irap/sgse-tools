@@ -173,7 +173,7 @@ function test_wire(level_p, mode_p, verbosity_p) {
 
     msg = "Set register: CTRL";
     display(msg, level1, mode_p);
-    sendToFPA_configureControl(data0);
+    sendToFPAsim_configureControl(data0);
     // read the register
     data1 = fpasim_get_wireout_by_name("CTRL", level2, mode_p, verbosity_p);
     // check the read data Vs the written data
@@ -618,7 +618,7 @@ function test_recording(level_p, mode_p, verbosity_p) {
     data = fpasim_build_ctrl(rst, en);
     msg = "Enable the FPASim function";
     display_subtitle(msg, level1, mode_p);
-    sendToFPA_configureControl(data);
+    sendToFPAsim_configureControl(data);
 
     msg = "";
     display(msg, level1, mode_p);
@@ -1253,7 +1253,7 @@ function test_adc_bypass(level_p, mode_p, verbosity_p) {
     data = fpasim_build_ctrl(rst, en);
     msg = "Enable the FPASim function";
     display_subtitle(msg, level1, mode_p);
-    sendToFPA_configureControl(data);
+    sendToFPAsim_configureControl(data);
 
     msg = "";
     display(msg, level1, mode_p);
