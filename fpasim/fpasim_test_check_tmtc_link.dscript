@@ -846,7 +846,7 @@ function test_ram_conf(level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     // for each ram, expected ram size
-    //sendToFPA_loadTES_PulseShape(32768);
+    //sendToFPAsim_loadTES_pulseShape(32768);
     //sendToFPA_loadAmpSQUID_TF(16384);
     //sendToFPA_loadMuxSQUID_TF(8192);
     //sendToFPA_loadTES_SteadyState(64);
@@ -875,7 +875,7 @@ function test_ram_conf(level_p, mode_p, verbosity_p) {
             cnt = cnt + 1;
         }
     }
-    sendToFPA_loadTES_PulseShape(tes_pulse_shape_tab);
+    sendToFPAsim_loadTES_pulseShape(tes_pulse_shape_tab);
 
     /*
      ***************************************************************************

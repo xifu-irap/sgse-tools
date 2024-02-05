@@ -960,7 +960,7 @@ function fpasim_loadTES_PulseShape_From_File(file_p,level_p, mode_p, verbosity_p
     }
 
     // send the array to the fpasim
-    sendToFPA_loadTES_PulseShape(array);
+    sendToFPAsim_loadTES_pulseShape(array);
 
     // no error
     return 0;
