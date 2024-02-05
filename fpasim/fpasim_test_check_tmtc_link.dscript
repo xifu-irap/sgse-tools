@@ -198,7 +198,7 @@ function test_wire(level_p, mode_p, verbosity_p) {
 
     msg = "Set register: MAKE_PULSE";
     display(msg, level1, mode_p);
-    sendToFPA_makePulse(pixelId, timeShift, pulseHeight);
+    sendToFPAsim_makePulse(pixelId, timeShift, pulseHeight);
     // build the data to send
     data0 = fpasim_build_make_pulse(pixel_all, pixelId, timeShift, pulseHeight);
     // read the register
