@@ -1189,7 +1189,7 @@ function fpasim_sendToFPA_loadMuxSQUID_Offset_From_File(file_p,level_p, mode_p, 
 
 
     // send the array to the fpasim
-    sendToFPA_loadMuxSQUID_Offset(array);
+    sendToFPAsim_loadSQM_offset(array);
 
     // no error
     return 0;

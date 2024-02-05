@@ -850,7 +850,7 @@ function test_ram_conf(level_p, mode_p, verbosity_p) {
     //sendToFPAsim_loadSQA_TF(16384);
     //sendToFPAsim_loadSQM_TF(8192);
     //sendToFPAsim_loadTES_steadyState(64);
-    //sendToFPA_loadMuxSQUID_Offset(64);
+    //sendToFPAsim_loadSQM_offset(64);
 
     // count the number of error message
     cnt_error_ram_conf = 0;
@@ -960,7 +960,7 @@ function test_ram_conf(level_p, mode_p, verbosity_p) {
             cnt = cnt + 5;
         }
     }
-    sendToFPA_loadMuxSQUID_Offset(mux_squid_offset_tab);
+    sendToFPAsim_loadSQM_offset(mux_squid_offset_tab);
 
     /*
      ***************************************************************************
