@@ -678,12 +678,12 @@ function test_recording(level_p, mode_p, verbosity_p) {
     msg = "Get the ADC samples (adc0 and adc1)";
     display_subtitle(msg, level1, mode_p);
 
-    getLatestValue("FPA_adc_mux_squid_feedback,FPA_adc_amp_squid_offset_correction,FPAsim_ADC_recordSize");
+    getLatestValue("FPAsim_ADC_feedback_record,FPA_adc_amp_squid_offset_correction,FPAsim_ADC_recordSize");
 
 
-    msg = "Read FPA_adc_mux_squid_feedback tab";
+    msg = "Read FPAsim_ADC_feedback_record tab";
     display(msg, level2, mode_p);
-    print(FPA_adc_mux_squid_feedback);
+    print(FPAsim_ADC_feedback_record);
 
     msg = "";
     display(msg, level2, mode_p);
@@ -705,14 +705,14 @@ function test_recording(level_p, mode_p, verbosity_p) {
      ***************************************************************************
      * Auto-check the recording adc data
      *   if the adc device generates the pre-defined pattern0 then
-     *      . adc0 (=FPA_adc_mux_squid_feedback) generates the following alternates values
+     *      . adc0 (=FPAsim_ADC_feedback_record) generates the following alternates values
      *          . "01010101010101" (14 bits) -> "0001010101010101" (16 bits) <-> 5461 at the software side
      *          . "10101010101010" (14 bits) -> "1110101010101010" (16 bits) <-> at the software side
      *      . adc1 (=FPA_amp_squid_offset_correction) generates the following incremental values
      *          . 0 to 16383 (14 bits) -> -8192 to 8191
      ***************************************************************************
      */
-    msg = "Check the pattern of the recorded samples from ADC0 (FPA_adc_mux_squid_feedback)";
+    msg = "Check the pattern of the recorded samples from ADC0 (FPAsim_ADC_feedback_record)";
     display_subtitle(msg, level1, mode_p);
     msg = "";
     display(msg, level1, mode_p);
@@ -726,7 +726,7 @@ function test_recording(level_p, mode_p, verbosity_p) {
     adc0_word1 = -5462; //
     for (i = 0; i < FPAsim_ADC_recordSize; i++) {
         // data from the FPGA
-        adc0 = FPA_adc_mux_squid_feedback[i];
+        adc0 = FPAsim_ADC_feedback_record[i];
         // initial pattern
         if (v_first == 1) {
             v_first = 0;
@@ -760,7 +760,7 @@ function test_recording(level_p, mode_p, verbosity_p) {
     }
 
     // check the read data Vs the written data
-    msg = "Check the number of errors on the FPA_adc_mux_squid_feedback(adc0)";
+    msg = "Check the number of errors on the FPAsim_ADC_feedback_record(adc0)";
     error = check_equal(v_cnt_err0, 0, msg, level2, mode_p, verbosity_p);
     if (error != 0) {
         cnt_error_rec += 1;
@@ -1279,7 +1279,7 @@ function test_adc_bypass(level_p, mode_p, verbosity_p) {
     /*
      ***************************************************************************
      * no change on adc1 (FPA_adc_amp_squid_offset_correction)
-     * bypass the adc0 (adc_mux_squid_feedback)
+     * bypass the adc0 (FPAsim_ADC_feedback_record)
      *   => adc1 values !=0 (because of noise/signal on the data path)
      *   => adc0 values = 0
      ***************************************************************************
@@ -1341,12 +1341,12 @@ function test_adc_bypass(level_p, mode_p, verbosity_p) {
     msg = "Get the ADC samples: (ADC0, ADC1)";
     display_subtitle(msg, level1, mode_p);
 
-    getLatestValue("FPA_adc_mux_squid_feedback,FPA_adc_amp_squid_offset_correction,FPAsim_ADC_recordSize");
+    getLatestValue("FPAsim_ADC_feedback_record,FPA_adc_amp_squid_offset_correction,FPAsim_ADC_recordSize");
 
 
-    msg = "Read ADC0:  FPA_adc_mux_squid_feedback tab";
+    msg = "Read ADC0:  FPAsim_ADC_feedback_record tab";
     display(msg, level2, mode_p);
-    print(FPA_adc_mux_squid_feedback);
+    print(FPAsim_ADC_feedback_record);
 
     msg = "";
     display(msg, level2, mode_p);
@@ -1371,7 +1371,7 @@ function test_adc_bypass(level_p, mode_p, verbosity_p) {
      * the adc0 is bypassed => sum((adc0[i])**2) = 0
      ***************************************************************************
      */
-    msg = "Check the recorded samples: (ADC0, ADC1)=(FPA_adc_mux_squid_feedback,FPA_adc_amp_squid_offset_correction)";
+    msg = "Check the recorded samples: (ADC0, ADC1)=(FPAsim_ADC_feedback_record,FPA_adc_amp_squid_offset_correction)";
     display_subtitle(msg, level1, mode_p);
     msg = "";
     display(msg, level1, mode_p);
@@ -1382,7 +1382,7 @@ function test_adc_bypass(level_p, mode_p, verbosity_p) {
 
     for (i = 0; i < FPAsim_ADC_recordSize; i++) {
         // data from the FPGA
-        adc0 = FPA_adc_mux_squid_feedback[i];
+        adc0 = FPAsim_ADC_feedback_record[i];
         adc1 = FPA_adc_amp_squid_offset_correction[i];
         adc0_sum = adc0_sum + (adc0*adc0);
         adc1_sum = adc1_sum + (adc1*adc1);
@@ -1429,7 +1429,7 @@ function test_adc_bypass(level_p, mode_p, verbosity_p) {
 
     /*
      ***************************************************************************
-     * bypass the adc1 (adc_mux_squid_feedback)
+     * bypass the adc1 (FPAsim_ADC_feedback_record)
      * no change on adc0 (FPA_adc_amp_squid_offset_correction)
      *   => adc1 values = 0
      *   => adc0 values !=0 (because of noise/signal on the data path)
@@ -1492,12 +1492,12 @@ function test_adc_bypass(level_p, mode_p, verbosity_p) {
     msg = "Get the ADC samples: (ADC0, ADC1)";
     display_subtitle(msg, level1, mode_p);
 
-    getLatestValue("FPA_adc_mux_squid_feedback,FPA_adc_amp_squid_offset_correction,FPAsim_ADC_recordSize");
+    getLatestValue("FPAsim_ADC_feedback_record,FPA_adc_amp_squid_offset_correction,FPAsim_ADC_recordSize");
 
 
-    msg = "Read ADC0: FPA_adc_mux_squid_feedback";
+    msg = "Read ADC0: FPAsim_ADC_feedback_record";
     display(msg, level2, mode_p);
-    print(FPA_adc_mux_squid_feedback);
+    print(FPAsim_ADC_feedback_record);
 
     msg = "";
     display(msg, level2, mode_p);
@@ -1522,7 +1522,7 @@ function test_adc_bypass(level_p, mode_p, verbosity_p) {
      * the adc0 isn't bypassed => sum((adc0[i])**2) != 0 because of noise on this channel
      ***************************************************************************
      */
-    msg = "Check the recorded samples: (ADC0, ADC1)=(FPA_adc_mux_squid_feedback,FPA_adc_amp_squid_offset_correction)";
+    msg = "Check the recorded samples: (ADC0, ADC1)=(FPAsim_ADC_feedback_record,FPA_adc_amp_squid_offset_correction)";
     display_subtitle(msg, level1, mode_p);
     msg = "";
     display(msg, level1, mode_p);
@@ -1533,7 +1533,7 @@ function test_adc_bypass(level_p, mode_p, verbosity_p) {
 
     for (i = 0; i < FPAsim_ADC_recordSize; i++) {
         // data from the FPGA
-        adc0 = FPA_adc_mux_squid_feedback[i];
+        adc0 = FPAsim_ADC_feedback_record[i];
         adc1 = FPA_adc_amp_squid_offset_correction[i];
         adc0_sum = adc0_sum + (adc0*adc0);
         adc1_sum = adc1_sum + (adc1*adc1);
