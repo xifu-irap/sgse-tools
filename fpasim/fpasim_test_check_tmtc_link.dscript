@@ -1064,14 +1064,14 @@ function test_ram_conf(level_p, mode_p, verbosity_p) {
     display_subtitle(msg, level0, mode_p);
 
 
-    getLatestValue("FPA_TES_STD_STATE");
-    msg = "FPA_TES_STD_STATE: length=" + FPA_TES_STD_STATE.length;
+    getLatestValue("FPAsim_TES_steadyState");
+    msg = "FPAsim_TES_steadyState: length=" + FPAsim_TES_steadyState.length;
     display(msg, level1, mode_p);
 
-    print(FPA_TES_STD_STATE);
+    print(FPAsim_TES_steadyState);
 
     msg = "Check: the FPASim tes_std_state RAM";
-    error = check_equal_tab(FPA_TES_STD_STATE, tes_steady_state_tab, msg, level1, mode_p, verbosity_p);
+    error = check_equal_tab(FPAsim_TES_steadyState, tes_steady_state_tab, msg, level1, mode_p, verbosity_p);
     if (error != 0) {
         cnt_error_ram_conf += 1;
 
