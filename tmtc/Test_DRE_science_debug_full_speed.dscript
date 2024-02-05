@@ -78,7 +78,7 @@ function test_science(time_p, level_p, mode_p, verbosity_p) {
   tmtc_set_debug_ctrl(science_pattern_en_fifo_out, rst_status, debug_pulse, level1, mode_p);
 
   // infinite loop: Get statistics on the science USB link
-  req = getNextValue("DMX_controlLink0,DMX_controlLink1,DMX_dataCol0,DRE_DataCol3,DMX_dataCol2,DMX_dataCol1,DRE_LinkCounterError,DISP_SubsystemsDataTransferred", "toutes les 1000 ms");
+  req = getNextValue("DMX_controlLink0,DMX_controlLink1,DMX_dataCol0,DMX_dataCol3,DMX_dataCol2,DMX_dataCol1,DRE_LinkCounterError,DISP_SubsystemsDataTransferred", "toutes les 1000 ms");
   cnt = 1; // count the number of seconds
   test = 1;
   while (test)
@@ -92,7 +92,7 @@ function test_science(time_p, level_p, mode_p, verbosity_p) {
       unit = "To"
       dataTransferred = dataTransferred / 1024
     }
-    print(dataTransferred.toPrecision(3) + " " + unit + " received, " + DRE_LinkCounterError + " errors detected, " + DMX_controlLink0, DMX_dataCol0, DMX_dataCol1, DMX_dataCol2, DRE_DataCol3);
+    print(dataTransferred.toPrecision(3) + " " + unit + " received, " + DRE_LinkCounterError + " errors detected, " + DMX_controlLink0, DMX_dataCol0, DMX_dataCol1, DMX_dataCol2, DMX_dataCol3);
 
   if (time_p >= 1)
   { // finite time
