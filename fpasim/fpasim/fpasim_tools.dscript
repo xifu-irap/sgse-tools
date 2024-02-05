@@ -1131,7 +1131,7 @@ function fpasim_sendToFPA_loadTES_SteadyState_From_File(file_p,level_p, mode_p, 
 
 
     // send the array to the fpasim
-    sendToFPA_loadTES_SteadyState(array);
+    sendToFPAsim_loadTES_steadyState(array);
 
     // no error
     return 0;
