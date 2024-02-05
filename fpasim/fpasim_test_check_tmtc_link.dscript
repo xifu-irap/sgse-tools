@@ -848,7 +848,7 @@ function test_ram_conf(level_p, mode_p, verbosity_p) {
     // for each ram, expected ram size
     //sendToFPAsim_loadTES_pulseShape(32768);
     //sendToFPAsim_loadSQA_TF(16384);
-    //sendToFPA_loadMuxSQUID_TF(8192);
+    //sendToFPAsim_loadSQM_TF(8192);
     //sendToFPA_loadTES_SteadyState(64);
     //sendToFPA_loadMuxSQUID_Offset(64);
 
@@ -917,7 +917,7 @@ function test_ram_conf(level_p, mode_p, verbosity_p) {
             cnt = cnt + 3;
         }
     }
-    sendToFPA_loadMuxSQUID_TF(mux_squid_tf_tab);
+    sendToFPAsim_loadSQM_TF(mux_squid_tf_tab);
 
     /*
      ***************************************************************************
