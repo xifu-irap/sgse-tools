@@ -336,8 +336,8 @@ function main(level_p, mode_p, verbosity_p) {
     msg = " ";
     display(msg, level1, mode_p);
 
-    // get firmware version
-    reg_name = 'FIRMWARE_VERSION';
+    // get firmware id
+    reg_name = 'FIRMWARE_ID';
     msg = "Get " + reg_name + ": ";
     display(msg, level1, mode_p);
     data = fpasim_get_wireout_by_name(reg_name, level2, mode_p, 2);

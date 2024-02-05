@@ -106,7 +106,7 @@ function fpasim_script_info(level_p, mode_p, verbosity_p) {
     display(msg, level1, mode_p);
 
     // get firmware version
-    const reg_name = 'FIRMWARE_VERSION';
+    const reg_name = 'FIRMWARE_ID';
     const msg = "Get " + reg_name + ": ";
     display(msg, level1, mode_p);
     data = fpasim_get_wireout_by_name(reg_name, level2, mode_p, verbosity_p);
