@@ -1072,7 +1072,7 @@ function fpasim_sendToFPA_loadMuxSQUID_TF_From_File(file_p,level_p, mode_p, verb
     }
 
     // send the array to the fpasim
-    sendToFPA_loadMuxSQUID_TF(array);
+    sendToFPAsim_loadSQM_TF(array);
 
     // no error
     return 0;

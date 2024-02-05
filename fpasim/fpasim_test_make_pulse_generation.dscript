@@ -77,7 +77,7 @@ function mux_quid_tf_conf_ram() {
         }
     }
 
-    sendToFPA_loadMuxSQUID_TF(pulse_shape);
+    sendToFPAsim_loadSQM_TF(pulse_shape);
 
 }
 
