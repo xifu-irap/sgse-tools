@@ -164,8 +164,8 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
        0x0000, 0x0000, 0x0007, 0x0006, 0x0005, 0x0003, 0x0002, 0x0001,
        0x0000, 0x0000, 0x0007, 0x0006, 0x0005, 0x0004, 0x0003, 0x0002,
        0x0001, 0x0000];
-    nb_value = ras_value_test.length()
-    sendtoRASWriteMultiRegisters(0x0400, nb_value, ras_value_test);
+    nb_value = ras_value_test.length;
+    sendToRASWriteMultiRegisters(0x0400, nb_value, ras_value_test);
 
     /*
      From the RAS: Read 34 consecutive values at the same address as the DEMUX AMP_SQ_OFFSET_FINE table (col0).
