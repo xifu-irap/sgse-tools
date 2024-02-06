@@ -93,18 +93,6 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
     //////////////////////////////////////////////////////////
 
     /*
-     TMTC: TC_HK_CONF register.
-     */
-    msg = "TMTC: Select the DEMUX SPI link (TC_HK_CONF register).";
-    display_subtitle(msg, level0, mode_p);
-    // spi_select: 0: DEMUX, 1: RAS
-    spi_select = 0;
-    sendToTMTC_selectSPI_CS(spi_select);
-
-    msg = "";
-    display(msg, level0, mode_p);
-
-    /*
       From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
       Expected values:  see .vhd code
      */
@@ -165,18 +153,6 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
     //////////////////////////////////////////////////////////
 
     /*
-     TMTC: TC_HK_CONF register.
-     */
-    msg = "TMTC: Select the RAS SPI link (TC_HK_CONF register).";
-    display_subtitle(msg, level0, mode_p);
-    // spi_select: 0: DEMUX, 1: RAS
-    spi_select = 1;
-    sendToTMTC_selectSPI_CS(spi_select);
-
-    msg = "";
-    display(msg, level0, mode_p);
-
-    /*
        To the RAS: Write 34 consecutive values at the same address as the DEMUX AMP_SQ_OFFSET_FINE table (col0).
      */
     msg = "To the RAS: Write 34 consecutive values at the same address as the DEMUX AMP_SQ_OFFSET_FINE table (col0).";
@@ -226,18 +202,6 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
     //////////////////////////////////////////////////////////
     // DEMUX reading
     //////////////////////////////////////////////////////////
-
-    /*
-     TMTC: TC_HK_CONF register.
-     */
-    msg = "TMTC: Select the DEMUX SPI link (TC_HK_CONF register).";
-    display_subtitle(msg, level0, mode_p);
-    // spi_select: 0: DEMUX, 1: RAS
-    spi_select = 0;
-    sendToTMTC_selectSPI_CS(spi_select);
-
-    msg = "";
-    display(msg, level0, mode_p);
 
     /*
      From the DEMUX: Read 34 consecutive values of the DEMUX AMP_SQ_OFFSET_FINE table (col0).
