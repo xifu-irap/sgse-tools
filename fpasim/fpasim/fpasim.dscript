@@ -852,8 +852,8 @@ function fpasim_wireout_read_command(addr_p) {
     // Read wire out registers
     //---------------------------------------------------------------------
     // waitMs(50);
-    getLatestValue("FPAsim_WireOuts_x20_to_x3F");
-    const data = FPAsim_WireOuts_x20_to_x3F[index];
+    getLatestValue("FPAsim_wireOuts_x20_to_x3F");
+    const data = FPAsim_wireOuts_x20_to_x3F[index];
 
     return data;
 }
