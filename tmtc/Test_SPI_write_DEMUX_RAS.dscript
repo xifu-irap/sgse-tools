@@ -99,7 +99,7 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
     display_subtitle(msg, level0, mode_p);
     // spi_select: 0: DEMUX, 1: RAS
     spi_select = 0;
-    sendToDRELinkBoard_ConfigureSPI_CS(spi_select);
+    sendToTMTC_selectSPI_CS(spi_select);
 
     msg = "";
     display(msg, level0, mode_p);
@@ -171,7 +171,7 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
     display_subtitle(msg, level0, mode_p);
     // spi_select: 0: DEMUX, 1: RAS
     spi_select = 1;
-    sendToDRELinkBoard_ConfigureSPI_CS(spi_select);
+    sendToTMTC_selectSPI_CS(spi_select);
 
     msg = "";
     display(msg, level0, mode_p);
@@ -234,7 +234,7 @@ function test_spi_write(level_p, mode_p, verbosity_p) {
     display_subtitle(msg, level0, mode_p);
     // spi_select: 0: DEMUX, 1: RAS
     spi_select = 0;
-    sendToDRELinkBoard_ConfigureSPI_CS(spi_select);
+    sendToTMTC_selectSPI_CS(spi_select);
 
     msg = "";
     display(msg, level0, mode_p);

@@ -65,7 +65,7 @@ function configure_tmtc(level_p, mode_p, verbosity_p) {
     rst = 0 // reset isn't set. Otherwise, we have a risk to lose the synchronization at the Xifu studio side => generate error.
     tmtc_set_ctrl(rst, level1, mode_p, verbosity_p);
 
-	msg = "";
+    msg = "";
     display(msg, level1, mode_p);
 
     // set the register: TC_HK_CONF.
@@ -162,7 +162,7 @@ function test_wire(level_p, mode_p, verbosity_p) {
 
     // set register
     // Use the Xifu Studio specific access.
-    sendToDRELinkBoard_ConfigureSPI_CS(data0);
+    sendToTMTC_selectSPI_CS(data0);
     // tmtc_set_debug_wirein_by_name(reg_name_p = "TC_HK_CONF", data_p = data0, level_p = level2, mode_p = mode_p, verbosity_p = verbosity_p);
 
     // read register
