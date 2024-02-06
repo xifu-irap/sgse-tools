@@ -86,18 +86,6 @@ function test_spi_read(level_p, mode_p, verbosity_p) {
   //////////////////////////////////////////////////////////
 
   /*
-      TMTC: TC_HK_CONF register.
-   */
-  msg = "TMTC: Select the DEMUX SPI link (TC_HK_CONF register).";
-  display_subtitle(msg, level0, mode_p);
-  // spi_select: 0: DEMUX, 1: RAS
-  spi_select = 0;
-  sendToTMTC_selectSPI_CS(spi_select);
-
-  msg = "";
-  display(msg, level0, mode_p);
-
-  /*
     From the DEMUX, read 16 consecutive values of the Pulse shape Table (Col0).
     Expected values:  see .vhd code
    */
@@ -198,18 +186,6 @@ function test_spi_read(level_p, mode_p, verbosity_p) {
   //////////////////////////////////////////////////////////
   // RAS reading
   //////////////////////////////////////////////////////////
-
-  /*
-    TMTC: TC_HK_CONF register.
-   */
-  msg = "TMTC: Select the RAS SPI link (TC_HK_CONF register)";
-  display_subtitle(msg, level0, mode_p);
-  // spi_select: 0: DEMUX, 1: RAS
-  spi_select = 1;
-  sendToTMTC_selectSPI_CS(spi_select);
-
-  msg = "";
-  display(msg, level0, mode_p);
 
   /*
     From the RAS, read 16 consecutive values at the same address as the Pulse shape Table (col0) of the DEMUX.
