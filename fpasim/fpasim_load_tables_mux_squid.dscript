@@ -147,7 +147,7 @@ function main(level_p, mode_p, verbosity_p) {
     mux_sq_fb_delay = 0x0; // 0 to 63
     msg = "Set register: MUX_SQ_FB_DELAY";
     display(msg, level1, mode_p);
-    sendToFPA_configureMuxDelay(mux_sq_fb_delay);
+    sendToFPAsim_configureFeedbackDelay(mux_sq_fb_delay);
 
     msg = "";
     display(msg, level1, mode_p);
@@ -157,7 +157,7 @@ function main(level_p, mode_p, verbosity_p) {
     amp_sq_of_delay = 0x0; // 0 to 63
     msg = "Set register: AMP_SQ_OF_DELAY";
     display(msg, level1, mode_p);
-    sendToFPA_configureAmpDelay(amp_sq_of_delay);
+    sendToFPAsim_configureOffsetCompDelay(amp_sq_of_delay);
 
     msg = "";
     display(msg, level1, mode_p);
@@ -167,7 +167,7 @@ function main(level_p, mode_p, verbosity_p) {
     error_delay = 0x0; // 0 to 63
     msg = "Set register: ERROR_DELAY";
     display(msg, level1, mode_p);
-    sendToFPA_configureErrorDelay(error_delay);
+    sendToFPAsim_configureErrorDelay(error_delay);
 
     msg = "";
     display(msg, level1, mode_p);
@@ -177,7 +177,7 @@ function main(level_p, mode_p, verbosity_p) {
     ra_delay = 0x0; // 0 to 63
     msg = "Set register: RA_DELAY";
     display(msg, level1, mode_p);
-    sendToFPA_configureRaDelay(ra_delay);
+    sendToFPAsim_configureRaDelay(ra_delay);
 
     msg = "";
     display(msg, level1, mode_p);
@@ -198,7 +198,7 @@ function main(level_p, mode_p, verbosity_p) {
 
     msg = "Set register: TES_CONF";
     display(msg, level1, mode_p);
-    sendToFPA_configureTES_conf(nbPixels, nbSamplesPerPixel, totalFrameSize);
+    sendToFPAsim_configureTES_conf(nbPixels, nbSamplesPerPixel, totalFrameSize);
 
     msg = "";
     display(msg, level1, mode_p);
@@ -226,8 +226,8 @@ function main(level_p, mode_p, verbosity_p) {
      * check: DEBUG_CTRL
      ***************************************************************************
      */
-    adc1_bypass = 1; // 1: bypass adc1 (FPA_adc_amp_squid_offset_correction) (force data to 0), 0: otherwise
-    adc0_bypass = 1; // 1: bypass adc0 (adc_mux_squid_feedback) (force data to 0), 0: otherwise
+    adc1_bypass = 1; // 1: bypass adc1 (FPAsim_ADC_offsetComp_record) (force data to 0), 0: otherwise
+    adc0_bypass = 1; // 1: bypass adc0 (FPAsim_ADC_feedback_record) (force data to 0), 0: otherwise
     dac_en_pattern = 0; // 1: enable dac pattern, 0: do nothing
     rst_status = 0; // 1: reset internal error, 0: do nothing
     debug_pulse = 1; // 1: latch the internal error, 0: otherwise
@@ -249,7 +249,7 @@ function main(level_p, mode_p, verbosity_p) {
     data = fpasim_build_ctrl(rst, en);
     msg = "Enable the FPASIM function";
     display(msg, level1, mode_p);
-    sendToFPA_configureControl(data);
+    sendToFPAsim_configureControl(data);
 
     msg = "";
     display(msg, level1, mode_p);
@@ -270,7 +270,7 @@ function main(level_p, mode_p, verbosity_p) {
     msg = "Set Make_pulse (1 pixel): pixel_id: " + pixel_id.toString(10) + ", time_shift: " + time_shift.toString(10) + ", pulse_height: 0x" + pulse_height.toString(16);
     display(msg, level1, mode_p);
 
-    sendToFPA_makePulse(pixel_id, time_shift, pulse_height);
+    sendToFPAsim_makePulse(pixel_id, time_shift, pulse_height);
 
 
     msg = "";
@@ -293,7 +293,7 @@ function main(level_p, mode_p, verbosity_p) {
     msg = "Set Make_pulse (1 pixel): pixel_id: " + pixel_id.toString(10) + ", time_shift: " + time_shift.toString(10) + ", pulse_height: 0x" + pulse_height.toString(16);
     display(msg, level1, mode_p);
 
-    sendToFPA_makePulse(pixel_id, time_shift, pulse_height);
+    sendToFPAsim_makePulse(pixel_id, time_shift, pulse_height);
 
 
     msg = "";
@@ -305,7 +305,7 @@ function main(level_p, mode_p, verbosity_p) {
      ***************************************************************************
      */
     error_debug_cnt = 0;
-    msg = "Check Debug Errors";
+    msg = "Check internal errors (debug)";
     display_title(msg, level0, mode_p);
     error_debug_cnt = fpasim_check_all_errors(level1, 0, 0);
 
@@ -327,8 +327,8 @@ function main(level_p, mode_p, verbosity_p) {
     msg = "";
     display(msg, level1, mode_p);
 
-    // get the firmware Id
-    reg_name = 'FIRMWARE_ID';
+    // get the firmware name
+    reg_name = 'FIRMWARE_NAME';
     msg = "Get " + reg_name + ": ";
     display(msg, level1, mode_p);
     data = fpasim_get_wireout_by_name(reg_name, level2, mode_p, 2);
@@ -336,8 +336,8 @@ function main(level_p, mode_p, verbosity_p) {
     msg = " ";
     display(msg, level1, mode_p);
 
-    // get firmware version
-    reg_name = 'FIRMWARE_VERSION';
+    // get firmware id
+    reg_name = 'FIRMWARE_ID';
     msg = "Get " + reg_name + ": ";
     display(msg, level1, mode_p);
     data = fpasim_get_wireout_by_name(reg_name, level2, mode_p, 2);

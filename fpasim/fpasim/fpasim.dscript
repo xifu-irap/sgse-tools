@@ -92,8 +92,8 @@ FPASIM_ADDR_WIREIN['ERROR_SEL'] = 0x19; // 25
 // FPASIM_ADDR_WIREIN['STATUS'] = 0x1B; // 27
 // FPASIM_ADDR_WIREIN['RFU'] = 0x1C; // 28
 // FPASIM_ADDR_WIREIN['HARDWARE_ID'] = 0x1D; // 29
-// FPASIM_ADDR_WIREIN['FIRMWARE_ID'] = 0x1E; // 30
-// FPASIM_ADDR_WIREIN['FIRMWARE_VERSION'] = 0x1F; // 31
+// FPASIM_ADDR_WIREIN['FIRMWARE_NAME'] = 0x1E; // 30
+// FPASIM_ADDR_WIREIN['FIRMWARE_ID'] = 0x1F; // 31
 
 
 /*
@@ -130,8 +130,8 @@ FPASIM_ADDR_WIREOUT['ERRORS'] = 0x3A; // 26
 FPASIM_ADDR_WIREOUT['STATUS'] = 0x3B; // 27
 // FPASIM_ADDR_WIREOUT['RFU'] = 0x3C; // 28
 FPASIM_ADDR_WIREOUT['HARDWARE_ID'] = 0x3D; // 29
-FPASIM_ADDR_WIREOUT['FIRMWARE_ID'] = 0x3E; // 30
-FPASIM_ADDR_WIREOUT['FIRMWARE_VERSION'] = 0x3F; // 31
+FPASIM_ADDR_WIREOUT['FIRMWARE_NAME'] = 0x3E; // 30
+FPASIM_ADDR_WIREOUT['FIRMWARE_ID'] = 0x3F; // 31
 
 
 
@@ -377,11 +377,11 @@ function fpasim_set_ctrl(rst_p, en_p, level_p, mode_p, verbosity_p) {
     const data = fpasim_build_ctrl(rst_p, en_p);
     const addr = FPASIM_ADDR_WIREIN["CTRL"];
 
-    sendToFPA_debugSetWireIn(addr, data);
+    sendToFPAsim_debugSetWireIn(addr, data);
 
     const trig_pos = FPASIM_POS_TRIGIN['ctrl_valid'];
     const trig_addr = FPASIM_ADDR_TRIGIN['TRIG'];
-    sendToFPA_debugSetTriggerIn(trig_addr, trig_pos);
+    sendToFPAsim_debugSetTriggerIn(trig_addr, trig_pos);
 
 
     if (verbosity_p < 0) {
@@ -429,7 +429,7 @@ function fpasim_set_spi_ctrl(rst_p, en_p, level_p, mode_p, verbosity_p) {
     const data = fpasim_build_spi_ctrl(rst_p, en_p);
     const addr = addr = FPASIM_ADDR_WIREIN["SPI_CTRL"];
 
-    sendToFPA_debugSetWireIn(addr, data);
+    sendToFPAsim_debugSetWireIn(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
@@ -475,7 +475,7 @@ function fpasim_set_spi_conf0(spi_id_p, spi_mode_p, level_p, mode_p, verbosity_p
     const data = fpasim_build_spi_conf0(spi_id_p, spi_mode_p);
     const addr = addr = FPASIM_ADDR_WIREIN["SPI_CONF0"];
 
-    sendToFPA_debugSetWireIn(addr, data);
+    sendToFPAsim_debugSetWireIn(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
@@ -521,7 +521,7 @@ function fpasim_set_spi_conf1(spi_dac_tx_en_p, level_p, mode_p, verbosity_p) {
     const data = fpasim_build_spi_conf1(spi_dac_tx_en_p);
     const addr = addr = FPASIM_ADDR_WIREIN["SPI_CONF1"];
 
-    sendToFPA_debugSetWireIn(addr, data);
+    sendToFPAsim_debugSetWireIn(addr, data);
 
     if (verbosity_p < 0) {
         // do nothing
@@ -565,11 +565,11 @@ function fpasim_set_spi_wr_data(data_p, level_p, mode_p, verbosity_p) {
     const data = fpasim_build_spi_wr_data(data_p);
     const addr = addr = FPASIM_ADDR_WIREIN["SPI_WR_DATA"];
 
-    sendToFPA_debugSetWireIn(addr, data);
+    sendToFPAsim_debugSetWireIn(addr, data);
 
     const trig_pos = FPASIM_POS_TRIGIN['spi_valid'];
     const trig_addr = FPASIM_ADDR_TRIGIN['TRIG'];
-    sendToFPA_debugSetTriggerIn(trig_addr, trig_pos);
+    sendToFPAsim_debugSetTriggerIn(trig_addr, trig_pos);
 
 
     if (verbosity_p < 0) {
@@ -614,11 +614,11 @@ function fpasim_set_debug_ctrl(adc1_bypass_p, adc0_bypass_p, dac_en_pattern_p, r
     const data = fpasim_build_debug_ctrl(adc1_bypass_p, adc0_bypass_p, dac_en_pattern_p, rst_status_p, debug_pulse_p)
     const addr = FPASIM_ADDR_WIREIN["DEBUG_CTRL"];
 
-    sendToFPA_debugSetWireIn(addr, data);
+    sendToFPAsim_debugSetWireIn(addr, data);
 
     const trig_pos = FPASIM_POS_TRIGIN['debug_valid'];
     const trig_addr = FPASIM_ADDR_TRIGIN['TRIG'];
-    sendToFPA_debugSetTriggerIn(trig_addr, trig_pos);
+    sendToFPAsim_debugSetTriggerIn(trig_addr, trig_pos);
 
     if (verbosity_p < 0) {
         // do nothing
@@ -647,7 +647,7 @@ function fpasim_set_debug_ctrl(adc1_bypass_p, adc0_bypass_p, dac_en_pattern_p, r
 
 /**
  * Set the selected register value.
- *   Note: for few registers, the sendToFPA_debugSetTriggerIn function is called.
+ *   Note: for few registers, the sendToFPAsim_debugSetTriggerIn function is called.
  * @param {string} reg_name_p - Name of the FPASIM register.
  * @param {number} data_p - data to write in the register.
  * @param {number} level_p - level of indentation at the beginning.
@@ -793,10 +793,10 @@ function fpasim_set_debug_wirein_by_name(reg_name_p, data_p, level_p, mode_p, ve
             // case 'HARDWARE_ID': // 29
             //     break;
 
-            // case 'FIRMWARE_ID': // 30
+            // case 'FIRMWARE_NAME': // 30
             //     break;
 
-            // case 'FIRMWARE_VERSION': // 31
+            // case 'FIRMWARE_ID': // 31
             //     break;
         default:
             msg = "[KO][fpasim_set_debug_wirein_by_name]: The register " + reg_name_p + " doesn't exist."
@@ -807,10 +807,10 @@ function fpasim_set_debug_wirein_by_name(reg_name_p, data_p, level_p, mode_p, ve
 
     if (error == 0) {
 
-        sendToFPA_debugSetWireIn(addr, data);
+        sendToFPAsim_debugSetWireIn(addr, data);
 
         if (trig_pos != -1) {
-            sendToFPA_debugSetTriggerIn(trig_addr, trig_pos);
+            sendToFPAsim_debugSetTriggerIn(trig_addr, trig_pos);
         }
         if (verbosity_p < 0) {
             // do nothing
@@ -841,7 +841,7 @@ function fpasim_set_debug_wirein_by_name(reg_name_p, data_p, level_p, mode_p, ve
 
 /**
  * Get the register value (wireout access).
- *   Note: for few registers, the sendToFPA_debugSetTriggerIn function is also called.
+ *   Note: for few registers, the sendToFPAsim_debugSetTriggerIn function is also called.
  * @param {number} addr_p - data to write in the register.
  * @return {number} read register value.
  */
@@ -852,8 +852,8 @@ function fpasim_wireout_read_command(addr_p) {
     // Read wire out registers
     //---------------------------------------------------------------------
     // waitMs(50);
-    getLatestValue("FPA_WireOuts_x20_to_x3F");
-    const data = FPA_WireOuts_x20_to_x3F[index];
+    getLatestValue("FPAsim_wireOuts_x20_to_x3F");
+    const data = FPAsim_wireOuts_x20_to_x3F[index];
 
     return data;
 }
@@ -1840,6 +1840,50 @@ function fpasim_get_wireout_hardware_id(level_p, mode_p, verbosity_p) {
 }
 
 /**
+ * Get the selected "FIRMWARE_NAME" register value.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} read register value.
+ */
+function fpasim_get_wireout_firmware_name(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    addr = FPASIM_ADDR_WIREOUT['FIRMWARE_NAME'];
+    data = fpasim_wireout_read_command(addr);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
+            msg = "[fpasim_get_wireout_firmware_name]: Get the register value ";
+            display(msg, level0, mode_p);
+        }
+
+        if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
+            display_register(addr, 32, data, 32, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
+            display_bit_from_data("firmware_id_p", 0, 32, data, level2, mode_p);
+            msg = "firmware_id_p (ASCII): " + convert_hex_to_ascii(value_p = data, width_p = 32);
+            display(msg_p = msg, level2, mode_p);
+        }
+    }
+
+
+
+    return data;
+}
+
+/**
  * Get the selected "FIRMWARE_ID" register value.
  * @param {number} level_p - level of indentation at the beginning.
  * @param {number} mode_p - define the print output.
@@ -1864,50 +1908,6 @@ function fpasim_get_wireout_firmware_id(level_p, mode_p, verbosity_p) {
     } else {
         if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
             msg = "[fpasim_get_wireout_firmware_id]: Get the register value ";
-            display(msg, level0, mode_p);
-        }
-
-        if (verbosity_p >= c_FPASIM_ADDR_VERBOSITY_MIN) {
-            display_register(addr, 32, data, 32, level1, mode_p);
-        }
-
-        if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
-            display_bit_from_data("firmware_id_p", 0, 32, data, level2, mode_p);
-            msg = "firmware_id_p (ASCII): " + convert_hex_to_ascii(value_p = data, width_p = 32);
-            display(msg_p = msg, level2, mode_p);
-        }
-    }
-
-
-
-    return data;
-}
-
-/**
- * Get the selected "FIRMWARE_VERSION" register value.
- * @param {number} level_p - level of indentation at the beginning.
- * @param {number} mode_p - define the print output.
- * @param {number} verbosity_p - level of verbosity.
- * @return {number} read register value.
- */
-function fpasim_get_wireout_firmware_version(level_p, mode_p, verbosity_p) {
-    // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
-
-    const level0 = level_p;
-    const level1 = level_p + 1;
-    const level2 = level_p + 2;
-
-    addr = FPASIM_ADDR_WIREOUT['FIRMWARE_VERSION'];
-    data = fpasim_wireout_read_command(addr);
-
-    if (verbosity_p < 0) {
-        // do nothing
-    } else {
-        if (verbosity_p >= c_FPASIM_REG_VERBOSITY_MIN) {
-            msg = "[fpasim_get_wireout_firmware_version]: Get the register value ";
             display(msg, level0, mode_p);
         }
 
@@ -2060,12 +2060,12 @@ function fpasim_get_wireout_by_name(reg_name_p, level_p, mode_p, verbosity_p) {
             data = fpasim_get_wireout_hardware_id(level0, mode_p, verbosity_p);
             break;
 
-        case 'FIRMWARE_ID': // 30
-            data = fpasim_get_wireout_firmware_id(level0, mode_p, verbosity_p);
+        case 'FIRMWARE_NAME': // 30
+            data = fpasim_get_wireout_firmware_name(level0, mode_p, verbosity_p);
             break;
 
-        case 'FIRMWARE_VERSION': // 31
-            data = fpasim_get_wireout_firmware_version(level0, mode_p, verbosity_p);
+        case 'FIRMWARE_ID': // 31
+            data = fpasim_get_wireout_firmware_id(level0, mode_p, verbosity_p);
             break;
 
         default:
