@@ -32,6 +32,8 @@
 import sys
 from pathlib import Path
 import time
+import argparse
+import os
 
 # get the script base path
 script_base_path = str(Path(__file__).parents[0])
@@ -162,10 +164,37 @@ def test_wire(device_p):
 if __name__ == '__main__':
 
     ###########################################
+    # parse command line
+    ###########################################
+    # user-defined: default firmware filepath (relative to this script path)
+    default_firmware_filpath = "..\\..\\dcdc-fw_002.bit"
+
+    parser = argparse.ArgumentParser(description='Define command line arguments')
+    # add an optional argument with limited choices
+    parser.add_argument('--firmware_filepath', '-f', default=default_firmware_filpath,
+                        help='The firmware filepath can be absolute or relative to this script path.')
+
+    args_known = parser. parse_known_args()
+    # get arguments defined in this file.
+    args = args_known[0]
+    # get arguments not defined in this file in order to pass them to the called script.
+    args_unknown = args_known[1]
+
+    ###########################################
     # User-defined parameters
     ###########################################
     # path to the firmware
-    firmware_filepath =  str(Path(script_base_path,"..\\..\\dcdc-fw_002.bit").resolve())
+    firmware_filepath = args.firmware_filepath
+
+    if os.path.isabs(firmware_filepath):
+        # absolute path
+        # print("absolute path: ",firmware_filepath)
+        firmware_filepath = firmware_filepath
+    else:
+        # compute the absolute path relative to this script path
+        # print("relative_path: ",firmware_filepath)
+        firmware_filepath = str(Path(script_base_path,firmware_filepath).resolve())
+
     # level of verbosity
     verbosity = 2
 
