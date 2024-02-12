@@ -91,8 +91,8 @@ function fpasim_script_info(level_p, mode_p, verbosity_p) {
     const msg = "";
     display(msg, level1, mode_p);
 
-    // get firmware id
-    const reg_name = 'FIRMWARE_ID';
+    // get firmware name
+    const reg_name = 'FIRMWARE_NAME';
     const msg = "Get " + reg_name + ": ";
     display(msg, level1, mode_p);
     const data = fpasim_get_wireout_by_name(reg_name, level2, mode_p, verbosity_p);
@@ -106,7 +106,7 @@ function fpasim_script_info(level_p, mode_p, verbosity_p) {
     display(msg, level1, mode_p);
 
     // get firmware version
-    const reg_name = 'FIRMWARE_VERSION';
+    const reg_name = 'FIRMWARE_ID';
     const msg = "Get " + reg_name + ": ";
     display(msg, level1, mode_p);
     data = fpasim_get_wireout_by_name(reg_name, level2, mode_p, verbosity_p);
@@ -148,7 +148,7 @@ function fpasim_reset(level_p, mode_p, verbosity_p) {
 
     const msg = "Set CTRL: Enable Off";
     display(msg, level1, mode_p);
-    sendToFPA_configureControl(data);
+    sendToFPAsim_configureControl(data);
     // fpasim_set_ctrl(rst_p=rst,en_p=en, level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
     const msg = "";
     display(msg, level1, mode_p);
@@ -177,7 +177,7 @@ function fpasim_reset(level_p, mode_p, verbosity_p) {
 
     const msg = "Set CTRL: Reset On"
     display(msg, level1, mode_p);
-    sendToFPA_configureControl(data);
+    sendToFPAsim_configureControl(data);
     //fpasim_set_ctrl(rst_p=rst,en_p=en, level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
     const msg = "";
     display(msg, level1, mode_p);
@@ -193,7 +193,7 @@ function fpasim_reset(level_p, mode_p, verbosity_p) {
 
     const msg = "Set CTRL: Reset Off"
     display(msg, level1, mode_p);
-    sendToFPA_configureControl(data);
+    sendToFPAsim_configureControl(data);
     //fpasim_set_ctrl(rst_p=rst,en_p=en, level_p = level1, mode_p = mode_p, verbosity_p = verbosity_p);
     const msg = "";
     display(msg, level1, mode_p);
@@ -395,7 +395,7 @@ function configure_fmc150_spi_device(level_p, mode_p, verbosity_p) {
     const en = 0;
     // build the data to send
     const data = fpasim_build_ctrl(rst, en);
-    sendToFPA_configureControl(data);
+    sendToFPAsim_configureControl(data);
     // fpasim_set_ctrl(rst, en, level1, mode_p, verbosity_p);
     const msg = "";
     display(msg, level1, mode_p);
@@ -591,7 +591,7 @@ function fpasim_dac_enable_pattern(level_p, mode_p, verbosity_p) {
     const data = fpasim_build_ctrl(rst, en);
     const msg = "Enable the FPASIM function";
     display(msg, level1, mode_p);
-    // sendToFPA_configureControl(data);
+    // sendToFPAsim_configureControl(data);
     fpasim_set_ctrl(rst, en, level2, mode_p, verbosity_p);
 
     const msg = "";
@@ -740,7 +740,7 @@ function fpasim_dac_disable_pattern(level_p, mode_p, verbosity_p) {
     const data = fpasim_build_ctrl(rst, en);
     const msg = "Set CTRL: Enable Off"
     display(msg, level1, mode_p);
-    // sendToFPA_configureControl(data);
+    // sendToFPAsim_configureControl(data);
     fpasim_set_ctrl(rst, en, level2, mode_p, verbosity_p);
     const msg = "";
     display(msg, level1, mode_p);
@@ -960,7 +960,7 @@ function fpasim_loadTES_PulseShape_From_File(file_p,level_p, mode_p, verbosity_p
     }
 
     // send the array to the fpasim
-    sendToFPA_loadTES_PulseShape(array);
+    sendToFPAsim_loadTES_pulseShape(array);
 
     // no error
     return 0;
@@ -1016,7 +1016,7 @@ function fpasim_sendToFPA_loadAmpSQUID_TF_From_File(file_p,level_p, mode_p, verb
     }
 
     // send the array to the fpasim
-    sendToFPA_loadAmpSQUID_TF(array);
+    sendToFPAsim_loadSQA_TF(array);
 
    // no error
     return 0;
@@ -1072,7 +1072,7 @@ function fpasim_sendToFPA_loadMuxSQUID_TF_From_File(file_p,level_p, mode_p, verb
     }
 
     // send the array to the fpasim
-    sendToFPA_loadMuxSQUID_TF(array);
+    sendToFPAsim_loadSQM_TF(array);
 
     // no error
     return 0;
@@ -1131,7 +1131,7 @@ function fpasim_sendToFPA_loadTES_SteadyState_From_File(file_p,level_p, mode_p, 
 
 
     // send the array to the fpasim
-    sendToFPA_loadTES_SteadyState(array);
+    sendToFPAsim_loadTES_steadyState(array);
 
     // no error
     return 0;
@@ -1189,7 +1189,7 @@ function fpasim_sendToFPA_loadMuxSQUID_Offset_From_File(file_p,level_p, mode_p, 
 
 
     // send the array to the fpasim
-    sendToFPA_loadMuxSQUID_Offset(array);
+    sendToFPAsim_loadSQM_offset(array);
 
     // no error
     return 0;
