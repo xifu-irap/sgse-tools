@@ -1,0 +1,570 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     ras_tools.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file contains low level commands to configure and read the configuration of a DRE RAS module.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+include("../common/util_tools.dscript");
+include("./ras_reg_addresses.dscript");
+
+// Row addresses
+const NB_PS = 8;
+const NB_GS = 6;
+const NB_RA = NB_PS + NB_GS;
+const NB_RA_FIELDS = 3;
+// DACs
+const DAC_PS_HIGH = 0;
+const DAC_PS_LOW = 1;
+const DAC_GS_HIGH = 2;
+const DAC_GS_LOW = 3;
+const NB_RA_DACS = 4;
+const RAS_DAC_NAMES = ["PS HIGH", "PS LOW", "GS HIGH", "GS LOW"];
+// strings
+const TAB1 = "   ";
+const TAB2 = repeat(TAB1, 2);
+const TAB3 = repeat(TAB1, 3);
+
+const RAS_NB_HK = 20;
+
+
+/**
+ * Sets an address sequence.
+ * @param {number} addressId - selected address id [0, 13]
+ * @param {number} Seq - 48 bits sequence
+ */
+function setRAS_addressSequence(addressId, Seq) {
+
+    if (addressId < 0 || addressId > NB_RA-1) {
+        print("ERROR, address identifier must be between 0 and ", NB_RA-1, " ( received ", addressId, ")");
+        return;
+    }
+	
+    var reg_address;
+    if (addressId < NB_PS) {    // this is a PS sequence
+        reg_address = ADD_RAS_SEQ_PS + (addressId << 4);
+    } else {    // this is a GS sequence
+        reg_address = ADD_RAS_SEQ_GS + ((addressId - NB_PS) << 4);
+    }
+
+    const seq_beg = Seq & 0xFFFF;       // (LSB)
+    const seq_mid = (Seq >> 16) & 0xFFFF;
+    const seq_end = (Seq >> 32) & 0xFFFF; // (MSB)
+
+    const sequence = [seq_beg, seq_mid, seq_end];
+
+    sendToRASWriteMultiRegisters(reg_address, NB_RA_FIELDS, sequence);
+}
+
+
+/**
+ * Reads an address sequence.
+ * @param {number} addressId - selected address id [0, 13]
+ * @return {number} Seq - 48 bits sequence
+ */
+function readRAS_addressSequence(addressId) {
+
+    if (addressId < 0 || addressId > NB_RA-1) {
+        print("ERROR, address identifier must be between 0 and ", NB_RA-1, " ( received ", addressId, ")");
+        return;
+    }
+
+    var reg_address;
+    if (addressId < NB_PS) {    // this is a PS sequence
+        reg_address = ADD_RAS_SEQ_PS + (addressId << 4);
+    } else {    // this is a GS sequence
+        reg_address = ADD_RAS_SEQ_GS + ((addressId - NB_PS) << 4);
+    }
+
+    sendToRASReadMultiRegisters(reg_address, NB_RA_FIELDS);
+    getLatestValue("RAS_registers");
+	const sequence = RAS_registers.slice(reg_address, reg_address+NB_RA_FIELDS);
+
+    var seq = 0;
+    for (field = 0; field < NB_RA_FIELDS; field++) seq = seq + sequence[field] * Math.pow(2, 16*field);
+    return seq;
+}
+
+
+/**
+ * Sets the sequence mode.
+ * @param {number} seqMode - sequence mode [0: Off, 1: On, 2: Pattern0, 3: Pattern1]
+ */
+function setRAS_sequenceMode(seqMode) {
+
+    if (seqMode < 0 || seqMode > 4-1) {
+        print("ERROR, sequence mode must be between 0 and 3, ( received ", seqMode, ")");
+        return;
+    }
+
+    sendToRASWriteRegister(ADD_RAS_SEQ_MODE, seqMode);
+}
+
+
+/**
+ * Reads the sequence mode.
+ * @return {number} seqMode - [0: Off, 1: On, 2: Pattern0, 3: Pattern1]
+ */
+function readRAS_sequenceMode() {
+
+    const reg_address = ADD_RAS_SEQ_MODE;
+    sendToRASReadRegister(reg_address);
+    getLatestValue("RAS_registers");
+	return RAS_registers[reg_address];
+}
+
+
+/**
+ * Sets the value to be sent to a DAC.
+ * @param {number} dacId - DAC identifier [0: PS_HIGH, 1: PS_LOW, 2: GS_HIGH, 3: GS_LOW]
+ * @param {number} value - value U(12,0)
+ */
+function setRAS_DAC(dacId, value) {
+
+    if (dacId < 0 || dacId > 4-1) {
+        print("ERROR, DAC id must be between 0 and 3 ( received " + dacId + ")" );
+        return;
+    }
+
+    if (value < 0 || value > Math.pow(2,12)-1) {
+        print("ERROR, the value must be between 0 and 2^12-1 ( received " + value + ")");
+        return;
+    }
+
+    var reg_address = 0;
+    switch (dacId) {
+        case DAC_PS_HIGH:
+            reg_address = ADD_RAS_PS_HIGH;
+            break;
+        case DAC_PS_LOW:
+            reg_address = ADD_RAS_PS_LOW;
+            break;
+        case DAC_GS_HIGH:
+            reg_address = ADD_RAS_GS_HIGH;
+            break;
+        case DAC_GS_LOW:
+            reg_address = ADD_RAS_GS_LOW;
+            break;
+        default:
+    }
+
+    sendToRASWriteRegister(reg_address, value);
+}
+
+
+/**
+ * Reads the DAC value.
+ * @param {number} dacId - DAC identifier [0: PS_HIGH, 1: PS_LOW, 2: GS_HIGH, 3: GS_LOW]
+ * @return {number} value U(12,0)
+ */
+function readRAS_DAC(dacId) {
+
+    if (dacId < 0 || dacId > 4-1) {
+        print("ERROR, DAC id must be between 0 and 3 ( received " + dacId + ")" );
+        return;
+    }
+
+    var reg_address = 0;
+    switch (dacId) {
+        case DAC_PS_HIGH:
+            reg_address = ADD_RAS_PS_HIGH;
+            break;
+        case DAC_PS_LOW:
+            reg_address = ADD_RAS_PS_LOW;
+            break;
+        case DAC_GS_HIGH:
+            reg_address = ADD_RAS_GS_HIGH;
+            break;
+        case DAC_GS_LOW:
+            reg_address = ADD_RAS_GS_LOW;
+            break;
+        default:
+    }
+
+    sendToRASReadRegister(reg_address);
+    getLatestValue("RAS_registers");
+	return RAS_registers[reg_address];
+}
+
+
+/**
+ * Sets the level mode.
+ * @param {array} levelMode - one value per DAC [0: off, 1: on, 2: pattern]
+ */
+function setRAS_levelMode(levelMode) {
+
+    var value = 0;
+	if (levelMode.length != 4){
+		print("ERROR, level mode must have 4 values (received " + levelMode.length + " values)");
+		return;
+	}
+    for (dac = 0; dac < 4; dac++) {
+        if (levelMode[dac] < 0 || levelMode[dac] > 2) {
+            print("ERROR, level mode for DAC " + dac + " must be between 0 and 2 (received " + levelMode[dac] + ")");
+            print("It will be set to Off instead");
+            levelMode[dac] = 0;
+        }
+        value += levelMode[dac] << (4 * dac);
+    }
+
+    sendToRASWriteRegister(ADD_RAS_LEVEL_MODE, value);
+}
+
+
+/**
+ * Reads the level mode.
+ * @return {array} levelMode - one value per DAC [0: off, 1: on, 2: pattern]
+ */
+function readRAS_levelMode() {
+
+    const reg_address = ADD_RAS_LEVEL_MODE;
+    sendToRASReadRegister(reg_address);
+    getLatestValue("RAS_registers");
+    const value = RAS_registers[reg_address];
+
+    var levelMode = new Array(NB_RA_DACS);
+    for (dac = 0; dac < NB_RA_DACS; dac++) {
+        levelMode[dac] = (value >> (4 * dac)) & 0x000F;
+    }
+	return levelMode;
+}
+
+
+/**
+ * Sets the sequence delay.
+ * @param {number} seqDelay - delay U(10, 0)
+ */
+function setRAS_seqDelay(seqDelay) {
+
+    if (seqDelay < 0 || seqDelay > Math.pow(2,10)-1) {
+        print("ERROR, the delay value must be between 0 and 2^10-1 ( received " + seqDelay + ")" );
+        return;
+    }
+    sendToRASWriteRegister(ADD_RAS_SEQ_DELAY, seqDelay);
+}
+
+
+/**
+ * Reads the sequence delay.
+ * @return {number} seqDelay - delay U(10, 0)
+ */
+function readRAS_seqDelay() {
+
+    const reg_address = ADD_RAS_SEQ_DELAY;
+    sendToRASReadRegister(reg_address);
+    getLatestValue("RAS_registers");
+    return RAS_registers[reg_address];
+}
+
+
+/**
+ * Sets the PS overlap.
+ * @param {number} overlap - overlap S(3, 0)
+ */
+function setRAS_psOverlap(overlap) {
+
+    if (overlap < -4 || overlap > 3) {
+        print("ERROR, the overlap value must be between -4 and 3 ( received " + overlap +")" );
+        return;
+    }
+
+    const value = convert_sInt_to_2compInt(overlap, 3);
+    sendToRASWriteRegister(ADD_RAS_PS_OVERLAP, value);
+}
+
+
+/**
+ * Reads the PS overlap.
+ * @return {number} overlap - overlap S(3, 0)
+ */
+function readRAS_psOverlap() {
+
+    const reg_address = ADD_RAS_PS_OVERLAP;
+    sendToRASReadRegister(reg_address);
+    getLatestValue("RAS_registers");
+    return convert_2compInt_to_sInt(RAS_registers[reg_address],3);
+}
+
+
+/**
+ * Sets the GS overlap.
+ * @param {number} overlap - overlap S(3, 0)
+ */
+function setRAS_gsOverlap(overlap) {
+
+    if (overlap < -4 || overlap > 3) {
+        print("ERROR, the overlap value must be between -4 and 3 ( received " + overlap +")" );
+        return;
+    }
+
+    value = convert_sInt_to_2compInt(overlap, 3);
+    sendToRASWriteRegister(ADD_RAS_GS_OVERLAP, value);
+}
+
+
+/**
+ * Reads the GS overlap.
+ * @return {number} overlap - overlap S(3, 0)
+ */
+function readRAS_gsOverlap() {
+
+    const reg_address = ADD_RAS_GS_OVERLAP;
+    sendToRASReadRegister(reg_address);
+    getLatestValue("RAS_registers");
+    return convert_2compInt_to_sInt(RAS_registers[reg_address], 3);
+}
+
+
+/**
+ * Reads the status.
+ * @param {boolean} verbose_p - verbosity level (true to display messages).
+ * @return {number} SPIstatus - status of the last command.
+ */
+function readRAS_SPIstatus(verbose_p) {
+    sendToRASReadRegister(ADD_RAS_STATUS);
+    getLatestValue("RAS_registers");
+    const SPIstatus = RAS_registers[ADD_RAS_STATUS];
+    if (verbose_p) print("RAS SPI status is: " + to_hexaString(SPIstatus));
+    return SPIstatus;
+}
+
+
+/**
+ * Reads the firmware version.
+ * @param {boolean} verbose_p - verbosity level (true to display messages).
+ * @return {number} firmwareVersion - version of the firmware.
+ */
+function readRAS_firmwareVersion(verbose_p) {
+    sendToRASReadRegister(ADD_RAS_FIRMWARE_VERSION);
+    getLatestValue("RAS_registers");
+    const firmwareVersion = RAS_registers[ADD_RAS_FIRMWARE_VERSION];
+    if (verbose_p) {
+        plotSmallLine();
+        print("RAS firmware version is: " + to_hexaString(firmwareVersion));
+    }
+    return firmwareVersion;
+}
+
+
+/**
+ * Reads the hardware version.
+ * @param {boolean} verbose_p - verbosity level (true to display messages).
+ * @return {array} hardwareVersion - version of the hardware.
+ */
+function readRAS_hardwareVersion(verbose_p) {
+    const reg_address = ADD_RAS_HARDWARE_VERSION;
+    sendToRASReadRegister(reg_address);
+    getLatestValue("RAS_registers");
+    const hardwareVersion = RAS_registers[reg_address];
+    const modelReference = hardwareVersion >> 8;
+    if (modelReference > 3) print(TAB1 + "ERROR, model reference is unknown.")
+    const boardReference = hardwareVersion % Math.pow(2, 8);
+    if (verbose_p) {
+        plotSmallLine();
+        print("RAS hardware version is:");
+        print(TAB1 + "Model reference: " + to_hexaString(modelReference));
+        print(TAB1 + "Board reference: " + to_hexaString(boardReference));
+    }
+	return [modelReference, boardReference];
+}
+
+
+/**
+ * Reads the housekeepings.
+ * @param {boolean} verbose_p - verbosity level (true to display messages).
+ * @return {number} houseKeepings - version of the hardware.
+ */
+function readRAS_HK(verbose_p) {
+    if (typeof(verbose_p) === 'undefined') verbose_p = false;
+    sendToRASReadMultiRegisters(ADD_RAS_HK_P5V0_ANA, 20);
+    getLatestValue("RAS_registers");
+    const houseKeepings = RAS_registers.slice(ADD_RAS_HK_P5V0_ANA, ADD_RAS_HK_P5V0_ANA+RAS_NB_HK);
+    if (verbose_p) {
+        print("RAS housekeepings are:");
+        for (hk=0; hk<RAS_NB_HK; hk++) print(TAB1 + "HK " + hk + ": " + houseKeepings[hk]);
+    }
+    return houseKeepings;
+}
+
+
+/**
+ * Reads and prints all the address sequences.
+ */
+function readAndPrintRAS_addressSequences() {
+
+    // PS address sequences
+    for (ps = 0; ps < NB_PS; ps++) print("PS" + ps + ":" + to_hexaString(readRAS_addressSequence(ps)));
+    // GS address sequences
+    for (gs = 0; gs < NB_GS; gs++) print("GS" + gs + ":" + to_hexaString(readRAS_addressSequence(NB_PS + gs)));
+}
+
+
+/**
+ * Reads and prints the DACs values.
+ */
+function readAndPrintRAS_DACs() {
+
+    for (dacId = 0; dacId < NB_RA_DACS; dacId++) print(RAS_DAC_NAMES[dacId] + ": " + to_hexaString(readRAS_DAC(dacId)));
+}
+
+
+/**
+ * Scans the different values of the PS overlap.
+ * @param {boolean} scanPS - if true the scan is applied on PS sequence.
+ * @param {boolean} scanGS - if true the scan is applied on GS sequence.
+ * @param {number} step_duration_ms - duration of each step in ms.
+ * @param {boolean} verbose_p - verbosity level (true to display messages).
+ */
+function RASscan_overlap(scanPS, scanGS, step_duration_ms, verbose_p) {
+    if (typeof(verbose_p) === 'undefined') verbose_p = true;
+
+    if (verbose_p) {
+        plotLongLine();
+        print("The scan duration is expected to be around " + (step_duration_ms * 8)/1000 + " s");
+        plotSmallLine();
+    }
+    if (scanPS && !scanGS) {
+        if (verbose_p) print("Scanning the PS overlap from -4 to 3:");
+        for (overlap = -4; overlap < 4; overlap++) {
+            if (verbose_p) print("Setting the overlap to: " + overlap);
+            setRAS_psOverlap(overlap);
+            waitMs(step_duration_ms);
+        }
+    }
+    if (!scanPS && scanGS) {
+        if (verbose_p) print("Scanning the GS overlap from -4 to 3:");
+        for (overlap = -4; overlap < 4; overlap++) {
+            if (verbose_p) print("Setting the overlap to: " + overlap);
+            setRAS_gsOverlap(overlap);
+            waitMs(step_duration_ms);
+        }
+    }
+    if (scanPS && scanGS) {
+        var value;
+        if (verbose_p) print("Scanning the PS and GS overlap from -4 to 3:");
+        for (overlap = -4; overlap < 4; overlap++) {
+            if (verbose_p) print("Setting the overlap to: " + overlap);
+            // sending the two settings at the very same time
+            value = convert_sInt_to_2compInt(overlap, 3);
+            sendToRASWriteMultiRegisters(ADD_RAS_PS_OVERLAP, 2, [value, value]);
+            waitMs(step_duration_ms);
+        }
+    }
+    if (!scanPS && !scanGS && verbose_p) print("No scan done");
+}
+
+
+/**
+ * Scans the sequence delay.
+ * @param {number} delay1 - first value of the scan.
+ * @param {number} delay2 - last value of the scan.
+ * @param {number} nb_steps - number of steps in the scan.
+ * @param {number} step_duration_ms - duration of each step in ms.
+ * @param {boolean} verbose_p - verbosity level (true to display messages).
+ */
+function RASscan_seqDelay(delay1, delay2, nb_steps, step_duration_ms, verbose_p) {
+    if (typeof(verbose_p) === 'undefined') verbose_p = true;
+
+    // computing the delay increase per scan step
+    const deltaDelay = ~~((delay2 - delay1) / nb_steps);
+
+    if (verbose_p) {
+        plotLongLine();
+        text1 = "Scanning the sequence delay from " + delay1 + " to " + (delay1 + nb_steps*deltaDelay);
+        text2 = " in " + nb_steps + " steps, with a step duration of " +  step_duration_ms + " ms";
+        print(text1 + text2);
+        print("The scan duration is expected to be around " + (step_duration_ms * nb_steps)/1000 + " s");
+        plotSmallLine();
+    }
+
+    var delay;
+    for (step=0; step<nb_steps; step++) {
+        delay = delay1 + step*deltaDelay;
+        if (verbose_p) print("Setting sequence delay to " + to_hexaString(delay));
+        setRAS_seqDelay(delay);
+        waitMs(step_duration_ms);
+    }
+}
+
+
+/**
+ * Scans the DAC level.
+ * @param {number} dacId - DAC identifier [0: PS_HIGH, 1: PS_LOW, 2: GS_HIGH, 3: GS_LOW]
+ * @param {number} level1 - first level of the scan.
+ * @param {number} level2 - last level of the scan.
+ * @param {number} nb_steps - number of steps in the scan.
+ * @param {number} step_duration_ms - duration of each step in ms.
+ * @param {boolean} verbose_p - verbosity level (true to display messages).
+ */
+function RASscan_dacLevel(dacId, level1, level2, nb_steps, step_duration_ms, verbose_p) {
+    if (typeof(verbose_p) === 'undefined') verbose_p = true;
+
+    if (dacId < 0 || dacId > 4-1) {
+        print("ERROR, DAC id must be between 0 and 3 (received " + dacId + ")");
+        return;
+    }
+
+    // Checking levels values
+    if (level1 < 0) {
+        print("Initial level must be > 0 (received " + level1 + "), value replaced by 0.");
+        level1 = 0;
+    }
+    if (level1 > Math.pow(2,12)-1) {
+        print("Initial level must be < 4095 (received " + level1 + "), value replaced by 4095.");
+        level1 = 4095;
+    }
+    if (level2 < 0) {
+        print("Final level must be > 0 (received " + level2 + "), value replaced by 0.");
+        level2 = 0;
+    }
+    if (level2 > Math.pow(2,12)-1) {
+        print("Final level must be < 4095 (received " + level2 + "), value replaced by 4095.");
+        level2 = 4095;
+    }
+    if (level2 === level1) {
+        print("Initial and last scan levels are equals. No scan done.");
+        return
+    }
+    // computing the level increase per scan step
+    const deltaLevel = ~~((level2 - level1) / nb_steps);
+
+    if (verbose_p) {
+        plotLongLine();
+        text1 = "Scanning the level of DAC " + RAS_DAC_NAMES[dacId] + " from " + level1 + " to " + (level1 + nb_steps*deltaLevel);
+        text2 = " in " + nb_steps + " steps, with a step duration of " +  step_duration_ms + " ms";
+        print(text1 + text2);
+        print("The scan duration is expected to be around " + (step_duration_ms * nb_steps)/1000 + " s");
+        plotSmallLine();
+    }
+
+    var level;
+    for (step=0; step<nb_steps+1; step++) {
+        level = level1 + step*deltaLevel;
+        if (verbose_p) print("Setting level to " + to_hexaString(level));
+        setRAS_DAC(dacId, level);
+        waitMs(step_duration_ms);
+    }
+}
+
+// -------------------------------------------------------------------------------------------------------------
