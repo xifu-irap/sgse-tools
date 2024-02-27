@@ -1,0 +1,282 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     ras_check_commands.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file checks the low level commands of the ras_tools.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+include("./ras_tools.dscript");
+
+const FAKING_RAS = true; // if true RAS is not used, DEMUX registers are simulated
+if (FAKING_RAS) {
+    include("./ras_fake.dscript");
+    init_RAS_FRW_registers();
+}
+
+var checked_value = 0;
+const colId = 2;
+var result;
+const MESSAGE_ERROR = "ERROR!";
+const MESSAGE_OK = "OK";
+var ERROR_COUNTER = 0;
+
+/**********************************************************************************************************************/
+plotLongLine();
+print("Testing the functions of the ras_tools.dscript library...");
+plotLongLine();
+print("");
+
+
+/**********************************************************************************************************************/
+plotLongLine();
+print("Reading the firmware version");
+var fwVersion = readRAS_firmwareVersion(true);
+
+
+/**********************************************************************************************************************/
+plotLongLine();
+print("Reading the hardware version");
+hwVersion = readRAS_hardwareVersion(true);
+if (hwVersion.modelReference > 3) ERROR_COUNTER++;
+
+
+/**********************************************************************************************************************/
+plotLongLine();
+print("Reading the housekeepings");
+var housekeepings = readRAS_HK(true);
+
+
+/**********************************************************************************************************************/
+plotLongLine();
+print("Testing the setting of an address sequence:");
+RA_id = 0;  // PS 0
+print(TAB1 + "Current sequence for PS0 is: " + to_hexaString(readRAS_addressSequence(RA_id)));
+value = 0x555555555555;
+print(TAB1 + "Setting a new value: " + to_hexaString(value));
+setRAS_addressSequence(RA_id, value);
+checked_value = readRAS_addressSequence(RA_id);
+print(TAB1 + "Reading the new value: " + to_hexaString(checked_value));
+result = MESSAGE_ERROR;
+if (checked_value === value) result = MESSAGE_OK;
+print(TAB1 + "--> " + result);
+if (result === MESSAGE_ERROR) ERROR_COUNTER++;
+
+RA_id = 8 + 3 - 1;  // GS 3
+print(TAB1 + "Current sequence for GS3 is: " + to_hexaString(readRAS_addressSequence(RA_id)));
+value = 0xAAAAAAAAAAAA;
+print(TAB1 + "Setting a new value: " + to_hexaString(value));
+setRAS_addressSequence(RA_id, value);
+checked_value = readRAS_addressSequence(RA_id);
+print(TAB1 + "Reading the new value: " + to_hexaString(checked_value));
+result = MESSAGE_ERROR;
+if (checked_value === value) result = MESSAGE_OK;
+print(TAB1 + "--> " + result);
+if (result === MESSAGE_ERROR) ERROR_COUNTER++;
+
+plotSmallLine();
+print(TAB1 + "Trying an incorrect parameter value, an error message is expected:");
+setRAS_addressSequence(14, value);
+
+plotLongLine();
+print("Printing all the address sequences:");
+readAndPrintRAS_addressSequences();
+
+/**********************************************************************************************************************/
+plotLongLine();
+print("Testing the setting of the sequence mode:");
+print(TAB1 + "Current sequence mode is: " + readRAS_sequenceMode());
+value = 1; // ON
+print(TAB1 + "Setting the sequence mode to: " + value);
+setRAS_sequenceMode(value);
+checked_value = readRAS_sequenceMode();
+print(TAB1 + "Reading the new sequence mode: " + checked_value);
+result = MESSAGE_ERROR;
+if (checked_value === value) result = MESSAGE_OK;
+print(TAB1 + "--> " + result);
+if (result === MESSAGE_ERROR) ERROR_COUNTER++;
+
+plotSmallLine();
+print(TAB1 + "Trying incorrect parameter values, error messages are expected:");
+setRAS_sequenceMode(4);
+
+/**********************************************************************************************************************/
+plotLongLine();
+print("Testing the setting of a DAC:");
+dacId = 2;
+print(TAB1 + "Current setting for " + RAS_DAC_NAMES[dacId] + " is: " + to_hexaString(readRAS_DAC(dacId)));
+value = 0x0ABC;
+print(TAB1 + "Setting the new value to: " + to_hexaString(value));
+setRAS_DAC(dacId, value);
+print(TAB1 + "Reading the new value:");
+checked_value = readRAS_DAC(dacId);
+print(TAB1 + "New setting for " + RAS_DAC_NAMES[dacId] + " is: " + to_hexaString(checked_value));
+result = MESSAGE_ERROR;
+if (checked_value === value) result = MESSAGE_OK;
+print(TAB1 + "--> " + result);
+if (result === MESSAGE_ERROR) ERROR_COUNTER++;
+
+plotSmallLine();
+print(TAB1 + "Trying incorrect parameter values, error messages are expected:");
+setRAS_DAC(4, value);
+setRAS_DAC(dacId, 0x1000);
+
+plotLongLine();
+print("Printing all the DAC values:");
+readAndPrintRAS_DACs();
+
+/**********************************************************************************************************************/
+plotLongLine();
+print("Testing the setting of the level mode:");
+print(TAB1 + "Current settings are:");
+checked_value=readRAS_levelMode();
+for (dacId = 0; dacId < NB_RA_DACS; dacId++) print(TAB2 + RAS_DAC_NAMES[dacId] + ": " + checked_value[dacId]);
+print(TAB1 + "Setting new values to: ");
+value = new Array(4);
+for (dacId = 0; dacId < NB_RA_DACS; dacId++) {
+    value[dacId] = dacId % 3;
+    print(TAB2 + RAS_DAC_NAMES[dacId] + ": " + value[dacId]);
+}
+setRAS_levelMode(value);
+print(TAB1 + "Reading the new values:");
+checked_value=readRAS_levelMode();
+print(TAB1 + "Reading the new values:");
+for (dacId = 0; dacId < NB_RA_DACS; dacId++) print(TAB2 + RAS_DAC_NAMES[dacId] + ": " + checked_value[dacId]);
+result = MESSAGE_ERROR;
+if (arraysAreEquals(value, checked_value)) result = MESSAGE_OK;
+print(TAB1 + "--> " + result);
+if (result === MESSAGE_ERROR) ERROR_COUNTER++;
+
+plotSmallLine();
+print(TAB1 + "Trying incorrect parameter values, error messages are expected:");
+setRAS_levelMode(3);
+setRAS_levelMode([3,1,2,0]);
+
+/**********************************************************************************************************************/
+plotLongLine();
+print("Testing the setting of the sequence delay:");
+print(TAB1 + "Current sequence delay is: " + readRAS_seqDelay());
+value = 0x0123;
+print(TAB1 + "Setting the sequence delay to: " + to_hexaString(value));
+setRAS_seqDelay(value);
+checked_value = readRAS_seqDelay();
+print(TAB1 + "Reading the new value: " + to_hexaString(checked_value));
+result = MESSAGE_ERROR;
+if (checked_value === value) result = MESSAGE_OK;
+print(TAB1 + "--> " + result);
+if (result === MESSAGE_ERROR) ERROR_COUNTER++;
+
+plotSmallLine();
+print(TAB1 + "Trying an incorrect parameter value, an error message is expected:");
+setRAS_seqDelay(0x0400);
+
+/**********************************************************************************************************************/
+plotLongLine();
+print("Testing the setting of the PS overlap:");
+print(TAB1 + "Current PS overlap is: " + readRAS_psOverlap());
+value = 3;
+print(TAB1 + "Setting the PS overlap to: " + value);
+setRAS_psOverlap(value);
+checked_value = readRAS_psOverlap();
+print(TAB1 + "Reading the new value: " + checked_value);
+result = MESSAGE_ERROR;
+if (checked_value === value) result = MESSAGE_OK;
+print(TAB1 + "--> " + result);
+if (result === MESSAGE_ERROR) ERROR_COUNTER++;
+
+plotSmallLine();
+print(TAB1 + "Trying incorrect parameter values, error messages are expected:");
+setRAS_psOverlap(-5);
+setRAS_psOverlap(4);
+
+/**********************************************************************************************************************/
+plotLongLine();
+print("Testing the setting of the GS overlap:");
+print(TAB1 + "Current GS overlap is: " + readRAS_gsOverlap());
+value = 0x0002;
+print(TAB1 + "Setting the GS overlap to: " + value);
+setRAS_gsOverlap(value);
+checked_value = readRAS_gsOverlap();
+print(TAB1 + "Reading the new value: " + checked_value);
+result = MESSAGE_ERROR;
+if (checked_value === value) result = MESSAGE_OK;
+print(TAB1 + "--> " + result);
+if (result === MESSAGE_ERROR) ERROR_COUNTER++;
+
+plotSmallLine();
+print(TAB1 + "Trying incorrect parameter values, error messages are expected:");
+setRAS_gsOverlap(-5);
+setRAS_gsOverlap(4);
+
+/**********************************************************************************************************************/
+plotLongLine();
+print("Testing the scan of the overlap:");
+// Scanning the overlap of PS sequences
+var scanPS = true, scanGS = false, durationMs = 1000;
+RASscan_overlap(scanPS, scanGS, durationMs);
+plotSmallLine();
+// Scanning the overlap of GS sequences
+scanPS = false;
+scanGS = true;
+RASscan_overlap(scanPS, scanGS, durationMs);
+plotSmallLine();
+// Scanning the overlap of PS and GS sequences
+scanPS = true;
+scanGS = true;
+RASscan_overlap(scanPS, scanGS, durationMs);
+plotSmallLine();
+// Not scanning the overlap of PS nor GS sequences (pointless...)
+scanPS = false;
+scanGS = false;
+RASscan_overlap(scanPS, scanGS, durationMs);
+
+/**********************************************************************************************************************/
+plotLongLine();
+print("Testing the scan of the sequence delay:");
+RASscan_seqDelay(0, Math.pow(2, 10)-1, 16, 1000);
+
+/**********************************************************************************************************************/
+plotLongLine();
+print("Testing the scan of the DACs level:");
+plotSmallLine();
+print(TAB1 + "Upward:");
+RASscan_dacLevel(DAC_PS_LOW, 0, 4095, 16, 1000);
+plotSmallLine();
+print(TAB1 + "Downward:");
+RASscan_dacLevel(DAC_PS_LOW, 4095, 0, 16, 1000);
+plotSmallLine();
+print("Testing with wrong parameters, error messages are expected:");
+RASscan_dacLevel(4, 4095, 0, 16);
+RASscan_dacLevel(DAC_PS_LOW, 5000, -2, 16, 1000);
+
+/**********************************************************************************************************************/
+plotLongLine();
+if (ERROR_COUNTER > 0) {
+    print("Oups, " + ERROR_COUNTER + " errors have been detected!")
+} else {
+    print("Nice, no error detected")
+}
+
+/**********************************************************************************************************************/
+plotLongLine();
+
