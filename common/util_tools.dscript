@@ -1,0 +1,135 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     util_tools.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file contains different tools used by other scripts of this project.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+
+/**
+ * Convert a signed int value into a 2's complement signed int value.
+ * @param {number} value_p - signed int value to convert
+ * @param {number} width_p - value number of bits
+ * @return {number} converted value
+ */
+function convert_sInt_to_2compInt(value_p, width_p) {
+    var val = 0;
+    if ((value_p < -Math.pow(2, width_p-1)) || (value_p > Math.pow(2, width_p-1)-1)) {
+        print("ERROR, impossible to do the conversion.");
+    } else {
+		if (value_p < 0) {
+			val = Math.pow(2, width_p-1) | (value_p + Math.pow(2, width_p-1));
+		}
+		else {
+			val = value_p;
+		}
+		return val;
+	}
+}
+
+
+/**
+ * Convert a 2's complement signed int to a signed int value.
+ * @param {number} value_p - 2's complement signed int value to convert
+ * @param {number} width_p - value number of bits
+ * @return {number} converted value
+ */
+function convert_2compInt_to_sInt(value_p, width_p) {
+    var val = 0;
+    if ((value_p >> width_p) !== 0) {
+        print("ERROR, incorrect number of bits.");
+    } else {
+		if (value_p >> (width_p-1) === 0) {  // value is positive
+			val = value_p;
+		}
+		else {  // value s negative
+			val = -Math.pow(2, (width_p-1)) + value_p % Math.pow(2, (width_p-1));
+		}
+		return val;
+	}
+}
+
+
+/**
+ * Print a line with "-".
+ */
+function plotLongLine() {
+    print("/--------------------------------------------------------------------------------------------------------/");
+}
+
+
+/**
+ * Print a small line with "-".
+ */
+function plotSmallLine() {
+    print("/-------------------");
+}
+
+/**
+ * Converts an integer into a string in hexadecimal format.
+ * @param {number} value_p - Integer to be converted
+ * @return {string} converted value
+ */
+function to_hexaString(value_p) {
+	var result = "undefined";
+	//if (typeof(value_p) !== 'undefined') result = "0x" + value_p.toString(16).toUpperCase().slice(-4);
+	if (typeof(value_p) !== 'undefined') result = "0x" + value_p.toString(16).toUpperCase();
+    return result;
+}
+
+
+/**
+ * Compares the content of two arrays.
+ * @param {array} tabA_p - First array
+ * @param {array} tabB_p - Second array
+ * @return {boolean} areEqual - True if the two arrays are equal, False if not
+ */
+function arraysAreEquals(tabA_p, tabB_p) {
+    var areEqual = true;
+	if (tabA_p.length !== tabB_p.length) {
+        areEqual = false;
+    } else {
+        for (i=0; i<tabA_p.length; i++) {
+            if (tabA_p[i] !== tabB_p[i]) areEqual = false;
+        }
+    }
+    return areEqual;
+}
+
+
+/**
+ * Repeats a string.
+ * @param {string} str_in - base string
+ * @param {number} nb - number of repetitions
+ * @return {string} str_out - the output string
+ */
+function repeat(str_in, nb) {
+    var str_out = "";
+	for (i=0; i<nb; i++) {
+        str_out += str_in;
+    }
+    return str_out;
+}
+
+
+// -------------------------------------------------------------------------------------------------------------

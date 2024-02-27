@@ -1,0 +1,103 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     dmx_reg_addresses.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file defines the DEMUX module register addresses.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+
+// firmware level commands and housekeepings
+
+// DEMUX modes
+const ADD_DMX_DATA_ACQ_MODE = 0x4000;
+const ADD_DMX_MUX_SQ_FB_ON_OFF = 0x4001;
+const ADD_DMX_AMP_SQ_OFFSET_MODE = 0x4002;
+
+// Test pattern
+const ADD_DMX_TEST_PATTERN = 0x4100;
+const ADD_DMX_TEST_PATTERN_ENABLE = 0x4150;
+
+// Boxcar
+const ADD_DMX_BOXCAR_LENGTH = 0x4200;
+
+// Housekeepings (read only)
+const ADD_DMX_HK_P5V0_ANA = 0x4600;
+const ADD_DMX_HK_P3V3_ANA = 0x4601;
+const ADD_DMX_HK_P2V5_ANA = 0x4602;
+const ADD_DMX_HK_P1V8_ANA = 0x4603;
+const ADD_DMX_HK_M2V5_ANA = 0x4604;
+const ADD_DMX_HK_M5V0_ANA = 0x4605;
+const ADD_DMX_HK_P3V3_DIG = 0x4606;
+const ADD_DMX_HK_P2V5_DIG = 0x4607;
+const ADD_DMX_HK_P1V2_DIG = 0x4608;
+const ADD_DMX_HK_TEMP_AVE = 0x4609;
+const ADD_DMX_HK_TEMP_MAX = 0x460A;
+const ADD_DMX_HK_P2V5_AUX = 0x460B;
+const ADD_DMX_HK_VREF_TEMP = 0x460C;
+const ADD_DMX_HK_VREF_R2R = 0x460D;
+const ADD_DMX_DELOCK_FLAG = 0x4610;
+
+// Status (read only)
+const ADD_DMX_STATUS = 0x6000;
+const ADD_DMX_FIRMWARE_VERSION = 0x6001;
+const ADD_DMX_HARDWARE_VERSION = 0x6002;
+
+// -------------------------------------------------------------------------------------------------------------
+// Column level commands and housekeepings
+// The column is defined with the most significant digit :
+// 0xCxxx corresponds to column C
+// The column value shall be left shifted by 12 bits and "anded" to the register addresses
+const ADD_DMX_COL_BIT_SHIFT = 12;
+const ADD_DMX_A = 0x0000;
+const ADD_DMX_MUX_SQ_INPUT_GAIN = 0x0035;
+const ADD_DMX_AMP_SQ_INPUT_GAIN = 0x0036;
+const ADD_DMX_MUX_SQ_KIKNORM = 0x0040;
+const ADD_DMX_AMP_SQ_KIKNORM = 0x0090;
+const ADD_DMX_MUX_SQ_KNORM = 0x0100;
+const ADD_DMX_AMP_SQ_KNORM = 0x0190;
+const ADD_DMX_MUX_SQ_FB0 = 0x0200;
+const ADD_DMX_MUX_SQ_LOCKPOINT_V = 0x0240;
+const ADD_DMX_MUX_SQ_FB_MODE = 0x0300;
+const ADD_DMX_AMP_SQ_OFFSET_FINE = 0x0400;
+const ADD_DMX_AMP_SQ_OFFSET_LSB_PTR = 0x0439;
+const ADD_DMX_AMP_SQ_OFFSET_LSB = 0x0440;
+const ADD_DMX_AMP_SQ_OFFSET_COARSE = 0x0441;
+
+// Timings
+const ADD_DMX_MUX_SQ_FB_DELAY = 0x0500;
+const ADD_DMX_AMP_SQ_OFFSET_DAC_DELAY = 0X0501;
+const ADD_DMX_AMP_SQ_OFFSET_MUX_DELAY = 0x0502;
+const ADD_DMX_SAMPLING_DELAY = 0x0504;
+
+// Pulse shaping
+const ADD_DMX_PULSE_SHAPING = [0x0800, 0x0820, 0x0840, 0x0860];
+const ADD_DMX_PULSE_SHAPING_SELECTION = 0x0880;
+
+// Auto-relock algorithm
+const ADD_DMX_RELOCK_DELAY = 0x0900;
+const ADD_DMX_RELOCK_THRESHOLD = 0x0901;
+
+// Housekeepings (read only)
+const ADD_DMX_DELOCK_COUNTERS = 0x0A00;
+
+// -------------------------------------------------------------------------------------------------------------
