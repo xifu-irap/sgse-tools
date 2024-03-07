@@ -33,48 +33,45 @@ include("./ras_reg_addresses.dscript");
 const NB_PS = 8;
 const NB_GS = 6;
 const NB_RA = NB_PS + NB_GS;
-const NB_RA_FIELDS = 3;
 // DACs
 const DAC_PS_HIGH = 0;
 const DAC_PS_LOW = 1;
 const DAC_GS_HIGH = 2;
 const DAC_GS_LOW = 3;
 const NB_RA_DACS = 4;
-const RAS_DAC_NAMES = ["PS HIGH", "PS LOW", "GS HIGH", "GS LOW"];
+const RAS_DAC_NAMES = ["PS LOW", "PS HIGH", "GS LOW", "GS HIGH"];
 // strings
 const TAB1 = "   ";
 const TAB2 = repeat(TAB1, 2);
 const TAB3 = repeat(TAB1, 3);
 
-const RAS_NB_HK = 20;
-
-
+const RAS_NB_HK = 0x10;
+
+
+
+
 /**
  * Sets an address sequence.
  * @param {number} addressId - selected address id [0, 13]
  * @param {number} Seq - 48 bits sequence
  */
 function setRAS_addressSequence(addressId, Seq) {
-
+
     if (addressId < 0 || addressId > NB_RA-1) {
-        print("ERROR, address identifier must be between 0 and ", NB_RA-1, " ( received ", addressId, ")");
+        print("ERROR, address identifier must be between 0 and ", NB_RA-1, " ( received ", addressId, ")");
         return;
     }
 	
-    var reg_address;
-    if (addressId < NB_PS) {    // this is a PS sequence
-        reg_address = ADD_RAS_SEQ_PS + (addressId << 4);
-    } else {    // this is a GS sequence
-        reg_address = ADD_RAS_SEQ_GS + ((addressId - NB_PS) << 4);
-    }
+    const reg_address= ADD_RAS_SEQ_PS + (addressId << 4);
 
     const seq_beg = Seq & 0xFFFF;       // (LSB)
+    sendToRASWriteRegister(reg_address, seq_beg);
+
     const seq_mid = (Seq >> 16) & 0xFFFF;
+    sendToRASWriteRegister(reg_address+2, seq_mid);
+
     const seq_end = (Seq >> 32) & 0xFFFF; // (MSB)
-
-    const sequence = [seq_beg, seq_mid, seq_end];
-
-    sendToRASWriteMultiRegisters(reg_address, NB_RA_FIELDS, sequence);
+    sendToRASWriteRegister(reg_address+4, seq_end);
 }
 
 
@@ -86,64 +83,37 @@ function setRAS_addressSequence(addressId, Seq) {
 function readRAS_addressSequence(addressId) {
 
     if (addressId < 0 || addressId > NB_RA-1) {
-        print("ERROR, address identifier must be between 0 and ", NB_RA-1, " ( received ", addressId, ")");
+        print("ERROR, address identifier must be between 0 and ", NB_RA-1, " ( received ", addressId, ")");
         return;
     }
 
-    var reg_address;
-    if (addressId < NB_PS) {    // this is a PS sequence
-        reg_address = ADD_RAS_SEQ_PS + (addressId << 4);
-    } else {    // this is a GS sequence
-        reg_address = ADD_RAS_SEQ_GS + ((addressId - NB_PS) << 4);
-    }
+    const reg_address= ADD_RAS_SEQ_PS + (addressId << 4);
 
-    sendToRASReadMultiRegisters(reg_address, NB_RA_FIELDS);
-    getLatestValue("RAS_registers");
-	const sequence = RAS_registers.slice(reg_address, reg_address+NB_RA_FIELDS);
-
-    var seq = 0;
-    for (field = 0; field < NB_RA_FIELDS; field++) seq = seq + sequence[field] * Math.pow(2, 16*field);
-    return seq;
-}
-
-
-/**
- * Sets the sequence mode.
- * @param {number} seqMode - sequence mode [0: Off, 1: On, 2: Pattern0, 3: Pattern1]
- */
-function setRAS_sequenceMode(seqMode) {
-
-    if (seqMode < 0 || seqMode > 4-1) {
-        print("ERROR, sequence mode must be between 0 and 3, ( received ", seqMode, ")");
-        return;
-    }
-
-    sendToRASWriteRegister(ADD_RAS_SEQ_MODE, seqMode);
-}
-
-
-/**
- * Reads the sequence mode.
- * @return {number} seqMode - [0: Off, 1: On, 2: Pattern0, 3: Pattern1]
- */
-function readRAS_sequenceMode() {
-
-    const reg_address = ADD_RAS_SEQ_MODE;
     sendToRASReadRegister(reg_address);
     getLatestValue("RAS_registers");
-	return RAS_registers[reg_address];
+	const seq_beg = RAS_registers[reg_address];
+
+    sendToRASReadRegister(reg_address+2);
+    getLatestValue("RAS_registers");
+	const seq_mid = RAS_registers[reg_address+2];
+
+    sendToRASReadRegister(reg_address+4);
+    getLatestValue("RAS_registers");
+	const seq_end = RAS_registers[reg_address+4];
+
+    return seq_beg + seq_mid * Math.pow(2, 16) + seq_end * Math.pow(2, 32);
 }
 
 
 /**
  * Sets the value to be sent to a DAC.
- * @param {number} dacId - DAC identifier [0: PS_HIGH, 1: PS_LOW, 2: GS_HIGH, 3: GS_LOW]
+ * @param {number} dacId - DAC identifier [0: PS_LOW, 1: PS_HIGH, 2: GS_LOW, 3: GS_HIGH]
  * @param {number} value - value U(12,0)
  */
 function setRAS_DAC(dacId, value) {
 
     if (dacId < 0 || dacId > 4-1) {
-        print("ERROR, DAC id must be between 0 and 3 ( received " + dacId + ")" );
+        print("ERROR, DAC id must be between 0 and 3 ( received " + dacId + ")" );
         return;
     }
 
@@ -154,17 +124,17 @@ function setRAS_DAC(dacId, value) {
 
     var reg_address = 0;
     switch (dacId) {
-        case DAC_PS_HIGH:
-            reg_address = ADD_RAS_PS_HIGH;
-            break;
         case DAC_PS_LOW:
             reg_address = ADD_RAS_PS_LOW;
             break;
-        case DAC_GS_HIGH:
-            reg_address = ADD_RAS_GS_HIGH;
+        case DAC_PS_HIGH:
+            reg_address = ADD_RAS_PS_HIGH;
             break;
         case DAC_GS_LOW:
             reg_address = ADD_RAS_GS_LOW;
+            break;
+        case DAC_GS_HIGH:
+            reg_address = ADD_RAS_GS_HIGH;
             break;
         default:
     }
@@ -175,7 +145,7 @@ function setRAS_DAC(dacId, value) {
 
 /**
  * Reads the DAC value.
- * @param {number} dacId - DAC identifier [0: PS_HIGH, 1: PS_LOW, 2: GS_HIGH, 3: GS_LOW]
+ * @param {number} dacId - DAC identifier [0: PS_LOW, 1: PS_HIGH, 2: GS_LOW, 3: GS_HIGH]
  * @return {number} value U(12,0)
  */
 function readRAS_DAC(dacId) {
@@ -210,22 +180,23 @@ function readRAS_DAC(dacId) {
 
 /**
  * Sets the level mode.
- * @param {array} levelMode - one value per DAC [0: off, 1: on, 2: pattern]
+ * @param {array} levelMode - one value per DAC [0: off, 1: on]
  */
 function setRAS_levelMode(levelMode) {
 
-    var value = 0;
-	if (levelMode.length != 4){
-		print("ERROR, level mode must have 4 values (received " + levelMode.length + " values)");
-		return;
+    var value = 0;
+
+	if (levelMode.length != 4){
+        print("ERROR, level mode must have 4 values (received " + levelMode.length + " values)");
+		return;
 	}
     for (dac = 0; dac < 4; dac++) {
-        if (levelMode[dac] < 0 || levelMode[dac] > 2) {
-            print("ERROR, level mode for DAC " + dac + " must be between 0 and 2 (received " + levelMode[dac] + ")");
-            print("It will be set to Off instead");
+        if (levelMode[dac] < 0 || levelMode[dac] > 1) {
+            print("ERROR, level mode for DAC " + dac + " must be 0 or 1 (received " + levelMode[dac] + ")");
+            print("It will be set to Off instead (0)");
             levelMode[dac] = 0;
         }
-        value += levelMode[dac] << (4 * dac);
+        value = value + (levelMode[dac] << dac);
     }
 
     sendToRASWriteRegister(ADD_RAS_LEVEL_MODE, value);
@@ -234,7 +205,7 @@ function setRAS_levelMode(levelMode) {
 
 /**
  * Reads the level mode.
- * @return {array} levelMode - one value per DAC [0: off, 1: on, 2: pattern]
+ * @return {array} levelMode - one value per DAC [0: off, 1: on]
  */
 function readRAS_levelMode() {
 
@@ -244,9 +215,7 @@ function readRAS_levelMode() {
     const value = RAS_registers[reg_address];
 
     var levelMode = new Array(NB_RA_DACS);
-    for (dac = 0; dac < NB_RA_DACS; dac++) {
-        levelMode[dac] = (value >> (4 * dac)) & 0x000F;
-    }
+    for (dac = 0; dac < NB_RA_DACS; dac++) levelMode[dac] = (value >> dac) & 0x0001;
 	return levelMode;
 }
 
@@ -314,7 +283,7 @@ function readRAS_psOverlap() {
 function setRAS_gsOverlap(overlap) {
 
     if (overlap < -4 || overlap > 3) {
-        print("ERROR, the overlap value must be between -4 and 3 ( received " + overlap +")" );
+        print("ERROR, the overlap value must be between -4 and 3 ( received " + overlap +")" );
         return;
     }
 
@@ -487,7 +456,8 @@ function RASscan_seqDelay(delay1, delay2, nb_steps, step_duration_ms, verbose_p)
     if (typeof(verbose_p) === 'undefined') verbose_p = true;
 
     // computing the delay increase per scan step
-    const deltaDelay = ~~((delay2 - delay1) / nb_steps);
+    const deltaDelay = ~~((delay2 - delay1) / nb_steps);
+
 
     if (verbose_p) {
         plotLongLine();
