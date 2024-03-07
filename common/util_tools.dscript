@@ -33,16 +33,12 @@
  * @return {number} converted value
  */
 function convert_sInt_to_2compInt(value_p, width_p) {
-    var val = 0;
+    var val;
     if ((value_p < -Math.pow(2, width_p-1)) || (value_p > Math.pow(2, width_p-1)-1)) {
         print("ERROR, impossible to do the conversion.");
     } else {
-		if (value_p < 0) {
-			val = Math.pow(2, width_p-1) | (value_p + Math.pow(2, width_p-1));
-		}
-		else {
-			val = value_p;
-		}
+		if (value_p < 0) val = Math.pow(2, width_p-1) | (value_p + Math.pow(2, width_p-1));
+		else val = value_p;
 		return val;
 	}
 }
@@ -55,7 +51,7 @@ function convert_sInt_to_2compInt(value_p, width_p) {
  * @return {number} converted value
  */
 function convert_2compInt_to_sInt(value_p, width_p) {
-    var val = 0;
+    var val;
     if ((value_p >> width_p) !== 0) {
         print("ERROR, incorrect number of bits.");
     } else {
@@ -110,7 +106,8 @@ function arraysAreEquals(tabA_p, tabB_p) {
         areEqual = false;
     } else {
         for (i=0; i<tabA_p.length; i++) {
-            if (tabA_p[i] !== tabB_p[i]) areEqual = false;
+            if (tabA_p[i] !== tabB_p[i]) areEqual = false;
+
         }
     }
     return areEqual;
@@ -132,4 +129,42 @@ function repeat(str_in, nb) {
 }
 
 
-// -------------------------------------------------------------------------------------------------------------
+/**
+ * GUI to read operator name
+ *   A list of pre-defined names is proposed.
+ *   If none is selected a tab allows to enter a text
+ * @return {string} operatorName - selected name
+ */
+ function get_operatorName()
+{
+	const operatorTab = ["", "Augusto", "Corentin", "David", "Odile", "Laurent", "Yann"];
+    var operatorName;
+	var operatorId = getItem("Please, select the operator name: ", OperatorTab);
+	if (operatorId === -1) operatorName = getText("Please, type the operator name:", "");
+	else operatorName = operatorTab[operatorId];
+	return(operatorName);
+}
+
+
+/**
+ * GUI to read a name for the session
+ * @return {string} sessionName - name of the session
+ */
+function get_sessionName()
+{
+	var sessionName = getText("Please, type the session name:", "Default_session_name");
+	return(sessionName);
+}
+
+
+/**
+ * Provides the current date
+ * @return {string} date - date in the format : YYYYMMDD_HHMMSS
+ */
+function maDate()
+{
+	const d = new Date();
+	return d.getFullYear()+(("00" +(d.getMonth()+1).toString()).slice(-2))+(("00" +(d.getDate()).toString()).slice(-2))+"_"+(("00" +(d.getHours()).toString()).slice(-2))+(("00" +(d.getMinutes()).toString()).slice(-2))+(("00" +(d.getSeconds()).toString()).slice(-2));
+}
+
+//---------------------------------------------------------------------------------------
