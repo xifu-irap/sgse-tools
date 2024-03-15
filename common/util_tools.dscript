@@ -27,6 +27,35 @@
 
 
 /**
+ * Check if an array includes a value
+ * @param {array} array_p - array
+ * @param {number} value_p - value
+ */
+
+function doesArrayInclude(array_p, value_p) {
+	var answer = false;
+	for (var i=0; i<array_p.length; i++) {
+		if (array_p[i] === value_p) answer = true;
+	}
+	return answer;
+}
+
+/**
+ * Flattens a 2D array
+ * @param {array} array_p - 2D array
+ * @return {array} result - 1D array
+ */
+function flatten(array_p) {
+	var result = [];
+	for (var i=0; i<array_p.length; i++) {
+		for (var j=0; j<array_p[i].length; j++) {
+			result.push(array_p[i][j])
+		}
+	}
+	return result;
+}
+
+/**
  * Convert a signed int value into a 2's complement signed int value.
  * @param {number} value_p - signed int value to convert
  * @param {number} width_p - value number of bits
@@ -42,7 +71,6 @@ function convert_sInt_to_2compInt(value_p, width_p) {
 		return val;
 	}
 }
-
 
 /**
  * Convert a 2's complement signed int to a signed int value.
@@ -105,9 +133,8 @@ function arraysAreEquals(tabA_p, tabB_p) {
 	if (tabA_p.length !== tabB_p.length) {
         areEqual = false;
     } else {
-        for (i=0; i<tabA_p.length; i++) {
+        for (var i=0; i<tabA_p.length; i++) {
             if (tabA_p[i] !== tabB_p[i]) areEqual = false;
-
         }
     }
     return areEqual;
@@ -122,9 +149,7 @@ function arraysAreEquals(tabA_p, tabB_p) {
  */
 function repeat(str_in, nb) {
     var str_out = "";
-	for (i=0; i<nb; i++) {
-        str_out += str_in;
-    }
+	for (var i=0; i<nb; i++) str_out += str_in;
     return str_out;
 }
 

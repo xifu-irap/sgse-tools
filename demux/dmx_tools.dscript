@@ -38,6 +38,7 @@ const DMX_NB_COL = 4;
 const DMX_NB_PIX_PER_COL = 34;
 const DMX_PULSESHAPING_NBVALUES = 20;
 const DMX_TEST_PATTERN_NBPARAMS = 4;
+const DMX_TEST_PATTERN_NBREGIONS = 5;
 const DMX_NB_HK = 20; // includes spares
 const ON = 1;
 const OFF = 0;
@@ -64,7 +65,6 @@ const ACQ_MODE_TSTPATTERN = 7; // test pattern
 // strings
 const TAB1 = "   ";
 const TAB2 = repeat(TAB1, 2);
-const TAB3 = repeat(TAB1, 3);
 
 /**
  * Sets the data acquisition mode (DATA_ACQ_MODE).
@@ -73,7 +73,7 @@ const TAB3 = repeat(TAB1, 3);
 function setDMX_dataAcqMode(dataAcqMode_p) {
     const reg_address = ADD_DMX_DATA_ACQ_MODE;
     // Checking the value of dataAcqMode
-    if (![0, 1, 2, 4, 7].includes(dataAcqMode_p)) {
+    if (!doesArrayInclude([0, 1, 2, 4, 7], dataAcqMode_p)) {
         print("ERROR, unrecognised data acquisition mode! > " + dataAcqMode_p + "\n" + "selecting Idle mode instead");
         dataAcqMode_p = 0
     }
@@ -97,7 +97,7 @@ function readDMX_dataAcqMode() {
 function setDMX_feedbackOnOff(feedbackOnOff_p) {
 
     var value = 0;
-    for (col = 0; col < DMX_NB_COL; col++) {
+    for (var col=0; col<DMX_NB_COL; col++) {
         // Checking the value of feebackOnOff
         if (feedbackOnOff_p[col] > 1) {
             print("ERROR, unrecognised value for MUX_SQ_FB_ON_OFF for column " + col + "! > " + feedbackOnOff_p[col] + "\n" + "Selecting OFF mode instead.");
@@ -124,7 +124,7 @@ function readDMX_feedbackOnOff() {
  */
 function setDMX_offsetMode(offsetMode_p) {
     var value = 0;
-    for (col = 0; col < DMX_NB_COL; col++) {
+    for (var col=0; col<DMX_NB_COL; col++) {
         // Checking the value of offsetMode
         if (offsetMode_p[col] > 3) {
             print("ERROR, unrecognised offset mode for column " + col + "! > " + offsetMode_p[col] + "\n" + "Selecting OFF mode instead.");
@@ -146,16 +146,18 @@ function readDMX_offsetMode() {
 }
 
 /**
- * Sets the test patterns (TEST_PATTERN).
+ * Sets the test pattern parameters for a region (TEST_PATTERN).
+ * !!! This function is deprecated - You should use set_DMXtestPattern instead
+ * !!! The test pattern parameters are a single set of values for the DEMUX firmware.
+ * !!! The set is taken into account only when the last value is configured.
  * @param {number} region_p - pattern region in [0; 4].
  * @param {number} a_p - value of the pattern at the beginning of the region S(16,2)
  * @param {number} b_p - number of frames per step is 1+b U(16,0)
  * @param {number} c_p - increment between 2 successive steps S(16,2)
  * @param {number} N_p - number of steps in the region U(16,0)
  */
-function setDMX_testPattern(region_p, a_p, b_p, c_p, N_p) {
-	const testPatternNbRegions = 5;
-	if (region_p >= testPatternNbRegions) {
+function setDMX_testPatternRegion(region_p, a_p, b_p, c_p, N_p) {
+	if (region_p >= DMX_TEST_PATTERN_NBREGIONS) {
 		print("ERROR, wrong region Id --> " + region_p + ", no command send to the DEMUX");
         return;
 	}
@@ -165,20 +167,61 @@ function setDMX_testPattern(region_p, a_p, b_p, c_p, N_p) {
 }
 
 /**
- * Reads the test patterns (TEST_PATTERN).
+ * Sets the test pattern parameters (TEST_PATTERN).
+ * @param {array} parameters_p - 5 sets (one per region) of 4 parameters.
+ *  a - value of the pattern at the beginning of the region S(16,2)
+ *  b - number of frames per step is 1+b U(16,0)
+ *  c - increment between 2 successive steps S(16,2)
+ *  N - number of steps in the region U(16,0)
+ */
+function setDMX_testPattern(parameters_p) {
+    if (parameters_p.length !== DMX_TEST_PATTERN_NBREGIONS) {
+        print("ERROR, wrong number of regions --> Expected 5, received " + parameters_p.length);
+        return;
+    }
+    const nbValues = DMX_TEST_PATTERN_NBREGIONS * DMX_TEST_PATTERN_NBPARAMS;
+    sendToDMXWriteMultiRegisters(ADD_DMX_TEST_PATTERN, nbValues, flatten(parameters_p));
+}
+
+/**
+ * Reads the test pattern parameters for a region (TEST_PATTERN).
  * @param {number} region_p - pattern region in [0; 4].
  * @return {array} a - value of the pattern at the beginning of the region S(16,2)
  * b - number of frames per step is 1+b U(16,0)
  * c - increment between 2 successive steps S(16,2)
  * N - number of steps in the region U(16,0) * @return {number} region - Offset mode.
  */
-function readDMX_testPattern(region_p) {
+function readDMX_testPatternRegion(region_p) {
     const nbValues = 4;
     const reg_address = ADD_DMX_TEST_PATTERN + nbValues * region_p;
     sendToDMXReadMultiRegisters(reg_address, nbValues);
     getLatestValue("DMX_registers");
 	const tp = DMX_registers.slice(reg_address, reg_address+DMX_TEST_PATTERN_NBPARAMS);
     return [tp[0], tp[1], tp[2], tp[3]];
+}
+
+/**
+ * Reads the test pattern parameters (TEST_PATTERN).
+ * @return {array} parameters - 5 sets (one per region) of 4 parameters.
+ *  a - value of the pattern at the beginning of the region S(16,2)
+ *  b - number of frames per step is 1+b U(16,0)
+ *  c - increment between 2 successive steps S(16,2)
+ *  N - number of steps in the region U(16,0)
+ */
+function readDMX_testPattern() {
+    // Reading the test parameters from the DEMUX firmware
+    const reg_address = ADD_DMX_TEST_PATTERN;
+    const nbValues = DMX_TEST_PATTERN_NBREGIONS * DMX_TEST_PATTERN_NBPARAMS;
+    sendToDMXReadMultiRegisters(reg_address, nbValues);
+    getLatestValue("DMX_registers");
+	const tp = DMX_registers.slice(reg_address, reg_address+nbValues); // parameters in a 1D array
+
+    // Slicing the parameters per region
+    var parameters2D = [];  // parameters in a 2D array
+    for (var region=0; region<DMX_TEST_PATTERN_NBREGIONS; region++) {
+        parameters2D[region] = tp.slice(region*DMX_TEST_PATTERN_NBPARAMS, (region+1)*DMX_TEST_PATTERN_NBPARAMS);
+    }
+    return parameters2D;
 }
 
 /**
@@ -221,7 +264,7 @@ function readDMX_testPatternEnable() {
 function setDMX_boxcarLength(length_p) {
     const reg_address = ADD_DMX_BOXCAR_LENGTH;
     var value = 0;
-    for (col = 0; col < DMX_NB_COL; col++) {
+    for (var col = 0; col < DMX_NB_COL; col++) {
         if (length_p[col] > 15) {
             print("ERROR, boxcar length for column " + col + " is incorrect! > " + length_p[col]);
 			print(" --> setting boxcar length to 0 (1 sample) instead");
@@ -250,7 +293,7 @@ function readDMX_boxcarLength() {
 }
 
 /**
- * Sets the values of the feedback algorithm parameter a (A).
+ * Sets the values of the feedback algorithm parameter a (A) for a column.
  * This parameter defines the bandwidth.
  * @param {number} col_p - column number [0, 3].
  * @param {array} a_p - one value of parameter a per pixel U(16,16).
@@ -498,7 +541,7 @@ function setDMX_sqmFBMode(col_p, fbMode_p) {
         print("ERROR, column number is incorrect!  --> " + col_p);
         return;
     }
-    for (pix=0; pix < DMX_NB_PIX_PER_COL; pix++) {
+    for (var pix=0; pix < DMX_NB_PIX_PER_COL; pix++) {
         if (fbMode_p[pix] > 2) {
             print("ERROR, unrecognised feedback mode for pixel " + pix + "! > " + fbMode_p[pix]);
             print("Setting the mode to Open loop");
@@ -536,7 +579,7 @@ function setDMX_sqaOffsetFine(col_p, offsetFine_p, offsetFinePTR_p) {
         return;
     }
     var values = [DMX_NB_PIX_PER_COL];
-    for (pix=0; pix < DMX_NB_PIX_PER_COL; pix++) {
+    for (var pix=0; pix < DMX_NB_PIX_PER_COL; pix++) {
         // Checking the value of offsetFine
         if ((offsetFine_p[pix] < valMin) || (offsetFine_p[pix] > valMax)) {
             print("ERROR, the fine offset for pixel " + pix + " is incorrect!  > " + offsetFine_p[pix]);
@@ -568,7 +611,7 @@ function readDMX_sqaOffsetFine(col_p) {
     const data = DMX_registers.slice(reg_address, reg_address+DMX_NB_PIX_PER_COL);
     var sqaOffsetFine = [DMX_NB_PIX_PER_COL];
     var sqaOffsetFinePTR = [DMX_NB_PIX_PER_COL];
-    for (pix=0; pix < DMX_NB_PIX_PER_COL; pix++) {
+    for (var pix=0; pix < DMX_NB_PIX_PER_COL; pix++) {
         sqaOffsetFine[pix] = data[pix] % Math.pow(2, 3);
         sqaOffsetFinePTR[pix] = data[pix] >> 3;
     }
@@ -808,19 +851,19 @@ function readDMX_sampling_delay(col_p) {
  * Sets the values of a set of pulse shaping (PULSE_SHAPING).
  * @param {number} col_p - column number [0, 3]
  * @param {number} setId_p - id of the set of values [0; 3].
- * @param {array} values_p - set of values U(16,16)
+ * @param {array} values_p - a set of pulse shaping parameters U(16,16)
  */
-function setDMX_pulseShaping(col_p, setId_p, values_p) {
+function setDMX_pulseShapingSet(col_p, setId_p, values_p) {
     if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
         print("ERROR, column number is incorrect!  --> " + col_p);
         return;
     }
     if (values_p.length !== DMX_PULSESHAPING_NBVALUES) {
-        print("  ERROR, the number of values is incorrect! >  " + values_p.length);
+        print("ERROR, the number of values is incorrect!  -->  " + values_p.length);
         return;
     }
     if (setId_p > 3) {
-        print("  ERROR, the pulse shaping set number is incorrect! >  " + setId_p);
+        print("ERROR, the pulse shaping set number is incorrect!  -->  " + setId_p);
         return;
     }
     const reg_address = ADD_DMX_PULSE_SHAPING[setId_p] | (col_p << ADD_DMX_COL_BIT_SHIFT);
@@ -828,16 +871,48 @@ function setDMX_pulseShaping(col_p, setId_p, values_p) {
 }
 
 /**
+ * Sets the values of the 4 sets of pulse shaping (PULSE_SHAPING).
+ * @param {number} col_p - column number [0, 3]
+ * @param {array} values_p - 4 sets of pulse shaping parameters U(16,16)
+ */
+function setDMX_pulseShaping(col_p, values_p) {
+    if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
+        print("ERROR, column number is incorrect!  --> " + col_p);
+        return;
+    }
+    if (values_p.length !== 4) {
+        print("ERROR, the number of sets is incorrect!  -->  " + values_p.length);
+        return;
+    }
+    for (var set=0; set<3; set++) {
+        setDMX_pulseShapingSet(col_p, set, values_p[set]);
+    }
+}
+
+/**
  * Reads the values of a set of pulse shaping (PULSE_SHAPING).
  * @param {number} col_p - column number [0, 3]
  * @param {number} setId_p - id of the set of values [0; 3].
- * @return {array} values - sampling delay.
+ * @return {array} values - a set of pulse shaping parameters.
  */
-function readDMX_pulseShaping(col_p, setId_p) {
+function readDMX_pulseShapingSet(col_p, setId_p) {
     const reg_address = ADD_DMX_PULSE_SHAPING[setId_p] | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadMultiRegisters(reg_address, DMX_PULSESHAPING_NBVALUES);
     getLatestValue("DMX_registers");
     return DMX_registers.slice(reg_address, reg_address + DMX_PULSESHAPING_NBVALUES);
+}
+
+/**
+ * Reads the values of the 4 sets of pulse shaping (PULSE_SHAPING).
+ * @param {number} col_p - column number [0, 3]
+ * @return {array} values - 4 sets of pulse shaping parameters.
+ */
+function readDMX_pulseShaping(col_p) {
+    var values = [];
+    for (set=0; set<4; set++) {
+        values[set] = readDMX_pulseShapingSet(col_p, set);
+    }
+    return values;
 }
 
 /**
@@ -982,7 +1057,7 @@ function readDMX_HK(verbose_p) {
     const houseKeepings = DMX_registers.slice(ADD_DMX_HK_P5V0_ANA, ADD_DMX_HK_P5V0_ANA+DMX_NB_HK);
     if (verbose_p) {
         print("DEMUX HK are:");
-        for (hk=0; hk<DMX_NB_HK; hk++) print(TABUL + "HK " + hk + ": " + houseKeepings[hk]);
+        for (var hk=0; hk<DMX_NB_HK; hk++) print(TABUL + "HK " + hk + ": " + houseKeepings[hk]);
     }
     return houseKeepings;
 }
@@ -994,7 +1069,6 @@ function readDMX_HK(verbose_p) {
  */
 function readDMX_delockFlag(verbose_p) {
     if (typeof(verbose_p) === 'undefined') verbose_p = false;
-    const reg_address = ADD_DMX_DELOCK_FLAG;
     sendToDMXReadRegister(ADD_DMX_DELOCK_FLAG);
     getLatestValue("DMX_registers");
     const delockFlag = DMX_registers[ADD_DMX_DELOCK_FLAG];

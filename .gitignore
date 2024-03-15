@@ -8,3 +8,6 @@ fpasim/archive
 
 # untracked doc file
 /doc
+
+# extra files from Laurent's IDE
+/.idea
