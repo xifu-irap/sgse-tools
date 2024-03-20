@@ -27,7 +27,7 @@
 
 // imports
 include("../common/util_tools.dscript");
-include("./dmx_reg_addresses.dscript");
+include("../demux/dmx_reg_addresses.dscript");
 
 /**
  * Definition of constants
@@ -98,7 +98,7 @@ function setDMX_feedbackOnOff(feedbackOnOff_p) {
 
     var value = 0;
     for (var col=0; col<DMX_NB_COL; col++) {
-        // Checking the value of feebackOnOff
+        // Checking the value of feedbackOnOff
         if (feedbackOnOff_p[col] > 1) {
             print("ERROR, unrecognised value for MUX_SQ_FB_ON_OFF for column " + col + "! > " + feedbackOnOff_p[col] + "\n" + "Selecting OFF mode instead.");
             feedbackOnOff_p[col] = 0;
@@ -181,6 +181,8 @@ function setDMX_testPattern(parameters_p) {
     }
     const nbValues = DMX_TEST_PATTERN_NBREGIONS * DMX_TEST_PATTERN_NBPARAMS;
     sendToDMXWriteMultiRegisters(ADD_DMX_TEST_PATTERN, nbValues, flatten(parameters_p));
+
+	print("-->  " + flatten(parameters_p));
 }
 
 /**
@@ -215,6 +217,8 @@ function readDMX_testPattern() {
     sendToDMXReadMultiRegisters(reg_address, nbValues);
     getLatestValue("DMX_registers");
 	const tp = DMX_registers.slice(reg_address, reg_address+nbValues); // parameters in a 1D array
+
+	print("==> " + tp);
 
     // Slicing the parameters per region
     var parameters2D = [];  // parameters in a 2D array
@@ -534,7 +538,7 @@ function readDMX_lockpointV(col_p) {
  * @param {number} col_p - column number [0: Open loop, 1: closed loop, 2 pattern]
  * @param {array} fbMode_p - one value of feedback mode per pixel.
  */
-function setDMX_sqmFBMode(col_p, fbMode_p) {
+function setDMX_sqm_FBMode(col_p, fbMode_p) {
 	var reg_address = ADD_DMX_MUX_SQ_FB_MODE | (col_p << ADD_DMX_COL_BIT_SHIFT);
 
     if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
@@ -557,7 +561,7 @@ function setDMX_sqmFBMode(col_p, fbMode_p) {
  * @param {number} col_p - column number [0, 3].
  * @return {array} fbMode - feedback mode (one value per pixel).
  */
-function readDMX_sqmFBMode(col_p) {
+function readDMX_sqm_FBMode(col_p) {
     const reg_address = ADD_DMX_MUX_SQ_FB_MODE | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadMultiRegisters(reg_address, DMX_NB_PIX_PER_COL);
     getLatestValue("DMX_registers");
@@ -570,7 +574,7 @@ function readDMX_sqmFBMode(col_p) {
  * @param {array} offsetFine_p - fine offset: U(3, 0)
  * @param {array} offsetFinePTR_p - fine offset for test pattern: U(3, 0)
  */
-function setDMX_sqaOffsetFine(col_p, offsetFine_p, offsetFinePTR_p) {
+function setDMX_sqa_OffsetFine(col_p, offsetFine_p, offsetFinePTR_p) {
     const valMin = 0;
     const valMax = Math.pow(2, 3)-1;
 	
@@ -604,7 +608,7 @@ function setDMX_sqaOffsetFine(col_p, offsetFine_p, offsetFinePTR_p) {
  * @return {{std: number[], ptr: number[]}} offsetFine - fine offset: U(3, 0)
  * @return {array} offsetFinePTR - fine offset for test pattern: U(3, 0)
  */
-function readDMX_sqaOffsetFine(col_p) {
+function readDMX_sqa_OffsetFine(col_p) {
     const reg_address = ADD_DMX_AMP_SQ_OFFSET_FINE | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadMultiRegisters(reg_address, DMX_NB_PIX_PER_COL);
     getLatestValue("DMX_registers");
@@ -623,7 +627,7 @@ function readDMX_sqaOffsetFine(col_p) {
  * @param {number} col_p - column number [0, 3]
  * @param {number} offsetLSBptr_p - weight of the offset LSB: U(12, 0)
  */
-function setDMX_sqaOffsetLSBptr(col_p, offsetLSBptr_p) {
+function setDMX_sqa_OffsetLSBptr(col_p, offsetLSBptr_p) {
 	const valMin = 0;
 	const valMax = Math.pow(2, 12)-1;
 	
@@ -644,7 +648,7 @@ function setDMX_sqaOffsetLSBptr(col_p, offsetLSBptr_p) {
  * @param {number} col_p - column number [0, 3]
  * @return {number} sqaOffsetLSB - weight of the offset LSB.
  */
-function readDMX_sqaOffsetLSBptr(col_p) {
+function readDMX_sqa_OffsetLSBptr(col_p) {
     const reg_address = ADD_DMX_AMP_SQ_OFFSET_LSB_PTR | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");
@@ -656,7 +660,7 @@ function readDMX_sqaOffsetLSBptr(col_p) {
  * @param {number} col_p - column number [0, 3]
  * @param {number} offsetLSB_p - weight of the offset LSB: U(12, 0)
  */
-function setDMX_sqaOffsetLSB(col_p, offsetLSB_p) {
+function setDMX_sqa_OffsetLSB(col_p, offsetLSB_p) {
     const valMin = 0;
     const valMax = Math.pow(2, 12)-1;
 
@@ -677,7 +681,7 @@ function setDMX_sqaOffsetLSB(col_p, offsetLSB_p) {
  * @param {number} col_p - column number [0, 3]
  * @return {number} sqaOffsetLSB - weight of the offset LSB.
  */
-function readDMX_sqaOffsetLSB(col_p) {
+function readDMX_sqa_OffsetLSB(col_p) {
     const reg_address = ADD_DMX_AMP_SQ_OFFSET_LSB | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");
@@ -689,7 +693,7 @@ function readDMX_sqaOffsetLSB(col_p) {
  * @param {number} col_p - column number [0, 3]
  * @param {number} offsetCoarse_p - common AMP SQUID coarse offset : U(12, 0)
  */
-function setDMX_sqaOffsetCoarse(col_p, offsetCoarse_p) {
+function setDMX_sqa_OffsetCoarse(col_p, offsetCoarse_p) {
     const valMin = 0;
     const valMax = Math.pow(2, 12)-1;
 
@@ -710,7 +714,7 @@ function setDMX_sqaOffsetCoarse(col_p, offsetCoarse_p) {
  * @param {number} col_p - column number [0, 3]
  * @return {number} offsetCoarse -  common AMP SQUID coarse offset.
  */
-function readDMX_sqaOffsetCoarse(col_p) {
+function readDMX_sqa_OffsetCoarse(col_p) {
     const reg_address = ADD_DMX_AMP_SQ_OFFSET_COARSE | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");

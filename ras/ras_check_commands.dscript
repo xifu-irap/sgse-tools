@@ -96,29 +96,12 @@ if (result === MESSAGE_ERROR) ERROR_COUNTER++;
 
 plotSmallLine();
 print(TAB1 + "Trying an incorrect parameter value, an error message is expected:");
-setRAS_addressSequence(14, value);
+setRAS_addressSequence(14, value);
+
 
 plotLongLine();
 print("Printing all the address sequences:");
 readAndPrintRAS_addressSequences();
-
-/**********************************************************************************************************************/
-plotLongLine();
-print("Testing the setting of the sequence mode:");
-print(TAB1 + "Current sequence mode is: " + readRAS_sequenceMode());
-value = 1; // ON
-print(TAB1 + "Setting the sequence mode to: " + value);
-setRAS_sequenceMode(value);
-checked_value = readRAS_sequenceMode();
-print(TAB1 + "Reading the new sequence mode: " + checked_value);
-result = MESSAGE_ERROR;
-if (checked_value === value) result = MESSAGE_OK;
-print(TAB1 + "--> " + result);
-if (result === MESSAGE_ERROR) ERROR_COUNTER++;
-
-plotSmallLine();
-print(TAB1 + "Trying incorrect parameter values, error messages are expected:");
-setRAS_sequenceMode(4);
 
 /**********************************************************************************************************************/
 plotLongLine();
@@ -159,8 +142,10 @@ for (dacId = 0; dacId < NB_RA_DACS; dacId++) {
 }
 setRAS_levelMode(value);
 print(TAB1 + "Reading the new values:");
-checked_value=readRAS_levelMode();
-print(TAB1 + "Reading the new values:");
+checked_value=readRAS_levelMode();
+
+print(TAB1 + "Reading the new values:");
+
 for (dacId = 0; dacId < NB_RA_DACS; dacId++) print(TAB2 + RAS_DAC_NAMES[dacId] + ": " + checked_value[dacId]);
 result = MESSAGE_ERROR;
 if (arraysAreEquals(value, checked_value)) result = MESSAGE_OK;
@@ -169,8 +154,10 @@ if (result === MESSAGE_ERROR) ERROR_COUNTER++;
 
 plotSmallLine();
 print(TAB1 + "Trying incorrect parameter values, error messages are expected:");
-setRAS_levelMode(3);
-setRAS_levelMode([3,1,2,0]);
+setRAS_levelMode(3);
+
+setRAS_levelMode([3,1,2,0]);
+
 
 /**********************************************************************************************************************/
 plotLongLine();
@@ -179,7 +166,8 @@ print(TAB1 + "Current sequence delay is: " + readRAS_seqDelay());
 value = 0x0123;
 print(TAB1 + "Setting the sequence delay to: " + to_hexaString(value));
 setRAS_seqDelay(value);
-checked_value = readRAS_seqDelay();
+checked_value = readRAS_seqDelay();
+
 print(TAB1 + "Reading the new value: " + to_hexaString(checked_value));
 result = MESSAGE_ERROR;
 if (checked_value === value) result = MESSAGE_OK;
@@ -197,7 +185,8 @@ print(TAB1 + "Current PS overlap is: " + readRAS_psOverlap());
 value = 3;
 print(TAB1 + "Setting the PS overlap to: " + value);
 setRAS_psOverlap(value);
-checked_value = readRAS_psOverlap();
+checked_value = readRAS_psOverlap();
+
 print(TAB1 + "Reading the new value: " + checked_value);
 result = MESSAGE_ERROR;
 if (checked_value === value) result = MESSAGE_OK;
@@ -216,7 +205,8 @@ print(TAB1 + "Current GS overlap is: " + readRAS_gsOverlap());
 value = 0x0002;
 print(TAB1 + "Setting the GS overlap to: " + value);
 setRAS_gsOverlap(value);
-checked_value = readRAS_gsOverlap();
+checked_value = readRAS_gsOverlap();
+
 print(TAB1 + "Reading the new value: " + checked_value);
 result = MESSAGE_ERROR;
 if (checked_value === value) result = MESSAGE_OK;

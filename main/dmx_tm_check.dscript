@@ -1,0 +1,135 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     dmx_tm_check.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file checks the low level commands of the dmx_tools.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+include("../demux/dmx_tools.dscript");
+
+/**
+ * This function makes different kinds of TM files (TEST PATTERN, ERROR, DUMP)
+ */
+function dmxTMCheck() {
+
+    /******************************************************************************************************************/
+    plotLongLine();
+    print("Configuring the test pattern...");
+
+    const tpParameters = [
+        [0x7FFF, 0x0003, 0x2000, 0x0004],  // 4 steps x 4 frames long slope from 0x7FFF to -1
+        [0xFFFF, 0x0007, 0x0000, 0x0001],  // 8 frames long plateau at -1
+        [0xFFFF, 0x000F, 0x0100, 0x0040],  // 64 steps x 16 frames long slope from -1 to 0x3FFF
+        [0x3FFF, 0x001F, 0x0040, 0x0100],  // 256 steps x 32 frames long slope from 0x3FFF to 0x7FFF
+        [0x7FFF, 0x7FFF, 0x0000, 0x0001]]; // 32768 frames long plateau at 0x7FFF
+
+    setDMX_testPattern(tpParameters);
+
+    print(TAB1 + "Checking the values in the firmware...");
+    var checked_values = readDMX_testPattern();
+
+    var checkIsOK = true;
+    for (var region = 0; region < DMX_TEST_PATTERN_NBREGIONS; region++) {
+        if (!arraysAreEquals(tpParameters[region], checked_values[region])) checkIsOK = false;
+    }
+
+    if (checkIsOK) print(TAB1 + "The values in the firmware are as expected.");
+    else print(TAB1 + "ERROR, the values in the firmware are not the expected ones.");
+
+
+    /******************************************************************************************************************/
+    plotLongLine();
+    print("Sending the test pattern to the TM link...");
+
+    print("  Configuring the data acquisition mode to: TEST_PATTERN");
+    setDMX_dataAcqMode(ACQ_MODE_TSTPATTERN);
+
+    print("  Enabling the test pattern for 4 iterations");
+    const enable = true;
+    const infinite = false;
+    const numberIterations = 4;
+    setDMX_testPatternEnable(enable, infinite, numberIterations)
+
+    //      Des données de type test pattern sont envoyées sur le lien science
+    // ==>> La sauvegarde dans un fichier SCIENCE / TEST PATTERN doit commencer
+    //      Quand le test pattern est terminé le mode d'acquisition passe en IDLE.
+    //      Le DEMUX ne produit plus de données
+    // ==>> La sauvegarde dans le fichier doit se terminer
+
+
+    /******************************************************************************************************************/
+    plotLongLine();
+    print("Sending the test pattern to the SQM feedback...");
+    print("  The feedback is looped back to the error ADC. The test pattern can be observed on the error signal.");
+
+    print("  Configuring the data acquisition mode to: ERROR");
+    setDMX_dataAcqMode(ACQ_MODE_ERROR);
+    //      Des données de type ERROR commencent à être envoyées sur le lien science
+    // ==>> La sauvegarde dans un fichier ERROR doit commencer
+
+    print("  Configuring the feedback mode of column 1, pixel 0 and 5 to: TEST PATTERN");
+    var colId = 1;
+    var FBMode = [
+        FEEDBACK_MODE_TESTPATTERN, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP,
+        FEEDBACK_MODE_TESTPATTERN, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP,
+        FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP,
+        FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP,
+        FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP,
+        FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP,
+        FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP];
+    setDMX_sqm_FBMode(colId, FBMode);
+
+    print("  Setting the MUX SQUID feedback ON for column 1");
+    setDMX_feedbackOnOff([OFF, ON, OFF, OFF]);
+
+    print("  Enabling the test pattern for 4 iterations");
+    setDMX_testPatternEnable(enable, infinite, numberIterations);
+
+    waitMs(1000);
+    //      On attend que le test pattern soit passé
+
+    print("  Configuring the data acquisition mode to: IDLE");
+    setDMX_dataAcqMode(ACQ_MODE_IDLE);
+
+    //      Le DEMUX ne produit plus de données
+    // ==>> La sauvegarde dans le fichier doit se terminer
+    //      On doit observer l'effet du pulse shaping qui est programmé à 20MHz par défaut
+
+    /******************************************************************************************************************/
+    plotLongLine();
+    print("Measuring a dump file...");
+    print("  Not sure to see data from the test pattern (the dump is too short).")
+
+    print("  Configuring the data acquisition mode to: DUMP");
+    setDMX_dataAcqMode(ACQ_MODE_DUMP);
+
+    //      Des données de type DUMP sont envoyées sur le lien science
+    // ==>> Un fichier doit être généré
+    //      Lorsque le DUMP est terminé (1360 valeurs) le mode d'acquisition repasse en IDLE
+    //      Le DEMUX ne produit plus de données
+    // ==>> La sauvegarde dans le fichier doit se terminer
+
+    /******************************************************************************************************************/
+    plotLongLine();
+}
