@@ -1,0 +1,83 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     testSequence.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    The script in this file manages the test session
+//
+// -------------------------------------------------------------------------------------------------------------
+
+include("../common/util_tools.dscript");
+include("./dmx_tm_check.dscript");
+
+
+/**
+ * This function defines the test sequence
+ * @param {string} sessionName - name of the session
+ * @param {string} sessionComment - comment for the session
+ * @param {string} operatorName - name of the principal operator
+ */
+function testSequence(sessionName, sessionComment, operatorName) {
+
+    /**********************************************************************************************************************/
+    plotLongLine();
+    print("Reading the firmware version");
+    var fwVersion = readDMX_firmwareVersion(true);
+
+	/**********************************************************************************************************************/
+    plotLongLine();
+    print("Reading the hardware version");
+    hwVersion = readDMX_hardwareVersion(true);
+
+
+    // Opening the session
+	//sendStartSession(sessionName, sessionComment);
+
+
+	// Saving scripts
+	//getLatestValue("DISP_BackupsCurrentDirectory");
+
+    //mkpath(DISP_BackupsCurrentDirectory+"\\sgse-tools\\main");
+	//copyFileToBackupDir(__FILE__,"\\sgse-tools\\main\\"+__FILE__.split("/").pop()); // sauvegarde du script courant
+	//copyFileToBackupDir(".\\launcher.dscript","\\sgse-tools\\main\\launcher.dscript");
+
+    //mkpath(DISP_BackupsCurrentDirectory+"\\sgse-tools\\common");
+	//copyFileToBackupDir("..\\common\\util-tools.dscript","\\sgse-tools\\common\\util-tools.dscript");
+
+    //mkpath(DISP_BackupsCurrentDirectory+"\\sgse-tools\\demux");
+	//copyFileToBackupDir("..\\demux\\dmx-tools.dscript","\\sgse-tools\\demux\\dmx-tools.dscript");
+	//copyFileToBackupDir("..\\demux\\dmx-reg-addresses.dscript","\\sgse-tools\\demux\\dmx-reg-addresses.dscript");
+	//copyFileToBackupDir("..\\demux\\dmx-check-commands.dscript","\\sgse-tools\\demux\\dmx-check-commands.dscript");
+
+
+	// Saving test parameters in a file
+	//setAndMemorize("sessionName", sessionName);
+	//setAndMemorize("sessionComment", sessionComment);
+	//setAndMemorize("operatorName", operatorName);
+
+	//saveMemorizedParametersToBackupDir(__FILE__.split("/").pop().split(".")[0]+"_PARAMETERS.txt")
+
+
+	//copyFileToBackupDir(getEGSEDirectory()+"\\parametersTF.dispatcher","HK\\parametersTF.dispatcher")  // copy HK limits
+
+	dmxTMCheck();
+
+}

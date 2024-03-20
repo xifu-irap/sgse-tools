@@ -162,9 +162,9 @@ function repeat(str_in, nb) {
  */
  function get_operatorName()
 {
-	const operatorTab = ["", "Augusto", "Corentin", "David", "Odile", "Laurent", "Yann"];
+	const operatorTab = ["", "Augusto", "Corentin", "David", "Odile", "Laurent", "Sylvain", "Yann"];
     var operatorName;
-	var operatorId = getItem("Please, select the operator name: ", OperatorTab);
+	var operatorId = getItem("Please, select the operator name: ", operatorTab);
 	if (operatorId === -1) operatorName = getText("Please, type the operator name:", "");
 	else operatorName = operatorTab[operatorId];
 	return(operatorName);
@@ -189,7 +189,7 @@ function get_sessionName()
 function maDate()
 {
 	const d = new Date();
-	return d.getFullYear()+(("00" +(d.getMonth()+1).toString()).slice(-2))+(("00" +(d.getDate()).toString()).slice(-2))+"_"+(("00" +(d.getHours()).toString()).slice(-2))+(("00" +(d.getMinutes()).toString()).slice(-2))+(("00" +(d.getSeconds()).toString()).slice(-2));
+	return d.getFullYear()+"-"+(("00" +(d.getMonth()+1).toString()).slice(-2))+"-"+(("00" +(d.getDate()).toString()).slice(-2))+"_"+(("00" +(d.getHours()).toString()).slice(-2))+"h"+(("00" +(d.getMinutes()).toString()).slice(-2))+"m"+(("00" +(d.getSeconds()).toString()).slice(-2))+"s";
 }
 
 //---------------------------------------------------------------------------------------
