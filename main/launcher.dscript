@@ -28,10 +28,7 @@
 include("./testSequence.dscript");
 include("../common/util_tools.dscript");
 
-operatorName=get_operatorName();
-sessionName=get_sessionName();
-
-testSequence(sessionName, operatorName);
+testSequence();
 
 
 // -------------------------------------------------------------------------------------------------------------

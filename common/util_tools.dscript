@@ -25,6 +25,14 @@
 //
 // -------------------------------------------------------------------------------------------------------------
 
+// -- CONSTANTS ---------
+
+// strings
+const TAB1 = "   ";
+const TAB2 = repeat(TAB1, 2);
+
+
+// -- FUNCTIONS --------
 
 /**
  * Check if an array includes a value
@@ -38,6 +46,42 @@ function doesArrayInclude(array_p, value_p) {
 		if (array_p[i] === value_p) answer = true;
 	}
 	return answer;
+}
+
+/**
+ * Compares the content of two arrays.
+ * @param {array} tabA_p - First array
+ * @param {array} tabB_p - Second array
+ * @return {boolean} areEqual - True if the two arrays are equal, False if not
+ */
+function arraysAreEquals(tabA_p, tabB_p) {
+    var areEqual = true;
+	if (tabA_p.length !== tabB_p.length) {
+        areEqual = false;
+    } else {
+        for (var i=0; i<tabA_p.length; i++) {
+            if (tabA_p[i] !== tabB_p[i]) areEqual = false;
+        }
+    }
+    return areEqual;
+}
+
+/**
+ * Compares the content of two 2Darrays.
+ * @param {array} tabA_p - First array
+ * @param {array} tabB_p - Second array
+ * @return {boolean} areEqual - True if the two arrays are equal, False if not
+ */
+function twoDArraysAreEquals(tabA_p, tabB_p) {
+    var areEqual = true;
+	if (tabA_p.length !== tabB_p.length) {
+        areEqual = false;
+    } else {
+        for (var i=0; i<tabA_p.length; i++) {
+            if (!arraysAreEquals(tabA_p[i], tabB_p[i])) areEqual = false;
+        }
+    }
+    return areEqual;
 }
 
 /**
@@ -56,7 +100,24 @@ function flatten(array_p) {
 }
 
 /**
- * Convert a signed int value into a 2's complement signed int value.
+ * Prints the content of an array in several lines.
+ * @param {array} tab - Array
+ * @param {string} startStr - String to be print at the beginning of each line
+ * @param {number} sliceSize - Number of elements per line
+ */
+function printArrayInSlices(tab, startStr, sliceSize) {
+	// Default values
+	if (typeof(startStr) === 'undefined') startStr = "";
+	if (typeof(sliceSize) === 'undefined') sliceSize = 10;
+
+	const l = tab.length;
+    for (var i=0; i<l; i+=sliceSize) {
+        print(startStr + tab.slice(i, i+sliceSize));
+    }
+}
+
+/**
+ * Converts a signed int value into a 2's complement signed int value.
  * @param {number} value_p - signed int value to convert
  * @param {number} width_p - value number of bits
  * @return {number} converted value
@@ -119,25 +180,6 @@ function to_hexaString(value_p) {
 	//if (typeof(value_p) !== 'undefined') result = "0x" + value_p.toString(16).toUpperCase().slice(-4);
 	if (typeof(value_p) !== 'undefined') result = "0x" + value_p.toString(16).toUpperCase();
     return result;
-}
-
-
-/**
- * Compares the content of two arrays.
- * @param {array} tabA_p - First array
- * @param {array} tabB_p - Second array
- * @return {boolean} areEqual - True if the two arrays are equal, False if not
- */
-function arraysAreEquals(tabA_p, tabB_p) {
-    var areEqual = true;
-	if (tabA_p.length !== tabB_p.length) {
-        areEqual = false;
-    } else {
-        for (var i=0; i<tabA_p.length; i++) {
-            if (tabA_p[i] !== tabB_p[i]) areEqual = false;
-        }
-    }
-    return areEqual;
 }
 
 

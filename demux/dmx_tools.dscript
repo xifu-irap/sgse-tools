@@ -62,9 +62,8 @@ const ACQ_MODE_ERROR = 2; // averaged ADC data
 const ACQ_MODE_DUMP = 4; // row ADC data during 2 frames
 const ACQ_MODE_TSTPATTERN = 7; // test pattern
 
-// strings
-const TAB1 = "   ";
-const TAB2 = repeat(TAB1, 2);
+// Model versions
+const DMX_MODEL_VERSION = ['DM', 'EM', 'PFM', 'FM', 'Unknown', 'Unknown', 'Unknown', 'Dev kit'];
 
 /**
  * Sets the data acquisition mode (DATA_ACQ_MODE).
@@ -181,8 +180,6 @@ function setDMX_testPattern(parameters_p) {
     }
     const nbValues = DMX_TEST_PATTERN_NBREGIONS * DMX_TEST_PATTERN_NBPARAMS;
     sendToDMXWriteMultiRegisters(ADD_DMX_TEST_PATTERN, nbValues, flatten(parameters_p));
-
-	print("-->  " + flatten(parameters_p));
 }
 
 /**
@@ -217,8 +214,6 @@ function readDMX_testPattern() {
     sendToDMXReadMultiRegisters(reg_address, nbValues);
     getLatestValue("DMX_registers");
 	const tp = DMX_registers.slice(reg_address, reg_address+nbValues); // parameters in a 1D array
-
-	print("==> " + tp);
 
     // Slicing the parameters per region
     var parameters2D = [];  // parameters in a 2D array
@@ -257,7 +252,7 @@ function readDMX_testPatternEnable() {
 	var enable = (testPatternEnable & 0x002F) >> 5;
 	var infinitely = (testPatternEnable & 0x0010) >> 4;
 	var numberIterations = (testPatternEnable & 0x000F);
-	return [enable, infinitely, numberIterations];
+	return [enable===1, infinitely===1, numberIterations];
 }
 
 /**
@@ -888,7 +883,7 @@ function setDMX_pulseShaping(col_p, values_p) {
         print("ERROR, the number of sets is incorrect!  -->  " + values_p.length);
         return;
     }
-    for (var set=0; set<3; set++) {
+    for (var set=0; set<4; set++) {
         setDMX_pulseShapingSet(col_p, set, values_p[set]);
     }
 }
@@ -1039,11 +1034,10 @@ function readDMX_hardwareVersion(verbose_p) {
     getLatestValue("DMX_registers");
     const hardwareVersion = DMX_registers[ADD_DMX_HARDWARE_VERSION];
     const modelReference = (hardwareVersion >> 8) & 0x7;
-    if (modelReference > 3) print("ERROR, model reference is unknown.")
     const boardReference = hardwareVersion & 0x1F;
     if (verbose_p) {
         print("DEMUX hardware version is:");
-        print(TABUL + "Model reference: " + to_hexaString(modelReference));
+        print(TABUL + "Model reference: " + DMX_MODEL_VERSION[modelReference]);
         print(TABUL + "Board reference: " + to_hexaString(boardReference));
     }
 	return [modelReference, boardReference];
