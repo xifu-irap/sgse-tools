@@ -17,28 +17,23 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     testSequence.dscript
+//    @file                     test_SPI_on_CDIF.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
-//    The script in this file manages the test session
+//    This file sends commands to the DEMUX and RAS SPI links.
 //
 // -------------------------------------------------------------------------------------------------------------
 
-include("../common/util_tools.dscript");
-include("../demux/dmxCheckReadWrite.dscript");
-include("../demux/dmxCheckDefaults.dscript");
+// imports
+include("../demux/dmx_reg_addresses.dscript");
+include("../ras/ras_reg_addresses.dscript");
+
+TEST_SPI_RAS = false;  // Passer à true pour faire des commandes infiniment sur le SPI DEMUX
+TEST_SPI_DMX = false;  // Passer à true pour faire des commandes infiniment sur le SPI RAS
 
 
-/**
- * This function defines the test sequence
- */
-function testSequence() {
-
-	// Testing the write and read in the DEMUX registers
-	//dmxCheckReadWrite();
-
-	// Checking the default values of the DEMUX registers
-	dmxCheckDefaults();
-
+while (true) {
+    if (TEST_SPI_DMX) sendToDMXWriteRegister(ADD_DMX_BOXCAR_LENGTH, 0x0F22);
+    if (TEST_SPI_RAS) sendToRASWriteRegister(ADD_RAS_SEQ_PS, 0xF052);
 }
