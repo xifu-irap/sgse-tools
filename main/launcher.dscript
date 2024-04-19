@@ -26,7 +26,7 @@
 // -------------------------------------------------------------------------------------------------------------
 
 include("./testSequence.dscript");
-include("../common/util_tools.dscript");
+include("../common/utilTools.dscript");
 
 testSequence();
 

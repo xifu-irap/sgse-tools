@@ -17,7 +17,7 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     util_tools.dscript
+//    @file                     utilTools.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
@@ -147,7 +147,7 @@ function convert_2compInt_to_sInt(value_p, width_p) {
 		if (value_p >> (width_p-1) === 0) {  // value is positive
 			val = value_p;
 		}
-		else {  // value s negative
+		else {  // value is negative
 			val = -Math.pow(2, (width_p-1)) + value_p % Math.pow(2, (width_p-1));
 		}
 		return val;
@@ -232,6 +232,19 @@ function maDate()
 {
 	const d = new Date();
 	return d.getFullYear()+"-"+(("00" +(d.getMonth()+1).toString()).slice(-2))+"-"+(("00" +(d.getDate()).toString()).slice(-2))+"_"+(("00" +(d.getHours()).toString()).slice(-2))+"h"+(("00" +(d.getMinutes()).toString()).slice(-2))+"m"+(("00" +(d.getSeconds()).toString()).slice(-2))+"s";
+}
+
+
+/**
+* Converts a duration in ms to a duration string in minutes, seconds and ms
+* @param {number} tMs - Duration in ms
+* @return {string} - MmSSsXXX
+*/
+function tMs_2_string(tMs) {
+    const tMin = Math.floor(tMs/60000);
+    const tSec = Math.floor((tMs-tMin*60000)/1000);
+    const tMs2 = Math.floor(tMs-tMin*60000-tSec*1000);
+    return(tMin+"m"+tSec+"s"+tMs2)
 }
 
 //---------------------------------------------------------------------------------------

@@ -1,0 +1,208 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     wfeeTools.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file contains low level commands to configure and read the configuration of the WFEE through the DRE/RAS.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+include("../common/utilTools.dscript")
+include("../ras/rasTools.dscript")
+
+
+// -------------------------------------------------------------------------------------------------------------
+// Definition of constants
+// -------------------------------------------------------------------------------------------------------------
+
+
+const testing = true;  // If true, the testing code is executed
+const WFEEThroughAthenaPIC = false; // If true the WFEE is driven through the AthenaPic else through the RAS
+const wfeeSelect = Math.pow(2, 14);
+
+//---- Columns addresses
+const col0 = {name: "Col 0", address: 0x0};  // address = 0b0000
+const col1 = {name: "Col 1", address: 0x4};  // address = 0b0100
+
+//---- ASIC addresses and names
+const asic0 = {name: "ASIC 0", address: 0x1};
+const asic1 = {name: "ASIC 1", address: 0x2};
+const asic2 = {name: "ASIC 2", address: 0x3};
+const asic3 = {name: "ASIC 3", address: 0x4};
+
+//---- DAC/Functions addresses and names
+const adr_function_shift = 3;
+const i_tes_bias = {name: "I TES bias", address: 0x0};                 // address = 0b0000
+const i_sqm_bias = {name: "I SQM bias", address: 0x8};                 // address = 0b1000
+const i_sqm_fdbk = {name: "I SQM feedback", address: 0x9};             // address = 0b1001
+const i_sqa_bias = {name: "I SQA bias", address: 0xB};                 // address = 0b1011
+const i_sqa_ofcm = {name: "I SQA offset compensation", address: 0xA};  // address = 0b1010
+
+
+// -------------------------------------------------------------------------------------------------------------
+// Definition of functions
+// -------------------------------------------------------------------------------------------------------------
+
+/**
+ * This function sends a WFEE command through the DRE RAS module
+ * @param {number} address - command address [0 - 127]
+ * @param {number} param - command parameter [0 - 255]
+ * @return {boolean} command OK - true if the command has been sent
+ */
+function sendToWFEEWriteRegister(address, param) {
+    // checking command parameters
+    if (address<0 || (address>>7)>0) {
+        print(TAB1 + "Wrong address for WFEE command: " + address);
+        return false;
+    }
+    if (param<0 || (param>>8)>0) {
+        print(TAB1 + "Wrong parameter for WFEE command: " + param);
+        return false;
+    }
+
+    var addressField = wfeeSelect | address;
+    sendToRASWriteRegister(addressField, param);
+    return true;
+}
+
+/**
+ * This function reads a WFEE register through the DRE RAS module
+ * @param {number} address - command address [0 - 127]
+ * @return {number} value - register value
+ */
+function sendToWFEEReadRegister(address) {
+    // checking command parameter
+    if (address<0 || (address>>7)>0) {
+        print(TAB1 + "Wrong address for WFEE command: " + address);
+        return;
+    }
+
+    var addressField = wfeeSelect | address;
+
+    sendToRASReadRegister(addressField);
+    getLatestValue("RAS_registers");
+    return(RAS_register[addressField]);
+}
+
+/**
+ * This function builds the command decoder field from the asic id, column id and function id
+ * @param {object} asic - asic dictionary (asic0, asic1, asic2 or asic3)
+ * @param {object} col - column dictionary (col0 or col1)
+ * @param {object} dac - dac dictionary (i_tes_bias, i_sqm_bias, i_sqm_fdbk, i_sqa_bias or i_sqa_ofcm)
+ * @return {number} address - value of the address
+ */
+function WFEEBuildAddress(asic, col, dac) {
+    const addr_asic = asic.address;
+    const addr_function = dac.address | col.address;
+    return(addr_asic + (addr_function << adr_function_shift));
+}
+
+
+/**
+ * This function seats a value to a WFEE DAC through the DRE RAS or through the Athena PIC module
+ * @param {object} asic - asic dictionary (asic0, asic1, asic2 or asic3)
+ * @param {object} col - colum dictionary (col0 or col1)
+ * @param {object} dac - dac dictionary (i_tes_bias, i_sqm_bias, i_sqm_fdbk, i_sqa_bias or i_sqa_ofcm)
+ * @param {number} param - Parameter of the command
+ * @param {boolean} [verbose] - If true some text is written (default is false)
+ */
+function setWFEEDAC(asic, col, dac, param, verbose)
+{
+    // Managing default values
+    if (typeof(verbose) === 'undefined') verbose = false;
+
+    const address = WFEEBuildAddress(asic, col, dac);
+
+    if (verbose) {
+        print(TAB1 + "Sending command: [addr] " + address.toString(2) + " [param] " + param.toString(2))
+        }
+
+    if (WFEEThroughAthenaPIC) sendToAPICWriteRegister(address, param);
+    else sendToWFEEWriteRegister(address, param);
+}
+
+
+/**
+ * This function makes a scan on a WFEE DAC
+ * @param {object} asic - asic dictionary (asic0, asic1, asic2 or asic3)
+ * @param {object} col - column dictionary (col0 or col1)
+ * @param {object} dac - dac dictionary (i_tes_bias, i_sqm_bias, i_sqm_fdbk, i_sqa_bias or i_sqa_ofcm)
+ * @param {number} param_i - initial value of the parameter scan
+ * @param {number} param_f - final value of the parameter scan
+ * @param {number} n_step - number of steps
+ * @param {number} t_holdMs - step duration in ms
+ * @param {boolean} verbose - If true, the commands are printed. Default is false.
+ */
+function WFEEScan(asic, col, dac, param_i, param_f, n_step, t_holdMs, verbose) {
+    // Managing default values
+    if (typeof(verbose) === 'undefined') verbose = false;
+
+    const step_size = ~~((param_f - param_i +1) / n_step);  // ~~ to keep the integer part of the division
+
+    plotLongLine();
+    print("Scanning DAC " + dac.name + " for " + asic.name + ", " + col.name);
+    print(TAB1 + "First value:     " + param_i);
+    print(TAB1 + "Number of steps: " + n_step);
+    print(TAB1 + "Step size:       " + step_size);
+    print(TAB1 + "Last value:      " + param_i + step_size * n_step);
+    print(TAB1 + "Step duration:   " + t_holdMs + " ms");
+    print(TAB1 + "The scan duration is expected to be: ", tMs_2_string(n_step * t_holdMs));
+    print(TAB1 + "...");
+
+	for (var param = param_i; param < param_f; param += step_size) {
+        setWFEEDAC(asic, col, dac, param, verbose);
+        waitMs(t_holdMs);
+    }
+
+    print("Done!");
+    print("");
+}
+
+//------------------------------------------------------------------------------------------------------------------
+// Testing
+//------------------------------------------------------------------------------------------------------------------
+
+if (testing)
+{
+
+	const verbose = true;
+	var asic = asic3;      // 0b100
+	var col = col1;        // 0b0100
+	var dac = i_sqm_bias;  // 0b1000
+    // decoder address => 0b1001100
+
+    plotLongLine();
+	print("Sending a single command...");
+	var parameter = 0xA3;  // 0b1010_0011
+	setWFEEDAC(asic, col, dac, parameter, verbose);
+
+    plotLongLine();
+	print("Doing a scan...");
+	var param_i = 0;
+	var param_f = 255;
+	var n_step = 8;
+	var t_holdMs = 1000;
+	WFEEScan(asic, col, dac, param_i, param_f, n_step, t_holdMs, verbose);
+
+    plotLongLine();
+}
+
+//------------------------------------------------------------------------------------------------------------------
