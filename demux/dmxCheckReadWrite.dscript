@@ -26,7 +26,7 @@
 // -------------------------------------------------------------------------------------------------------------
 
 // imports
-include("../demux/dmx_tools.dscript");
+include("../demux/dmxTools.dscript");
 
 /**
  * This function tests the demux commands

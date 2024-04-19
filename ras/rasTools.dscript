@@ -17,7 +17,7 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     ras_tools.dscript
+//    @file                     rasTools.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
@@ -26,8 +26,8 @@
 // -------------------------------------------------------------------------------------------------------------
 
 // imports
-include("../common/util_tools.dscript");
-include("./ras_reg_addresses.dscript");
+include("../common/utilTools.dscript");
+include("./rasRegAddresses.dscript");
 
 // Row addresses
 const NB_PS = 8;
@@ -53,6 +53,8 @@ const RAS_NB_HK = 0x10;
 /**
  * Sets an address sequence.
  * @param {number} addressId - selected address id [0, 13]
+ *    0 - 7 for PS0 - PS7
+ *    8 - 13 for GS0 - GS5
  * @param {number} Seq - 48 bits sequence
  */
 function setRAS_addressSequence(addressId, Seq) {
@@ -78,6 +80,8 @@ function setRAS_addressSequence(addressId, Seq) {
 /**
  * Reads an address sequence.
  * @param {number} addressId - selected address id [0, 13]
+ *    0 - 7 for PS0 - PS7
+ *    8 - 13 for GS0 - GS5
  * @return {number} Seq - 48 bits sequence
  */
 function readRAS_addressSequence(addressId) {
@@ -456,8 +460,7 @@ function RASscan_seqDelay(delay1, delay2, nb_steps, step_duration_ms, verbose_p)
     if (typeof(verbose_p) === 'undefined') verbose_p = true;
 
     // computing the delay increase per scan step
-    const deltaDelay = ~~((delay2 - delay1) / nb_steps);
-
+    const deltaDelay = ~~((delay2 - delay1) / nb_steps);  // ~~ to keep the integer part of the division
 
     if (verbose_p) {
         plotLongLine();
@@ -517,7 +520,7 @@ function RASscan_dacLevel(dacId, level1, level2, nb_steps, step_duration_ms, ver
         return
     }
     // computing the level increase per scan step
-    const deltaLevel = ~~((level2 - level1) / nb_steps);
+    const deltaLevel = ~~((level2 - level1) / nb_steps);  // ~~ to keep the integer part of the division
 
     if (verbose_p) {
         plotLongLine();

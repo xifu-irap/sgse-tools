@@ -1,0 +1,119 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     rasFake.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file contains functions to fake the commands to/from a RAS module.
+//      (to be used when the RAS module is not connected)
+//
+// -------------------------------------------------------------------------------------------------------------
+
+const register_size = 0x6002;
+var RAS_FRW_registers = new Array(register_size);  // Registers in the ras firmware
+var RAS_STD_registers = new Array(register_size);  // Readout registers in XIFU STUDIO
+var RAS_registers = new Array(register_size);  // Registers available from scripts
+
+const verbose = false;
+
+
+/** Initialisation of registers
+*/
+function init_RAS_FRW_registers() {
+	for (i=0; i<RAS_FRW_registers.length; i++) {
+		RAS_FRW_registers[i] = 0x0000;
+	}
+	RAS_FRW_registers[ADD_RAS_FIRMWARE_VERSION] = 0x0010;
+	RAS_FRW_registers[ADD_RAS_HARDWARE_VERSION] = 0x0102;
+}
+
+/**
+ * Emulates the function which writes a value in a register of the RAS
+ * @param {number} reg_address_p - address.
+ * @param {number} value_p - value.
+ */
+function sendToRASWriteRegister(reg_address_p, value_p) {
+    if (verbose) print("         Writing in address: " + to_hexaString(reg_address_p) + " ==> value " + to_hexaString(value_p));
+    RAS_FRW_registers[reg_address_p] = value_p;
+}
+
+
+/**
+ * Emulates the function which writes a set of values in registers of the RAS
+ * @param {number} reg_address_p - first address.
+ * @param {number} nbValues_p - number of values.
+ * @param {array} value_p - set of values.
+ */
+function sendToRASWriteMultiRegisters(reg_address_p, nbValues_p, value_p) {
+    if (verbose) print("         Writing " + nbValues_p + " values:")
+    for (i=0; i<nbValues_p; i++) {
+        if (verbose) print("           Address: 0x" + to_hexaString(reg_address_p + i) + " ==> value 0x" + to_hexaString(value_p[i]));
+        RAS_FRW_registers[reg_address_p + i] = value_p[i];
+    }
+}
+
+
+/**
+ * Emulates the function which reads a value from a register of the RAS
+ * @param {number} reg_address_p - address.
+ * @return {number} value - value.
+ */
+function sendToRASReadRegister(reg_address_p) {
+    RAS_STD_registers[reg_address_p] = RAS_FRW_registers[reg_address_p];
+    if (verbose) print("         Reading in address: " + to_hexaString(reg_address_p) + " ==> value " + to_hexaString(RAS_STD_registers[reg_address_p]));
+}
+
+
+/**
+ * Emulates the function which reads a set of values from registers of the RAS
+ * @param {number} reg_address_p - first address.
+ * @param {number} nbValues_p - number of values.
+ * @return {array} values - array of values.
+ */
+function sendToRASReadMultiRegisters(reg_address_p, nbValues_p) {
+    if (verbose) print("         Reading " + nbValues_p + " values:");
+    var values= [nbValues_p];
+    for (i=0; i<nbValues_p; i++) {
+        RAS_STD_registers[reg_address_p + i] = RAS_FRW_registers[reg_address_p + i];
+        if (verbose) print("           Address: " + to_hexaString(reg_address_p + i) + " ==> value " + to_hexaString(RAS_STD_registers[reg_address_p + i]));
+    }
+    return values;
+}
+
+
+/**
+ * Faking the update of the internal array with firmware values
+ * @param {string} array_name_p - nameof the array containing the copy of the firmware registers.
+ */
+function getLatestValue(array_name_p) {
+    if (verbose) print("         Updating RAS_registers in XIFU STUDIO...");
+	for (i=0; i<RAS_STD_registers.length; i++) RAS_registers[i] = RAS_STD_registers[i];
+}
+
+
+/**
+ * Faking the waitMs() function of XIFU Studio
+ * @param {string} durationMs - duration in milliseconds.
+ */
+function waitMs(durationMs) {
+    print("Waiting " + durationMs + " ms")
+}
+
+// -------------------------------------------------------------------------------------------------------------

@@ -26,8 +26,8 @@
 // -------------------------------------------------------------------------------------------------------------
 
 // imports
-include("../demux/dmx_reg_addresses.dscript");
-include("../ras/ras_reg_addresses.dscript");
+include("../demux/dmxRegAddresses.dscript");
+include("../ras/rasRegAddresses.dscript");
 
 TEST_SPI_RAS = false;  // Passer à true pour faire des commandes infiniment sur le SPI DEMUX
 TEST_SPI_DMX = false;  // Passer à true pour faire des commandes infiniment sur le SPI RAS

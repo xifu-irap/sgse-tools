@@ -17,7 +17,7 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     ras_check_commands.dscript
+//    @file                     rasCheckReadWrite.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
@@ -26,11 +26,11 @@
 // -------------------------------------------------------------------------------------------------------------
 
 // imports
-include("./ras_tools.dscript");
+include("./rasTools.dscript");
 
 const FAKING_RAS = true; // if true RAS is not used, DEMUX registers are simulated
 if (FAKING_RAS) {
-    include("./ras_fake.dscript");
+    include("./rasFake.dscript");
     init_RAS_FRW_registers();
 }
 
@@ -43,7 +43,7 @@ var ERROR_COUNTER = 0;
 
 /**********************************************************************************************************************/
 plotLongLine();
-print("Testing the functions of the ras_tools.dscript library...");
+print("Testing the functions of the rasTools.dscript library...");
 plotLongLine();
 print("");
 

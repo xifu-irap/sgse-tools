@@ -26,13 +26,14 @@
 // -------------------------------------------------------------------------------------------------------------
 
 // imports
-include("../demux/dmx_tools.dscript");
+include("../demux/dmxTools.dscript");
 
 /**
  * This function tests the demux commands
  */
 function dmxCheckDefaults() {
-	
+	
+
 	const verbose = true;
     var checked_value, checked_values;
     const ARROW = "-----------------------------------------------> "
@@ -43,7 +44,7 @@ function dmxCheckDefaults() {
 
     /******************************************************************************************************************/
     plotLongLine();
-    print("Testing the functions of the dmx_tools.dscript library to read the default values of the DEMUX registers...");
+    print("Testing the functions of the dmxTools.dscript library to read the default values of the DEMUX registers...");
     print(maDate());
     plotLongLine();
     print("");
@@ -196,7 +197,8 @@ function dmxCheckDefaults() {
     var a;
     for (col=0; col<DMX_NB_COL; col++) {
         a = readDMX_a(col);
-        print(TAB1 + "Checking current values for column " + col + ":")
+        print(TAB1 + "Checking current values for column " + col + ":")
+
 		if (verbose) print(a);
         if (arraysAreEquals(a, expA)) print(TAB1 + MESSAGE_OK);
         else {
@@ -241,7 +243,8 @@ function dmxCheckDefaults() {
 	for (col=0; col<DMX_NB_COL; col++) {
 		knorm = readDMX_sqm_knorm(col);
         print(TAB1 + "Checking current values for column " + col + ":");
-        if (verbose) print(knorm);
+        if (verbose) print(knorm);
+
 		if (arraysAreEquals(knorm, expKnormCol)) print(TAB1 + MESSAGE_OK);
         else {
             print(TAB1 + MESSAGE_ERROR);
@@ -261,7 +264,8 @@ function dmxCheckDefaults() {
 	for (col=0; col<DMX_NB_COL; col++) {
 		fb0 = readDMX_fb0(col);
         print(TAB1 + "Checking current values for column " + col + ":");
-        if (verbose) print(fb0);
+        if (verbose) print(fb0);
+
         if (arraysAreEquals(fb0, expFb0Col)) print(TAB1 + MESSAGE_OK);
         else {
             print(TAB1 + MESSAGE_ERROR);
@@ -281,8 +285,10 @@ function dmxCheckDefaults() {
     var lp;
 	for (col=0; col<DMX_NB_COL; col++) {
 		lp = readDMX_lockpointV(col);
-        print(TAB1 + "Checking current values for column " + col + ":");
-        if (verbose) print(lp);
+        print(TAB1 + "Checking current values for column " + col + ":");
+
+        if (verbose) print(lp);
+
         if (arraysAreEquals(lp, expLpCol)) print(TAB1 + MESSAGE_OK);
         else {
             print(TAB1 + MESSAGE_ERROR);
@@ -303,7 +309,8 @@ function dmxCheckDefaults() {
 	for (col=0; col<DMX_NB_COL; col++) {
 		fbMode = readDMX_sqm_FBMode(col);
         print(TAB1 + "Checking current values for column " + col + ":");
-        if (verbose) print(fbMode);
+        if (verbose) print(fbMode);
+
         if (arraysAreEquals(fbMode, expFbModeCol)) print(TAB1 + MESSAGE_OK);
         else {
             print(TAB1 + MESSAGE_ERROR);
@@ -405,7 +412,8 @@ function dmxCheckDefaults() {
     var pulseShaping;
     for (col=0; col<DMX_NB_COL; col++) {
         pulseShaping = readDMX_pulseShaping(col);
-        print(TAB1 + "Checking current values for column " + col + ":")
+        print(TAB1 + "Checking current values for column " + col + ":")
+
 		if (verbose) printArrayInSlices(pulseShaping, TAB2, 1);
         if (twoDArraysAreEquals(pulseShaping, expPulseShaping)) print(TAB1 + MESSAGE_OK);
         else {
