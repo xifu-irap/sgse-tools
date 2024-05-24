@@ -44,11 +44,10 @@ const RAS_DAC_NAMES = ["PS LOW", "PS HIGH", "GS LOW", "GS HIGH"];
 const TAB1 = "   ";
 const TAB2 = repeat(TAB1, 2);
 const TAB3 = repeat(TAB1, 3);
-
+// HK
 const RAS_NB_HK = 0x10;
-
-
-
+const RAS_HK_NAMES = ['P5V0_ANA', 'P2V5_ANA', 'M2V5_ANA', 'P1V2_DIG', 'P2V5_DIG', 'M2V5_DIG', 'P3V3_DIG',
+    'TEMP_A', 'TEMP_B', 'VPS_LOW', 'VPS_HIGH', 'VGS_LOW', 'VGS_HIGH', 'P3V3_DAC', 'P3V3WFEE', 'NOT USED'];
 
 /**
  * Sets an address sequence.
@@ -116,7 +115,7 @@ function readRAS_addressSequence(addressId) {
  */
 function setRAS_DAC(dacId, value) {
 
-    if (dacId < 0 || dacId > 4-1) {
+    if (dacId < 0 || dacId > NB_RA_DACS-1) {
         print("ERROR, DAC id must be between 0 and 3 ( received " + dacId + ")" );
         return;
     }
@@ -154,7 +153,7 @@ function setRAS_DAC(dacId, value) {
  */
 function readRAS_DAC(dacId) {
 
-    if (dacId < 0 || dacId > 4-1) {
+    if (dacId < 0 || dacId > NB_RA_DACS-1) {
         print("ERROR, DAC id must be between 0 and 3 ( received " + dacId + ")" );
         return;
     }
@@ -190,11 +189,11 @@ function setRAS_levelMode(levelMode) {
 
     var value = 0;
 
-	if (levelMode.length != 4){
-        print("ERROR, level mode must have 4 values (received " + levelMode.length + " values)");
+	if (levelMode.length != NB_RA_DACS){
+        print("ERROR, level mode must have " + NB_RA_DACS + " values (received " + levelMode.length + " values)");
 		return;
 	}
-    for (dac = 0; dac < 4; dac++) {
+    for (dac = 0; dac < NB_RA_DACS; dac++) {
         if (levelMode[dac] < 0 || levelMode[dac] > 1) {
             print("ERROR, level mode for DAC " + dac + " must be 0 or 1 (received " + levelMode[dac] + ")");
             print("It will be set to Off instead (0)");
@@ -370,12 +369,12 @@ function readRAS_hardwareVersion(verbose_p) {
  */
 function readRAS_HK(verbose_p) {
     if (typeof(verbose_p) === 'undefined') verbose_p = false;
-    sendToRASReadMultiRegisters(ADD_RAS_HK_P5V0_ANA, 20);
+    sendToRASReadMultiRegisters(ADD_RAS_HK_P5V0_ANA, RAS_NB_HK);
     getLatestValue("RAS_registers");
     const houseKeepings = RAS_registers.slice(ADD_RAS_HK_P5V0_ANA, ADD_RAS_HK_P5V0_ANA+RAS_NB_HK);
     if (verbose_p) {
         print("RAS housekeepings are:");
-        for (hk=0; hk<RAS_NB_HK; hk++) print(TAB1 + "HK " + hk + ": " + houseKeepings[hk]);
+        for (hk=0; hk<RAS_NB_HK; hk++) print(TAB1 + RAS_HK_NAMES[hk]  + ": " + houseKeepings[hk]);
     }
     return houseKeepings;
 }

@@ -25,8 +25,9 @@
 //
 // -------------------------------------------------------------------------------------------------------------
 
-include("../common/utilTools.dscript")
-include("../ras/rasTools.dscript")
+include("../common/utilTools.dscript");
+include("../ras/rasTools.dscript");
+include("../ras/rasRegAddresses.dscript");
 
 
 // -------------------------------------------------------------------------------------------------------------
@@ -55,6 +56,10 @@ const i_sqm_bias = {name: "I SQM bias", address: 0x8};                 // addres
 const i_sqm_fdbk = {name: "I SQM feedback", address: 0x9};             // address = 0b1001
 const i_sqa_bias = {name: "I SQA bias", address: 0xB};                 // address = 0b1011
 const i_sqa_ofcm = {name: "I SQA offset compensation", address: 0xA};  // address = 0b1010
+
+//---- HK
+const WFEE_NB_HK = 0x8;
+const WFEE_HK_NAMES = ['TEMP ASIC1', 'TEMP ASIC2', 'TEMP ASIC3', 'TEMP ASIC4', 'TEMP ASIC5', 'TEMP ASIC6', 'MEANV', 'SEU Flag'];
 
 
 // -------------------------------------------------------------------------------------------------------------
@@ -117,7 +122,7 @@ function WFEEBuildAddress(asic, col, dac) {
 
 
 /**
- * This function seats a value to a WFEE DAC through the DRE RAS or through the Athena PIC module
+ * This function sets a value to a WFEE DAC through the DRE RAS or through the Athena PIC module
  * @param {object} asic - asic dictionary (asic0, asic1, asic2 or asic3)
  * @param {object} col - colum dictionary (col0 or col1)
  * @param {object} dac - dac dictionary (i_tes_bias, i_sqm_bias, i_sqm_fdbk, i_sqa_bias or i_sqa_ofcm)
@@ -137,6 +142,28 @@ function setWFEEDAC(asic, col, dac, param, verbose)
 
     if (WFEEThroughAthenaPIC) sendToAPICWriteRegister(address, param);
     else sendToWFEEWriteRegister(address, param);
+}
+
+
+/**
+ * Reads the housekeepings.
+ * @param {boolean} verbose_p - verbosity level (true to display messages).
+ * @return {number} houseKeepings - version of the hardware.
+ */
+function readWFEE_HK(verbose_p) {
+    if (WFEEThroughAthenaPIC) {
+        print("It is impossible to read the WFEE HKs through AthenaPIC");
+        return;
+    }
+    if (typeof(verbose_p) === 'undefined') verbose_p = false;
+    sendToRASReadMultiRegisters(ADD_WFEE_HK_TEMP1, WFEE_NB_HK);
+    getLatestValue("RAS_registers");
+    const houseKeepings = RAS_registers.slice(ADD_WFEE_HK_TEMP1, ADD_WFEE_HK_TEMP1+WFEE_NB_HK);
+    if (verbose_p) {
+        print("WFEE housekeepings are:");
+        for (hk=0; hk<WFEE_NB_HK; hk++) print(TAB1 + WFEE_HK_NAMES[hk]  + ": " + houseKeepings[hk]);
+    }
+    return houseKeepings;
 }
 
 
