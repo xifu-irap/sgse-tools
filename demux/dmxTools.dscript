@@ -39,7 +39,6 @@ const DMX_NB_PIX_PER_COL = 34;
 const DMX_PULSESHAPING_NBVALUES = 20;
 const DMX_TEST_PATTERN_NBPARAMS = 4;
 const DMX_TEST_PATTERN_NBREGIONS = 5;
-const DMX_NB_HK = 20; // includes spares
 const ON = 1;
 const OFF = 0;
 const TABUL = "   ";
@@ -64,6 +63,12 @@ const ACQ_MODE_TSTPATTERN = 7; // test pattern
 
 // Model versions
 const DMX_MODEL_VERSION = ['DM', 'EM', 'PFM', 'FM', 'Unknown', 'Unknown', 'Unknown', 'Dev kit'];
+
+// HK
+const DMX_NB_HK = 20; // includes spares
+const DMX_HK_NAMES = ['P5V0_ANA', 'P3V3_ANA', 'P2V5_ANA', 'P1V8_ANA', 'M2V5_ANA', 'M5V0_ANA', 'P3V3_DIG',
+    'P2V5_DIG', 'P1V2_DIG', 'TEMP_AVE', 'TEMP_MAX', 'P2V5_AUX', 'VREF_TEM', 'VREF_R2R', 'DELOCK_FLAG'];
+
 
 /**
  * Sets the data acquisition mode (DATA_ACQ_MODE).
@@ -1055,12 +1060,12 @@ function readDMX_hardwareVersion(verbose_p) {
  */
 function readDMX_HK(verbose_p) {
     if (typeof(verbose_p) === 'undefined') verbose_p = false;
-    sendToDMXReadMultiRegisters(ADD_DMX_HK_P5V0_ANA, 20);
+    sendToDMXReadMultiRegisters(ADD_DMX_HK_P5V0_ANA, DMX_NB_HK);
     getLatestValue("DMX_registers");
     const houseKeepings = DMX_registers.slice(ADD_DMX_HK_P5V0_ANA, ADD_DMX_HK_P5V0_ANA+DMX_NB_HK);
     if (verbose_p) {
         print("DEMUX HK are:");
-        for (var hk=0; hk<DMX_NB_HK; hk++) print(TABUL + "HK " + hk + ": " + houseKeepings[hk]);
+        for (var hk=0; hk<DMX_NB_HK; hk++) print(TABUL + DMX_HK_NAMES[hk] + ": " + houseKeepings[hk]);
     }
     return houseKeepings;
 }
