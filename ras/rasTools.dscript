@@ -29,6 +29,9 @@
 include("../common/utilTools.dscript");
 include("./rasRegAddresses.dscript");
 
+const RAS_TEST_PATTERN_NBPARAMS = 4;
+const RAS_TEST_PATTERN_NBREGIONS = 5;
+
 // Row addresses
 const NB_PS = 8;
 const NB_GS = 6;
@@ -48,6 +51,9 @@ const TAB3 = repeat(TAB1, 3);
 const RAS_NB_HK = 0x10;
 const RAS_HK_NAMES = ['P5V0_ANA', 'P2V5_ANA', 'M2V5_ANA', 'P1V2_DIG', 'P2V5_DIG', 'M2V5_DIG', 'P3V3_DIG',
     'TEMP_A', 'TEMP_B', 'VPS_LOW', 'VPS_HIGH', 'VGS_LOW', 'VGS_HIGH', 'P3V3_DAC', 'P3V3WFEE', 'NOT USED'];
+// ICU selection (to be used with the XIFU Studio command sendToTMTC_selectICU() )
+ICUMain = 0;
+ICURed = 1;
 
 /**
  * Sets an address sequence.
@@ -105,6 +111,35 @@ function readRAS_addressSequence(addressId) {
 	const seq_end = RAS_registers[reg_address+4];
 
     return seq_beg + seq_mid * Math.pow(2, 16) + seq_end * Math.pow(2, 32);
+}
+
+
+/**
+ * Sets the sequence mode.
+ * @param {number} seqMode - [0: off, 1: on]
+ */
+function setRAS_seqMode(seqMode) {
+
+    if (seqMode < 0 || seqMode > 1) {
+        print("ERROR, Sequence mode must be 0 or 1, ( received ", seqMode, ")");
+        return;
+    }
+
+    const reg_address = ADD_RAS_SEQ_MODE;
+    sendToRASWriteRegister(reg_address, seqMode);
+}
+
+
+/**
+ * Reads the sequence mode.
+ * @return {array} seqMode - [0: off, 1: on]
+ */
+function readRAS_seqMode() {
+
+    const reg_address = ADD_RAS_SEQ_MODE;
+    sendToRASReadRegister(reg_address);
+    getLatestValue("RAS_registers");
+    return RAS_registers[reg_address];
 }
 
 
@@ -178,48 +213,6 @@ function readRAS_DAC(dacId) {
     sendToRASReadRegister(reg_address);
     getLatestValue("RAS_registers");
 	return RAS_registers[reg_address];
-}
-
-
-/**
- * Sets the level mode.
- * @param {array} levelMode - one value per DAC [0: off, 1: on]
- */
-function setRAS_levelMode(levelMode) {
-
-    var value = 0;
-
-	if (levelMode.length != NB_RA_DACS){
-        print("ERROR, level mode must have " + NB_RA_DACS + " values (received " + levelMode.length + " values)");
-		return;
-	}
-    for (dac = 0; dac < NB_RA_DACS; dac++) {
-        if (levelMode[dac] < 0 || levelMode[dac] > 1) {
-            print("ERROR, level mode for DAC " + dac + " must be 0 or 1 (received " + levelMode[dac] + ")");
-            print("It will be set to Off instead (0)");
-            levelMode[dac] = 0;
-        }
-        value = value + (levelMode[dac] << dac);
-    }
-
-    sendToRASWriteRegister(ADD_RAS_LEVEL_MODE, value);
-}
-
-
-/**
- * Reads the level mode.
- * @return {array} levelMode - one value per DAC [0: off, 1: on]
- */
-function readRAS_levelMode() {
-
-    const reg_address = ADD_RAS_LEVEL_MODE;
-    sendToRASReadRegister(reg_address);
-    getLatestValue("RAS_registers");
-    const value = RAS_registers[reg_address];
-
-    var levelMode = new Array(NB_RA_DACS);
-    for (dac = 0; dac < NB_RA_DACS; dac++) levelMode[dac] = (value >> dac) & 0x0001;
-	return levelMode;
 }
 
 
@@ -305,6 +298,94 @@ function readRAS_gsOverlap() {
     sendToRASReadRegister(reg_address);
     getLatestValue("RAS_registers");
     return convert_2compInt_to_sInt(RAS_registers[reg_address], 3);
+}
+
+/**
+ * Sets the test pattern parameters (TEST_PATTERN).
+ * @param {array} parameters_p - 5 sets (one per region) of 4 parameters.
+ *  a - value of the pattern at the beginning of the region U(12,0)
+ *  b - number of frames per step is 1+b U(16,0)
+ *  c - increment between 2 successive steps S(12,0)
+ *  N - number of steps in the region U(16,0)
+ */
+function setRAS_testPattern(parameters_p) {
+    if (parameters_p.length !== RAS_TEST_PATTERN_NBREGIONS) {
+        print("ERROR, wrong number of regions --> Expected " + RAS_TEST_PATTERN_NBREGIONS + ", received " + parameters_p.length);
+        return;
+    }
+    for (var region=0; region<RAS_TEST_PATTERN_NBREGIONS; region+=1) {
+        if (parameters_p[region].length !== RAS_TEST_PATTERN_NBPARAMS) {
+            print("ERROR, wrong number of parameters for region " + region + " --> Expected " + RAS_TEST_PATTERN_NBPARAMS + ", received " + parameters_p[region].length);
+            return;
+        }
+    }
+    // conversion of signed values to 2'complemented values
+    for (var region=0; region<RAS_TEST_PATTERN_NBREGIONS; region+=1) {
+        parameters_p[region][2] = convert_sInt_to_2compInt(parameters_p[region][2], 12)
+    }
+    sendToDMXWriteMultiRegisters(ADD_RAS_TEST_PATTERN, RAS_TEST_PATTERN_NBREGIONS * RAS_TEST_PATTERN_NBPARAMS, flatten(parameters_p));
+}
+
+/**
+ * Reads the test pattern parameters (TEST_PATTERN).
+ * @return {array} parameters - 5 sets (one per region) of 4 parameters.
+ *  a - value of the pattern at the beginning of the region U(12,0)
+ *  b - number of frames per step is 1+b U(16,0)
+ *  c - increment between 2 successive steps S(12,0)
+ *  N - number of steps in the region U(16,0)
+ */
+function readRAS_testPattern() {
+    // Reading the test parameters from the DEMUX firmware
+    const reg_address = ADD_RAS_TEST_PATTERN;
+    const nbValues = RAS_TEST_PATTERN_NBREGIONS * RAS_TEST_PATTERN_NBPARAMS;
+    sendToDMXReadMultiRegisters(reg_address, nbValues);
+    getLatestValue("RAS_registers");
+	const tp = RAS_registers.slice(reg_address, reg_address+nbValues); // parameters in a 1D array
+
+    // Slicing the parameters per region
+    var parameters2D = [];  // parameters in a 2D array
+    for (var region=0; region<RAS_TEST_PATTERN_NBREGIONS; region++) {
+        parameters2D[region] = tp.slice(region*RAS_TEST_PATTERN_NBPARAMS, (region+1)*RAS_TEST_PATTERN_NBPARAMS);
+    }
+
+    // conversion of 2'complemented values to signed values
+    for (var region=0; region<RAS_TEST_PATTERN_NBREGIONS; region+=1) {
+        parameters_p[region][2] = convert_2compInt_to_sInt(value_p, width_p)(parameters_p[region][2], 16)
+    }
+
+    return parameters2D;
+}
+
+/**
+ * enable / disable the test pattern (TEST_PATTERN_ENABLE).
+ * @param {boolean} enable_p - active if true.
+ * @param {boolean} infinite_p - infinitely generated if true.
+ * @param {number} numberIterations_p - number of repetitions, in [0, 15].
+ */
+function setRAS_testPatternEnable(enable_p, infinite_p, numberIterations_p) {
+    if (numberIterations_p > 15) {
+        print("ERROR, incorrect number of test pattern iterations! > " + numberIterations_p + "\n" + "Setting the number of iterations to 0 instead.");
+		numberIterations_p = 0;
+    }
+    const value = numberIterations_p + (infinite_p << 4) + (enable_p << 5);
+	sendToRASWriteRegister(ADD_RAS_TEST_PATTERN_ENABLE, value);
+}
+
+/**
+ * Reads the test pattern enable register (TEST_PATTERN_ENABLE).
+ * @return {array} testPatternEnable
+ *							enable
+ *							infinitely
+ *							numberIterations.
+ */
+function readRAS_testPatternEnable() {
+    sendToDMXReadRegister(ADD_RAS_TEST_PATTERN_ENABLE);
+    getLatestValue("RAS_registers");
+    const testPatternEnable = RAS_registers[ADD_RAS_TEST_PATTERN_ENABLE];
+	var enable = (testPatternEnable & 0x002F) >> 5;
+	var infinitely = (testPatternEnable & 0x0010) >> 4;
+	var numberIterations = (testPatternEnable & 0x000F);
+	return [enable===1, infinitely===1, numberIterations];
 }
 
 

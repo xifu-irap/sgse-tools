@@ -36,9 +36,9 @@ include("../demux/dmxCheckDefaults.dscript");
 function testSequence() {
 
 	// Testing the write and read in the DEMUX registers
-	//dmxCheckReadWrite();
+	dmxCheckReadWrite();
 
 	// Checking the default values of the DEMUX registers
-	dmxCheckDefaults();
+	//dmxCheckDefaults();
 
 }

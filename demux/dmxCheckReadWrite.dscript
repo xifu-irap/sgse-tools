@@ -153,11 +153,11 @@ function dmxCheckReadWrite() {
     print("Testing the definition of the test patterns:");
 
     print(TAB1 + "Setting new values for the 5 regions of the pattern...")
-    values = [[0xAAAA, 0xBBBB, 0xCCCC, 0x17F0],
-        [0x1111, 0x2222, 0x3333, 0x4444],
-        [0x5555, 0x6666, 0x7777, 0x8888],
-        [0x1234, 0x5678, 0x9ABC, 0xDEFF],
-        [0x1133, 0x2244, 0x5577, 0x6688]];
+    values = [[1024, 65535, 4, 2048],
+        [-32768, 65535, 32767, 0],
+        [1024, 65535, 4, 2048],
+        [-32768, 65535, 32767, 0],
+        [1024, 65535, 4, 2048]];
     for (region=0; region<DMX_TEST_PATTERN_NBREGIONS; region++) {
         print(TAB2 + "Region " + region + ": " + values[region]);
     }
