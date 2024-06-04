@@ -150,27 +150,6 @@ function readDMX_offsetMode() {
 }
 
 /**
- * Sets the test pattern parameters for a region (TEST_PATTERN).
- * !!! This function is deprecated - You should use set_DMXtestPattern instead
- * !!! The test pattern parameters are a single set of values for the DEMUX firmware.
- * !!! The set is taken into account only when the last value is configured.
- * @param {number} region_p - pattern region in [0; 4].
- * @param {number} a_p - value of the pattern at the beginning of the region S(16,2)
- * @param {number} b_p - number of frames per step is 1+b U(16,0)
- * @param {number} c_p - increment between 2 successive steps S(16,2)
- * @param {number} N_p - number of steps in the region U(16,0)
- */
-function setDMX_testPatternRegion(region_p, a_p, b_p, c_p, N_p) {
-	if (region_p >= DMX_TEST_PATTERN_NBREGIONS) {
-		print("ERROR, wrong region Id --> " + region_p + ", no command send to the DEMUX");
-        return;
-	}
-    const reg_address = ADD_DMX_TEST_PATTERN + DMX_TEST_PATTERN_NBPARAMS * region_p;
-    const values = [a_p, b_p, c_p, N_p];
-    sendToDMXWriteMultiRegisters(reg_address, DMX_TEST_PATTERN_NBPARAMS, values);
-}
-
-/**
  * Sets the test pattern parameters (TEST_PATTERN).
  * @param {array} parameters_p - 5 sets (one per region) of 4 parameters.
  *  a - value of the pattern at the beginning of the region S(16,2)
@@ -178,35 +157,27 @@ function setDMX_testPatternRegion(region_p, a_p, b_p, c_p, N_p) {
  *  c - increment between 2 successive steps S(16,2)
  *  N - number of steps in the region U(16,0)
  */
-function setDMX_testPattern(parameters_p) {
+function setDMX_testPattern(parameters_p) {
     if (parameters_p.length !== DMX_TEST_PATTERN_NBREGIONS) {
-        print("ERROR, wrong number of regions --> Expected 5, received " + parameters_p.length);
+        print("ERROR, wrong number of regions --> Expected " + DMX_TEST_PATTERN_NBREGIONS + ", received " + parameters_p.length);
         return;
     }
-    // conversion of signed values to 2'complemented values
     for (var region=0; region<DMX_TEST_PATTERN_NBREGIONS; region+=1) {
-        parameters_p[region][0] = convert_sInt_to_2compInt(parameters_p[region][0], 16)
-        parameters_p[region][2] = convert_sInt_to_2compInt(parameters_p[region][2], 16)
+        if (parameters_p[region].length !== DMX_TEST_PATTERN_NBPARAMS) {
+            print("ERROR, wrong number of parameters for region " + region + " --> Expected " + DMX_TEST_PATTERN_NBPARAMS + ", received " + parameters_p[region].length);
+            return;
+        }
     }
-    const nbValues = DMX_TEST_PATTERN_NBREGIONS * DMX_TEST_PATTERN_NBPARAMS;
-    sendToDMXWriteMultiRegisters(ADD_DMX_TEST_PATTERN, nbValues, flatten(parameters_p));
-}
 
-/**
- * Reads the test pattern parameters for a region (TEST_PATTERN).
- * @param {number} region_p - pattern region in [0; 4].
- * @return {array} a - value of the pattern at the beginning of the region S(16,2)
- * b - number of frames per step is 1+b U(16,0)
- * c - increment between 2 successive steps S(16,2)
- * N - number of steps in the region U(16,0) * @return {number} region - Offset mode.
- */
-function readDMX_testPatternRegion(region_p) {
-    const nbValues = 4;
-    const reg_address = ADD_DMX_TEST_PATTERN + nbValues * region_p;
-    sendToDMXReadMultiRegisters(reg_address, nbValues);
-    getLatestValue("DMX_registers");
-	const tp = DMX_registers.slice(reg_address, reg_address+DMX_TEST_PATTERN_NBPARAMS);
-    return [tp[0], tp[1], tp[2], tp[3]];
+	var result = [];
+	for (var i=0; i<DMX_TEST_PATTERN_NBREGIONS; i++) {
+		for (var j=0; j<DMX_TEST_PATTERN_NBPARAMS; j++) {
+			if (j===0 || j===2) result.push(convert_sInt_to_2compInt(parameters_p[i][j], 16));
+			else result.push(parameters_p[i][j]);
+		}
+	}
+
+    sendToDMXWriteMultiRegisters(ADD_DMX_TEST_PATTERN, DMX_TEST_PATTERN_NBREGIONS * DMX_TEST_PATTERN_NBPARAMS, result);
 }
 
 /**
@@ -230,6 +201,13 @@ function readDMX_testPattern() {
     for (var region=0; region<DMX_TEST_PATTERN_NBREGIONS; region++) {
         parameters2D[region] = tp.slice(region*DMX_TEST_PATTERN_NBPARAMS, (region+1)*DMX_TEST_PATTERN_NBPARAMS);
     }
+
+    // conversion of 2'complemented values to signed values
+    for (var region=0; region<DMX_TEST_PATTERN_NBREGIONS; region+=1) {
+        parameters2D[region][0] = convert_2compInt_to_sInt(parameters2D[region][0], 16);
+        parameters2D[region][2] = convert_2compInt_to_sInt(parameters2D[region][2], 16);
+    }
+
     return parameters2D;
 }
 

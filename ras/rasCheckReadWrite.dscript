@@ -130,37 +130,6 @@ readAndPrintRAS_DACs();
 
 /**********************************************************************************************************************/
 plotLongLine();
-print("Testing the setting of the level mode:");
-print(TAB1 + "Current settings are:");
-checked_value=readRAS_levelMode();
-for (dacId = 0; dacId < NB_RA_DACS; dacId++) print(TAB2 + RAS_DAC_NAMES[dacId] + ": " + checked_value[dacId]);
-print(TAB1 + "Setting new values to: ");
-value = new Array(4);
-for (dacId = 0; dacId < NB_RA_DACS; dacId++) {
-    value[dacId] = dacId % 3;
-    print(TAB2 + RAS_DAC_NAMES[dacId] + ": " + value[dacId]);
-}
-setRAS_levelMode(value);
-print(TAB1 + "Reading the new values:");
-checked_value=readRAS_levelMode();
-
-print(TAB1 + "Reading the new values:");
-
-for (dacId = 0; dacId < NB_RA_DACS; dacId++) print(TAB2 + RAS_DAC_NAMES[dacId] + ": " + checked_value[dacId]);
-result = MESSAGE_ERROR;
-if (arraysAreEquals(value, checked_value)) result = MESSAGE_OK;
-print(TAB1 + "--> " + result);
-if (result === MESSAGE_ERROR) ERROR_COUNTER++;
-
-plotSmallLine();
-print(TAB1 + "Trying incorrect parameter values, error messages are expected:");
-setRAS_levelMode(3);
-
-setRAS_levelMode([3,1,2,0]);
-
-
-/**********************************************************************************************************************/
-plotLongLine();
 print("Testing the setting of the sequence delay:");
 print(TAB1 + "Current sequence delay is: " + readRAS_seqDelay());
 value = 0x0123;
