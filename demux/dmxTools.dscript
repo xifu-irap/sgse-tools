@@ -157,7 +157,8 @@ function readDMX_offsetMode() {
  *  c - increment between 2 successive steps S(16,2)
  *  N - number of steps in the region U(16,0)
  */
-function setDMX_testPattern(parameters_p) {
+function setDMX_testPattern(parameters_p) {
+
     if (parameters_p.length !== DMX_TEST_PATTERN_NBREGIONS) {
         print("ERROR, wrong number of regions --> Expected " + DMX_TEST_PATTERN_NBREGIONS + ", received " + parameters_p.length);
         return;
@@ -169,13 +170,15 @@ function setDMX_testPattern(parameters_p) {
         }
     }
 
-	var result = [];
-	for (var i=0; i<DMX_TEST_PATTERN_NBREGIONS; i++) {
-		for (var j=0; j<DMX_TEST_PATTERN_NBPARAMS; j++) {
-			if (j===0 || j===2) result.push(convert_sInt_to_2compInt(parameters_p[i][j], 16));
-			else result.push(parameters_p[i][j]);
-		}
-	}
+	var result = [];
+
+	for (var i=0; i<DMX_TEST_PATTERN_NBREGIONS; i++) {
+		for (var j=0; j<DMX_TEST_PATTERN_NBPARAMS; j++) {
+			if (j===0 || j===2) result.push(convert_sInt_to_2compInt(parameters_p[i][j], 16));
+			else result.push(parameters_p[i][j]);
+		}
+	}
+
 
     sendToDMXWriteMultiRegisters(ADD_DMX_TEST_PATTERN, DMX_TEST_PATTERN_NBREGIONS * DMX_TEST_PATTERN_NBPARAMS, result);
 }

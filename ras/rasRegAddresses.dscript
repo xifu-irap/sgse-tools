@@ -31,13 +31,14 @@
 // RA sequences
 const ADD_RAS_SEQ_PS = 0x0000;
 const ADD_RAS_SEQ_GS = 0x0080;
-const ADD_RAS_SEQ_MODE = 0x00E0;
 
 // RA levels
 const ADD_RAS_PS_LOW  = 0x0100;
 const ADD_RAS_PS_HIGH = 0x0102;
 const ADD_RAS_GS_LOW  = 0x0104;
 const ADD_RAS_GS_HIGH = 0x0106;
+
+const ADD_RAS_SEQ_MODE = 0x0108;
 
 // Timings
 const ADD_RAS_SEQ_DELAY = 0x0200;
