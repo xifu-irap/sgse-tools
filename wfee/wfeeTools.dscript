@@ -34,10 +34,10 @@ include("../ras/rasRegAddresses.dscript");
 // Definition of constants
 // -------------------------------------------------------------------------------------------------------------
 
-
 const testing = true;  // If true, the testing code is executed
 const WFEEThroughAthenaPIC = false; // If true the WFEE is driven through the AthenaPic else through the RAS
-const wfeeSelect = Math.pow(2, 14);
+const toWfeeRasReg = 0x0A00;
+const fromWfeeRasReg = 0x0B00;
 
 //---- Columns addresses
 const col0 = {name: "Col 0", address: 0x0};  // address = 0b0000
@@ -83,7 +83,7 @@ function sendToWFEEWriteRegister(address, param) {
         return false;
     }
 
-    var addressField = wfeeSelect | address;
+    var addressField = toWfeeRasReg | address;
     sendToRASWriteRegister(addressField, param);
     return true;
 }
@@ -100,9 +100,11 @@ function sendToWFEEReadRegister(address) {
         return;
     }
 
-    var addressField = wfeeSelect | address;
+    var addressField = fromWfeeRasReg | address;
 
+    sendToRASWriteRegister(addressField, 0);
     sendToRASReadRegister(addressField);
+
     getLatestValue("RAS_registers");
     return(RAS_register[addressField]);
 }
