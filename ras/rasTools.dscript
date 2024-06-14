@@ -72,13 +72,10 @@ function setRAS_addressSequence(addressId, Seq) {
     const reg_address= ADD_RAS_SEQ_PS + (addressId << 4);
 
     const seq_beg = Seq & 0xFFFF;       // (LSB)
-    sendToRASWriteRegister(reg_address, seq_beg);
-
     const seq_mid = (Seq >> 16) & 0xFFFF;
-    sendToRASWriteRegister(reg_address+2, seq_mid);
-
     const seq_end = (Seq >> 32) & 0xFFFF; // (MSB)
-    sendToRASWriteRegister(reg_address+4, seq_end);
+
+    sendToRASWriteMultiRegisters(reg_address, 3, [seq_beg, seq_mid, seq_end]);
 }
 
 
@@ -98,19 +95,11 @@ function readRAS_addressSequence(addressId) {
 
     const reg_address= ADD_RAS_SEQ_PS + (addressId << 4);
 
-    sendToRASReadRegister(reg_address);
+    sendToRASReadMultiRegisters(reg_address, 3);
     getLatestValue("RAS_registers");
-	const seq_beg = RAS_registers[reg_address];
+	const seq = RAS_registers.slice(reg_address, reg_address+3);
 
-    sendToRASReadRegister(reg_address+2);
-    getLatestValue("RAS_registers");
-	const seq_mid = RAS_registers[reg_address+2];
-
-    sendToRASReadRegister(reg_address+4);
-    getLatestValue("RAS_registers");
-	const seq_end = RAS_registers[reg_address+4];
-
-    return seq_beg + seq_mid * Math.pow(2, 16) + seq_end * Math.pow(2, 32);
+    return seq[0] + seq[1] * Math.pow(2, 16) + seq[2] * Math.pow(2, 32);
 }
 
 
@@ -125,8 +114,7 @@ function setRAS_seqMode(seqMode) {
         return;
     }
 
-    const reg_address = ADD_RAS_SEQ_MODE;
-    sendToRASWriteRegister(reg_address, seqMode);
+    sendToRASWriteRegister(ADD_RAS_SEQ_MODE, seqMode);
 }
 
 
@@ -318,12 +306,10 @@ function setRAS_testPattern(parameters_p) {
             print("ERROR, wrong number of parameters for region " + region + " --> Expected " + RAS_TEST_PATTERN_NBPARAMS + ", received " + parameters_p[region].length);
             return;
         }
-    }
-    // conversion of signed values to 2'complemented values
-    for (var region=0; region<RAS_TEST_PATTERN_NBREGIONS; region+=1) {
+        // conversion of signed values to 2'complemented values
         parameters_p[region][2] = convert_sInt_to_2compInt(parameters_p[region][2], 12)
     }
-    sendToDMXWriteMultiRegisters(ADD_RAS_TEST_PATTERN, RAS_TEST_PATTERN_NBREGIONS * RAS_TEST_PATTERN_NBPARAMS, flatten(parameters_p));
+    sendToRASWriteMultiRegisters(ADD_RAS_TEST_PATTERN, RAS_TEST_PATTERN_NBREGIONS * RAS_TEST_PATTERN_NBPARAMS, flatten(parameters_p));
 }
 
 /**
@@ -338,7 +324,7 @@ function readRAS_testPattern() {
     // Reading the test parameters from the DEMUX firmware
     const reg_address = ADD_RAS_TEST_PATTERN;
     const nbValues = RAS_TEST_PATTERN_NBREGIONS * RAS_TEST_PATTERN_NBPARAMS;
-    sendToDMXReadMultiRegisters(reg_address, nbValues);
+    sendToRASReadMultiRegisters(reg_address, nbValues);
     getLatestValue("RAS_registers");
 	const tp = RAS_registers.slice(reg_address, reg_address+nbValues); // parameters in a 1D array
 
@@ -346,11 +332,8 @@ function readRAS_testPattern() {
     var parameters2D = [];  // parameters in a 2D array
     for (var region=0; region<RAS_TEST_PATTERN_NBREGIONS; region++) {
         parameters2D[region] = tp.slice(region*RAS_TEST_PATTERN_NBPARAMS, (region+1)*RAS_TEST_PATTERN_NBPARAMS);
-    }
-
-    // conversion of 2'complemented values to signed values
-    for (var region=0; region<RAS_TEST_PATTERN_NBREGIONS; region+=1) {
-        parameters_p[region][2] = convert_2compInt_to_sInt(value_p, width_p)(parameters_p[region][2], 16)
+        // conversion of 2'complemented values to signed values
+        parameters2D[region][2] = convert_2compInt_to_sInt(parameters2D[region][2], 16)
     }
 
     return parameters2D;
@@ -379,7 +362,7 @@ function setRAS_testPatternEnable(enable_p, infinite_p, numberIterations_p) {
  *							numberIterations.
  */
 function readRAS_testPatternEnable() {
-    sendToDMXReadRegister(ADD_RAS_TEST_PATTERN_ENABLE);
+    sendToRASReadRegister(ADD_RAS_TEST_PATTERN_ENABLE);
     getLatestValue("RAS_registers");
     const testPatternEnable = RAS_registers[ADD_RAS_TEST_PATTERN_ENABLE];
 	var enable = (testPatternEnable & 0x002F) >> 5;
@@ -446,7 +429,7 @@ function readRAS_hardwareVersion(verbose_p) {
 /**
  * Reads the housekeepings.
  * @param {boolean} verbose_p - verbosity level (true to display messages).
- * @return {number} houseKeepings - version of the hardware.
+ * @return {array} houseKeepings - version of the hardware.
  */
 function readRAS_HK(verbose_p) {
     if (typeof(verbose_p) === 'undefined') verbose_p = false;
@@ -455,7 +438,7 @@ function readRAS_HK(verbose_p) {
     const houseKeepings = RAS_registers.slice(ADD_RAS_HK_P5V0_ANA, ADD_RAS_HK_P5V0_ANA+RAS_NB_HK);
     if (verbose_p) {
         print("RAS housekeepings are:");
-        for (hk=0; hk<RAS_NB_HK; hk++) print(TAB1 + RAS_HK_NAMES[hk]  + ": " + houseKeepings[hk]);
+        for (var hk=0; hk<RAS_NB_HK; hk++) print(TAB1 + RAS_HK_NAMES[hk]  + ": " + houseKeepings[hk]);
     }
     return houseKeepings;
 }
@@ -467,9 +450,9 @@ function readRAS_HK(verbose_p) {
 function readAndPrintRAS_addressSequences() {
 
     // PS address sequences
-    for (ps = 0; ps < NB_PS; ps++) print("PS" + ps + ":" + to_hexaString(readRAS_addressSequence(ps)));
+    for (var ps = 0; ps < NB_PS; ps++) print("PS" + ps + ":" + to_hexaString(readRAS_addressSequence(ps)));
     // GS address sequences
-    for (gs = 0; gs < NB_GS; gs++) print("GS" + gs + ":" + to_hexaString(readRAS_addressSequence(NB_PS + gs)));
+    for (var gs = 0; gs < NB_GS; gs++) print("GS" + gs + ":" + to_hexaString(readRAS_addressSequence(NB_PS + gs)));
 }
 
 
@@ -478,7 +461,7 @@ function readAndPrintRAS_addressSequences() {
  */
 function readAndPrintRAS_DACs() {
 
-    for (dacId = 0; dacId < NB_RA_DACS; dacId++) print(RAS_DAC_NAMES[dacId] + ": " + to_hexaString(readRAS_DAC(dacId)));
+    for (var dacId = 0; dacId < NB_RA_DACS; dacId++) print(RAS_DAC_NAMES[dacId] + ": " + to_hexaString(readRAS_DAC(dacId)));
 }
 
 
@@ -499,7 +482,7 @@ function RASscan_overlap(scanPS, scanGS, step_duration_ms, verbose_p) {
     }
     if (scanPS && !scanGS) {
         if (verbose_p) print("Scanning the PS overlap from -4 to 3:");
-        for (overlap = -4; overlap < 4; overlap++) {
+        for (var overlap = -4; overlap < 4; overlap++) {
             if (verbose_p) print("Setting the overlap to: " + overlap);
             setRAS_psOverlap(overlap);
             waitMs(step_duration_ms);
@@ -507,7 +490,7 @@ function RASscan_overlap(scanPS, scanGS, step_duration_ms, verbose_p) {
     }
     if (!scanPS && scanGS) {
         if (verbose_p) print("Scanning the GS overlap from -4 to 3:");
-        for (overlap = -4; overlap < 4; overlap++) {
+        for (var overlap = -4; overlap < 4; overlap++) {
             if (verbose_p) print("Setting the overlap to: " + overlap);
             setRAS_gsOverlap(overlap);
             waitMs(step_duration_ms);
@@ -516,7 +499,7 @@ function RASscan_overlap(scanPS, scanGS, step_duration_ms, verbose_p) {
     if (scanPS && scanGS) {
         var value;
         if (verbose_p) print("Scanning the PS and GS overlap from -4 to 3:");
-        for (overlap = -4; overlap < 4; overlap++) {
+        for (var overlap = -4; overlap < 4; overlap++) {
             if (verbose_p) print("Setting the overlap to: " + overlap);
             // sending the two settings at the very same time
             value = convert_sInt_to_2compInt(overlap, 3);
@@ -552,7 +535,7 @@ function RASscan_seqDelay(delay1, delay2, nb_steps, step_duration_ms, verbose_p)
     }
 
     var delay;
-    for (step=0; step<nb_steps; step++) {
+    for (var step=0; step<nb_steps; step++) {
         delay = delay1 + step*deltaDelay;
         if (verbose_p) print("Setting sequence delay to " + to_hexaString(delay));
         setRAS_seqDelay(delay);
@@ -612,7 +595,7 @@ function RASscan_dacLevel(dacId, level1, level2, nb_steps, step_duration_ms, ver
     }
 
     var level;
-    for (step=0; step<nb_steps+1; step++) {
+    for (var step=0; step<nb_steps+1; step++) {
         level = level1 + step*deltaLevel;
         if (verbose_p) print("Setting level to " + to_hexaString(level));
         setRAS_DAC(dacId, level);
