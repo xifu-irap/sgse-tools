@@ -171,14 +171,12 @@ function setDMX_testPattern(parameters_p) {
     }
 
 	var result = [];
-
-	for (var i=0; i<DMX_TEST_PATTERN_NBREGIONS; i++) {
+    for (var i=0; i<DMX_TEST_PATTERN_NBREGIONS; i++) {
 		for (var j=0; j<DMX_TEST_PATTERN_NBPARAMS; j++) {
 			if (j===0 || j===2) result.push(convert_sInt_to_2compInt(parameters_p[i][j], 16));
 			else result.push(parameters_p[i][j]);
 		}
 	}
-
 
     sendToDMXWriteMultiRegisters(ADD_DMX_TEST_PATTERN, DMX_TEST_PATTERN_NBREGIONS * DMX_TEST_PATTERN_NBPARAMS, result);
 }
@@ -203,10 +201,7 @@ function readDMX_testPattern() {
     var parameters2D = [];  // parameters in a 2D array
     for (var region=0; region<DMX_TEST_PATTERN_NBREGIONS; region++) {
         parameters2D[region] = tp.slice(region*DMX_TEST_PATTERN_NBPARAMS, (region+1)*DMX_TEST_PATTERN_NBPARAMS);
-    }
-
-    // conversion of 2'complemented values to signed values
-    for (var region=0; region<DMX_TEST_PATTERN_NBREGIONS; region+=1) {
+        // conversion of 2'complemented values to signed values
         parameters2D[region][0] = convert_2compInt_to_sInt(parameters2D[region][0], 16);
         parameters2D[region][2] = convert_2compInt_to_sInt(parameters2D[region][2], 16);
     }

@@ -97,9 +97,10 @@ function readRAS_addressSequence(addressId) {
 
     sendToRASReadMultiRegisters(reg_address, 3);
     getLatestValue("RAS_registers");
-	const seq = RAS_registers.slice(reg_address, reg_address+3);
 
-    return seq[0] + seq[1] * Math.pow(2, 16) + seq[2] * Math.pow(2, 32);
+    return RAS_registers[reg_address]
+        + RAS_registers[reg_address+2] * Math.pow(2, 16)
+        + RAS_registers[reg_address+4] * Math.pow(2, 32);
 }
 
 
@@ -326,14 +327,17 @@ function readRAS_testPattern() {
     const nbValues = RAS_TEST_PATTERN_NBREGIONS * RAS_TEST_PATTERN_NBPARAMS;
     sendToRASReadMultiRegisters(reg_address, nbValues);
     getLatestValue("RAS_registers");
-	const tp = RAS_registers.slice(reg_address, reg_address+nbValues); // parameters in a 1D array
 
-    // Slicing the parameters per region
     var parameters2D = [];  // parameters in a 2D array
     for (var region=0; region<RAS_TEST_PATTERN_NBREGIONS; region++) {
-        parameters2D[region] = tp.slice(region*RAS_TEST_PATTERN_NBPARAMS, (region+1)*RAS_TEST_PATTERN_NBPARAMS);
+        var tempo = [];
+        for (var param=0; param<RAS_TEST_PATTERN_NBPARAMS; param++) {
+            tempo.push(RAS_registers[(region*RAS_TEST_PATTERN_NBPARAMS+param)*2]);    // x2 because reg addresses are even
+        }
+        parameters2D.push(tempo);
+
         // conversion of 2'complemented values to signed values
-        parameters2D[region][2] = convert_2compInt_to_sInt(parameters2D[region][2], 16)
+        parameters2D[region][2] = convert_2compInt_to_sInt(parameters2D[region][2], 16);
     }
 
     return parameters2D;
@@ -435,11 +439,13 @@ function readRAS_HK(verbose_p) {
     if (typeof(verbose_p) === 'undefined') verbose_p = false;
     sendToRASReadMultiRegisters(ADD_RAS_HK_P5V0_ANA, RAS_NB_HK);
     getLatestValue("RAS_registers");
-    const houseKeepings = RAS_registers.slice(ADD_RAS_HK_P5V0_ANA, ADD_RAS_HK_P5V0_ANA+RAS_NB_HK);
-    if (verbose_p) {
-        print("RAS housekeepings are:");
-        for (var hk=0; hk<RAS_NB_HK; hk++) print(TAB1 + RAS_HK_NAMES[hk]  + ": " + houseKeepings[hk]);
+
+    var houseKeepings = [];
+    for (hk=0; hk<RAS_NB_HK; hk++) {
+        houseKeepings.push(RAS_registers[ADD_RAS_HK_P5V0_ANA + hk*2]);    // x2 because reg addresses are even
+        if (verbose_p) print(TAB1 + RAS_HK_NAMES[hk]  + ": " + houseKeepings[hk]);
     }
+
     return houseKeepings;
 }
 
