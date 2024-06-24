@@ -102,8 +102,10 @@ function sendToWFEEReadRegister(address) {
 
     var addressField = fromWfeeRasReg | address;
 
-    sendToRASWriteRegister(addressField, 0);
-    sendToRASReadRegister(addressField);
+    // The 2 next commands shall be separated by a delay to allow the transfer between WFEE and RAS
+    // As the 2 commands are send separately the intrinsic delay should be enough
+    sendToRASWriteRegister(addressField, 0);  // Request for a transfer from WFEE to RAS
+    sendToRASReadRegister(addressField);    // Readout from the RAS
 
     getLatestValue("RAS_registers");
     return(RAS_register[addressField]);
@@ -150,7 +152,7 @@ function setWFEEDAC(asic, col, dac, param, verbose)
 /**
  * Reads the housekeepings.
  * @param {boolean} verbose_p - verbosity level (true to display messages).
- * @return {number} houseKeepings - version of the hardware.
+ * @return {array} houseKeepings - version of the hardware.
  */
 function readWFEE_HK(verbose_p) {
     if (WFEEThroughAthenaPIC) {
@@ -160,10 +162,10 @@ function readWFEE_HK(verbose_p) {
     if (typeof(verbose_p) === 'undefined') verbose_p = false;
     sendToRASReadMultiRegisters(ADD_WFEE_HK_TEMP1, WFEE_NB_HK);
     getLatestValue("RAS_registers");
-    const houseKeepings = RAS_registers.slice(ADD_WFEE_HK_TEMP1, ADD_WFEE_HK_TEMP1+WFEE_NB_HK);
-    if (verbose_p) {
-        print("WFEE housekeepings are:");
-        for (hk=0; hk<WFEE_NB_HK; hk++) print(TAB1 + WFEE_HK_NAMES[hk]  + ": " + houseKeepings[hk]);
+    var houseKeepings = [];
+    for (hk=0; hk<WFEE_NB_HK; hk++) {
+        houseKeepings.push(RAS_registers[ADD_WFEE_HK_TEMP1 + hk*2]);    // x2 because reg addresses are even
+        if (verbose_p) print(TAB1 + WFEE_HK_NAMES[hk]  + ": " + houseKeepings[hk]);
     }
     return houseKeepings;
 }
