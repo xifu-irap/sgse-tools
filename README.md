@@ -25,7 +25,6 @@ JavaScript scripts to manage the tests of the DRE DEMUX.
     + (dir.) **fpasim_specific_ram**: contains some specific mem files that can be used to replace the default ones
   - (dir.) **main**: high level JavaScripts dedicated to the management of the tests
     + (file) **launcher.dscript**: main JavaScript which starts the test
-    + (file) **testSequence.dscript**: JavaScript which manages the test session
   - (dir.) **ras**: contains JavaScripts dedicated to the management of the DRE RAS
     + (file) **rasCheckReadWrite.dscript**: JavaScripts to test the low level commands defined in rasTools.dscript
     + (file) **rasFake.dscript**: JavaScripts faking the RAS registers (can be used with rasCheckReadWrite.dscript)
@@ -33,3 +32,7 @@ JavaScript scripts to manage the tests of the DRE DEMUX.
     + (file) **rasTools.dscript**: JavaScripts with low commands for the DRE RAS
   - (dir.) **ras-a75-fw**: JavaScripts dedicated to the management of the RAS proto firmware
   - (dir.) **tmtc**: JavaScripts dedicated to the management of the tmtc EGSE firmware
+  - (dir.) **wfee**: contains JavaScripts dedicated to the management of the WFEE
+    + (file) **wfeeTools.dscript**: JavaScripts with low commands for the WFEE
+
+---
