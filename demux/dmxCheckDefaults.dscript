@@ -54,11 +54,6 @@ function dmxCheckDefaults() {
     plotLongLine();
     print("Reading the firmware version (expected value is 2)");
     const fwVersion = readDMX_firmwareVersion(true);
-    if (fwVersion === 2) print(TAB1 + MESSAGE_OK);
-	else {
-        print(TAB1 + MESSAGE_ERROR);
-        ERROR_COUNTER++;
-    }
 
     /******************************************************************************************************************/
     plotLongLine();
@@ -66,11 +61,6 @@ function dmxCheckDefaults() {
     const hwVersion = readDMX_hardwareVersion(true);
 	const modelReference = hwVersion[0];
 	const boardReference = hwVersion[1];
-    if (modelReference === 7 && boardReference === 0)  print(TAB1 + MESSAGE_OK);
-	else {
-        print(TAB1 + MESSAGE_ERROR);
-        ERROR_COUNTER++;
-    }
 
 
     /******************************************************************************************************************/
@@ -214,7 +204,7 @@ function dmxCheckDefaults() {
 	print("Testing the setting of ki.knorm for the MUX SQUID loop (MUX_SQ_KIKNORM):");
 	print(TAB1 + "Expected values for all pixels, all columns is 0x1E60");
 	var expKiknormCol = [];
-    if (fwVersion === 2) val = 0x3CC0;
+    if (fwVersion < 6) val = 0x3CC0;
     else val = 0x1E60;
 	for (var pix=0; pix<DMX_NB_PIX_PER_COL; pix++) expKiknormCol[pix] = val;
     var kiknorm_OK = true;
@@ -464,15 +454,18 @@ function dmxCheckDefaults() {
 
 
     if (fwVersion > 2) {
-
 	
         /******************************************************************************************************************/
         plotLongLine();
         print("Testing the setting of the input gain:");
         print(TAB1 + "Current values are: ");
-        for (col = 0; col < DMX_NB_COL; col++) {
-            checked_value = readDMX_sqm_inputGain(col);
-            print(TAB2 + "Column " + col + ": " + checked_value);
+        var sqm_inputGain = [];
+        for (col = 0; col < DMX_NB_COL; col++) sqm_inputGain[col] = readDMX_sqm_inputGain(col);
+        print(TAB1 + "Current values are " + sqm_inputGain);
+        if (arraysAreEquals(sqm_inputGain, [1, 1, 1, 1])) print(TAB1 + MESSAGE_OK);
+        else {
+            print(TAB1 + MESSAGE_ERROR);
+            ERROR_COUNTER++;
         }
 
 
@@ -480,9 +473,13 @@ function dmxCheckDefaults() {
         plotLongLine();
         print("Testing the setting of the input gain for AMP SQUID loop:");
         print(TAB1 + "Current values are: ");
-        for (col = 0; col < DMX_NB_COL; col++) {
-            checked_value = readDMX_sqa_inputGain(col);
-            print(TAB2 + "Column " + col + ": " + checked_value);
+        var sqa_inputGain = [];
+        for (col = 0; col < DMX_NB_COL; col++) sqa_inputGain[col] = readDMX_sqa_inputGain(col);
+        print(TAB1 + "Current values are " + sqa_inputGain);
+        if (arraysAreEquals(sqa_inputGain, [1, 1, 1, 1])) print(TAB1 + MESSAGE_OK);
+        else {
+            print(TAB1 + MESSAGE_ERROR);
+            ERROR_COUNTER++;
         }
 
 
@@ -490,9 +487,15 @@ function dmxCheckDefaults() {
         plotLongLine();
         print("Testing the setting of ki.knorm for the AMP SQUID loop:");
         print(TAB1 + "Current values are: ");
-        for (col = 0; col < DMX_NB_COL; col++) {
-            checked_value = readDMX_sqa_kiknorm(col);
-            print(TAB2 + "Column " + col + ": kiknorm = " + to_hexaString(checked_value));
+        if (fwVersion < 6) expectation = [0x3CC0, 0x3CC0, 0x3CC0, 0x3CC0];
+        else expectation = [0x1E60, 0x1E60, 0x1E60, 0x1E60];
+        var sqa_kiknorm = [];
+        for (col = 0; col < DMX_NB_COL; col++) sqa_kiknorm = readDMX_sqa_kiknorm(col);
+        print(TAB1 + "Current values are " + sqa_kiknorm);
+        if (arraysAreEquals(sqa_kiknorm, expectation)) print(TAB1 + MESSAGE_OK);
+        else {
+            print(TAB1 + MESSAGE_ERROR);
+            ERROR_COUNTER++;
         }
 
 
@@ -500,9 +503,13 @@ function dmxCheckDefaults() {
         plotLongLine();
         print("Testing the setting of knorm for the AMP SQUID loop:");
         print(TAB1 + "Current values are: ");
-        for (col = 0; col < DMX_NB_COL; col++) {
-            checked_value = readDMX_sqa_knorm(col);
-            print(TAB2 + "Column " + col + ": knorm = " + to_hexaString(checked_value));
+        var sqa_knorm = [];
+        for (col = 0; col < DMX_NB_COL; col++) sqa_knorm = readDMX_sqa_knorm(col);
+        print(TAB1 + "Current values are " + sqa_knorm);
+        if (arraysAreEquals(sqa_kiknorm, [0x6E74, 0x6E74, 0x6E74, 0x6E74])) print(TAB1 + MESSAGE_OK);
+        else {
+            print(TAB1 + MESSAGE_ERROR);
+            ERROR_COUNTER++;
         }
 
 

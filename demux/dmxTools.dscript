@@ -315,6 +315,10 @@ function setDMX_sqm_inputGain(col_p, input_gain_p) {
         print("ERROR, column number is incorrect!  --> " + col_p);
         return;
     }
+    input_gain_p = input_gain_p * Math.pow(2,12);
+    if (input_gain_p > Math.pow(2, 16)) {
+        print("ERROR, gain value is too high!  --> " + input_gain_p);
+    }
     const reg_address = ADD_DMX_MUX_SQ_INPUT_GAIN | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXWriteRegister(reg_address, input_gain_p);
 }
@@ -328,7 +332,7 @@ function readDMX_sqm_inputGain(col_p) {
     const reg_address = ADD_DMX_MUX_SQ_INPUT_GAIN | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");
-    return DMX_registers[reg_address];
+    return DMX_registers[reg_address] / Math.pow(2,12);
 }
 
 /**
@@ -341,6 +345,10 @@ function setDMX_sqa_inputGain(col_p, input_gain_p) {
     if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
         print("ERROR, column number is incorrect!  --> " + col_p);
         return;
+    }
+    input_gain_p = input_gain_p * Math.pow(2,12);
+    if (input_gain_p > Math.pow(2, 16)) {
+        print("ERROR, gain value is too high!  --> " + input_gain_p);
     }
     const reg_address = ADD_DMX_AMP_SQ_INPUT_GAIN | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXWriteRegister(reg_address, input_gain_p);
@@ -355,7 +363,7 @@ function readDMX_sqa_inputGain(col_p) {
     const reg_address = ADD_DMX_AMP_SQ_INPUT_GAIN | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");
-    return DMX_registers[reg_address];
+    return DMX_registers[reg_address] / Math.pow(2,12);
 }
 
 /**

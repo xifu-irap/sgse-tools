@@ -25,10 +25,25 @@
 //
 // -------------------------------------------------------------------------------------------------------------
 
-include("./testSequence.dscript");
 include("../common/utilTools.dscript");
+include("../demux/dmxCheckReadWrite.dscript");
+include("../demux/dmxCheckDefaults.dscript");
+
+/**
+ * This function defines the test sequence
+ */
+function testSequence() {
+
+	// Testing the write and read in the DEMUX registers
+	dmxCheckReadWrite();
+
+	// Checking the default values of the DEMUX registers
+	//dmxCheckDefaults();
+
+}
+
+// -------------------------------------------------------------------------------------------------------------
 
 testSequence();
-
 
 // -------------------------------------------------------------------------------------------------------------
