@@ -65,9 +65,15 @@ const ACQ_MODE_TSTPATTERN = 7; // test pattern
 const DMX_MODEL_VERSION = ['DM', 'EM', 'PFM', 'FM', 'Unknown', 'Unknown', 'Unknown', 'Dev kit'];
 
 // HK
-const DMX_NB_HK = 20; // includes spares
+const DMX_NB_HK = 14;
 const DMX_HK_NAMES = ['P5V0_ANA', 'P3V3_ANA', 'P2V5_ANA', 'P1V8_ANA', 'M2V5_ANA', 'M5V0_ANA', 'P3V3_DIG',
-    'P2V5_DIG', 'P1V2_DIG', 'TEMP_AVE', 'TEMP_MAX', 'P2V5_AUX', 'VREF_TEM', 'VREF_R2R', 'DELOCK_FLAG'];
+    'P2V5_DIG', 'P1V2_DIG', 'TEMP_AVE', 'TEMP_MAX', 'P2V5_AUX', 'VREF_TEM', 'VREF_R2R'];
+const DMX_HK_UNITS = [' V', ' V', ' V', ' V', ' V', ' V', ' V',
+    ' V', ' V', ' C', ' C', ' V', ' V', ' V'];
+const DMX_HK_RATIO = [ 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1];
+const DMX_HK_OFFSET = [ 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0];
 
 
 /**
@@ -1052,6 +1058,18 @@ function readDMX_HK(verbose_p) {
         for (var hk=0; hk<DMX_NB_HK; hk++) print(TABUL + DMX_HK_NAMES[hk] + ": " + houseKeepings[hk]);
     }
     return houseKeepings;
+}
+
+/**
+ * Prints the converted values of the housekeepings.
+ * @param {array} houseKeepings_p - housekeepings.
+ */
+function convertDMX_HK(houseKeepings_p) {
+    for (var i_hk=0; i_hk<DMX_NB_HK; i_hk++) {
+        hkEng = DMX_HK_OFFSET[i_hk] + DMX_HK_RATIO[i_hk] * houseKeepings_p[i_hk]
+        hkEngTxt = ("        " +(hkEng).toString()).slice(-8)
+        print(TAB2 + DMX_HK_NAMES[i_hk] + ": " + hkEngTxt + DMX_HK_UNITS[i_hk]);
+    }
 }
 
 /**
