@@ -51,12 +51,12 @@ function dmxCheckDefaults() {
 
     /******************************************************************************************************************/
     plotLongLine();
-    print("Reading the firmware version (expected value is 2)");
+    print("Reading the firmware version");
     const fwVersion = readDMX_firmwareVersion(true);
 
     /******************************************************************************************************************/
     plotLongLine();
-    print("Reading the hardware version (expected model reference is 7, board reference is 0)");
+    print("Reading the hardware version");
     readDMX_hardwareVersion(true);
 
 
@@ -487,7 +487,7 @@ function dmxCheckDefaults() {
         else expectation = [0x1E60, 0x1E60, 0x1E60, 0x1E60];
         print(TAB1 + "Expected values are " + expectation);
         var sqa_kiknorm = [];
-        for (col = 0; col < DMX_NB_COL; col++) sqa_kiknorm = readDMX_sqa_kiknorm(col);
+        for (col = 0; col < DMX_NB_COL; col++) sqa_kiknorm[col] = readDMX_sqa_kiknorm(col);
         print(TAB1 + "Current values are " + sqa_kiknorm);
         if (arraysAreEquals(sqa_kiknorm, expectation)) print(TAB1 + MESSAGE_OK);
         else {
@@ -501,7 +501,7 @@ function dmxCheckDefaults() {
         print("Testing the setting of knorm for the AMP SQUID loop:");
         print(TAB1 + "Expected values are 0x6E74, 0x6E74, 0x6E74, 0x6E74");
         var sqa_knorm = [];
-        for (col = 0; col < DMX_NB_COL; col++) sqa_knorm = readDMX_sqa_knorm(col);
+        for (col = 0; col < DMX_NB_COL; col++) sqa_knorm[col] = readDMX_sqa_knorm(col);
         print(TAB1 + "Current values are " + sqa_knorm);
         if (arraysAreEquals(sqa_knorm, [0x6E74, 0x6E74, 0x6E74, 0x6E74])) print(TAB1 + MESSAGE_OK);
         else {
@@ -512,6 +512,7 @@ function dmxCheckDefaults() {
 
         /******************************************************************************************************************/
         plotLongLine();
+        var colId = 1
         print("Testing the setting of the LSB of the AMP SQUID offset (AMP_SQ_OFFSET_FINE):");
         print(TAB1 + "Current values for column " + colId + " are: ");
         checked_values = readDMX_sqa_OffsetFine(colId);
