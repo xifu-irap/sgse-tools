@@ -39,13 +39,24 @@ const TAB2 = repeat(TAB1, 2);
  * @param {array} array_p - array
  * @param {number} value_p - value
  */
-
 function doesArrayInclude(array_p, value_p) {
 	var answer = false;
 	for (var i=0; i<array_p.length; i++) {
 		if (array_p[i] === value_p) answer = true;
 	}
 	return answer;
+}
+
+/**
+ * Creates and initialises an array with a single value.
+ * @param {number} nValues - Number
+ * @param {number} value - Number
+ * @return {array} tab - output array
+ */
+function makeArray(nValues, value) {
+	var tab = [];
+	for (var i = 0; i < nVal; i++) tab[i] = value;
+	return tab;
 }
 
 /**
