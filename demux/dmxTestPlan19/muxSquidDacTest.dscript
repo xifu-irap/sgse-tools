@@ -1,0 +1,69 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     muxSquidDacTest.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file tests the Mux SQUID DACs of the DMX boards.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+include("../common/utilTools.dscript");
+
+/**
+ * This function defines the test sequence
+ */
+function testSequence() {
+
+    var colId = 0;
+
+    // Switching ON the feedback for column 0
+    setDMX_feedbackOnOff([ON, OFF, OFF, OFF]);
+
+    // Setting the feedback FB0 values
+    minVal = 0;
+    midVal = Math.pow(2, 15);
+    maxVal = Math.pow(2,16)-1;
+    var tabFb0 = [minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
+        minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
+        minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
+        minVal, midVal, maxVal, minVal, midVal, maxVal, minVal
+    ];
+    setDMX_fb0(colId, tabFb0);
+
+    // Selecting the pulse shaping type (0, 1, 2, 3)
+    pulseShapingType = 0
+    setDMX_pulseShapingSelection(colId, pulseShapingType);
+
+    // Setting the feedback mode of column 0 to "open loop"
+    tabFbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
+    setDMX_sqm_FBMode(colId, tabFbMode);
+
+    // Mux SQUID DAC of column 0 should be ON. The others should be OFF.
+    // We should see the 3 different values at the output
+    // The edges should change according to the pulseShapingType
+
+}
+
+// -------------------------------------------------------------------------------------------------------------
+
+testSequence();
+
+// -------------------------------------------------------------------------------------------------------------

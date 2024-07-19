@@ -102,7 +102,9 @@ function readDMX_dataAcqMode() {
 
 /**
  * Sets the mux SQUID feedback On or Off (MUX_SQ_FB_ON_OFF).
- * @param {array} feedbackOnOff_p - four values (one per column) in [0, 1].
+ * @param {array} feedbackOnOff_p - four values (one per column):
+ *      0: feedback is off
+ *      1: feedback is on.
  */
 function setDMX_feedbackOnOff(feedbackOnOff_p) {
 
