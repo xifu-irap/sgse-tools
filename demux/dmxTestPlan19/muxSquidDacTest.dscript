@@ -30,7 +30,7 @@ include("../common/utilTools.dscript");
 /**
  * This function activates the Mux SQUID and outputs the FB0 set of values or the test pattern
  * @param {number} colId - column under test
- * @param {number} fbMode - feedback mode (OFFSET_MODE_OFFSET or OFFSET_MODE_TESTPATTERN)
+ * @param {number} fbMode - feedback mode (FEEDBACK_MODE_OPEN_LOOP or FEEDBACK_MODE_TESTPATTERN)
  */
 function testSequence(colId, fbMode) {
 
@@ -87,8 +87,8 @@ function testSequence(colId, fbMode) {
 const colId = 0;
 
 // You should uncomment a single of the following lines
-testSequence(colId, OFFSET_MODE_OFFSET);
-//testSequence(colId, OFFSET_MODE_TESTPATTERN);
+testSequence(colId, FEEDBACK_MODE_OPEN_LOOP);
+//testSequence(colId, FEEDBACK_MODE_TESTPATTERN);
 
 
 // Mux SQUID DAC of column 0 should be ON. The others should be OFF.
