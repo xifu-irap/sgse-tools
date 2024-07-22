@@ -25,7 +25,7 @@
 //
 // -------------------------------------------------------------------------------------------------------------
 
-include("../../demux/dmxTools.dscript");
+include("../demux/dmxTools.dscript");
 
 /**
  * This function activates the Mux SQUID and outputs the FB0 set of values or the test pattern
@@ -51,18 +51,22 @@ function testSequence(colId, fbMode) {
     ];
     setDMX_fb0(colId, tabFb0);
 
-    // Setting the testPattern
-    //  Faking a saw
+    // Setting the testPattern to a rising slope
+    const a = convert_sInt_to_2compInt(-1*Math.pow(2, 15), 16);
+    const b = 0;
+    const c = convert_sInt_to_2compInt(Math.pow(2,8), 16);
+    const N = Math.pow(2,8) - 1;
     const sawPattern = [
-    [0x0000, 0x0007, 0x0002, 0x07FF],     // Slope upward
-    [0x0FFF, 0x0007, -1*0x0002, 0x07FF],  // Slope downward
-    [0x0000, 0x3FFF, 0x0000, 0x0001],     // Plateau
-    [0x0000, 0x0020, 0x0002, 0x07FF],     // Slope upward
-    [0x0FFF, 0x0020, -1*0x0002, 0x07FF]]; // Slope downward
+        [a, b, c, N],  // Slope upward
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0],  // Nothing
+    ];
     setDMX_testPattern(sawPattern);
 
     // Selecting the pulse shaping type (0, 1, 2, 3)
-    var pulseShapingType = 0
+    var pulseShapingType = 0;
     setDMX_pulseShapingSelection(colId, pulseShapingType);
 
     if (fbMode === FEEDBACK_MODE_OPEN_LOOP) {
@@ -97,6 +101,6 @@ testSequence(colId, FEEDBACK_MODE_OPEN_LOOP);
 
 // Uncomment to switch the DAC OFF
 //      Switching the feedback OFF
-setDMX_feedbackOnOff([OFF, OFF, OFF, OFF]);
+//setDMX_feedbackOnOff([OFF, OFF, OFF, OFF]);
 
 // -------------------------------------------------------------------------------------------------------------

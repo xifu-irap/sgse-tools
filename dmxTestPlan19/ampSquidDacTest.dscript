@@ -25,7 +25,7 @@
 //
 // -------------------------------------------------------------------------------------------------------------
 
-include("../../demux/dmxTools.dscript");
+include("../demux/dmxTools.dscript");
 
 /**
  * This function activates the Mux SQUID and outputs the FB0 set of values or the test pattern
