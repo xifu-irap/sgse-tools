@@ -28,19 +28,19 @@
 include("../common/utilTools.dscript");
 
 /**
- * This function defines the test sequence
+ * This function activates the Mux SQUID and outputs the FB0 set of values or the test pattern
+ * @param {number} fbMode - feedback mode (FEEDBACK_MODE_OPEN_LOOP or FEEDBACK_MODE_TESTPATTERN)
  */
-function testSequence() {
+function testSequence(fbMode) {
 
     var colId = 0;
-
     // Switching ON the feedback for column 0
     setDMX_feedbackOnOff([ON, OFF, OFF, OFF]);
 
     // Setting the feedback FB0 values
-    minVal = 0;
-    midVal = Math.pow(2, 15);
-    maxVal = Math.pow(2,16)-1;
+    const minVal = 0;
+    const midVal = Math.pow(2, 15);
+    const maxVal = Math.pow(2,16)-1;
     var tabFb0 = [minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
         minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
         minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
@@ -48,22 +48,48 @@ function testSequence() {
     ];
     setDMX_fb0(colId, tabFb0);
 
+    // Setting the testPattern
+    //  Faking a saw
+    const sawPattern = [
+    [0x0000, 0x0007, 0x0002, 0x07FF],     // Slope upward
+    [0x0FFF, 0x0007, -1*0x0002, 0x07FF],  // Slope downward
+    [0x0000, 0x3FFF, 0x0000, 0x0001],     // Plateau
+    [0x0000, 0x0020, 0x0002, 0x07FF],     // Slope upward
+    [0x0FFF, 0x0020, -1*0x0002, 0x07FF]]; // Slope downward
+    setDMX_testPattern(sawPattern);
+
     // Selecting the pulse shaping type (0, 1, 2, 3)
-    pulseShapingType = 0
+    var pulseShapingType = 0
     setDMX_pulseShapingSelection(colId, pulseShapingType);
 
-    // Setting the feedback mode of column 0 to "open loop"
-    tabFbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
-    setDMX_sqm_FBMode(colId, tabFbMode);
+    if (fbMode === FEEDBACK_MODE_OPEN_LOOP) {
+        // Setting the feedback mode of column 0 to "open loop"
+        var tabFbModesOpenLoop = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
 
-    // Mux SQUID DAC of column 0 should be ON. The others should be OFF.
-    // We should see the 3 different values at the output
-    // The edges should change according to the pulseShapingType
+        setDMX_sqm_FBMode(colId, tabFbModesOpenLoop);
+    }
 
+    if (fbMode === FEEDBACK_MODE_TESTPATTERN) {
+        // Setting the feedback mode of column 0 to "test pattern"
+        var tabFbModesTstPattern = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_TESTPATTERN);
+
+        setDMX_sqm_FBMode(colId, tabFbModesTstPattern);
+
+        var enable = true;
+        var infinitely = false;
+        var nbTime = 0x9;
+        setDMX_testPatternEnable(enable, infinitely, nbTime);
+    }
 }
 
 // -------------------------------------------------------------------------------------------------------------
 
-testSequence();
+// You should uncomment a single of the following lines
+testSequence(FEEDBACK_MODE_OPEN_LOOP);
+//testSequence(FEEDBACK_MODE_TESTPATTERN);
+
+
+// Mux SQUID DAC of column 0 should be ON. The others should be OFF.
+// We should see the correct signal at the DAC output
 
 // -------------------------------------------------------------------------------------------------------------
