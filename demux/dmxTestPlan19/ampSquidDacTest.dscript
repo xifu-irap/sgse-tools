@@ -17,11 +17,11 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     muxSquidDacTest.dscript
+//    @file                     ampSquidDacTest.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
-//    This file tests the Mux SQUID DACs of the DMX boards.
+//    This file tests the Amp SQUID DACs of the DMX boards.
 //
 // -------------------------------------------------------------------------------------------------------------
 
@@ -30,25 +30,30 @@ include("../common/utilTools.dscript");
 /**
  * This function activates the Mux SQUID and outputs the FB0 set of values or the test pattern
  * @param {number} colId - column under test
- * @param {number} fbMode - feedback mode (OFFSET_MODE_OFFSET or OFFSET_MODE_TESTPATTERN)
+ * @param {number} fbMode - feedback mode (OFFSET_MODE_OFF, OFFSET_MODE_OFFSET, OFFSET_MODE_TESTPATTERN)
+ * @param {number} offsetLSB - [0, 2^12[
+ * @param {array} offsetFine - 34 3-bit values
  */
-function testSequence(colId, fbMode) {
+function testSequence(colId, fbMode, offsetLSB, offsetFine) {
 
-    // Switching ON the feedback for the selected column
-    var colOnOff = [OFF, OFF, OFF, OFF];
-    colOnOff[colId] = ON;
-    setDMX_feedbackOnOff(colOnOff);
+    // Setting the Offset LSB for the selected colum
+    for (var col = 0; col < DMX_NB_COL; col++) {
+        if (col === colId) setDMX_sqa_OffsetLSB(col, offsetLSB);
+        else setDMX_sqa_OffsetLSB(col, 0);
+    }
 
-    // Setting the feedback FB0 values
+    // Setting the Offset fine for the selected colum
+    const zeroArray = makeArray(0, 34);
+    for (var col = 0; col < DMX_NB_COL; col++) {
+        if (col === colId) setDMX_sqa_OffsetFine(col, offsetFine, zeroArray);
+        else setDMX_sqa_OffsetFine(col, zeroArray, zeroArray);
+    }
+
+    // Setting the coarse offset values
     const minVal = 0;
-    const midVal = Math.pow(2, 15);
-    const maxVal = Math.pow(2,16)-1;
-    var tabFb0 = [minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
-        minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
-        minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
-        minVal, midVal, maxVal, minVal, midVal, maxVal, minVal
-    ];
-    setDMX_fb0(colId, tabFb0);
+    const midVal = Math.pow(2, 11);
+    const maxVal = Math.pow(2,12)-1;
+    setDMX_sqa_OffsetCoarse(colId, midVal);
 
     // Setting the testPattern
     //  Faking a saw
@@ -60,20 +65,23 @@ function testSequence(colId, fbMode) {
     [0x0FFF, 0x0020, -1*0x0002, 0x07FF]]; // Slope downward
     setDMX_testPattern(sawPattern);
 
-    // Selecting the pulse shaping type (0, 1, 2, 3)
-    var pulseShapingType = 0
-    setDMX_pulseShapingSelection(colId, pulseShapingType);
+    var offsetMode = [OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF];
 
-    if (fbMode === FEEDBACK_MODE_OPEN_LOOP) {
-        // Setting the feedback modes to "open loop" for all the pixels of the selected column
-        var tabFbModesOpenLoop = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
-        setDMX_sqm_FBMode(colId, tabFbModesOpenLoop);
+    if (fbMode === OFFSET_MODE_OFF) {
+        // Setting the offset mode to OFF for all the columns
+        setDMX_offsetMode(offsetMode);
+    }
+
+    if (fbMode === OFFSET_MODE_OFFSET) {
+        // Setting the offset mode to OFF for the selected colum (OFF to the others)
+        offsetMode[colId] = OFFSET_MODE_OFFSET;
+        setDMX_offsetMode(offsetMode);
     }
 
     if (fbMode === FEEDBACK_MODE_TESTPATTERN) {
-        // Setting the feedback mode to "test pattern" for all the pixels of the selected column
-        var tabFbModesTstPattern = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_TESTPATTERN);
-        setDMX_sqm_FBMode(colId, tabFbModesTstPattern);
+        // Setting the feedback mode of column 0 to "test pattern"
+        offsetMode[colId] = OFFSET_MODE_TESTPATTERN;
+        setDMX_offsetMode(offsetMode);
 
         var enable = true;
         var infinitely = false;
@@ -86,12 +94,22 @@ function testSequence(colId, fbMode) {
 
 const colId = 0;
 
+const AMP_SQ_OFFSET_LSB = Math.pow(2, 12)-1;  // between 0 and 2^12-1
+const AMP_SQ_OFFSET_FINE = [  // 34 3-bit values
+    0, 1, 2, 3, 4, 5, 6, 7,
+    0, 1, 2, 3, 4, 5, 6, 7,
+    7, 6, 5, 4, 3, 2, 1, 0,
+    7, 6, 5, 4, 3, 2, 1, 0,
+    5, 2
+];
+
 // You should uncomment a single of the following lines
-testSequence(colId, OFFSET_MODE_OFFSET);
+//testSequence(colId, OFFSET_MODE_OFF);
+testSequence(colId, OFFSET_MODE_OFFSET, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE);
 //testSequence(colId, OFFSET_MODE_TESTPATTERN);
 
 
-// Mux SQUID DAC of column 0 should be ON. The others should be OFF.
+// Amp SQUID DAC of column 0 should be ON. The others should be OFF.
 // We should see the correct signal at the DAC output
 
 // -------------------------------------------------------------------------------------------------------------
