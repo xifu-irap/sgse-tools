@@ -27,6 +27,9 @@
 
 // imports
 include("../demux/dmxTools.dscript");
+include("../demux/dmxRegAddresses.dscript");
+include("../demux/dmxHk.dscript");
+include("../common/utilTools.dscript");
 
 /**
  * This function tests the demux commands
@@ -156,7 +159,8 @@ function dmxCheckReadWrite() {
     values = [[1024, 65535, 4, 2048],
         [-32768, 65535, 32767, 0],
         [1024, 65535, 4, 2048],
-        [-32768, 65535, 32767, 0],
+        [-32768, 65535, 32767, 0],
+
         [1024, 65535, 4, 2048]];
     for (region=0; region<DMX_TEST_PATTERN_NBREGIONS; region++) {
         print(TAB2 + "Region " + region + ": " + values[region]);

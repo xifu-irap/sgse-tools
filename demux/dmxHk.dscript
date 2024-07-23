@@ -1,0 +1,148 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     dmxHk.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file contains dmx hk read and conversion functions.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+
+/**
+ * Reads the housekeepings.
+ * @param {boolean} verbose_p - verbosity level (true to display messages).
+ * @return {array} houseKeepings - housekeepings.
+ */
+function readDMX_HK(verbose_p) {
+    if (typeof(verbose_p) === 'undefined') verbose_p = false;
+    sendToDMXReadMultiRegisters(ADD_DMX_HK_P5V0_ANA, DMX_NB_HK);
+    getLatestValue("DMX_registers");
+    const houseKeepings = DMX_registers.slice(ADD_DMX_HK_P5V0_ANA, ADD_DMX_HK_P5V0_ANA+DMX_NB_HK);
+    if (verbose_p) {
+        print("DEMUX HK are:");
+        for (var hk=0; hk<DMX_NB_HK; hk++) print(TABUL + DMX_HK_NAMES[hk] + ": " + houseKeepings[hk]);
+    }
+    return houseKeepings;
+}
+
+/**
+ * HK conversion formula for positive HK with buffer and dividers.
+ * @param {number} HKADU - HK value in ADU
+ * @param {number} FSRRatio - FSR Volatge over FSR ADU.
+ * @param {number} R1 - Resistance 1
+ * @param {number} R2 - Resistance 2
+ * return {number} HKeng - Engineering value of the HK
+ */
+function positiveHKBufferAndDivider(HKADU, FSRRatio, R1, R2) {
+    return FSRRatio * HKADU * (R1 + R2) / R1;
+}
+
+/**
+ * HK conversion formula for positive HK (non inverter)
+ * @param {number} HKADU - HK value in ADU
+ * @param {number} FSRRatio - FSR Volatge over FSR ADU.
+ * @param {number} RF - Resistance F
+ * @param {number} RG - Resistance G
+ * return {number} HKeng - Engineering value of the HK
+ */
+function positiveHKNonInverter(HKADU, FSRRatio, RF, RG) {
+    return FSRRatio * HKADU / (1 + RF / RG);
+}
+
+/**
+ * HK conversion formula for negative HK (inverter)
+ * @param {number} HKADU - HK value in ADU
+ * @param {number} FSRRatio - FSR Volatge over FSR ADU.
+ * @param {number} RF - Resistance F
+ * @param {number} RG - Resistance G
+ * return {number} HKeng - Engineering value of the HK
+ */
+function negativeHKInverter(HKADU, FSRRatio, RF, RG) {
+    return FSRRatio * HKADU / (-RF / RG);
+}
+
+/**
+ * HK conversion formula for temperatures
+ * @param {number} HKADU - HK value in ADU
+ * @param {number} FSRRatio - FSR Volatge over FSR ADU.
+ * return {number} HKeng - Engineering value of the HK
+ */
+function temperatureHK(HKADU, FSRRatio) {
+    const Tmin = -40;
+    const Tmax = + 60;
+    const Vmin = 0.1;
+    const Vmax = 3.2;
+    const a =  (Vmax - Vmin) / (Tmax - Tmin);
+    const b = Vmin - a * Tmin;
+
+    return (FSRRatio * HKADU - b) / a;
+}
+
+/**
+ * Prints the converted values of the housekeepings.
+ * @param {array} hk_p - housekeepings.
+ */
+function convertDMX_HK(hk_p) {
+    const VFSR = 3.3;
+    const ADUFSR = Math.pow(2, 12);
+    const FSRVoverADU = VFSR / (ADUFSR - 1);
+
+    plotSmallLine();
+
+    // Temperatures
+    const hkTemp = [9, 10];
+    for (var iHK = 0; iHK < hkTemp.length; iHK++) {
+        var hkEng = temperatureHK(hk_p(iHK), FSRVoverADU);
+        var hkEngTxt = ("        " +(hkEng).toString()).slice(-8);
+        print(TAB2 + DMX_HK_NAMES[iHK] + ": " + hkEngTxt + DMX_HK_UNITS[iHK]);
+    }
+
+    // Positive housekeepings with buffer and divider
+    const hkPosBuffAndDiv = [0, 1, 2, 3, 6, 7, 11, 12, 13];
+    const R1PosBuffAndDiv = [28000, 34800, 49900, 162000, 34800, 49900, 49900, 49900, 34800];
+    const R2PosBuffAndDiv = [56200, 34800, 28000,  20300, 34800, 28000, 28000, 28000, 34800];
+    for (var iHK = 0; iHK < hkPosBuffAndDiv.length; iHK++) {
+        var hkEng = positiveHKBufferAndDivider(hk_p(iHK), FSRVoverADU, R1PosBuffAndDiv[iHK], R2PosBuffAndDiv[iHK]);
+        var hkEngTxt = ("        " +(hkEng).toString()).slice(-8);
+        print(TAB2 + DMX_HK_NAMES[iHK] + ": " + hkEngTxt + DMX_HK_UNITS[iHK]);
+    }
+
+    // Positive housekeepings (non inverter)
+    const hkPosNonInv = [8];
+    const RFPosNonInv = [17800];
+    const RGPosNonInv = [56200];
+    for (var iHK = 0; iHK < hkPosNonInv.length; iHK++) {
+        var hkEng = positiveHKNonInverter(hk_p(iHK), FSRVoverADU, RFPosNonInv[iHK], RGPosNonInv[iHK]);
+        var hkEngTxt = ("        " +(hkEng).toString()).slice(-8);
+        print(TAB2 + DMX_HK_NAMES[iHK] + ": " + hkEngTxt + DMX_HK_UNITS[iHK]);
+    }
+
+    // Negative housekeepings (inverter)
+    const hkNegInv = [4, 5];
+    const RFNegInv = [17800, 17800];
+    const RGNegInv = [28000, 56200];
+    for (var iHK = 0; iHK < hkNegInv.length; iHK++) {
+        var hkEng = negativeHKInverter(hk_p(iHK), FSRVoverADU, RFNegInv[iHK], RGNegInv[iHK]);
+        var hkEngTxt = ("        " +(hkEng).toString()).slice(-8);
+        print(TAB2 + DMX_HK_NAMES[iHK] + ": " + hkEngTxt + DMX_HK_UNITS[iHK]);
+    }
+    plotSmallLine();
+}
