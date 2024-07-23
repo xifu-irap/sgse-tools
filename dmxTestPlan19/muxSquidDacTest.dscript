@@ -39,7 +39,7 @@ include("../common/utilTools.dscript");
 function testSequence(colId, fbMode) {
 
     // Switching ON the feedback for the selected column
-    var colOnOff = [OFF, OFF, OFF, OFF];
+    var colOnOff = [OFF, OFF, OFF, OFF];
     colOnOff[colId] = ON;
     setDMX_feedbackOnOff(colOnOff);
 
@@ -53,7 +53,7 @@ function testSequence(colId, fbMode) {
         minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
         minVal, midVal, maxVal, minVal, midVal, maxVal, minVal
     ];
-    setDMX_fb0(colId, tabFb0);
+    setDMX_fb0(colId, tabFb0);
 
     // Setting the testPattern to a rising slope
     const a = -1*Math.pow(2, 15);
@@ -62,7 +62,7 @@ function testSequence(colId, fbMode) {
     const N = Math.pow(2,8) - 1;
     const sawPattern = [
         [a, b, c, N],  // Slope upward
-        [a/2, b, c/2, N],  // Slope upward
+        [a/2, b, c/2, N],  // Slope upward
         [0, 0, 0, 0],  // Nothing
         [0, 0, 0, 0],  // Nothing
         [0, 0, 0, 0]  // Nothing
@@ -96,7 +96,7 @@ function testSequence(colId, fbMode) {
 const colId = 0;
 
 // You should uncomment a single of the following lines
-testSequence(colId, FEEDBACK_MODE_OPEN_LOOP);
+//testSequence(colId, FEEDBACK_MODE_OPEN_LOOP);
 //testSequence(colId, FEEDBACK_MODE_TESTPATTERN);
 
 
@@ -106,8 +106,8 @@ testSequence(colId, FEEDBACK_MODE_OPEN_LOOP);
 // Uncomment to switch the DAC OFF
 //      Switching the feedback OFF
 //setDMX_feedbackOnOff([OFF, OFF, OFF, OFF]);
-
-
-//convertDMX_HK(readDMX_HK());
+
+
+//convertDMX_HK(readDMX_HK());
 
 // -------------------------------------------------------------------------------------------------------------

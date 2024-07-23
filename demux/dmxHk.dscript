@@ -127,7 +127,7 @@ function convertDMX_HK(hk_p) {
     const RGPosNonInv = [56200];
     for (var iHK = 0; iHK < hkPosNonInv.length; iHK++) {
         var hkEng = positiveHKNonInverter(hk_p[hkPosNonInv[iHK]], FSRVoverADU, RFPosNonInv[iHK], RGPosNonInv[iHK]);
-        print(TAB2 + DMX_HK_NAMES[hkPosNonInv[iHK]] + ": " + hkEng.toFixed(2) + DMX_HK_UNITS[hk_p[hkPosNonInv[iHK]]]);
+        print(TAB2 + DMX_HK_NAMES[hkPosNonInv[iHK]] + ": " + hkEng.toFixed(2) + DMX_HK_UNITS[hkPosNonInv[iHK]]);
     }
 
     // Negative housekeepings (inverter)
@@ -136,7 +136,7 @@ function convertDMX_HK(hk_p) {
     const RGNegInv = [28000, 56200];
     for (var iHK = 0; iHK < hkNegInv.length; iHK++) {
         var hkEng = negativeHKInverter(hk_p[hkNegInv[iHK]], FSRVoverADU, RFNegInv[iHK], RGNegInv[iHK]);
-        print(TAB2 + DMX_HK_NAMES[hkNegInv[iHK]] + ": " +  hkEng.toFixed(2) + DMX_HK_UNITS[hk_p[hkNegInv[iHK]]]);
+        print(TAB2 + DMX_HK_NAMES[hkNegInv[iHK]] + ": " +  hkEng.toFixed(2) + DMX_HK_UNITS[hkNegInv[iHK]]);
     }
     plotSmallLine();
 
