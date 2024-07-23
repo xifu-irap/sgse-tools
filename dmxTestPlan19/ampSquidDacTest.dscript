@@ -59,14 +59,18 @@ function testSequence(colId, fbMode, offsetLSB, offsetFine) {
     const maxVal = Math.pow(2,12)-1;
     setDMX_sqa_OffsetCoarse(colId, midVal);
 
-    // Setting the testPattern
-    //  Faking a saw
+    // Setting the testPattern to a rising slope
+    const a = -1*Math.pow(2, 15);
+    const b = 0;
+    const c = Math.pow(2,8);
+    const N = Math.pow(2,8) - 1;
     const sawPattern = [
-    [0x0000, 0x0007, 0x0002, 0x07FF],     // Slope upward
-    [0x0FFF, 0x0007, -1*0x0002, 0x07FF],  // Slope downward
-    [0x0000, 0x3FFF, 0x0000, 0x0001],     // Plateau
-    [0x0000, 0x0020, 0x0002, 0x07FF],     // Slope upward
-    [0x0FFF, 0x0020, -1*0x0002, 0x07FF]]; // Slope downward
+        [a, b, c, N],  // Slope upward
+        [a/2, b, c/2, N],  // Slope upward
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0]  // Nothing
+    ];
     setDMX_testPattern(sawPattern);
 
     var offsetMode = [OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF];
@@ -82,13 +86,17 @@ function testSequence(colId, fbMode, offsetLSB, offsetFine) {
         setDMX_offsetMode(offsetMode);
     }
 
-    if (fbMode === FEEDBACK_MODE_TESTPATTERN) {
+    if (fbMode === OFFSET_MODE_TESTPATTERN) {
+
+		// Setting the LSB size to 0
+        setDMX_sqa_OffsetLSB(colId, 0);
+
         // Setting the feedback mode of column 0 to "test pattern"
         offsetMode[colId] = OFFSET_MODE_TESTPATTERN;
         setDMX_offsetMode(offsetMode);
 
         var enable = true;
-        var infinitely = false;
+        var infinitely = true;
         var nbTime = 0x9;
         setDMX_testPatternEnable(enable, infinitely, nbTime);
     }
@@ -109,11 +117,14 @@ const AMP_SQ_OFFSET_FINE = [  // 34 3-bit values
 
 // You should uncomment a single of the following lines
 //testSequence(colId, OFFSET_MODE_OFF);
-testSequence(colId, OFFSET_MODE_OFFSET, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE);
-//testSequence(colId, OFFSET_MODE_TESTPATTERN);
+//testSequence(colId, OFFSET_MODE_OFFSET, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE);
+testSequence(colId, OFFSET_MODE_TESTPATTERN, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE);
 
 
 // Amp SQUID DAC of column 0 should be ON. The others should be OFF.
 // We should see the correct signal at the DAC output
 
 // -------------------------------------------------------------------------------------------------------------
+
+
+print("Done !")
