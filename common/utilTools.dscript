@@ -55,7 +55,7 @@ function doesArrayInclude(array_p, value_p) {
  */
 function makeArray(nValues, value) {
 	var tab = [];
-	for (var i = 0; i < nVal; i++) tab[i] = value;
+	for (var i = 0; i < nValues; i++) tab[i] = value;
 	return tab;
 }
 
