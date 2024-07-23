@@ -15,6 +15,7 @@ JavaScript scripts to manage the tests of the DRE DEMUX.
   - (dir.) **demux**: contains JavaScripts dedicated to the management of the DRE DEMUX
     + (file) **dmx_check_commands.dscript**: JavaScripts to test the low level commands defined in dmxTools.dscript
     + (file) **dmxFake.dscript**: JavaScripts faking the DEMUX registers (can be used with dmx_check_commands.dscript)
+    + (file) **dmxHk.dscript**: JavaScripts dedicated to read and convert DMX housekeepings
     + (file) **dmx_listOfFunctions.md**: list of low level functions available to manage the DEMUX
     + (file) **dmxRegAddresses.dscript**: definition of the DEMUX register addresses
     + (file) **dmxTools.dscript**: JavaScripts with low level commands for the DRE DEMUX
