@@ -1,0 +1,142 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     activateColumns.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file activates the DACs and ADCs for the columns in order to measure the DMX power consumption.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+include("../demux/dmxTools.dscript");
+include("../demux/dmxRegAddresses.dscript");
+include("../demux/dmxHk.dscript");
+include("../common/utilTools.dscript");
+
+/**
+ * This function activates the Mux SQUID and outputs the FB0 set of values or the test pattern
+ * @param {array} colOnOff - 4 values at ON or OFF. (ON: The DACs and ADC are activated, OFF: deactivated)
+ */
+function testSequence(colOnOff) {
+
+    const zeroArrayPix = makeArray(0, DMX_NB_PIX_PER_COL);
+
+    // Defining the feedback FB0 values
+    const Fb0minVal = convert_sInt_to_2compInt(-1*Math.pow(2, 15), 16);
+    const Fb0midVal = convert_sInt_to_2compInt(0, 16);
+    const Fb0maxVal = convert_sInt_to_2compInt(Math.pow(2,15)-1, 16);
+    var tabFb0 = [
+        Fb0minVal, Fb0midVal, Fb0maxVal, Fb0minVal, Fb0midVal, Fb0maxVal, Fb0minVal, Fb0midVal, Fb0maxVal,
+        Fb0minVal, Fb0midVal, Fb0maxVal, Fb0minVal, Fb0midVal, Fb0maxVal, Fb0minVal, Fb0midVal, Fb0maxVal,
+        Fb0minVal, Fb0midVal, Fb0maxVal, Fb0minVal, Fb0midVal, Fb0maxVal, Fb0minVal, Fb0midVal, Fb0maxVal,
+        Fb0minVal, Fb0midVal, Fb0maxVal, Fb0minVal, Fb0midVal, Fb0maxVal, Fb0minVal
+    ];
+
+    // Defining the coarse offset values
+    const CoarseMinVal = 0;
+    const CoarseMidVal = Math.pow(2, 11);
+    const CoarseMaxVal = Math.pow(2,12)-1;
+
+    // Defining the offset fine values
+    const AMP_SQ_OFFSET_FINE = [  // 34 3-bit values
+    0, 1, 2, 3, 4, 5, 6, 7,
+    0, 1, 2, 3, 4, 5, 6, 7,
+    7, 6, 5, 4, 3, 2, 1, 0,
+    7, 6, 5, 4, 3, 2, 1, 0,
+    5, 2
+    ];
+
+    // Switching all the columns OFF
+    var offsetMode = [OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF];
+
+    for (var col = 0; col < DMX_NB_COL; col++) {
+
+        // MUX SQUID and ERROR ADC
+        setDMX_feedbackOnOff(OFF);
+
+
+        // AMP SQUID
+
+        //    Setting the Offset LSB to 0
+        setDMX_sqa_OffsetLSB(col, 0);
+
+        //    Setting the Offset Fine to 0
+        setDMX_sqa_OffsetFine(col, zeroArrayPix, zeroArrayPix);
+
+        // Setting the coarse offset to 0
+        setDMX_sqa_OffsetCoarse(col, 0);
+    }
+
+    // Switching the selected columns ON
+    for (var col = 0; col < DMX_NB_COL; col++) {
+
+        if (colOnOff[col] === ON) {
+
+            // MUX SQUID and ERROR ADC
+
+            // Switching ON the feedback
+            setDMX_feedbackOnOff(ON);
+
+            //    Setting the set of Fb0
+            setDMX_fb0(col, tabFb0);
+
+            //    Selecting the pulse shaping type (0, 1, 2, 3)
+            var pulseShapingType = 2; // (fc = 25 MHz)
+            setDMX_pulseShapingSelection(col, pulseShapingType);
+
+            //    Setting the feedback modes to "open loop" for all pixels (Fb0 at the output)
+            var tabFbModesOpenLoop = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
+            setDMX_sqm_FBMode(col, tabFbModesOpenLoop);
+
+
+            // AMP SQUID
+
+            // Setting the Offset LSB to the max value
+            setDMX_sqa_OffsetLSB(col, Math.pow(2, 12) - 1);
+
+            //    Setting the Offset Fine to 0
+            setDMX_sqa_OffsetFine(col, AMP_SQ_OFFSET_FINE, AMP_SQ_OFFSET_FINE);
+
+            // Setting the coarse offset
+            setDMX_sqa_OffsetCoarse(col, CoarseMidVal);
+
+            // Setting the offset mode to "offset"
+            offsetMode[col] = OFFSET_MODE_OFFSET;
+        }
+    }
+
+    setDMX_offsetMode(offsetMode);
+}
+
+// -------------------------------------------------------------------------------------------------------------
+
+const ColOnOff_0col = [OFF, OFF, OFF, OFF];
+const ColOnOff_1col = [ ON, OFF, OFF, OFF];
+const ColOnOff_2col = [ ON,  ON, OFF, OFF];
+const ColOnOff_3col = [ ON,  ON,  ON, OFF];
+const ColOnOff_4col = [ ON,  ON,  ON,  ON];
+
+testSequence(ColOnOff_0col);
+
+// -------------------------------------------------------------------------------------------------------------
+
+
+print("Done !")
