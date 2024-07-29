@@ -49,10 +49,14 @@ function readDMX_HK(verbose_p) {
  * @param {number} FSRRatio - FSR Volatge over FSR ADU.
  * @param {number} R1 - Resistance 1
  * @param {number} R2 - Resistance 2
+ * @param {boolean} verbose_p - verbosity level (true to display messages).
  * return {number} HKeng - Engineering value of the HK
  */
-function positiveHKBufferAndDivider(HKADU, FSRRatio, R1, R2) {
-    return FSRRatio * HKADU * (R1 + R2) / R1;
+function positiveHKBufferAndDivider(HKADU, FSRRatio, R1, R2, verbose_p) {
+    if (typeof(verbose_p) === 'undefined') verbose_p = false;
+    const a = FSRRatio * (R1 + R2) / R1;
+    if (verbose_p) {print(TAB3 + "a = " + a + " and b = 0")}
+    return a * HKADU;
 }
 
 /**
@@ -61,10 +65,14 @@ function positiveHKBufferAndDivider(HKADU, FSRRatio, R1, R2) {
  * @param {number} FSRRatio - FSR Volatge over FSR ADU.
  * @param {number} RF - Resistance F
  * @param {number} RG - Resistance G
+ * @param {boolean} verbose_p - verbosity level (true to display messages).
  * return {number} HKeng - Engineering value of the HK
  */
-function positiveHKNonInverter(HKADU, FSRRatio, RF, RG) {
-    return FSRRatio * HKADU / (1 + RF / RG);
+function positiveHKNonInverter(HKADU, FSRRatio, RF, RG, verbose_p) {
+    if (typeof(verbose_p) === 'undefined') verbose_p = false;
+    const a = FSRRatio / (1 + RF / RG);
+    if (verbose_p) {print(TAB3 + "a = " + a + " and b = 0")}
+    return a * HKADU;
 }
 
 /**
@@ -73,34 +81,43 @@ function positiveHKNonInverter(HKADU, FSRRatio, RF, RG) {
  * @param {number} FSRRatio - FSR Volatge over FSR ADU.
  * @param {number} RF - Resistance F
  * @param {number} RG - Resistance G
+ * @param {boolean} verbose_p - verbosity level (true to display messages).
  * return {number} HKeng - Engineering value of the HK
  */
-function negativeHKInverter(HKADU, FSRRatio, RF, RG) {
-    return FSRRatio * HKADU / (-RF / RG);
+function negativeHKInverter(HKADU, FSRRatio, RF, RG, verbose_p) {
+    if (typeof(verbose_p) === 'undefined') verbose_p = false;
+    const a = -FSRRatio / (RF / RG);
+    if (verbose_p) {print(TAB3 + "a = " + a + " and b = 0")}
+    return a * HKADU ;
 }
 
 /**
  * HK conversion formula for temperatures
  * @param {number} HKADU - HK value in ADU
  * @param {number} FSRRatio - FSR Volatge over FSR ADU.
+ * @param {boolean} verbose_p - verbosity level (true to display messages).
  * return {number} HKeng - Engineering value of the HK
  */
-function temperatureHK(HKADU, FSRRatio) {
+function temperatureHK(HKADU, FSRRatio, verbose_p) {
+    if (typeof(verbose_p) === 'undefined') verbose_p = false;
     const Tmin = -40;
     const Tmax = + 60;
     const Vmin = 0.1;
     const Vmax = 3.2;
-    const a =  (Vmax - Vmin) / (Tmax - Tmin);
-    const b = Vmin - a * Tmin;
+    const a =  FSRRatio * (Tmax - Tmin) / (Vmax - Vmin);
+    const b = Tmin - Vmin / a;
 
-    return (FSRRatio * HKADU - b) / a;
+    if (verbose_p) {print(TAB3 + "a = " + a + " and b = " + b)}
+    return a * HKADU + b;
 }
 
 /**
  * Prints the converted values of the housekeepings.
  * @param {array} hk_p - housekeepings.
+ * @param {boolean} verbose_p - verbosity level (true to display messages).
  */
-function convertDMX_HK(hk_p) {
+function convertDMX_HK(hk_p, verbose_p) {
+    if (typeof(verbose_p) === 'undefined') verbose_p = false;
     const VFSR = 3.3;
     const ADUFSR = Math.pow(2, 12);
     const FSRVoverADU = VFSR / (ADUFSR - 1);
@@ -108,7 +125,7 @@ function convertDMX_HK(hk_p) {
     // Temperatures
     const hkTemp = [9, 10];
     for (var iHK = 0; iHK < hkTemp.length; iHK++) {
-        var hkEng = temperatureHK(hk_p[hkTemp[iHK]], FSRVoverADU);
+        var hkEng = temperatureHK(hk_p[hkTemp[iHK]], FSRVoverADU, verbose_p);
         print(TAB2 + DMX_HK_NAMES[hkTemp[iHK]] + ": " +  hkEng.toFixed(2) + DMX_HK_UNITS[hkTemp[iHK]]);
     }
 
@@ -117,8 +134,8 @@ function convertDMX_HK(hk_p) {
     const R1PosBuffAndDiv = [28000, 34800, 49900, 162000, 34800, 49900, 49900, 49900, 34800];
     const R2PosBuffAndDiv = [56200, 34800, 28000,  20300, 34800, 28000, 28000, 28000, 34800];
     for (var iHK = 0; iHK < hkPosBuffAndDiv.length; iHK++) {
-        var hkEng = positiveHKBufferAndDivider(hk_p[hkPosBuffAndDiv[iHK]], FSRVoverADU, R1PosBuffAndDiv[iHK], R2PosBuffAndDiv[iHK]);
-        print(TAB2 + DMX_HK_NAMES[hkPosBuffAndDiv[iHK]] + ":   " +  hkEng.toFixed(2) + DMX_HK_UNITS[hkPosBuffAndDiv[iHK]]);
+        var hkEng = positiveHKBufferAndDivider(hk_p[hkPosBuffAndDiv[iHK]], FSRVoverADU, R1PosBuffAndDiv[iHK], R2PosBuffAndDiv[iHK], verbose_p);
+        print(TAB2 + DMX_HK_NAMES[hkPosBuffAndDiv[iHK]] + ": " +  hkEng.toFixed(2) + DMX_HK_UNITS[hkPosBuffAndDiv[iHK]]);
     }
 
     // Positive housekeepings (non inverter)
@@ -126,7 +143,7 @@ function convertDMX_HK(hk_p) {
     const RFPosNonInv = [17800];
     const RGPosNonInv = [56200];
     for (var iHK = 0; iHK < hkPosNonInv.length; iHK++) {
-        var hkEng = positiveHKNonInverter(hk_p[hkPosNonInv[iHK]], FSRVoverADU, RFPosNonInv[iHK], RGPosNonInv[iHK]);
+        var hkEng = positiveHKNonInverter(hk_p[hkPosNonInv[iHK]], FSRVoverADU, RFPosNonInv[iHK], RGPosNonInv[iHK], verbose_p);
         print(TAB2 + DMX_HK_NAMES[hkPosNonInv[iHK]] + ": " + hkEng.toFixed(2) + DMX_HK_UNITS[hkPosNonInv[iHK]]);
     }
 
@@ -135,7 +152,7 @@ function convertDMX_HK(hk_p) {
     const RFNegInv = [17800, 17800];
     const RGNegInv = [28000, 56200];
     for (var iHK = 0; iHK < hkNegInv.length; iHK++) {
-        var hkEng = negativeHKInverter(hk_p[hkNegInv[iHK]], FSRVoverADU, RFNegInv[iHK], RGNegInv[iHK]);
+        var hkEng = negativeHKInverter(hk_p[hkNegInv[iHK]], FSRVoverADU, RFNegInv[iHK], RGNegInv[iHK], verbose_p);
         print(TAB2 + DMX_HK_NAMES[hkNegInv[iHK]] + ": " +  hkEng.toFixed(2) + DMX_HK_UNITS[hkNegInv[iHK]]);
     }
     plotSmallLine();

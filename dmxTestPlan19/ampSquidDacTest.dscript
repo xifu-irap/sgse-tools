@@ -34,11 +34,11 @@ include("../common/utilTools.dscript");
 /**
  * This function activates the Mux SQUID and outputs the FB0 set of values or the test pattern
  * @param {number} colId - column under test
- * @param {number} fbMode - feedback mode (OFFSET_MODE_OFF, OFFSET_MODE_OFFSET, OFFSET_MODE_TESTPATTERN)
+ * @param {number} offsetMode - offset mode (OFFSET_MODE_OFF, OFFSET_MODE_OFFSET, OFFSET_MODE_TESTPATTERN)
  * @param {number} offsetLSB - [0, 2^12[
  * @param {array} offsetFine - 34 3-bit values
  */
-function testSequence(colId, fbMode, offsetLSB, offsetFine) {
+function testSequence(colId, offsetMode, offsetLSB, offsetFine) {
 
     // Setting the Offset LSB for the selected colum
     for (var col = 0; col < DMX_NB_COL; col++) {
@@ -70,30 +70,41 @@ function testSequence(colId, fbMode, offsetLSB, offsetFine) {
         [0, 0, 0, 0],  // Nothing
         [0, 0, 0, 0],  // Nothing
         [0, 0, 0, 0]  // Nothing
-    ];
+    ]; 
     setDMX_testPattern(sawPattern);
 
-    var offsetMode = [OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF];
+/*
+	const squarePattern = [
+        [0x5555, 0, 0, 1],  // Plateau
+        [0, 0, 0, 0],  // Nothing
+		[0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0]  // Nothing
+    ];
+    setDMX_testPattern(squarePattern);
+    */
 
-    if (fbMode === OFFSET_MODE_OFF) {
+    var colOffsetMode = [OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF];
+
+    if (offsetMode === OFFSET_MODE_OFF) {
         // Setting the offset mode to OFF for all the columns
-        setDMX_offsetMode(offsetMode);
+        setDMX_offsetMode(colOffsetMode);
     }
 
-    if (fbMode === OFFSET_MODE_OFFSET) {
+    if (offsetMode === OFFSET_MODE_OFFSET) {
         // Setting the offset mode to OFF for the selected colum (OFF to the others)
-        offsetMode[colId] = OFFSET_MODE_OFFSET;
-        setDMX_offsetMode(offsetMode);
+        colOffsetMode[colId] = OFFSET_MODE_OFFSET;
+        setDMX_offsetMode(colOffsetMode);
     }
 
-    if (fbMode === OFFSET_MODE_TESTPATTERN) {
-
+    if (offsetMode === OFFSET_MODE_TESTPATTERN) {
+	
 		// Setting the LSB size to 0
-        setDMX_sqa_OffsetLSB(colId, 0);
+		setDMX_sqa_OffsetLSB(colId, 0);
 
         // Setting the feedback mode of column 0 to "test pattern"
-        offsetMode[colId] = OFFSET_MODE_TESTPATTERN;
-        setDMX_offsetMode(offsetMode);
+        colOffsetMode[colId] = OFFSET_MODE_TESTPATTERN;
+        setDMX_offsetMode(colOffsetMode);
 
         var enable = true;
         var infinitely = true;
@@ -107,6 +118,7 @@ function testSequence(colId, fbMode, offsetLSB, offsetFine) {
 const colId = 0;
 
 const AMP_SQ_OFFSET_LSB = Math.pow(2, 12)-1;  // between 0 and 2^12-1
+//const AMP_SQ_OFFSET_LSB = 0x555; 
 const AMP_SQ_OFFSET_FINE = [  // 34 3-bit values
     0, 1, 2, 3, 4, 5, 6, 7,
     0, 1, 2, 3, 4, 5, 6, 7,
@@ -118,7 +130,7 @@ const AMP_SQ_OFFSET_FINE = [  // 34 3-bit values
 // You should uncomment a single of the following lines
 //testSequence(colId, OFFSET_MODE_OFF);
 //testSequence(colId, OFFSET_MODE_OFFSET, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE);
-testSequence(colId, OFFSET_MODE_TESTPATTERN, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE);
+//testSequence(colId, OFFSET_MODE_TESTPATTERN, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE);
 
 
 // Amp SQUID DAC of column 0 should be ON. The others should be OFF.
@@ -126,5 +138,11 @@ testSequence(colId, OFFSET_MODE_TESTPATTERN, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FI
 
 // -------------------------------------------------------------------------------------------------------------
 
+col=2;
+v1 = 0x555;
+v2 = 0xAAA;
+
+// R�glage du DAC Offset LSB (n'a un effet que si la valeur change)
+setDMX_sqa_OffsetLSB(col, v2);
 
 print("Done !")
