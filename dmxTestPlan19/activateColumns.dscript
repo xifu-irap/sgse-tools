@@ -36,6 +36,8 @@ include("../common/utilTools.dscript");
  * @param {array} colOnOff - 4 values at ON or OFF. (ON: The DACs and ADC are activated, OFF: deactivated)
  */
 function testSequence(colOnOff) {
+
+	var feedbackOnOff=[OFF, OFF, OFF, OFF];
 
     const zeroArrayPix = makeArray(0, DMX_NB_PIX_PER_COL);
 
@@ -70,7 +72,7 @@ function testSequence(colOnOff) {
     for (var col = 0; col < DMX_NB_COL; col++) {
 
         // MUX SQUID and ERROR ADC
-        setDMX_feedbackOnOff(OFF);
+        setDMX_feedbackOnOff(feedbackOnOff);
 
 
         // AMP SQUID
@@ -86,14 +88,16 @@ function testSequence(colOnOff) {
     }
 
     // Switching the selected columns ON
-    for (var col = 0; col < DMX_NB_COL; col++) {
-
-        if (colOnOff[col] === ON) {
+    for (var col = 0; col < DMX_NB_COL; col++) {
+	
+        if (colOnOff[col] === ON) {
+		
+			print("Switching col " + col + " ON...");
 
             // MUX SQUID and ERROR ADC
 
-            // Switching ON the feedback
-            setDMX_feedbackOnOff(ON);
+            // Switching ON the feedback
+			feedbackOnOff[col]=ON;
 
             //    Setting the set of Fb0
             setDMX_fb0(col, tabFb0);
@@ -122,7 +126,8 @@ function testSequence(colOnOff) {
             offsetMode[col] = OFFSET_MODE_OFFSET;
         }
     }
-
+
+    setDMX_feedbackOnOff(feedbackOnOff);
     setDMX_offsetMode(offsetMode);
 }
 

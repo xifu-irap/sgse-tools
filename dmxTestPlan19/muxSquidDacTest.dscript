@@ -56,7 +56,7 @@ function testSequence(colId, fbMode) {
     setDMX_fb0(colId, tabFb0);
 
     // Setting the testPattern to a rising slope
-    const a = -1*Math.pow(2, 15);
+   /*  const a = -1*Math.pow(2, 15);
     const b = 0;
     const c = Math.pow(2,8);
     const N = Math.pow(2,8) - 1;
@@ -67,7 +67,21 @@ function testSequence(colId, fbMode) {
         [0, 0, 0, 0],  // Nothing
         [0, 0, 0, 0]  // Nothing
     ];
-    setDMX_testPattern(sawPattern);
+    setDMX_testPattern(sawPattern); */
+
+
+	const a = -1*Math.floor((Math.pow(2, 15)-1)*0.02);
+    const b = 256;
+    const c = 0;
+    const N = 1;
+    const squarePattern = [
+        [a, b, c, N],  // plateau
+        [-a, b, -c, N],  // plateau
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0]  // Nothing
+    ];
+    setDMX_testPattern(squarePattern);
 
     // Selecting the pulse shaping type (0, 1, 2, 3)
     var pulseShapingType = 0;
@@ -93,21 +107,19 @@ function testSequence(colId, fbMode) {
 
 // -------------------------------------------------------------------------------------------------------------
 
-const colId = 0;
+const colId = 3;
 
 // You should uncomment a single of the following lines
 //testSequence(colId, FEEDBACK_MODE_OPEN_LOOP);
-//testSequence(colId, FEEDBACK_MODE_TESTPATTERN);
+testSequence(colId, FEEDBACK_MODE_TESTPATTERN);
 
-
-// Mux SQUID DAC of column 0 should be ON. The others should be OFF.
-// We should see the correct signal at the DAC output
 
 // Uncomment to switch the DAC OFF
 //      Switching the feedback OFF
 //setDMX_feedbackOnOff([OFF, OFF, OFF, OFF]);
 
 
-//convertDMX_HK(readDMX_HK());
+convertDMX_HK(readDMX_HK());
 
 // -------------------------------------------------------------------------------------------------------------
+Print("Done!");
