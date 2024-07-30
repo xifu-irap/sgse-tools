@@ -66,6 +66,8 @@ const DMX_HK_NAMES = ['P5V0_ANA', 'P3V3_ANA', 'P2V5_ANA', 'P1V8_ANA', 'M2V5_ANA'
     'P2V5_DIG', 'P1V2_DIG', 'TEMP_AVE', 'TEMP_MAX', 'P2V5_AUX', 'VREF_TEM', 'VREF_R2R'];
 const DMX_HK_UNITS = [' V', ' V', ' V', ' V', ' V', ' V', ' V',
     ' V', ' V', ' C', ' C', ' V', ' V', ' V'];
+const DMX0_HK_COR = [0.972289157, 0.973076923, 0.982377049, 0.933497537, 1.002916667, 0.963229572, 1.001851852,
+    1.053043478, 0.930645161, 1.0, 1.0, 1.073777778, 1.036099585, 1.013375796];
 
 /**
  * Sets the data acquisition mode (DATA_ACQ_MODE).
