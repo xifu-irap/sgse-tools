@@ -47,6 +47,11 @@ function testSequence(colId, fbMode) {
     const minVal = convert_sInt_to_2compInt(-1*Math.pow(2, 15), 16);
     const midVal = convert_sInt_to_2compInt(0, 16);
     const maxVal = convert_sInt_to_2compInt(Math.pow(2,15)-1, 16);
+	
+	//const minVal = convert_sInt_to_2compInt(-1*Math.pow(2, 15), 16);
+    //const midVal = minVal;
+    //const maxVal = minVal; 
+	
     var tabFb0 = [
         minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
         minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
@@ -56,7 +61,7 @@ function testSequence(colId, fbMode) {
     setDMX_fb0(colId, tabFb0);
 
     // Setting the testPattern to a rising slope
-   /*  const a = -1*Math.pow(2, 15);
+    const a = -1*Math.pow(2, 15);
     const b = 0;
     const c = Math.pow(2,8);
     const N = Math.pow(2,8) - 1;
@@ -67,9 +72,9 @@ function testSequence(colId, fbMode) {
         [0, 0, 0, 0],  // Nothing
         [0, 0, 0, 0]  // Nothing
     ];
-    setDMX_testPattern(sawPattern); */
+    setDMX_testPattern(sawPattern); 
 
-
+/*
 	const a = -1*Math.floor((Math.pow(2, 15)-1)*0.02);
     const b = 256;
     const c = 0;
@@ -82,6 +87,7 @@ function testSequence(colId, fbMode) {
         [0, 0, 0, 0]  // Nothing
     ];
     setDMX_testPattern(squarePattern);
+*/
 
     // Selecting the pulse shaping type (0, 1, 2, 3)
     var pulseShapingType = 0;
@@ -107,19 +113,19 @@ function testSequence(colId, fbMode) {
 
 // -------------------------------------------------------------------------------------------------------------
 
-const colId = 3;
+const colId = 2;
 
 // You should uncomment a single of the following lines
-//testSequence(colId, FEEDBACK_MODE_OPEN_LOOP);
-testSequence(colId, FEEDBACK_MODE_TESTPATTERN);
+testSequence(colId, FEEDBACK_MODE_OPEN_LOOP);
+//testSequence(colId, FEEDBACK_MODE_TESTPATTERN);
 
 
 // Uncomment to switch the DAC OFF
 //      Switching the feedback OFF
 //setDMX_feedbackOnOff([OFF, OFF, OFF, OFF]);
 
-
-convertDMX_HK(readDMX_HK());
+// Reading the HK
+printDMX_HK();
 
 // -------------------------------------------------------------------------------------------------------------
-Print("Done!");
+print("Done!");

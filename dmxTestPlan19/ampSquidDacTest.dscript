@@ -115,7 +115,7 @@ function testSequence(colId, offsetMode, offsetLSB, offsetFine) {
 
 // -------------------------------------------------------------------------------------------------------------
 
-const colId = 0;
+const colId = 3;
 
 const AMP_SQ_OFFSET_LSB = Math.pow(2, 12)-1;  // between 0 and 2^12-1
 //const AMP_SQ_OFFSET_LSB = 0x555; 
@@ -130,19 +130,45 @@ const AMP_SQ_OFFSET_FINE = [  // 34 3-bit values
 // You should uncomment a single of the following lines
 //testSequence(colId, OFFSET_MODE_OFF);
 //testSequence(colId, OFFSET_MODE_OFFSET, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE);
-//testSequence(colId, OFFSET_MODE_TESTPATTERN, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE);
+testSequence(colId, OFFSET_MODE_TESTPATTERN, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE);
 
 
 // Amp SQUID DAC of column 0 should be ON. The others should be OFF.
 // We should see the correct signal at the DAC output
 
 // -------------------------------------------------------------------------------------------------------------
+/*
+col=0;
 
-col=2;
-v1 = 0x555;
-v2 = 0xAAA;
 
-// R�glage du DAC Offset LSB (n'a un effet que si la valeur change)
-setDMX_sqa_OffsetLSB(col, v2);
+var offsetCoarse0 = 0;
+var offsetCoarse1 = Math.pow(2, 12)-1;
+var offsetCoarse2 = Math.pow(2, 10)-1;
+var offsetCoarse3 = 10;
+
+// Reglage du DAC Offset Coarse (n'a un effet que si la valeur change)
+var colOffsetMode = [OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET];
+setDMX_offsetMode(colOffsetMode);
+setDMX_sqa_OffsetCoarse(col, offsetCoarse2);
+
+
+v0 = 0;
+v1 = 100;
+v2 = Math.pow(2, 12)-1;
+
+// Reglage du DAC Offset LSB (n'a un effet que si la valeur change)
+
+setDMX_sqa_OffsetLSB(col, v0);
+
+function loop_LSB() {
+	for (i=0; i<100; i+=1) {
+		setDMX_sqa_OffsetLSB(col, 1*i);
+		waitMs(500);
+		print(" =>", i);
+	}
+}
+loop_LSB()
+
+setDMX_sqa_OffsetLSB(col, v0); */
 
 print("Done !")

@@ -25,6 +25,10 @@
 //
 // -------------------------------------------------------------------------------------------------------------
 
+// imports
+include("../demux/dmxTools.dscript");
+include("../demux/dmxRegAddresses.dscript");
+include("../demux/dmxHk.dscript");
 include("../common/utilTools.dscript");
 include("../demux/dmxCheckReadWrite.dscript");
 include("../demux/dmxCheckDefaults.dscript");
@@ -40,6 +44,8 @@ function testSequence() {
 	// Checking the default values of the DEMUX registers
 	dmxCheckDefaults();
 
+	// Reading the HK of the DEMUX
+	printDMX_HK();
 }
 
 // -------------------------------------------------------------------------------------------------------------
