@@ -1043,4 +1043,40 @@ function readDMX_delockFlag(verbose_p) {
     return delockFlag;
 }
 
+/**
+ * Sets the delock counters to a value for a given column (DELOCK_COUNTERS).
+ * @param {number} col_p - column number [0, 3]
+ * @param {number} val_p - value u(16,0)
+ */
+function setDMX_delockCounters(col_p, val_p) {
+    if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
+        print("ERROR, column number is incorrect!  --> " + col_p);
+        return;
+    }
+    const reg_address = ADD_DMX_DELOCK_COUNTERS | (col_p << ADD_DMX_COL_BIT_SHIFT);
+    sendToDMXWriteMultiRegisters(reg_address, DMX_NB_PIX_PER_COL, makeArray(DMX_NB_PIX_PER_COL, val_p));
+}
+
+/**
+ * Reads the delock counters for a given column (DELOCK_COUNTERS).
+ * @param {number} col_p - column number [0, 3]
+ * @param {boolean} verbose_p - verbosity level (true to display messages).
+ * @return {array} delockCounters - delock counters (One value per pixel).
+ */
+function readDMX_delockCounters(col_p, verbose_p) {
+    if (typeof(verbose_p) === 'undefined') verbose_p = false;
+    if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
+        print("ERROR, column number is incorrect!  --> " + col_p);
+        return;
+    }
+    const reg_address = ADD_DMX_DELOCK_COUNTERS | (col_p << ADD_DMX_COL_BIT_SHIFT);
+    sendToDMXReadMultiRegisters(reg_address, DMX_NB_PIX_PER_COL);
+    getLatestValue("DMX_registers");
+    const DELOCK_COUNTERS = DMX_registers.slice(reg_address, reg_address + DMX_NB_PIX_PER_COL);
+
+    if (verbose_p) print(DELOCK_COUNTERS);
+
+    return DELOCK_COUNTERS;
+}
+
 // -------------------------------------------------------------------------------------------------------------
