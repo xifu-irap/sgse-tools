@@ -74,7 +74,7 @@ function printDMX_HK(formatADU_p) {
     for (var iHK= 0; iHK < DMX_NB_HK; iHK++) {
         outputText1 = TAB2 + DMX_HK_NAMES[iHK] + ":" + TAB1;
         if (formatADU_p) outputText2 = dmxHk[iHK];
-        else outputText2 = convertDMX_HK(dmxHk[iHK], DMX0_HK_CONV_A[iHK], DMX0_HK_CONV_B[iHK]) + DMX_HK_UNITS[iHK];
+        else outputText2 = convertDMX_HK(dmxHk[iHK], DMX0_HK_CONV_A[iHK], DMX0_HK_CONV_B[iHK]).toFixed(3) + DMX_HK_UNITS[iHK];
         print(outputText1 + outputText2);
     }
 }

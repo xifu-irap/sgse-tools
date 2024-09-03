@@ -1,0 +1,61 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     muxSquidDacTest.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file tests the Mux SQUID DACs of the DMX boards.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+include("../demux/dmxTools.dscript");
+include("../demux/dmxRegAddresses.dscript");
+include("../demux/dmxHk.dscript");
+include("../common/utilTools.dscript");
+
+
+// -------------------------------------------------------------------------------------------------------------
+
+//Check of status error when an Invalid register address is read
+function checkInvalidRegisterAddress() {
+	const Invalid_address = 0x4300;
+    sendToDMXWriteRegister(Invalid_address, 3);
+}
+
+//Check of status error when a writing command is sent to a read only register
+function checkWriteToReadOnly() {
+    sendToDMXWriteRegister(ADD_DMX_HK_P5V0_ANA, 0x0001);
+}
+
+//Check of status error when a parameter is out of range
+function checkParameterOOR() {
+    sendToDMXWriteRegister(ADD_DMX_MUX_SQ_FB_DELAY, 0XFFFF);
+}
+
+//----------------------------------------------
+
+//checkInvalidRegisterAddress();
+//checkWriteToReadOnly();
+checkParameterOOR();
+
+
+// -------------------------------------------------------------------------------------------------------------
+print("Done!");

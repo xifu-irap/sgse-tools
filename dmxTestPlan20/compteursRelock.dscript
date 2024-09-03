@@ -1,0 +1,110 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     muxSquidDacTest.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file tests the Mux SQUID DACs of the DMX boards.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+include("../demux/dmxTools.dscript");
+include("../demux/dmxRegAddresses.dscript");
+include("../demux/dmxHk.dscript");
+include("../common/utilTools.dscript");
+
+
+// -------------------------------------------------------------------------------------------------------------
+
+function setFeedbackOn(colId) {
+ // Switching ON the feedback for the selected column
+    var colOnOff = [OFF, OFF, OFF, OFF];
+    colOnOff[colId] = ON;
+    setDMX_feedbackOnOff(colOnOff);
+}
+
+function setFeedbacksOff() {
+	// Switching the feedback Off for the all the columns
+    setDMX_feedbackOnOff([OFF, OFF, OFF, OFF]);
+}
+	
+// Tester la saturation des compteurs de relock
+function saturation_CompteursRelock(colId_p) {
+	
+	plotLongLine();
+	print("Processing col " + colId_p);
+	
+	print("Initial values: ");
+	readDMX_delockFlag(true);
+	print("Delock counters:" + readDMX_delockCounters(colId_p));
+
+	print("Setting delock_delay and delock_threshold at lowest values... (delocks will occur)");
+	setDMX_relock_delay(colId_p, 0x0001);
+	setDMX_relock_threshold(colId_p, 0x0001);
+	
+	print("Setting the feedback mode to closed loop for all the pixels");
+	const tabFbModesClosedLoop = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_CLOSED_LOOP);
+	setDMX_sqm_FBMode(colId_p, tabFbModesClosedLoop);
+	
+	print("Setting feedback on");
+	setFeedbackOn(colId_p);
+	
+	waitMs(1000); // Delock counter should saturate
+	
+	readDMX_delockFlag(true);
+	print("Delock counters: " + readDMX_delockCounters(colId_p));
+	
+	print("Setting feedback off  / should reset the delock counters and delock flag...");
+	setFeedbacksOff();
+	
+	readDMX_delockFlag(true);
+	print("Delock counters: " + readDMX_delockCounters(colId_p));
+
+	print("Setting feedback on (new delocks will occur)");
+	setFeedbackOn(colId_p);
+
+	waitMs(1000); // Delock counter should saturate
+	
+	readDMX_delockFlag(true);
+	print("Delock counters: " + readDMX_delockCounters(colId_p));
+
+	print("Setting delock_delay and delock_threshold at highest values... (should stop the delocks)");
+	setDMX_relock_delay(colId_p, 0xFFFF);
+	setDMX_relock_threshold(colId_p, 0xFFFF);
+	
+	print("Setting delock_counter registers to 0");
+	setDMX_delockCounters(colId_p, 0x0000);
+	
+	readDMX_delockFlag(true);
+	print("Delock counters: " + readDMX_delockCounters(colId_p));
+
+}
+
+//----------------------------------------------
+
+
+for (var col = 0; col < DMX_NB_COL; col+=1) {
+	saturation_CompteursRelock(col);
+}
+
+// -------------------------------------------------------------------------------------------------------------
+print("Done!");
+
