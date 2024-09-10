@@ -465,7 +465,7 @@ function readDMX_sqa_knorm(col_p) {
 /**
  * Sets the values of the default feedback for the MUX SQUID (FB0).
  * @param {number} col_p - column number [0, 3]
- * @param {array} fb0_p - one value of FB0 per pixel.
+ * @param {array} fb0_p - one value of FB0 per pixel s(16,2).
  */
 function setDMX_fb0(col_p, fb0_p) {
     if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {

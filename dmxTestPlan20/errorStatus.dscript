@@ -17,11 +17,11 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     muxSquidDacTest.dscript
+//    @file                     errorStatus.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
-//    This file tests the Mux SQUID DACs of the DMX boards.
+//    This file tests handling of the errors on the SPI TMTC link.
 //
 // -------------------------------------------------------------------------------------------------------------
 
@@ -36,26 +36,28 @@ include("../common/utilTools.dscript");
 
 //Check of status error when an Invalid register address is read
 function checkInvalidRegisterAddress() {
+    print("Sending a command to an invalid address: ");
 	const Invalid_address = 0x4300;
     sendToDMXWriteRegister(Invalid_address, 3);
 }
 
 //Check of status error when a writing command is sent to a read only register
 function checkWriteToReadOnly() {
+    print("Sending a command to a read only register: ");
     sendToDMXWriteRegister(ADD_DMX_HK_P5V0_ANA, 0x0001);
 }
 
 //Check of status error when a parameter is out of range
 function checkParameterOOR() {
+    print("Sending a command with an out-of-range parameter: ");
     sendToDMXWriteRegister(ADD_DMX_MUX_SQ_FB_DELAY, 0XFFFF);
 }
 
 //----------------------------------------------
 
-//checkInvalidRegisterAddress();
-//checkWriteToReadOnly();
+checkInvalidRegisterAddress();
+checkWriteToReadOnly();
 checkParameterOOR();
-
 
 // -------------------------------------------------------------------------------------------------------------
 print("Done!");

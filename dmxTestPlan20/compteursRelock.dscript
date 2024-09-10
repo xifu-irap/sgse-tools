@@ -17,11 +17,11 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     muxSquidDacTest.dscript
+//    @file                     compteurRelock.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
-//    This file tests the Mux SQUID DACs of the DMX boards.
+//    This file tests the handling of the delock counters.
 //
 // -------------------------------------------------------------------------------------------------------------
 

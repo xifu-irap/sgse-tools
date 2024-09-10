@@ -32,8 +32,8 @@
 // -------------------------------------------------------------------------------------------------------------
 
 // import libraries
-include("./fpasim/utils_tools.dscript");
-include("./fpasim/fpasim.dscript");
+//include("./fpasim/utils_tools.dscript");
+//include("./fpasim/fpasim.dscript");
 
 // define the SPI device registers (see datasheet: cdce72010 device)
 const CDCE_ADDR = {};
@@ -2234,7 +2234,7 @@ function CDCE72010_configure(level_p, mode_p, verbosity_p) {
     if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
 
     const level0 = level_p;
-    const level1 = level_p + 1;
+    const level1 = level_p + 1;
 
     const msg = "CDCE72010_configure";
     display_title(msg, level0, mode_p);
