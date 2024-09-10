@@ -138,16 +138,18 @@ function display(msg_p, level_p, mode_p, color_p) {
     if (typeof(mode_p) === 'undefined') mode_p = 0;
     if (typeof(color_p) === 'undefined') color_p = 'reset';
 
-    // color = colors[color_p]
-    // color_rst = colors['reset']
-    msg_array = _convert_str_to_array(msg_p)
-    str_indent = duplicate_str(CHAR_INDENT, NB_CHAR_INDENT * level_p);
+	if (mode_p) {
+		// color = colors[color_p]
+		// color_rst = colors['reset']
+		msg_array = _convert_str_to_array(msg_p)
+		str_indent = duplicate_str(CHAR_INDENT, NB_CHAR_INDENT * level_p);
 
-    for (var i = 0; i < msg_array.length; i++) {
-        msg = msg_array[i];
-        // str0 = color + str_indent + ' ' + msg + color_rst
-        str0 = str_indent + ' ' + msg;
-        print(str0);
+		for (var i = 0; i < msg_array.length; i++) {
+			msg = msg_array[i];
+			// str0 = color + str_indent + ' ' + msg + color_rst
+			str0 = str_indent + ' ' + msg;
+			print(str0);
+		}
     }
 }
 
@@ -337,6 +339,16 @@ function convert_int_to_uint(data_p, width_p) {
         const val = data_p;
     }
     return val;
+}
+
+/**
+ * Provides the current date
+ * @return {string} date - date in the format : YYYYMMDD_HHMMSS
+ */
+function maDate()
+{
+	const d = new Date();
+	return d.getFullYear()+"-"+(("00" +(d.getMonth()+1).toString()).slice(-2))+"-"+(("00" +(d.getDate()).toString()).slice(-2))+"_"+(("00" +(d.getHours()).toString()).slice(-2))+"h"+(("00" +(d.getMinutes()).toString()).slice(-2))+"m"+(("00" +(d.getSeconds()).toString()).slice(-2))+"s";
 }
 
 //---------------------------------------------------------------------------------------

@@ -32,8 +32,8 @@
 // -------------------------------------------------------------------------------------------------------------
 
 // import libraries
-include("./fpasim/utils_tools.dscript");
-include("./fpasim/fpasim.dscript");
+//include("./fpasim/utils_tools.dscript");
+//include("./fpasim/fpasim.dscript");
 
 
 // define the SPI device registers (see datasheet: ads62p49  device)

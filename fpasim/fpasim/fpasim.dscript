@@ -17,7 +17,7 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                   kenji.delarosa@alten.com
-//    @file                   fpasim_tools.dscript
+//    @file                   fpasimTools.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    Automatic Generation    No
 //    Code Rules Reference
@@ -31,7 +31,7 @@
 //      . This script only implemented function to access registers not yet implemented by the Xifu Studio application.
 //
 // -------------------------------------------------------------------------------------------------------------
-include("./fpasim/utils_tools.dscript")
+//include("./fpasim/utils_tools.dscript")
 
 // verbosity min to display register access
 const c_FPASIM_REG_VERBOSITY_MIN = 0;
@@ -400,10 +400,7 @@ function fpasim_set_ctrl(rst_p, en_p, level_p, mode_p, verbosity_p) {
             display_bit("en_p", bit_value_p = en_p, 1, level2, mode_p);
 
         }
-
     }
-
-
 }
 
 
@@ -427,7 +424,7 @@ function fpasim_set_spi_ctrl(rst_p, en_p, level_p, mode_p, verbosity_p) {
     const level2 = level_p + 2;
 
     const data = fpasim_build_spi_ctrl(rst_p, en_p);
-    const addr = addr = FPASIM_ADDR_WIREIN["SPI_CTRL"];
+    const addr = FPASIM_ADDR_WIREIN["SPI_CTRL"];
 
     sendToFPAsim_debugSetWireIn(addr, data);
 
@@ -446,11 +443,8 @@ function fpasim_set_spi_ctrl(rst_p, en_p, level_p, mode_p, verbosity_p) {
         if (verbosity_p >= c_FPASIM_BIT_VERBOSITY_MIN) {
             display_bit("rst_p", bit_value_p = rst_p, 1, level2, mode_p);
             display_bit("en_p", bit_value_p = en_p, 1, level2, mode_p);
-
         }
     }
-
-
 }
 
 /**
