@@ -87,9 +87,7 @@ function reverse_bit_order(value_p, width_p) {
         value = (value_p >> i) & 0x1;
         res = res + value * Math.pow(2, bit_max_pos - i);
     }
-
     return res;
-
 }
 
 /**
@@ -115,8 +113,6 @@ function cdce_spi_enable(level_p, mode_p, verbosity_p) {
     const rst = 0;
     const en = 1;
     fpasim_set_spi_ctrl(rst, en, level0, mode_p, verbosity_p);
-
-
 }
 
 /**
@@ -145,8 +141,6 @@ function cdce_write_command(addr_p, data_p) {
     // addr0 addr1 .... bit0 ... bit26 bit27
     spi_cmd = reverse_bit_order(spi_cmd, 32);
     fpasim_set_spi_wr_data(spi_cmd, 0, 0, -1);
-
-
 }
 
 /**
@@ -460,7 +454,6 @@ function cdce_set_config2(
 
         }
     }
-
 }
 
 /**
@@ -539,7 +532,6 @@ function cdce_set_config3(
 
         }
     }
-
 }
 
 /**
@@ -2234,10 +2226,12 @@ function CDCE72010_configure(level_p, mode_p, verbosity_p) {
     if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
 
     const level0 = level_p;
-    const level1 = level_p + 1;
+    const level1 = level_p + 1;
 
-    const msg = "CDCE72010_configure";
-    display_title(msg, level0, mode_p);
+
+    const msg = "Configuring CDCE72010...";
+    //display_title(msg, level0, mode_p);
+    print(TAB3+msg);
 
     // Enable the SPI on the FPGA board
     cdce_spi_enable(level1, mode_p, verbosity_p);
