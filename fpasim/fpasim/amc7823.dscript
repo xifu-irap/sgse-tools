@@ -2343,8 +2343,9 @@ function AMC7823_configure(level_p, mode_p, verbosity_p) {
     const level0 = level_p;
     const level1 = level_p + 1;
 
-    const msg = "AMC7823_configure";
-    display_title(msg, level0, mode_p);
+    const msg = "Configuring AMC7823...";
+    //display_title(msg, level0, mode_p);
+    print(TAB3+msg);
 
     // Enable the SPI on the FPGA board
     amc_spi_enable(level1, mode_p, verbosity_p);

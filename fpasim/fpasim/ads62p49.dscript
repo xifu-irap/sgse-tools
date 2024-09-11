@@ -2555,8 +2555,9 @@ function ADS62P49_configure(level_p, mode_p, verbosity_p) {
     const level0 = level_p;
     const level1 = level_p + 1;
 
-    const msg = "ADS62P49_configure";
-    display_title(msg, level0, mode_p);
+    const msg = "Configuring ADS62P49...";
+    //display_title(msg, level0, mode_p);
+    print(TAB3+msg);
 
     // Enable the SPI on the FPGA board
     const msg = "Enable the FPASim SPI bridge";
