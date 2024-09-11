@@ -71,6 +71,13 @@ function startFPAsim() {
 
     print(TAB1 + "Setting the register TES_CONF");
     sendToFPAsim_configureTES_conf(nbPixels-1, nbSamplesPerPixel-1, totalFrameSize-1);  // add -1 because we start from 0
+	print("");
+
+    print(TAB1 + "Enabling the fpasim functions...");
+	print("");
+	rst = 0;
+	en = 1;
+	sendToFPAsim_configureControl(fpasim_build_ctrl(rst, en));
 
 	return error_load_ram_cnt;
 }
@@ -123,10 +130,6 @@ function charac_RA_DELAY(col_p, ra_delay_p, fb0_p, offsetLSB_p, offsetFine_p, of
 	const amp_sq_of_delay = 0;
 	const error_delay = 0;
 
-	print("Starting the FPAsim with default RAM contents...");
-	print("");
-	startFPAsim();
-
 	print("Configuring the FPAsim delays...");
 	print("");
 	configureFPAsim(mux_sq_fb_delay, amp_sq_of_delay, error_delay, ra_delay_p);
@@ -137,13 +140,6 @@ function charac_RA_DELAY(col_p, ra_delay_p, fb0_p, offsetLSB_p, offsetFine_p, of
 	print(TAB1 + Steady);
 	sendToFPAsim_loadTES_steadyState(Steady);
 	print("");
-
-    print(TAB1 + "Enabling the fpasim functions...");
-	print("");
-	rst = 0;
-	en = 1;
-	sendToFPAsim_configureControl(fpasim_build_ctrl(rst, en));
-
 
 	print("Setting the DMX feedback mode to OPEN_LOOP (FB0 -> FEEDBACK output)...");
 	setDMX_sqm_FBMode(col_p, makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP));
@@ -175,6 +171,10 @@ offsetLSB = 0x0FFF;
 offsetFine = 0x7;
 offsetCoarse = 0x37C;
 ra_delay = 0;
+
+print("Starting the FPAsim with default RAM contents...");
+print("");
+startFPAsim();
 
 charac_RA_DELAY(col, ra_delay, fb0, offsetLSB, offsetFine, offsetCoarse);
 
