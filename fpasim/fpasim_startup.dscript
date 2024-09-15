@@ -35,7 +35,7 @@
 // -------------------------------------------------------------------------------------------------------------
 
 // import javascript
-include("./fpasim/fpasimTools.dscript");
+//include("./fpasim/fpasim_tools.dscript");
 
 
 
@@ -45,7 +45,7 @@ include("./fpasim/fpasimTools.dscript");
  * @param {number} mode_p - define the print output
  * @param {number} verbosity_p - level of verbosity
  */
-function main(level_p, mode_p, verbosity_p) {
+function fpasimStartup(level_p, mode_p, verbosity_p) {
 
     // default function parameter values
     if (typeof(level_p) === 'undefined') level_p = 0;
@@ -334,4 +334,4 @@ function main(level_p, mode_p, verbosity_p) {
  * @param {number} mode_p - define the print output
  * @param {number} verbosity_p - level of verbosity
  */
-main(0, 0, 2);
+//main(0, 0, 2);

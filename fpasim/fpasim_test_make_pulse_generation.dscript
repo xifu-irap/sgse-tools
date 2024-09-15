@@ -38,8 +38,15 @@
 // -------------------------------------------------------------------------------------------------------------
 
 // import javascript
-include("./fpasim/fpasimTools.dscript");
+include("./fpasim/fpasim.dscript");
+include("./fpasim/fpasim_tools.dscript");
+include("./fpasim/utils_tools.dscript");
+include("./fpasim/CDCE72010.dscript");
+include("./fpasim/ADS62P49.dscript");
+include("./fpasim/DAC3283.dscript");
+include("./fpasim/AMC7823.dscript");
 
+const TAB3 = "         "
 
 
 /**
