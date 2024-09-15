@@ -31,7 +31,8 @@ include("../demux/dmxRegAddresses.dscript");
 include("../demux/dmxHk.dscript");
 
 include("../fpasim/fpasim/fpasim.dscript");
-include("../fpasim/fpasim/fpasimTools.dscript");
+
+include("../fpasim/fpasim/fpasim_tools.dscript");
 include("../fpasim/fpasim/utils_tools.dscript");
 include("../fpasim/fpasim/cdce72010.dscript");
 include("../fpasim/fpasim/ads62p49.dscript");
@@ -44,80 +45,97 @@ include("../common/utilTools.dscript");
 const ram_base_path = "../fpasim/fpasim_default_ram/"
 
 
-function startFPAsim() {
-
-	print(TAB1 + "Configuring the SPI devices of the FMC150 board...");
-	configure_fmc150_spi_device();
-
-	print("");
-	print(TAB1 + "Loading FPAsim default tables...");
-	const error_load_ram_cnt = configure_fpasim_default_ram();
-
-	print("");
-	print(TAB1 + "Resetting the FPAsim...");
-	fpasim_reset();
-
-	print("");
-	print(TAB1 + "Reading firmware Id and hardware Id...");
-
-	print(TAB2 + "FPAsim hardware ID is: " + get_FPAsim_HardwareID());
-	print(TAB2 + "FPAsim firmware ID is: " + get_FPAsim_FirmwareID());
-
-
-    // setting the register: TES_CONF (Mandatory)
-    const nbPixels = DMX_NB_PIX_PER_COL;
-    const nbSamplesPerPixel = 40;
-    const totalFrameSize = nbPixels * nbSamplesPerPixel;
-
-    print(TAB1 + "Setting the register TES_CONF");
-    sendToFPAsim_configureTES_conf(nbPixels-1, nbSamplesPerPixel-1, totalFrameSize-1);  // add -1 because we start from 0
-	print("");
-
-    print(TAB1 + "Enabling the fpasim functions...");
-	print("");
-	rst = 0;
-	en = 1;
-	sendToFPAsim_configureControl(fpasim_build_ctrl(rst, en));
-
-	return error_load_ram_cnt;
-}
-
-
 /**
- * Sets the FPAsim parameters.
- * @param {number} mux_sq_fb_delay_p - Delay on MUX squid feedback input (number of samples [0, 63])
- * @param {number} amp_sq_of_delay_p - Delay on AMP squid offset input (number of samples [0, 63])
- * @param {number} error_delay_p - Delay on ERROR output (number of samples [0, 63])
- * @param {number} ra_delay_p - Delay on SYNC output (number of samples [0, 63])
+ * Starting and initializing the FPAsim
+ * @param {boolean} force_p - if false the startup is done only if the FPAsim is not enabled (default is false)
+ * @param {number} level_p - level of indentation at the beginning
+ * @param {number} mode_p - define the print output
+ * @param {number} verbosity_p - level of verbosity
  */
-function configureFPAsim(mux_sq_fb_delay_p, amp_sq_of_delay_p, error_delay_p, ra_delay_p) {
+function fpasimStartup(force_p,level_p, mode_p, verbosity_p) {
 
-	// Setting the delays
-    print(TAB1 + "Setting the MUX_SQ_FB_DELAY to " + mux_sq_fb_delay_p);
-    sendToFPAsim_configureFeedbackDelay(mux_sq_fb_delay_p);
+    // default function parameter values
+    if (typeof(force_p) === 'undefined') force_p = false;
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
 
-    print(TAB1 + "Setting the AMP_SQ_OF_DELAY to " + amp_sq_of_delay_p);
-    sendToFPAsim_configureOffsetCompDelay(amp_sq_of_delay_p);
+    const level0 = 0;
+    const level1 = level0 + 1;
+    const level2 = level0 + 2;
 
-    print(TAB1 + "Setting the ERROR_DELAY to " + error_delay_p);
-    sendToFPAsim_configureErrorDelay(error_delay_p);
+    // Checking if the FPAsim already enabled
+    const CtrlReg = fpasim_get_wireout_by_name(reg_name_p = "CTRL");
+    const EnableBit = CtrlReg & 1;
 
-    print(TAB1 + "Setting the RA_DELAY to " + ra_delay_p);
-    sendToFPAsim_configureRaDelay(ra_delay_p);
+    if (EnableBit && !force_p) {
+        print("The FPAsim is already enabled, the startup function has not been executed.");
+        return;
+    }
+    else {
+        print("Initialization sequence of the FPAsim:")
+
+        print("");
+        print(TAB1 + "Configuring spi devices + FPAsim RAMs with default values...");
+        error_load_ram_cnt = fpasim_configure(level1, mode_p, verbosity_p);
+
+        print(TAB1 + "Reseting the fpasim functions...");
+        fpasim_reset(level1, mode_p, verbosity_p);
+
+        print(TAB1 + "Configuring the fpasim functions...");
+
+        // set the register: MUX_SQ_FB_DELAY
+        const mux_sq_fb_delay = 0x0;
+        print(TAB2 + "Setting the register MUX_SQ_FB_DELAY to " + mux_sq_fb_delay);
+        sendToFPAsim_configureFeedbackDelay(mux_sq_fb_delay);
+
+        // set the register: AMP_SQ_OF_DELAY
+        const amp_sq_of_delay = 0x0;
+        print(TAB2 + "Setting the register AMP_SQ_OF_DELAY to " + amp_sq_of_delay);
+        sendToFPAsim_configureOffsetCompDelay(amp_sq_of_delay);
+
+        // set the register: ERROR_DELAY
+        const error_delay = 0x0;
+        print(TAB2 + "Setting the register ERROR_DELAY to " + error_delay);
+        sendToFPAsim_configureErrorDelay(error_delay);
+
+        // set the register: RA_DELAY
+        const ra_delay = 0x0;
+        print(TAB2 + "Setting the register RA_DELAY to " + ra_delay);
+        sendToFPAsim_configureRaDelay(ra_delay);
 
 
-    // setting the register: CONF0
-    inter_squid_gain = 0xFF;
-    print(TABUL + "Setting the register CONF0");
-    data = fpasim_build_conf0(inter_squid_gain);
-    fpasim_set_debug_wirein_by_name('CONF0', data)
+        // set the register: TES_CONF
+        const nbPixels = 34;
+        const nbSamplesPerPixel = 40;
+        const totalFrameSize = nbPixels * nbSamplesPerPixel;
+
+        print(TAB1 + "Setting register TES_CONF");
+        sendToFPAsim_configureTES_conf(nbPixels - 1, nbSamplesPerPixel - 1, totalFrameSize - 1);  // add -1 because we start from 0
+
+
+        // set the register: CONF0
+        inter_squid_gain = 0xFF;
+        print(TAB1 + "Setting register CONF0");
+        data = fpasim_build_conf0(inter_squid_gain);
+        fpasim_set_debug_wirein_by_name('CONF0', data, level2, mode_p);
+
+        print(TAB1 + "Enabling the FPAsim functions...");
+        rst = 0;
+        en = 1;
+        data = fpasim_build_ctrl(rst, en);
+        sendToFPAsim_configureControl(data);
+        waitMs(500);
+
+        print("");
+    }
 }
 
 
 /**
  * Does an acquisition in ERROR mode in order to characterise the proper RA_DELAY.
  * @param {number} col_p - column id [0, 3].
- * @param {number} RaDelay_p - RA_DELAY value u(6,0).
+ * @param {number} ra_delay_p - Sequence delay [0, 63].
  * @param {number} fb0_p - Feedback at MUX SQUID operating point s(16,2).
  * @param {number} offsetLSB_p - offset LSB value at AMP SQUID operating point U(12,0).
  * @param {number} offsetFine_p - offset fine value at AMP SQUID operating point U(3,0).
@@ -125,59 +143,67 @@ function configureFPAsim(mux_sq_fb_delay_p, amp_sq_of_delay_p, error_delay_p, ra
  */
 function charac_RA_DELAY(col_p, ra_delay_p, fb0_p, offsetLSB_p, offsetFine_p, offsetCoarse_p) {
 
-	// Delays
-	const mux_sq_fb_delay = 0;
-	const amp_sq_of_delay = 0;
-	const error_delay = 0;
+    print("");
+    print("***");
+    print("* charac_RA_DELAY function");
+    print("***");
 
-	print("Configuring the FPAsim delays...");
-	print("");
-	configureFPAsim(mux_sq_fb_delay, amp_sq_of_delay, error_delay, ra_delay_p);
+    // set the register: RA_DELAY
+    print(TAB1+"Setting the register RA_DELAY to " + ra_delay_p);
+    sendToFPAsim_configureRaDelay(ra_delay_p);
 
-	print("Updating the FPAsim pixel steady states with specific values:");
+    // TES steady states
+	print(TAB1+"Updating the FPAsim pixel steady states with specific values:");
 	var Steady = makeArray(DMX_NB_PIX_PER_COL, 0);
 	Steady[0] = 4000;
 	print(TAB1 + Steady);
 	sendToFPAsim_loadTES_steadyState(Steady);
 	print("");
 
-	print("Setting the DMX feedback mode to OPEN_LOOP (FB0 -> FEEDBACK output)...");
+    // DEMUX feedback
+	print(TAB1+"Setting the DMX feedback mode to OPEN_LOOP (FB0 -> FEEDBACK output)...");
 	setDMX_sqm_FBMode(col_p, makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP));
-	print("Setting the DMX FB0 close to the MUX SQUID operating point...");
+	print(TAB1+"Setting the DMX FB0 close to the MUX SQUID operating point...");
 	setDMX_fb0(col_p, fb0_p);
 	print("");
 
-	print("Setting the offset mode to OFFSET (OFFSET -> OFFSET output)...");
+    // DEMUX offset
+	print(TAB1+"Setting the offset mode to OFFSET (OFFSET -> OFFSET output)...");
 	setDMX_offsetMode(makeArray(DMX_NB_COL,OFFSET_MODE_OFFSET));
-	print("Setting the Offset close to the AMP SQUID operating point...");
+	print(TAB1+"Setting the Offset close to the AMP SQUID operating point...");
 	setDMX_sqa_OffsetLSB(col_p, offsetLSB_p);
 	setDMX_sqa_OffsetFine(col_p, makeArray(DMX_NB_PIX_PER_COL, offsetFine_p), makeArray(DMX_NB_PIX_PER_COL, 0x0000));
 	setDMX_sqa_OffsetCoarse(col_p, offsetCoarse_p);
 	print("");
 
-	print("Setting the FPAsim RA_DELAY to " + ra_delay_p);
-	sendToFPAsim_configureRaDelay(ra_delay_p);
-	print("");
-
-	print("Doing an acquisition in DUMP mode...");
+    // Data acquisition
+	print(TAB1+"Doing an acquisition in DUMP mode...");
 	setDMX_dataAcqMode(ACQ_MODE_DUMP);
 }
 
 // -------------------------------------------------------------------------------------------------------------
 
 const col = 0;
-fb0 = 0x6CB0;
-offsetLSB = 0x0FFF;
-offsetFine = 0x7;
-offsetCoarse = 0x37C;
+
+// RA_DELAY
 ra_delay = 0;
 
-print("Starting the FPAsim with default RAM contents...");
-print("");
-startFPAsim();
+// DEMUX configuration
+const fb0 = 0x6CB0;
+const offsetLSB = 0x0FFF;
+const offsetFine = 0x7;
+const offsetCoarse = 0x37C;
+
+
+fpasimStartup();
 
 charac_RA_DELAY(col, ra_delay, fb0, offsetLSB, offsetFine, offsetCoarse);
 
-print("Done!");
 
 // -------------------------------------------------------------------------------------------------------------
+print("End of script!");
+
+
+
+
+

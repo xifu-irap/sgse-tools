@@ -45,7 +45,7 @@
 
 // import javascript
 include("./fpasim/utils_tools.dscript");
-include("./fpasim/fpasimTools.dscript");
+include("./fpasim/fpasim_tools.dscript");
 
 /**
  * Configure the registers of the FPAsim function with default values

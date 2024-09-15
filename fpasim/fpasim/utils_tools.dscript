@@ -54,7 +54,6 @@ function duplicate_str(str_p, nb_times_p) {
 }
 
 
-
 /**
  * Print a Title
  * @param {string} msg_p - Title to print (string or array of strings)
@@ -128,7 +127,7 @@ function display_subtitle(msg_p, level_p, mode_p, color_p) {
  * Print a message
  * @param {string} msg_p - message to print (string or array of strings)
  * @param {number} level_p - level of indentation at the beginning
- * @param {number} mode_p - define the output print
+ * @param {number} mode_p - define the output print (no print if mode_p === 0)
  * @param {string} color_p - define the message color. The list of colors can be found in the common.console_colors
  */
 function display(msg_p, level_p, mode_p, color_p) {
@@ -138,18 +137,18 @@ function display(msg_p, level_p, mode_p, color_p) {
     if (typeof(mode_p) === 'undefined') mode_p = 0;
     if (typeof(color_p) === 'undefined') color_p = 'reset';
 
-	if (mode_p) {
-		// color = colors[color_p]
-		// color_rst = colors['reset']
-		msg_array = _convert_str_to_array(msg_p)
-		str_indent = duplicate_str(CHAR_INDENT, NB_CHAR_INDENT * level_p);
+    if (mode_p) {
+        // color = colors[color_p]
+        // color_rst = colors['reset']
+        msg_array = _convert_str_to_array(msg_p)
+        str_indent = duplicate_str(CHAR_INDENT, NB_CHAR_INDENT * level_p);
 
-		for (var i = 0; i < msg_array.length; i++) {
-			msg = msg_array[i];
-			// str0 = color + str_indent + ' ' + msg + color_rst
-			str0 = str_indent + ' ' + msg;
-			print(str0);
-		}
+        for (var i = 0; i < msg_array.length; i++) {
+            msg = msg_array[i];
+            // str0 = color + str_indent + ' ' + msg + color_rst
+            str0 = str_indent + ' ' + msg;
+            print(str0);
+        }
     }
 }
 
@@ -218,7 +217,6 @@ function display_register(addr_p, addr_width_p, data_p, data_width_p, level_p, m
  */
 function display_bit_from_data(bit_name_p, bit_pos_p, bit_width_p, data_p, level_p, mode_p) {
 
-
     mask = Math.pow(2, bit_width_p) - 1; // 2**bit_width_p - 1;
     value = (data_p >> bit_pos_p) & mask; // return a int32_t
 
@@ -228,9 +226,7 @@ function display_bit_from_data(bit_name_p, bit_pos_p, bit_width_p, data_p, level
         // value = Math.pow(2, bit_width_p) - value;
         value += (1 << 30) * 4;
     }
-
     display_bit(bit_name_p, value, bit_width_p, level_p, mode_p);
-
 
 }
 
@@ -339,16 +335,6 @@ function convert_int_to_uint(data_p, width_p) {
         const val = data_p;
     }
     return val;
-}
-
-/**
- * Provides the current date
- * @return {string} date - date in the format : YYYYMMDD_HHMMSS
- */
-function maDate()
-{
-	const d = new Date();
-	return d.getFullYear()+"-"+(("00" +(d.getMonth()+1).toString()).slice(-2))+"-"+(("00" +(d.getDate()).toString()).slice(-2))+"_"+(("00" +(d.getHours()).toString()).slice(-2))+"h"+(("00" +(d.getMinutes()).toString()).slice(-2))+"m"+(("00" +(d.getSeconds()).toString()).slice(-2))+"s";
 }
 
 //---------------------------------------------------------------------------------------
