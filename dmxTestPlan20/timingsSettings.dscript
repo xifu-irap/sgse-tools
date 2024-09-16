@@ -44,6 +44,8 @@ include("../common/utilTools.dscript");
 // relative path from the main script (the calling script path)
 const ram_base_path = "../fpasim/fpasim_default_ram/"
 
+const STEADY_FSR = Math.pow(2, 16)-1;
+
 
 /**
  * Starting and initializing the FPAsim
@@ -164,12 +166,12 @@ function charac_RA_DELAY(col_p, ra_delay_p, fb0_p, offsetLSB_p, offsetFine_p, of
 	print(TAB1+"Setting the DMX feedback mode to OPEN_LOOP (FB0 -> FEEDBACK output)...");
 	setDMX_sqm_FBMode(col_p, makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP));
 	print(TAB1+"Setting the DMX FB0 close to the MUX SQUID operating point...");
-	setDMX_fb0(col_p, fb0_p);
+	setDMX_fb0(col_p, makeArray(DMX_NB_PIX_PER_COL, fb0_p));
 	print("");
 
     // DEMUX offset
 	print(TAB1+"Setting the offset mode to OFFSET (OFFSET -> OFFSET output)...");
-	setDMX_offsetMode(makeArray(DMX_NB_COL,OFFSET_MODE_OFFSET));
+	setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_OFFSET));
 	print(TAB1+"Setting the Offset close to the AMP SQUID operating point...");
 	setDMX_sqa_OffsetLSB(col_p, offsetLSB_p);
 	setDMX_sqa_OffsetFine(col_p, makeArray(DMX_NB_PIX_PER_COL, offsetFine_p), makeArray(DMX_NB_PIX_PER_COL, 0x0000));
@@ -181,12 +183,108 @@ function charac_RA_DELAY(col_p, ra_delay_p, fb0_p, offsetLSB_p, offsetFine_p, of
 	setDMX_dataAcqMode(ACQ_MODE_DUMP);
 }
 
+
+/**
+ * Does an acquisition in ERROR mode in order to characterise the proper FB_DELAY.
+ * @param {number} col_p - column id [0, 3].
+ * @param {number} fb_delay_p - feedback delay [0, 63].
+ * @param {number} fb0_p - Feedback at MUX SQUID operating point s(16,2).
+ * @param {number} offsetLSB_p - offset LSB value at AMP SQUID operating point U(12,0).
+ * @param {number} offsetFine_p - offset fine value at AMP SQUID operating point U(3,0).
+ * @param {number} offsetCoarse_p - offset coarse value at AMP SQUID operating point U(12,0).
+ */
+function charac_FB_DELAY(col_p, fb_delay_p, fb0_p, offsetLSB_p, offsetFine_p, offsetCoarse_p) {
+
+    print("");
+    print("***");
+    print("* charac_FB_DELAY function");
+    print("***");
+
+    // set the register: RA_DELAY
+    print(TAB1+"We assume that the register RA_DELAY is already set to its correct value");
+
+    // set the register: MUX_SQ_FB_DELAY
+    print(TAB1 + "Setting the register MUX_SQ_FB_DELAY to " + fb_delay_p);
+    sendToFPAsim_configureFeedbackDelay(fb_delay_p);
+
+    // TES steady states
+    steadyPourcentage = 90;
+	print(TAB1+"Setting the steady state of FPAsim pixels to: " + steadyPourcentage + " % of FSR");
+	var Steady = makeArray(DMX_NB_PIX_PER_COL, Math.round(STEADY_FSR*steadyPourcentage / 100));
+	sendToFPAsim_loadTES_steadyState(Steady);
+	print("");
+
+    // DEMUX feedback
+	print(TAB1+"Setting the DMX feedback mode to OPEN_LOOP (FB0 -> FEEDBACK output)...");
+	setDMX_sqm_FBMode(col_p, makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP));
+	print(TAB1+"Setting the DMX FB0 close to the MUX SQUID operating point except for pixel 0...");
+    var fb = makeArray(DMX_NB_PIX_PER_COL, fb0_p);
+    fb[0] = 0;
+    print(TAB2 + fb);
+	setDMX_fb0(col_p, fb);
+	print("");
+
+    // DEMUX offset
+	print(TAB1+"Setting the offset mode to OFFSET (OFFSET -> OFFSET output)...");
+	setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_OFFSET));
+	print(TAB1+"Setting the Offset close to the AMP SQUID operating point...");
+	setDMX_sqa_OffsetLSB(col_p, offsetLSB_p);
+	setDMX_sqa_OffsetFine(col_p, makeArray(DMX_NB_PIX_PER_COL, offsetFine_p), makeArray(DMX_NB_PIX_PER_COL, 0x0000));
+	setDMX_sqa_OffsetCoarse(col_p, offsetCoarse_p);
+	print("");
+
+    // Data acquisition
+	print(TAB1+"Doing an acquisition in DUMP mode...");
+	setDMX_dataAcqMode(ACQ_MODE_DUMP);
+}
+
+
+/**
+ * Set a TES steady states sequence
+ * @param {number} pattern_p - defines the pattern for the set of values.
+ *      1) all pixels at 0
+ *      2) 90 % of FRS
+ *      3) all pixels at 0 and pix 0 at another value
+ *      4) a ramp
+ */
+function setTesSteadyStates(pattern_p) {
+
+    switch (pattern) {
+        case 0:
+            print(TAB1 + "Setting the steady state of FPAsim pixels to: 0");
+            var Steady = makeArray(DMX_NB_PIX_PER_COL, 0);
+            break;
+        case 1:
+            steadyPourcentage = 90;
+            print(TAB1 + "Setting the steady state of FPAsim pixels to: " + steadyPourcentage + " % of FSR");
+            Steady = makeArray(DMX_NB_PIX_PER_COL, Math.round(STEADY_FSR * steadyPourcentage / 100));
+            break;
+        case 2:
+            print(TAB1 + "Setting the steady state of FPAsim pixels to: 0 except for pixel 0");
+            Steady = makeArray(DMX_NB_PIX_PER_COL, 0);
+            Steady[0] = 4000;
+            break;
+        case 3:
+            for (var pix=0; pix<DMX_NB_PIX_PER_COL; pix+=1) Steady[pix] = pix * 35;
+            break;
+    }
+    sendToFPAsim_loadTES_steadyState(Steady);
+
+    print(TAB2 + Steady);
+    print("");
+
+}
+
+
 // -------------------------------------------------------------------------------------------------------------
 
 const col = 0;
 
 // RA_DELAY
 ra_delay = 0;
+
+// RA_DELAY
+fb_delay = 0;
 
 // DEMUX configuration
 const fb0 = 0x6CB0;
@@ -197,7 +295,11 @@ const offsetCoarse = 0x37C;
 
 fpasimStartup();
 
-charac_RA_DELAY(col, ra_delay, fb0, offsetLSB, offsetFine, offsetCoarse);
+setTesSteadyStates(2);
+
+//charac_RA_DELAY(col, ra_delay, fb0, offsetLSB, offsetFine, offsetCoarse);
+
+//charac_FB_DELAY(col, fb_delay, fb0, offsetLSB, offsetFine, offsetCoarse);
 
 
 // -------------------------------------------------------------------------------------------------------------
