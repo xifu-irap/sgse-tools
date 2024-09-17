@@ -705,7 +705,7 @@ function readDMX_sqa_OffsetCoarse(col_p) {
 /**
  * Sets the feedback delay (MUX_SQ_FB_DELAY).
  * @param {number} col_p - column number [0, 3]
- * @param {number} feedback_delay_p - feedback delay (number of periods of 125MHz clock): S(10, 0)
+ * @param {number} feedback_delay_p - feedback delay (number of periods of 125MHz clock): S(10, 0) [-512, +40]
  */
 function setDMX_feedback_delay(col_p, feedback_delay_p) {
     const valMin = -512;
@@ -715,7 +715,7 @@ function setDMX_feedback_delay(col_p, feedback_delay_p) {
         return;
     }
     if ((feedback_delay_p < valMin ) || (feedback_delay_p > valMax)) {
-        print("ERROR, the feedback delay is incorrect! > " + feedback_delay_p);
+        print("ERROR, the feedback delay is incorrect! --> " + feedback_delay_p);
         return;
     }
     const val = convert_sInt_to_2compInt(feedback_delay_p, 10);
@@ -770,7 +770,7 @@ function readDMX_offsetDAC_delay(col_p) {
 /**
  * Sets the offset MUX delay (AMP_SQ_OFFSET_MUX_DELAY).
  * @param {number} col_p - column number [0, 3]
- * @param {number} offsetMUX_delay_p - offset/MUX delay (number of periods of 125MHz clock): S(10, 0)
+ * @param {number} offsetMUX_delay_p - offset/MUX delay (number of periods of 125MHz clock): S(10, 0) [-512, 40]
  */
 function setDMX_offsetMUX_delay(col_p, offsetMUX_delay_p) {
     const valMin = -512;
