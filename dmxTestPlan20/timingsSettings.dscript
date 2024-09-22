@@ -44,43 +44,8 @@ include("../common/utilTools.dscript");
 
 // relative path from the main script (the calling script path)
 const ram_base_path = "../fpasim/fpasim_default_ram/"
+
 const STEADY_FSR = Math.pow(2, 16)-1;
-
-
-/**
- * Starting and initializing the FPAsim
- *   If the FPAsim function is already enabled nothing is done unless the "force_p" parameter is set to true.
- * @param {boolean} force_p - if false the startup is done only if the FPAsim is not enabled (default is false)
- * @param {number} level_p - level of indentation at the beginning
- * @param {number} mode_p - define the print output
- * @param {number} verbosity_p - level of verbosity
- */
-function fpasimStartup_2(force_p,level_p, mode_p, verbosity_p) {
-
-    // default function parameter values
-    if (typeof(force_p) === 'undefined') force_p = false;
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
-
-    const level0 = 0;
-    const level1 = level0 + 1;
-    const level2 = level0 + 2;
-
-    // Checking if the FPAsim already enabled
-    const CtrlReg = fpasim_get_wireout_by_name(reg_name_p = "CTRL");
-    const EnableBit = CtrlReg & 1;
-
-    if (EnableBit && !force_p) {
-        print("The FPAsim is already enabled, the startup function has not been executed.");
-        return;
-    }
-    else {
-        print("Initialization sequence of the FPAsim:")
-
-		fpasimStartup();
-    }
-}
 
 
 /**
@@ -417,7 +382,7 @@ const offsetCoarse = 0x37C;
   Starting and initializing the FPAsim
   If the FPAsim function is already enabled nothing is done unless the "force_p" parameter is set to true.
 */
-fpasimStartup_2();
+fpasimStartup();
 
 
 // Uncomment the function call accordingly with the delay characterization you are interested in.
@@ -430,7 +395,8 @@ Does an acquisition in DUMP mode in order to characterise the proper RA_DELAY.
   Sets the RA_DELAY to the value provided by the parameter ra_delay_p
   Does a DMX dump
 */
-//charac_RA_DELAY(col, ra_delay, fb0, offsetLSB, offsetFine, offsetCoarse);
+
+charac_RA_DELAY(col, ra_delay, fb0, offsetLSB, offsetFine, offsetCoarse);
 
 
 /* FEEDBACK_DELAY characterization
@@ -468,7 +434,7 @@ Does an acquisition in DUMP mode to check alignment of Steady-state, Feedback an
   Sets the OF_DELAY to the value provided by the parameter of_delay_p
   Does a DMX dump * @param {number} col_p - column id [0, 3].
  */
-check_everything(col, ra_delay, fb_delay, of_delay, fb0, offsetLSB, offsetFine, offsetCoarse);
+//check_everything(col, ra_delay, fb_delay, of_delay, fb0, offsetLSB, offsetFine, offsetCoarse);
 
 
 

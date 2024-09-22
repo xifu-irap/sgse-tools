@@ -37,6 +37,31 @@
 // import javascript
 //include("./fpasim/fpasim_tools.dscript");
 
+
+/**
+ * Starting and initializing the FPAsim
+ *   If the FPAsim function is already enabled nothing is done unless the "force_p" parameter is set to true.
+ * @param {boolean} force_p - if false the startup is done only if the FPAsim is not enabled (default is false)
+ */
+function fpasimStartup(force_p) {
+
+    // default function parameter values
+    if (typeof(force_p) === 'undefined') force_p = false;
+
+    // Checking if the FPAsim already enabled
+    const CtrlReg = fpasim_get_wireout_by_name(reg_name_p = "CTRL");
+    const EnableBit = CtrlReg & 1;
+
+    if (EnableBit && !force_p) {
+        print("The FPAsim is already enabled, the startup function has not been executed.");
+        return;
+    }
+    else {
+        print("Initialization sequence of the FPAsim:")
+
+		fpasim_Startup();
+    }
+}
 
 
 /**
@@ -45,7 +70,7 @@
  * @param {number} mode_p - define the print output
  * @param {number} verbosity_p - level of verbosity
  */
-function fpasimStartup(level_p, mode_p, verbosity_p) {
+function fpasim_Startup(level_p, mode_p, verbosity_p) {
 
     // default function parameter values
     if (typeof(level_p) === 'undefined') level_p = 0;
@@ -129,7 +154,7 @@ function fpasimStartup(level_p, mode_p, verbosity_p) {
     ra_delay = 0x0; // 0 to 63
     print(TAB1 + "Setting register RA_DELAY to " + ra_delay);
     sendToFPAsim_configureRaDelay(ra_delay);
-
+
 	print("** Setting FPAsim configuration (TES_CONF):");
     // set the register: TES_CONF
     // user: nbPixels
@@ -137,9 +162,9 @@ function fpasimStartup(level_p, mode_p, verbosity_p) {
     // user: nbSamplesPerPixel
     nbSamplesPerPixel = 40; // 8 to 64
     // auto-computed
-    totalFrameSize = nbPixels * nbSamplesPerPixel;
-	print(TAB1 + "Number of pixels: " + nbPixels);
-	print(TAB1 + "Number of FPAsim samples per pixels: " + nbSamplesPerPixel);
+    totalFrameSize = nbPixels * nbSamplesPerPixel;
+	print(TAB1 + "Number of pixels: " + nbPixels);
+	print(TAB1 + "Number of FPAsim samples per pixels: " + nbSamplesPerPixel);
 	print(TAB1 + "Total frame size " + totalFrameSize + " FPAsim samples");
 
     // auto-computed: expected FPGA values
@@ -161,9 +186,9 @@ function fpasimStartup(level_p, mode_p, verbosity_p) {
     print("** Setting register CONF0");
     data = fpasim_build_conf0(inter_squid_gain);
     fpasim_set_debug_wirein_by_name('CONF0', data, level2, mode_p);
-
-	print("** Enabling FPAsim function");
-	fpasim_enable();
+
+	print("** Enabling FPAsim function");
+	fpasim_enable();
 
     /*
      ***************************************************************************
@@ -177,24 +202,24 @@ function fpasimStartup(level_p, mode_p, verbosity_p) {
     debug_pulse = 1; // 1: latch the internal error, 0: otherwise
     // build the data to send
     data0 = fpasim_build_debug_ctrl(adc1_bypass, adc0_bypass, dac_en_pattern, rst_status, debug_pulse);
-
+
 	/*
     msg = "Set register: DEBUG_CTRL";
     display(msg, level1, mode_p);
     fpasim_set_debug_wirein_by_name('DEBUG_CTRL', data0, level2, mode_p, verbosity_p);
-	*/
+	*/
 	
     /*
      ***************************************************************************
      * check all errors
      ***************************************************************************
-     */
+     */
 	/*
     error_debug_cnt = 0;
     msg = "Check internal errors (debug)";
     display_title(msg, level0, mode_p);
     error_debug_cnt = fpasim_check_all_errors(level1, 0, 0);
-	*/
+	*/
 	
     /*
      ***************************************************************************
@@ -256,6 +281,6 @@ function fpasimStartup(level_p, mode_p, verbosity_p) {
      * Save the Log content
      ***************************************************************************
      */
-    saveLogContent(output_filename);
+    //saveLogContent(output_filename);
 
 }

@@ -1,0 +1,211 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                    scanMuxSquid.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file is used to characterise the transfer function of the Mux Squid.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+include("../demux/dmxTools.dscript");
+include("../demux/dmxRegAddresses.dscript");
+include("../demux/dmxHk.dscript");
+
+include("../fpasim/fpasim/fpasim.dscript");
+include("../fpasim/fpasim_startup.dscript");
+
+include("../fpasim/fpasim/fpasim_tools.dscript");
+include("../fpasim/fpasim/utils_tools.dscript");
+include("../fpasim/fpasim/cdce72010.dscript");
+include("../fpasim/fpasim/ads62p49.dscript");
+include("../fpasim/fpasim/dac3283.dscript");
+include("../fpasim/fpasim/amc7823.dscript");
+
+include("../common/utilTools.dscript");
+
+// relative path from the main script (the calling script path)
+const ram_base_path = "../fpasim/fpasim_default_ram/"
+const STEADY_FSR = Math.pow(2, 16)-1;
+
+// Optimal delays
+const RA_DELAY = 55;
+const FEEDBACK_DELAY = -92;
+const SAMPLING_DELAY =12;
+const OFFSET_MUX_DELAY = -99;
+
+
+/**
+ * Setting the delays to theyr optimal value
+ * @param {number} ra_delay_p - sequence delay at FPAsim output [0, 63].
+ * @param {number} feedback_delay_p - FEEDBACK_DELAY, one value per column.
+ * @param {number} sampling_delay_p - SAMPLING_DELAY, one value per column.
+ * @param {number} offset_mux_delay_p - OFFSET_MUX_DELAY, one value per column.
+ */
+function setOptimalDelays(ra_delay_p, feedback_delay_p, sampling_delay_p, offset_mux_delay_p) {
+
+    print(TAB2 + "Setting the FPAsim RA_DELAY to " + ra_delay_p);
+	print(TAB2 + "Setting the MUX_SQ_FB_DELAY to " + feedback_delay_p);
+	print(TAB2 + "Setting the SAMPLING_DELAY to " + sampling_delay_p);
+	print(TAB2 + "Setting the AMP_SQ_OFFSET_MUX_DELAY to " + offset_mux_delay_p);
+
+    // set the RA_DELAY
+    sendToFPAsim_configureRaDelay(ra_delay_p);
+
+	for (var col=0; col<DMX_NB_COL; col+=1) {
+		// set the MUX_SQ_FB_DELAY
+		setDMX_feedback_delay(col, feedback_delay_p[col]);
+
+		// set the SAMPLING_DELAY
+		setDMX_sampling_delay(col, sampling_delay_p[col]);
+		
+		// set the register: AMP_SQ_OFFSET_MUX_DELAY
+		setDMX_offsetMUX_delay(col, offset_mux_delay_p[col]);
+	}
+}
+
+
+/**
+ * Does a scan of the MUX SQUID with the AMP SQUID in closed loop mode.
+ * @param {number} ra_delay_p - sequence delay at FPAsim output [0, 63].
+ */
+function scanMuxSquid(col_p) {
+	const offsetLSB = 0x0FFF;
+	const offsetFine = 0x7;
+
+    print("");
+    print("***");
+    print("* Scanning MUX SQUID transfer function ...");
+    print("***");
+
+	print(TAB1+"Setting the  steady state of FPAsim pixels to 90% of FSR...");
+	setTesSteadyStates(1);
+	print("");
+
+	print(TAB1+"Switching ON the feedback for the column..." + col_p);
+    var colOnOff = [OFF, OFF, OFF, OFF];
+    colOnOff[col_p] = ON;
+    setDMX_feedbackOnOff(colOnOff);
+	print("");
+
+	print(TAB1+"Setting the DMX feedback mode to TEST_PATTERN...");
+	setDMX_sqm_FBMode(col_p, makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_TESTPATTERN));
+    // Setting the testPattern to a rising slope
+    const a = -1*Math.pow(2, 15);
+    const b = 10;
+    const c = Math.pow(2,2);
+    const N = Math.pow(2,14) - 1;
+    const sawPattern = [
+        [a, b, c, N],  // Slope upward
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0]  // Nothing
+    ];
+    setDMX_testPattern(sawPattern); 
+	
+    // DEMUX offset
+	print(TAB1+"Setting the offset mode to CLOSED LOOP...");
+	setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_CLOSED));
+	print(TAB1+"Setting the Offset close to the AMP SQUID operating point...");
+	setDMX_sqa_OffsetLSB(col_p, offsetLSB);
+	setDMX_sqa_OffsetFine(col_p, offsetFine, makeArray(DMX_NB_PIX_PER_COL, 0x0000));
+	print("");
+
+	print(TAB1 + "Activating the test pattern...");
+	var enable = true;
+	var infinitely = true;
+	var nbTime = 0x9;
+	setDMX_testPatternEnable(enable, infinitely, nbTime);
+
+    // Data acquisition
+	print(TAB1+"Doing an acquisition in DUMP mode...");
+	setDMX_dataAcqMode(ACQ_MODE_DUMP);
+}
+
+
+/**
+ * Set a TES steady states sequence
+ * Depending on the value of the pattern parameter a specific sequence will be selected.
+ * @param {number} pattern_p - defines the pattern for the set of values.
+ *      0) all pixels at 0
+ *      1) 90 % of FRS
+ *      2) all pixels at 0 and pix 0 at another value
+ *      3) a ramp
+ */
+function setTesSteadyStates(pattern_p) {
+
+	var Steady = [];
+	
+    switch (pattern_p) {
+        case 0:
+            print(TAB1 + "Setting the steady state of FPAsim pixels to: 0");
+            Steady = makeArray(64, 0);
+            Steady = makeArray(DMX_NB_PIX_PER_COL, 0);
+            break;
+        case 1:
+            steadyPourcentage = 90;
+            print(TAB1 + "Setting the steady state of FPAsim pixels to: " + steadyPourcentage + " % of FSR");
+            Steady = makeArray(DMX_NB_PIX_PER_COL, Math.round(STEADY_FSR * steadyPourcentage / 100));
+            break;
+        case 2:
+            print(TAB1 + "Setting the steady state of FPAsim pixels to: 0 except for pixel 0");
+            Steady = makeArray(DMX_NB_PIX_PER_COL, 0);
+            Steady[0] = 1000;
+            break;
+        case 3:
+            for (var pix=0; pix<DMX_NB_PIX_PER_COL; pix+=1) Steady[pix] = pix * 400;
+            break;
+    }
+    sendToFPAsim_loadTES_steadyState(Steady);
+
+    print(TAB1 + "Steady states: ");
+    print(TAB2 + Steady);
+    print("");
+}
+
+
+// -------------------------------------------------------------------------------------------------------------
+
+const col = 0;
+// DEMUX configuration
+const offsetLSB = 0x0FFF;
+const offsetFine = 0x7;
+const offsetCoarse = 0x37C;
+
+/*
+  Starting and initializing the FPAsim
+  If the FPAsim function is already enabled nothing is done unless the "force_p" parameter is set to true.
+*/
+fpasimStartup();
+
+print(TAB1 + "Setting optimal delays:");
+setOptimalDelays(RA_DELAY, FEEDBACK_DELAY, SAMPLING_DELAY, OFFSET_MUX_DELAY)
+scanMuxSquid(col)
+
+
+// -------------------------------------------------------------------------------------------------------------
+print("End of script!");
+
+
+
+
+
