@@ -29,8 +29,8 @@
 
 // strings
 const TAB1 = "   ";
-const TAB2 = repeat(TAB1, 2);
-const TAB3 = repeat(TAB1, 3);
+const TAB2 = repeat(TAB1, 2);
+const TAB3 = repeat(TAB1, 3);
 
 
 // -- FUNCTIONS --------

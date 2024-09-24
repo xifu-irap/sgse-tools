@@ -30,6 +30,7 @@
  */
 
 // General constants
+const NB_SAMPLES_PER_PIX = 20;
 const DMX_NB_COL = 4;
 const DMX_NB_PIX_PER_COL = 34;
 const DMX_PULSESHAPING_NBVALUES = 20;
