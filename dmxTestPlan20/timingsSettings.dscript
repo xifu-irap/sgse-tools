@@ -322,7 +322,7 @@ function check_everything(col_p, ra_delay_p, fb_delay_p, of_delay_p, fb0_p, offs
  * Depending on the value of the pattern parameter a specific sequence will be selected.
  * @param {number} pattern_p - defines the pattern for the set of values.
  *      0) all pixels at 0
- *      1) 90 % of FRS
+ *      1) 90 % of FSR
  *      2) all pixels at 0 and pix 0 at another value
  *      3) a ramp
  */

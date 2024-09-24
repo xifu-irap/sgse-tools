@@ -56,13 +56,42 @@ ICUMain = 0;
 ICURed = 1;
 
 /**
+ * Sets the TMUX.
+ * @param {number} tMux_p - multiplexing factor [1, 48]
+ */
+function setRAS_tMux(tMux_p) {
+
+    if (tMux < 1 || tMux > NB_PS * NB_GS) {
+        print("ERROR, tMux must be between 1 and ", NB_PS * NB_GS, " ( received ", tMux_p, ")");
+        return;
+    }
+
+    sendToRASWriteRegister(ADD_RAS_TMUX, tMux_p);
+}
+
+
+/**
+ * Reads the TMUX.
+ * @return {number} tMux - multiplexing factor
+ */
+function readRAS_tMux() {
+
+    const reg_address = ADD_RAS_TMUX;
+    sendToRASReadRegister(reg_address);
+    getLatestValue("RAS_registers");
+
+    return RAS_registers[reg_address];
+}
+
+
+/**
  * Sets an address sequence.
  * @param {number} addressId - selected address id [0, 13]
  *    0 - 7 for PS0 - PS7
  *    8 - 13 for GS0 - GS5
- * @param {number} Seq - 48 bits sequence
+ * @param {number} seq - 48 bits sequence
  */
-function setRAS_addressSequence(addressId, Seq) {
+function setRAS_addressSequence(addressId, seq) {
 
     if (addressId < 0 || addressId > NB_RA-1) {
         print("ERROR, address identifier must be between 0 and ", NB_RA-1, " ( received ", addressId, ")");
@@ -71,9 +100,9 @@ function setRAS_addressSequence(addressId, Seq) {
 	
     const reg_address= ADD_RAS_SEQ_PS + (addressId << 4);
 
-    const seq_beg = Seq & 0xFFFF;       // (LSB)
-    const seq_mid = (Seq >> 16) & 0xFFFF;
-    const seq_end = (Seq >> 32) & 0xFFFF; // (MSB)
+    const seq_beg = seq & 0xFFFF;       // (LSB)
+    const seq_mid = (seq >> 16) & 0xFFFF;
+    const seq_end = (seq >> 32) & 0xFFFF; // (MSB)
 
     sendToRASWriteMultiRegisters(reg_address, 3, [seq_beg, seq_mid, seq_end]);
 }
@@ -345,22 +374,47 @@ function readRAS_testPattern() {
 
 /**
  * enable / disable the test pattern (TEST_PATTERN_ENABLE).
+ * @param {string} dest_p - destination of the test pattern (PS_LOW, PS_HIGH, GS_LOW, GS_HIGH, WFEE)
  * @param {boolean} enable_p - active if true.
  * @param {boolean} infinite_p - infinitely generated if true.
  * @param {number} numberIterations_p - number of repetitions, in [0, 15].
  */
-function setRAS_testPatternEnable(enable_p, infinite_p, numberIterations_p) {
+function setRAS_testPatternEnable(dest_p, enable_p, infinite_p, numberIterations_p) {
     if (numberIterations_p > 15) {
         print("ERROR, incorrect number of test pattern iterations! > " + numberIterations_p + "\n" + "Setting the number of iterations to 0 instead.");
 		numberIterations_p = 0;
     }
-    const value = numberIterations_p + (infinite_p << 4) + (enable_p << 5);
+
+    switch(dest_p) {
+      case 'PS_LOW':
+        destId = 1;
+        break;
+      case 'PS_HIGH':
+        destId = 2;
+        break;
+      case 'GS_LOW':
+        destId = 4;
+        break;
+      case 'GS_HIGH':
+        destId = 8;
+        break;
+      case 'WFEE':
+        destId = 16;
+        break;
+      default:
+        destId = 0;
+        break;
+    }
+
+    const value = numberIterations_p + (infinite_p << 4) + (enable_p << 5) + (destId << 8);
 	sendToRASWriteRegister(ADD_RAS_TEST_PATTERN_ENABLE, value);
 }
+
 
 /**
  * Reads the test pattern enable register (TEST_PATTERN_ENABLE).
  * @return {array} testPatternEnable
+ *                          dest
  *							enable
  *							infinitely
  *							numberIterations.
@@ -369,10 +423,11 @@ function readRAS_testPatternEnable() {
     sendToRASReadRegister(ADD_RAS_TEST_PATTERN_ENABLE);
     getLatestValue("RAS_registers");
     const testPatternEnable = RAS_registers[ADD_RAS_TEST_PATTERN_ENABLE];
-	var enable = (testPatternEnable & 0x002F) >> 5;
+	var dest = (testPatternEnable & 0x1F00) >> 8;
+	var enable = (testPatternEnable & 0x0020) >> 5;
 	var infinitely = (testPatternEnable & 0x0010) >> 4;
 	var numberIterations = (testPatternEnable & 0x000F);
-	return [enable===1, infinitely===1, numberIterations];
+	return [dest, enable===1, infinitely===1, numberIterations];
 }
 
 
