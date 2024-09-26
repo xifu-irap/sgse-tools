@@ -29,7 +29,8 @@
 include("../demux/dmxTools.dscript");
 include("../demux/dmxRegAddresses.dscript");
 include("../demux/dmxHk.dscript");
-include("../common/utilTools.dscript");
+include("../common/utilTools.dscript");
+include("../common/constants.dscript");
 
 const NB_PIX_EMPTY_ARRAY = makeArray(DMX_NB_PIX_PER_COL, 0x0000);
 

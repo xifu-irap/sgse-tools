@@ -41,6 +41,7 @@ include("../fpasim/fpasim/dac3283.dscript");
 include("../fpasim/fpasim/amc7823.dscript");
 
 include("../common/utilTools.dscript");
+include("../common/constants.dscript");
 
 // relative path from the main script (the calling script path)
 const ram_base_path = "../fpasim/fpasim_default_ram/"
@@ -88,8 +89,8 @@ function setOptimalDelays(ra_delay_p, feedback_delay_p, sampling_delay_p, offset
  * @param {number} ra_delay_p - sequence delay at FPAsim output [0, 63].
  */
 function scanMuxSquid(col_p) {
-	const offsetLSB = 0x0FFF;
-	const offsetFine = 0x7;
+	const offsetLSB = 0x0FFF;
+	const offsetFine = 0x7;
 
     print("");
     print("***");
@@ -100,41 +101,41 @@ function scanMuxSquid(col_p) {
 	setTesSteadyStates(1);
 	print("");
 
-	print(TAB1+"Switching ON the feedback for the column..." + col_p);
+	print(TAB1+"Switching ON the feedback for the column..." + col_p);
     var colOnOff = [OFF, OFF, OFF, OFF];
     colOnOff[col_p] = ON;
     setDMX_feedbackOnOff(colOnOff);
-	print("");
+	print("");
 
 	print(TAB1+"Setting the DMX feedback mode to TEST_PATTERN...");
-	setDMX_sqm_FBMode(col_p, makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_TESTPATTERN));
-    // Setting the testPattern to a rising slope
-    const a = -1*Math.pow(2, 15);
-    const b = 10;
-    const c = Math.pow(2,2);
-    const N = Math.pow(2,14) - 1;
-    const sawPattern = [
-        [a, b, c, N],  // Slope upward
-        [0, 0, 0, 0],  // Nothing
-        [0, 0, 0, 0],  // Nothing
-        [0, 0, 0, 0],  // Nothing
-        [0, 0, 0, 0]  // Nothing
-    ];
-    setDMX_testPattern(sawPattern); 
+	setDMX_sqm_FBMode(col_p, makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_TESTPATTERN));
+    // Setting the testPattern to a rising slope
+    const a = -1*Math.pow(2, 15);
+    const b = 10;
+    const c = Math.pow(2,2);
+    const N = Math.pow(2,14) - 1;
+    const sawPattern = [
+        [a, b, c, N],  // Slope upward
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0]  // Nothing
+    ];
+    setDMX_testPattern(sawPattern); 
 	
     // DEMUX offset
 	print(TAB1+"Setting the offset mode to CLOSED LOOP...");
 	setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_CLOSED));
 	print(TAB1+"Setting the Offset close to the AMP SQUID operating point...");
 	setDMX_sqa_OffsetLSB(col_p, offsetLSB);
-	setDMX_sqa_OffsetFine(col_p, offsetFine, makeArray(DMX_NB_PIX_PER_COL, 0x0000));
+	setDMX_sqa_OffsetFine(col_p, offsetFine, makeArray(DMX_NB_PIX_PER_COL, 0x0000));
 	print("");
-
-	print(TAB1 + "Activating the test pattern...");
-	var enable = true;
-	var infinitely = true;
-	var nbTime = 0x9;
-	setDMX_testPatternEnable(enable, infinitely, nbTime);
+
+	print(TAB1 + "Activating the test pattern...");
+	var enable = true;
+	var infinitely = true;
+	var nbTime = 0x9;
+	setDMX_testPatternEnable(enable, infinitely, nbTime);
 
     // Data acquisition
 	print(TAB1+"Doing an acquisition in DUMP mode...");
@@ -186,21 +187,21 @@ function setTesSteadyStates(pattern_p) {
 // -------------------------------------------------------------------------------------------------------------
 
 const col = 0;
-// DEMUX configuration
-const offsetLSB = 0x0FFF;
-const offsetFine = 0x7;
-const offsetCoarse = 0x37C;
+// DEMUX configuration
+const offsetLSB = 0x0FFF;
+const offsetFine = 0x7;
+const offsetCoarse = 0x37C;
 
 /*
   Starting and initializing the FPAsim
   If the FPAsim function is already enabled nothing is done unless the "force_p" parameter is set to true.
 */
-fpasimStartup();
-
-print(TAB1 + "Setting optimal delays:");
+fpasimStartup();
+
+print(TAB1 + "Setting optimal delays:");
 setOptimalDelays(RA_DELAY, FEEDBACK_DELAY, SAMPLING_DELAY, OFFSET_MUX_DELAY)
-scanMuxSquid(col)
-
+scanMuxSquid(col)
+
 
 // -------------------------------------------------------------------------------------------------------------
 print("End of script!");

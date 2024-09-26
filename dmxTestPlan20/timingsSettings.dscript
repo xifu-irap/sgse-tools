@@ -41,6 +41,7 @@ include("../fpasim/fpasim/dac3283.dscript");
 include("../fpasim/fpasim/amc7823.dscript");
 
 include("../common/utilTools.dscript");
+include("../common/constants.dscript");
 
 // relative path from the main script (the calling script path)
 const ram_base_path = "../fpasim/fpasim_default_ram/"
@@ -396,7 +397,7 @@ Does an acquisition in DUMP mode in order to characterise the proper RA_DELAY.
   Does a DMX dump
 */
 
-charac_RA_DELAY(col, ra_delay, fb0, offsetLSB, offsetFine, offsetCoarse);
+//charac_RA_DELAY(col, ra_delay, fb0, offsetLSB, offsetFine, offsetCoarse);
 
 
 /* FEEDBACK_DELAY characterization

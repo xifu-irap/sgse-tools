@@ -29,6 +29,7 @@
 include("../ras/rasTools.dscript");
 include("../ras/rasRegAddresses.dscript");
 
+include("../common/constants.dscript");
 include("../common/utilTools.dscript");
 
 
@@ -44,10 +45,6 @@ include("../common/utilTools.dscript");
  * @param {array} values_p - a set of 3 values for the low level
  */
 function tc3_4_ps_gs_levels(dac1_p, dac2_p, add1_p, add2_p, seq_p, values_p) {
-
-    print(TAB1 + "Selecting ICU main");
-    sendToTMTC_selectICU(ICUMain);
-    waitMs(2000); // waiting so that the FPGA starts
 
     print(TAB1 + "Setting address sequence for address " + add1_p);
     setRAS_addressSequence(add1_p, seq_p);
@@ -88,32 +85,34 @@ function tc3_4_ps_gs_levels(dac1_p, dac2_p, add1_p, add2_p, seq_p, values_p) {
     const nSteps = 64;
     // Scanning the HIGH level on pixel select 0
     print(TAB1 + "Scanning the HIGH level on address line " + add1_p);
-    setRAS_addressSequence(add1_p, 0xFFFF_FFFF_FFFF);
+    setRAS_addressSequence(add1_p, 0xFFFFFFFFFFFF);
     RASscan_dacLevel(dac1_p, level1, level2, nSteps, step_duration, true);
     plotSmallLine();
 
     // Scanning the LOW level on pixel select 1
     print(TAB1 + "Scanning the LOW level on address line " + add2_p);
-    setRAS_addressSequence(add2_p, 0x0000_0000_0000);
+    setRAS_addressSequence(add2_p, 0x000000000000);
     RASscan_dacLevel(dac2_p, level1, level2, nSteps, step_duration, true);
     plotSmallLine();
 
 }
 
-const seq = 0x0FFF_0FFF_0FFF;
+const seq = 0x0FFF0FFF0FFF;
 const values = [0x000, 0x010, 0xFFF];
 
 plotLongLine();
 print("* Checking the setting of the PS levels...");
 var addressId1 = 0; // pixel 0
-var addressId2 = 1; // pixel 0
+var addressId2 = 1; // pixel 0
+rasInit();
 tc3_4_ps_gs_levels(DAC_PS_HIGH, DAC_PS_LOW, addressId1, addressId2, seq, values);
 print(" ");
 
 plotLongLine();
 print("* Checking the setting of the GS levels...");
 addressId1 = 8; // group 0
-addressId2 = 9; // group 1
+addressId2 = 9; // group 1
+rasInit();
 tc3_4_ps_gs_levels(DAC_GS_HIGH, DAC_GS_LOW, addressId1, addressId2, seq, values);
 
 

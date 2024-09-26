@@ -29,17 +29,6 @@
  * Definition of constants
  */
 
-// General constants
-const NB_SAMPLES_PER_PIX = 20;
-const DMX_NB_COL = 4;
-const DMX_NB_PIX_PER_COL = 34;
-const DMX_PULSESHAPING_NBVALUES = 20;
-const DMX_TEST_PATTERN_NBPARAMS = 4;
-const DMX_TEST_PATTERN_NBREGIONS = 5;
-const ON = 1;
-const OFF = 0;
-const TABUL = "   ";
-
 // MUX SQUID feedback modes
 const FEEDBACK_MODE_OPEN_LOOP = 0; // FB0 --> feedback output
 const FEEDBACK_MODE_CLOSED_LOOP = 1; // computed feedback --> feedback output

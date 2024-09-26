@@ -25,9 +25,6 @@
 //
 // -------------------------------------------------------------------------------------------------------------
 
-// imports
-include("../common/utilTools.dscript");
-include("./rasRegAddresses.dscript");
 
 const RAS_TEST_PATTERN_NBPARAMS = 4;
 const RAS_TEST_PATTERN_NBREGIONS = 5;
@@ -43,10 +40,7 @@ const DAC_GS_HIGH = 2;
 const DAC_GS_LOW = 3;
 const NB_RA_DACS = 4;
 const RAS_DAC_NAMES = ["PS LOW", "PS HIGH", "GS LOW", "GS HIGH"];
-// strings
-const TAB1 = "   ";
-const TAB2 = repeat(TAB1, 2);
-const TAB3 = repeat(TAB1, 3);
+
 // HK
 const RAS_NB_HK = 0x10;
 const RAS_HK_NAMES = ['P5V0_ANA', 'P2V5_ANA', 'M2V5_ANA', 'P1V2_DIG', 'P2V5_DIG', 'M2V5_DIG', 'P3V3_DIG',
@@ -61,7 +55,7 @@ ICURed = 1;
  */
 function setRAS_tMux(tMux_p) {
 
-    if (tMux < 1 || tMux > NB_PS * NB_GS) {
+    if (tMux_p < 1 || tMux_p > NB_PS * NB_GS) {
         print("ERROR, tMux must be between 1 and ", NB_PS * NB_GS, " ( received ", tMux_p, ")");
         return;
     }
@@ -473,7 +467,6 @@ function readRAS_hardwareVersion(verbose_p) {
     getLatestValue("RAS_registers");
     const hardwareVersion = RAS_registers[reg_address];
     const modelReference = hardwareVersion >> 8;
-    if (modelReference > 3) print(TAB1 + "ERROR, model reference is unknown.")
     const boardReference = hardwareVersion % Math.pow(2, 8);
     if (verbose_p) {
         plotSmallLine();
@@ -663,5 +656,68 @@ function RASscan_dacLevel(dacId, level1, level2, nb_steps, step_duration_ms, ver
         waitMs(step_duration_ms);
     }
 }
+
+
+/**
+ * Initializes the ras
+ * @param {number} tMux_p - multiplexing factor (Default = 34)
+ * @param {number} icu_p - selected ICU: ICUMain or ICURed (Default = ICUMain)
+ */
+function rasInit(tMux_p, icu_p) {
+
+    // default function parameter values
+    if (typeof(tMux_p) === 'undefined') tMux_p = 34;
+    if (typeof(icu_p) === 'undefined') icu_p = ICUMain;
+
+    if (icu_p === ICUMain) icu_text = "ICU main";
+    if (icu_p === ICURed) icu_text = "ICU redundant";
+
+    plotLongLine();
+    print("* Initializing the RAS.");
+
+    print(TAB1 + "Selecting " + icu_text);
+    sendToTMTC_selectICU(icu_p);
+    waitMs(2000); // waiting so that the FPGA starts
+
+    print(TAB1 + "Setting the multiplexing factor to " + tMux_p);
+    setRAS_tMux(tMux_p);
+
+    print(TAB1 + "Setting DAC levels");
+    const lowLevel = 0x000;
+    const highLevel = 0xFFF;
+    print(TAB2 + "PS LOW:" + lowLevel);
+    setRAS_DAC(DAC_PS_LOW, lowLevel);
+    print(TAB2 + "PS HIGH:" + highLevel);
+    setRAS_DAC(DAC_PS_HIGH, highLevel);
+    print(TAB2 + "GS LOW:" + lowLevel);
+    setRAS_DAC(DAC_GS_LOW, lowLevel);
+    print(TAB2 + "GS HIGH:" + highLevel);
+    setRAS_DAC(DAC_GS_HIGH, highLevel);
+
+    print(TAB1 + "Setting the default address");
+    // Pixels
+    setRAS_addressSequence( 0, 0x010101010101);
+    setRAS_addressSequence( 1, 0x020202020202);
+    setRAS_addressSequence( 2, 0x040404040404);
+    setRAS_addressSequence( 3, 0x080808080808);
+    setRAS_addressSequence( 4, 0x101010101010);
+    setRAS_addressSequence( 5, 0x202020202020);
+    setRAS_addressSequence( 6, 0x404040404040);
+    setRAS_addressSequence( 7, 0x808080808080);
+    // Groups
+    setRAS_addressSequence( 8, 0x0000000000FF);
+    setRAS_addressSequence( 9, 0x00000000FF00);
+    setRAS_addressSequence(10, 0x000000FF0000);
+    setRAS_addressSequence(11, 0x0000FF000000);
+    setRAS_addressSequence(12, 0x00FF00000000);
+    setRAS_addressSequence(13, 0xFF0000000000);
+
+    print(TAB1 + "Setting the SEQUENCE DELAY to 0");
+    setRAS_seqDelay(0);
+
+    print(" ");
+
+}
+
 
 // -------------------------------------------------------------------------------------------------------------
