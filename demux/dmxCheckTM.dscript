@@ -27,6 +27,7 @@
 
 // imports
 include("../demux/dmxTools.dscript");
+include("../common/constants.dscript");
 
 /**
  * This function makes different kinds of TM files (TEST PATTERN, ERROR, DUMP)

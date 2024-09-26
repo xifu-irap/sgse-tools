@@ -30,6 +30,8 @@ include("../ras/rasTools.dscript");
 include("../ras/rasRegAddresses.dscript");
 
 include("../common/utilTools.dscript");
+include("../common/constants.dscript");
+
 
 
 /**
@@ -41,40 +43,6 @@ function tc5_address_sequence() {
     print("* Checking the setting of the address sequences...");
     print(" ");
 
-    print(TAB1 + "Selecting ICU main");
-    sendToTMTC_selectICU(ICUMain);
-    waitMs(2000); // waiting so that the FPGA starts
-
-    print(TAB1 + "Setting DAC levels");
-    const lowLevel = 0x000;
-    const highLevel = 0xFFF;
-    print(TAB3 + "PS LOW:" + lowLevel);
-    setRAS_DAC(DAC_PS_LOW, lowLevel);
-    print(TAB3 + "PS HIGH:" + highLevel);
-    setRAS_DAC(DAC_PS_HIGH, highLevel);
-    print(TAB3 + "GS LOW:" + lowLevel);
-    setRAS_DAC(DAC_GS_LOW, lowLevel);
-    print(TAB3 + "GS HIGH:" + highLevel);
-    setRAS_DAC(DAC_GS_HIGH, highLevel);
-
-    print(TAB1 + "Setting the address sequence");
-    // Pixels
-    setRAS_addressSequence( 0, 0x0101_0101_0101);
-    setRAS_addressSequence( 1, 0x0202_0202_0202);
-    setRAS_addressSequence( 2, 0x0404_0404_0404);
-    setRAS_addressSequence( 3, 0x0808_0808_0808);
-    setRAS_addressSequence( 4, 0x1010_1010_1010);
-    setRAS_addressSequence( 5, 0x2020_2020_2020);
-    setRAS_addressSequence( 6, 0x4040_4040_4040);
-    setRAS_addressSequence( 7, 0x8080_8080_8080);
-    // Groups
-    setRAS_addressSequence( 8, 0x0000_0000_00FF);
-    setRAS_addressSequence( 9, 0x0000_0000_FF00);
-    setRAS_addressSequence(10, 0x0000_00FF_0000);
-    setRAS_addressSequence(11, 0x0000_FF00_0000);
-    setRAS_addressSequence(12, 0x00FF_0000_0000);
-    setRAS_addressSequence(13, 0xFF00_0000_0000);
-
     print(TAB1 + "Setting sequence ON");
     setRAS_seqMode(ON);
 
@@ -85,7 +53,7 @@ function tc5_address_sequence() {
 
 }
 
-
+rasInit();
 tc5_address_sequence();
 
 /**********************************************************************************************************************/

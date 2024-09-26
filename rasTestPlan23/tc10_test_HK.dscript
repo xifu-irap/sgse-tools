@@ -30,6 +30,7 @@ include("../ras/rasTools.dscript");
 include("../ras/rasRegAddresses.dscript");
 
 include("../common/utilTools.dscript");
+include("../common/constants.dscript");
 
 
 /**
@@ -41,15 +42,13 @@ function tc10_test_hk() {
     print("* Checking the HK");
     print(" ");
 
-    print(TAB1 + "Selecting ICU main");
-    sendToTMTC_selectICU(ICUMain);
-    waitMs(2000); // waiting so that the FPGA starts
-
     readRAS_HK(true);
     print(" ");
 
 }
 
+
+rasInit();
 tc10_test_hk();
 
 /**********************************************************************************************************************/

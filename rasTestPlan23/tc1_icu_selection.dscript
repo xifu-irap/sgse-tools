@@ -53,7 +53,7 @@ function tc1_icu_select() {
     readRAS_firmwareVersion(true);
 
 }
-
+
 tc1_icu_select();
 
 

@@ -17,38 +17,23 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     tc2_firmware_and_board_ids.dscript
+//    @file                    constants.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
-//    This script reads the RAS firmware and board ids.
+//    This file defines the constants which are common for the different scripts.
 //
 // -------------------------------------------------------------------------------------------------------------
 
-// imports
-include("../ras/rasTools.dscript");
-include("../ras/rasRegAddresses.dscript");
 
-include("../common/utilTools.dscript");
-include("../common/constants.dscript");
+const NB_SAMPLES_PER_PIX = 20;
+const DMX_NB_COL = 4;
+const DMX_NB_PIX_PER_COL = 34;
+const DMX_PULSESHAPING_NBVALUES = 20;
+const DMX_TEST_PATTERN_NBPARAMS = 4;
+const DMX_TEST_PATTERN_NBREGIONS = 5;
+const ON = 1;
+const OFF = 0;
+const TABUL = "   ";
 
-
-/**
- * Reads the firmware and board ids
- */
-function tc2_read_fw_board_id() {
-
-    plotLongLine();
-    print("* Reading firmware and board ids...");
-
-    readRAS_firmwareVersion(true);
-    readRAS_hardwareVersion(true);
-}
-
-
-rasInit();
-tc2_read_fw_board_id();
-
-
-/**********************************************************************************************************************/
-
+// -------------------------------------------------------------------------------------------------------------
