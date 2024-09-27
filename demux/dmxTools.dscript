@@ -127,8 +127,10 @@ function setDMX_offsetMode(offsetMode_p) {
  */
 function readDMX_offsetMode() {
     sendToDMXReadRegister(ADD_DMX_AMP_SQ_OFFSET_MODE);
-    getLatestValue("DMX_registers");
-    return DMX_registers[ADD_DMX_AMP_SQ_OFFSET_MODE];
+    const registerVal = getLatestValue("DMX_registers");
+    var offsetMode = [];
+    for (var col=0; col< DMX_NB_COL; col++) offsetMode[col] = registerVal >> (4*col) && 0x000F;
+    return offsetMode;
 }
 
 /**
