@@ -88,17 +88,13 @@ function dmxCheckDefaults() {
         print(TAB2 + "Column " + col + ": --> " + 0);
     }
     var feedbackOnOff = readDMX_feedbackOnOff();
-    var feedbackOnOff2 = feedbackOnOff;
     print(TAB1 + "Current values are: ");
-    for (var col = 0; col < DMX_NB_COL; col++) {
-        print(TAB2 + "Column " + col + ": --> " + to_hexaString(feedbackOnOff % Math.pow(2, 4)));
-        feedbackOnOff = feedbackOnOff >> 4;
-    }
-    if (feedbackOnOff2 === 0) print(TAB1 + MESSAGE_OK);
-    else {
-        print(TAB1 + MESSAGE_ERROR);
-        ERROR_COUNTER++;
-    }
+    for (var col = 0; col < DMX_NB_COL; col++) print(TAB2 + "Column " + col + ": --> " + to_hexaString(feedbackOnOff[col]));
+
+    MESSAGE = MESSAGE_ERROR;
+    if (arraysAreEquals([0,0,0,0], feedbackOnOff)) MESSAGE = MESSAGE_OK;
+    print(TAB1 + MESSAGE);
+    if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
 
 
     /******************************************************************************************************************/
@@ -564,3 +560,5 @@ function dmxCheckDefaults() {
     plotLongLine();
 
 }
+
+dmxCheckDefaults();

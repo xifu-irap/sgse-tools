@@ -361,7 +361,7 @@ function setTesSteadyStates(pattern_p) {
 
 // -------------------------------------------------------------------------------------------------------------
 
-const col = 0;
+const col = 1;
 
 // RA_DELAY
 ra_delay = 27*2+1;
@@ -397,7 +397,7 @@ Does an acquisition in DUMP mode in order to characterise the proper RA_DELAY.
   Does a DMX dump
 */
 
-//charac_RA_DELAY(col, ra_delay, fb0, offsetLSB, offsetFine, offsetCoarse);
+charac_RA_DELAY(col, ra_delay, fb0, offsetLSB, offsetFine, offsetCoarse);
 
 
 /* FEEDBACK_DELAY characterization
