@@ -101,7 +101,10 @@ function setDMX_feedbackOnOff(feedbackOnOff_p) {
 function readDMX_feedbackOnOff() {
     sendToDMXReadRegister(ADD_DMX_MUX_SQ_FB_ON_OFF);
     getLatestValue("DMX_registers");
-    return DMX_registers[ADD_DMX_MUX_SQ_FB_ON_OFF];
+	const registerVal = DMX_registers[ADD_DMX_MUX_SQ_FB_ON_OFF];
+    var fbOnOff = [DMX_NB_COL];
+    for (var col=0; col< DMX_NB_COL; col++) fbOnOff[col] = (registerVal >> (4*col)) & 0x0001;
+    return fbOnOff;
 }
 
 /**
@@ -127,9 +130,10 @@ function setDMX_offsetMode(offsetMode_p) {
  */
 function readDMX_offsetMode() {
     sendToDMXReadRegister(ADD_DMX_AMP_SQ_OFFSET_MODE);
-    const registerVal = getLatestValue("DMX_registers");
-    var offsetMode = [];
-    for (var col=0; col< DMX_NB_COL; col++) offsetMode[col] = registerVal >> (4*col) && 0x000F;
+    getLatestValue("DMX_registers");
+    const registerVal = DMX_registers[ADD_DMX_AMP_SQ_OFFSET_MODE];
+    var offsetMode = [DMX_NB_COL];
+    for (var col=0; col< DMX_NB_COL; col++) offsetMode[col] = (registerVal >> (4*col)) & 0x000F;
     return offsetMode;
 }
 
@@ -1065,7 +1069,7 @@ function readDMX_delockCounters(col_p, verbose_p) {
     sendToDMXReadMultiRegisters(reg_address, DMX_NB_PIX_PER_COL);
     getLatestValue("DMX_registers");
     const DELOCK_COUNTERS = DMX_registers.slice(reg_address, reg_address + DMX_NB_PIX_PER_COL);
-
+		
     if (verbose_p) print(DELOCK_COUNTERS);
 
     return DELOCK_COUNTERS;

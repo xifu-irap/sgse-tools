@@ -48,8 +48,8 @@ function dmxCheckReadWrite() {
 
     /******************************************************************************************************************/
     plotLongLine();
-	print("* Testing the read and write of the DEMUX registers...");
-    print(maDate());
+	print("| Testing the read and write of the DEMUX registers...");
+    print("| " + maDate());
     plotLongLine();
     print("");
 
@@ -74,27 +74,15 @@ function dmxCheckReadWrite() {
 
     /******************************************************************************************************************/
     plotLongLine();
-    print("Writing / Reading the delock counters");
+    print("Reading the delock counters");
 
     for (var col=0; col<DMX_NB_COL; col++) {
+
         print(TAB1 + "Testing column " + col)
 
         print(TAB2 + "Initial values are: ");
         readDMX_delockCounters(col, true);
-
-        values = makeArray(DMX_NB_PIX_PER_COL, 12);
-        print(TAB2 + "Setting new values: " + values);
-        setDMX_delockCounters(col, values);
-
-        print(TAB2 + "Reading the new values from the firmware: ");
-        checked_values = readDMX_delockCounters(col, true);
-
-        MESSAGE = MESSAGE_ERROR;
-        if (arraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
-        print(TAB1 + MESSAGE);
-        if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
-    }
-
+	}
 
     /******************************************************************************************************************/
     plotLongLine();
@@ -119,6 +107,8 @@ function dmxCheckReadWrite() {
     if (checked_value === value) MESSAGE = MESSAGE_OK;
     print(TAB1 + MESSAGE);
     if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
+
+    setDMX_dataAcqMode(ACQ_MODE_IDLE);
 
 
     /******************************************************************************************************************/
@@ -154,7 +144,7 @@ function dmxCheckReadWrite() {
     print(TAB1 + "Reading the new values: " + checked_values);
 
     MESSAGE = MESSAGE_ERROR;
-    if (twoDArraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
+    if (arraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
     print(TAB1 + MESSAGE);
     if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
 
@@ -190,15 +180,15 @@ function dmxCheckReadWrite() {
 
     print(TAB1 + "Initial values are: " + readDMX_testPatternEnable());
 
-    values = [1, 0, 0x9];
+    values = [true, false, 0x9];
     print(TAB1 + "Setting new values: " + values);
     setDMX_testPatternEnable(values[0], values[1], values[2]);
 
-    checked_value = readDMX_testPatternEnable();
-    print(TAB1 + "Reading the new values: " + checked_value);
+    checked_values = readDMX_testPatternEnable();
+    print(TAB1 + "Reading the new values: " + checked_values);
 
     MESSAGE = MESSAGE_ERROR;
-    if (ArraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
+    if (arraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
     print(TAB1 + MESSAGE);
     if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
 
@@ -378,14 +368,14 @@ function dmxCheckReadWrite() {
 
         print(TAB2 + "Initial value is: " + readDMX_sqa_OffsetLSB(col));
 
-        print(TAB2 + "Setting new values:" + values);
+        print(TAB2 + "Setting new values:" + values[col]);
         setDMX_sqa_OffsetLSB(col, values[col]);
 
-        checked_values[col] = readDMX_sqa_OffsetLSB(col);
-        print(TAB2 + "Reading the new values: " + checked_values);
+        checked_value = readDMX_sqa_OffsetLSB(col);
+        print(TAB2 + "Reading the new values: " + checked_value);
 
         MESSAGE = MESSAGE_ERROR;
-        if (arraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
+        if (values[col] === checked_value) MESSAGE = MESSAGE_OK;
         print(TAB2 + MESSAGE);
         if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
     }
@@ -403,14 +393,14 @@ function dmxCheckReadWrite() {
 
         print(TAB2 + "Initial value is: " + readDMX_sqa_OffsetCoarse(col));
 
-        print(TAB2 + "Setting new values:" + values);
+        print(TAB2 + "Setting new values:" + values[col]);
         setDMX_sqa_OffsetCoarse(col, values[col]);
 
-        checked_values[col] = readDMX_sqa_OffsetCoarse(col);
-        print(TAB2 + "Reading the new values: " + checked_values);
+        checked_value = readDMX_sqa_OffsetCoarse(col);
+        print(TAB2 + "Reading the new values: " + checked_value);
 
         MESSAGE = MESSAGE_ERROR;
-        if (arraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
+        if (values[col] === checked_value) MESSAGE = MESSAGE_OK;
         print(TAB2 + MESSAGE);
         if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
     }
@@ -420,7 +410,7 @@ function dmxCheckReadWrite() {
     plotLongLine();
     print("Testing the setting of the feedback delay (MUX_SQ_FB_DELAY):");
 
-    values = [0x0ABA, 0x0000, 0x0F2F, 0x0666];
+    values = [-512, -33, 12, 40];
     checked_values = [DMX_NB_COL];
 
     for (var col=0; col<DMX_NB_COL; col++) {
@@ -428,14 +418,14 @@ function dmxCheckReadWrite() {
 
         print(TAB2 + "Initial value is: " + readDMX_feedback_delay(col));
 
-        print(TAB2 + "Setting new values:" + values);
+        print(TAB2 + "Setting new values:" + values[col]);
         setDMX_feedback_delay(col, values[col]);
 
-        checked_values[col] = readDMX_feedback_delay(col);
-        print(TAB2 + "Reading the new values: " + checked_values);
+        checked_value = readDMX_feedback_delay(col);
+        print(TAB2 + "Reading the new values: " + checked_value);
 
         MESSAGE = MESSAGE_ERROR;
-        if (arraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
+        if (values[col] === checked_value) MESSAGE = MESSAGE_OK;
         print(TAB2 + MESSAGE);
         if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
     }
@@ -453,14 +443,14 @@ function dmxCheckReadWrite() {
 
         print(TAB2 + "Initial value is: " + readDMX_offsetDAC_delay(col));
 
-        print(TAB2 + "Setting new values:" + values);
+        print(TAB2 + "Setting new values:" + values[col]);
         setDMX_offsetDAC_delay(col, values[col]);
 
-        checked_values[col] = readDMX_offsetDAC_delay(col);
-        print(TAB2 + "Reading the new values: " + checked_values);
+        checked_value = readDMX_offsetDAC_delay(col);
+        print(TAB2 + "Reading the new values: " + checked_value);
 
         MESSAGE = MESSAGE_ERROR;
-        if (arraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
+        if (values[col] === checked_value) MESSAGE = MESSAGE_OK;
         print(TAB2 + MESSAGE);
         if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
     }
@@ -478,14 +468,14 @@ function dmxCheckReadWrite() {
 
         print(TAB2 + "Initial value is: " + readDMX_offsetMUX_delay(col));
 
-        print(TAB2 + "Setting new values:" + values);
+        print(TAB2 + "Setting new values:" + values[col]);
         setDMX_offsetMUX_delay(col, values[col]);
 
-        checked_values[col] = readDMX_offsetMUX_delay(col);
-        print(TAB2 + "Reading the new values: " + checked_values);
+        checked_value = readDMX_offsetMUX_delay(col);
+        print(TAB2 + "Reading the new values: " + checked_value);
 
         MESSAGE = MESSAGE_ERROR;
-        if (arraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
+        if (values[col] === checked_value) MESSAGE = MESSAGE_OK;
         print(TAB2 + MESSAGE);
         if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
     }
@@ -503,14 +493,14 @@ function dmxCheckReadWrite() {
 
         print(TAB2 + "Initial value is: " + readDMX_sampling_delay(col));
 
-        print(TAB2 + "Setting new values:" + values);
+        print(TAB2 + "Setting new values:" + values[col]);
         setDMX_sampling_delay(col, values[col]);
 
-        checked_values[col] = readDMX_sampling_delay(col);
-        print(TAB2 + "Reading the new values: " + checked_values);
+        checked_value = readDMX_sampling_delay(col);
+        print(TAB2 + "Reading the new values: " + checked_value);
 
         MESSAGE = MESSAGE_ERROR;
-        if (arraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
+        if (values[col] === checked_value) MESSAGE = MESSAGE_OK;
         print(TAB2 + MESSAGE);
         if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
     }
@@ -520,26 +510,33 @@ function dmxCheckReadWrite() {
     plotLongLine();
     print("Testing the setting of the values of a pulse shaping set (PULSE_SHAPING):");
 
-    print(TAB1 + "Initial values are: ");
-    print(readDMX_pulseShaping());
-
     values = [
         [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
         [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 0, 1, 2, 3, 4],
         [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
         [15, 16, 17, 18, 19, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
     ];
-    print(TAB1 + "Setting new values: ");
-    print(values);
-    setDMX_boxcarLength(values);
 
-    checked_values = readDMX_boxcarLength();
-    print(TAB1 + "Reading the new values: " + checked_values);
+	
+	for (var col=0; col<DMX_NB_COL; col++) {
+		print(TAB2 + "Testing column " + col);
 
-    MESSAGE = MESSAGE_ERROR;
-    if (twoDArraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
-    print(TAB1 + MESSAGE);
-    if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
+		print(TAB2 + "Initial values are: " );
+		print(readDMX_pulseShaping(col));
+
+		print(TAB2 + "Setting new values:");
+		print(values);
+		setDMX_pulseShaping(col, values);
+
+		checked_values = readDMX_pulseShaping(col);
+		print(TAB1 + "Reading the new values: ");
+		print(checked_values);
+
+		MESSAGE = MESSAGE_ERROR;
+		if (twoDArraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
+		print(TAB1 + MESSAGE);
+		if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
+    }
 
 
     /******************************************************************************************************************/
@@ -558,7 +555,7 @@ function dmxCheckReadWrite() {
     print(TAB1 + "Reading the new values: " + checked_values);
 
     MESSAGE = MESSAGE_ERROR;
-    if (ArraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
+    if (arraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
     print(TAB1 + MESSAGE);
     if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
 
@@ -580,7 +577,7 @@ function dmxCheckReadWrite() {
     print(TAB1 + "Reading the new values: " + checked_values);
 
     MESSAGE = MESSAGE_ERROR;
-    if (ArraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
+    if (arraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
     print(TAB1 + MESSAGE);
     if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
 
@@ -602,7 +599,7 @@ function dmxCheckReadWrite() {
     print(TAB1 + "Reading the new values: " + checked_values);
 
     MESSAGE = MESSAGE_ERROR;
-    if (ArraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
+    if (arraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
     print(TAB1 + MESSAGE);
     if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
 
@@ -630,7 +627,7 @@ function dmxCheckReadWrite() {
         print(TAB1 + "Reading the new values: " + checked_values);
 
         MESSAGE = MESSAGE_ERROR;
-        if (ArraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
+        if (arraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
         print(TAB1 + MESSAGE);
         if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
 
@@ -652,7 +649,7 @@ function dmxCheckReadWrite() {
         print(TAB1 + "Reading the new values: " + checked_values);
 
         MESSAGE = MESSAGE_ERROR;
-        if (ArraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
+        if (arraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
         print(TAB1 + MESSAGE);
         if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
 
@@ -674,7 +671,7 @@ function dmxCheckReadWrite() {
         print(TAB1 + "Reading the new values: " + checked_values);
 
         MESSAGE = MESSAGE_ERROR;
-        if (ArraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
+        if (arraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
         print(TAB1 + MESSAGE);
         if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
 
@@ -696,7 +693,7 @@ function dmxCheckReadWrite() {
         print(TAB1 + "Reading the new values: " + checked_values);
 
         MESSAGE = MESSAGE_ERROR;
-        if (ArraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
+        if (arraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
         print(TAB1 + MESSAGE);
         if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
 
@@ -732,7 +729,7 @@ function dmxCheckReadWrite() {
             print(checked_values[1]);
 
             MESSAGE = MESSAGE_ERROR;
-            if (ArraysAreEquals(values0, checked_values0) && ArraysAreEquals(values1, checked_values1)) MESSAGE = MESSAGE_OK;
+            if (arraysAreEquals(values0, checked_values[0]) && arraysAreEquals(values1, checked_values[1])) MESSAGE = MESSAGE_OK;
             print(TAB1 + MESSAGE);
             if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
         }
@@ -746,16 +743,15 @@ function dmxCheckReadWrite() {
         for (var col=0; col<DMX_NB_COL; col++) checked_values[col] = readDMX_sqa_OffsetLSBptr(col);
         print(TAB1 + "Initial values are: " + checked_values);
 
-        values = [0xBABA, 0x0000, 0x2F2F, 0x6666];
+		values = [0x0ABA, 0x0000, 0x0F2F, 0x0666];
         print(TAB1 + "Setting new values: " + values);
         for (var col=0; col<DMX_NB_COL; col++) setDMX_sqa_OffsetLSBptr(col, values[col]);
 
-        checked_values = [4];
         for (var col=0; col<DMX_NB_COL; col++) checked_values[col] = readDMX_sqa_OffsetLSBptr(col);
         print(TAB1 + "Reading the new values: " + checked_values);
 
         MESSAGE = MESSAGE_ERROR;
-        if (ArraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
+        if (arraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
         print(TAB1 + MESSAGE);
         if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
 
@@ -770,4 +766,7 @@ function dmxCheckReadWrite() {
 
     /******************************************************************************************************************/
     plotLongLine();
+
 }
+
+dmxCheckReadWrite();
