@@ -79,7 +79,7 @@ function readRAS_tMux() {
 
 
 /**
- * Sets an address sequence.
+ * Sets a sequence for a specific address.
  * @param {number} addressId - selected address id [0, 13]
  *    0 - 7 for PS0 - PS7
  *    8 - 13 for GS0 - GS5
@@ -91,14 +91,54 @@ function setRAS_addressSequence(addressId, seq) {
         print("ERROR, address identifier must be between 0 and ", NB_RA-1, " ( received ", addressId, ")");
         return;
     }
-	
-    const reg_address= ADD_RAS_SEQ_PS + (addressId << 4);
 
+    const reg_address= ADD_RAS_SEQ_PS + (addressId << 4);
     const seq_beg = seq & 0xFFFF;       // (LSB)
-    const seq_mid = (seq >> 16) & 0xFFFF;
-    const seq_end = (seq >> 32) & 0xFFFF; // (MSB)
+    const seq_mid = (seq / Math.pow(2, 16)) & 0xFFFF;
+    const seq_end = (seq / Math.pow(2, 32)) & 0xFFFF; // (MSB)
 
     sendToRASWriteMultiRegisters(reg_address, 3, [seq_beg, seq_mid, seq_end]);
+}
+
+
+/**
+ * Sets an address sequence (for all the address lines).
+ * @param {array} seqArray_p - set of sequences
+ */
+function setRAS_fullSequence(seqArray_p) {
+
+    if (seqArray_p.length !== NB_RA) {
+        print("ERROR, number of sequences should be ", NB_RA-1, " ( received ", seqArray_p.length, ")");
+        return;
+    }
+
+	for (var iAddr=0; iAddr<NB_RA; iAddr++) {
+		setRAS_addressSequence(iAddr, seqArray_p[iAddr]);
+	}
+}
+
+
+/**
+ * Sets an address sequence (for all the address lines).
+ * @param {array} seqArray_p - set of sequences
+ */
+function setRAS_fullSequence2(seqArray_p) {
+
+    if (seqArray_p.length !== NB_RA) {
+        print("ERROR, number of sequences should be ", NB_RA-1, " ( received ", seqArray_p.length, ")");
+        return;
+    }
+
+	var regValues = [3*NB_RA];
+	for (var iSeq=0; iSeq<NB_RA; iSeq++) {
+	//for (var iSeq=0; iSeq<1; iSeq++) {
+		for (var slice=0; slice<3; slice++) {
+			regValues[3*iSeq+slice] = (parseInt(seqArray_p[iSeq] / Math.pow(2, 16*slice)) & 0xFFFF);
+			print(regValues[3*iSeq+slice].toString(16));
+		}
+	}
+
+    sendToRASWriteMultiRegisters(ADD_RAS_SEQ_PS, 3*NB_RA, regValues);
 }
 
 
@@ -257,59 +297,59 @@ function readRAS_seqDelay() {
 
 /**
  * Sets the PS overlap.
- * @param {number} overlap - overlap S(3, 0)
+ * @param {number} overlap - overlap S(4, 0)
  */
 function setRAS_psOverlap(overlap) {
 
-    if (overlap < -4 || overlap > 3) {
-        print("ERROR, the overlap value must be between -4 and 3 ( received " + overlap +")" );
+    if (overlap < -8 || overlap > 7) {
+        print("ERROR, the overlap value must be between -8 and 7 ( received " + overlap +")" );
         return;
     }
 
-    const value = convert_sInt_to_2compInt(overlap, 3);
+    const value = convert_sInt_to_2compInt(overlap, 4);
     sendToRASWriteRegister(ADD_RAS_PS_OVERLAP, value);
 }
 
 
 /**
  * Reads the PS overlap.
- * @return {number} overlap - overlap S(3, 0)
+ * @return {number} overlap - overlap S(4, 0)
  */
 function readRAS_psOverlap() {
 
     const reg_address = ADD_RAS_PS_OVERLAP;
     sendToRASReadRegister(reg_address);
     getLatestValue("RAS_registers");
-    return convert_2compInt_to_sInt(RAS_registers[reg_address],3);
+    return convert_2compInt_to_sInt(RAS_registers[reg_address],4);
 }
 
 
 /**
  * Sets the GS overlap.
- * @param {number} overlap - overlap S(3, 0)
+ * @param {number} overlap - overlap S(4, 0)
  */
 function setRAS_gsOverlap(overlap) {
 
-    if (overlap < -4 || overlap > 3) {
+    if (overlap < -8 || overlap > 7) {
         print("ERROR, the overlap value must be between -4 and 3 ( received " + overlap +")" );
         return;
     }
 
-    value = convert_sInt_to_2compInt(overlap, 3);
+    value = convert_sInt_to_2compInt(overlap, 4);
     sendToRASWriteRegister(ADD_RAS_GS_OVERLAP, value);
 }
 
 
 /**
  * Reads the GS overlap.
- * @return {number} overlap - overlap S(3, 0)
+ * @return {number} overlap - overlap S(4, 0)
  */
 function readRAS_gsOverlap() {
 
     const reg_address = ADD_RAS_GS_OVERLAP;
     sendToRASReadRegister(reg_address);
     getLatestValue("RAS_registers");
-    return convert_2compInt_to_sInt(RAS_registers[reg_address], 3);
+    return convert_2compInt_to_sInt(RAS_registers[reg_address], 4);
 }
 
 /**
@@ -445,12 +485,15 @@ function readRAS_SPIstatus(verbose_p) {
  * @return {number} firmwareVersion - version of the firmware.
  */
 function readRAS_firmwareVersion(verbose_p) {
+
+
     sendToRASReadRegister(ADD_RAS_FIRMWARE_VERSION);
+	
     getLatestValue("RAS_registers");
     const firmwareVersion = RAS_registers[ADD_RAS_FIRMWARE_VERSION];
     if (verbose_p) {
         plotSmallLine();
-        print("RAS firmware version is: " + to_hexaString(firmwareVersion));
+        print("|  RAS firmware version is: " + to_hexaString(firmwareVersion));
     }
     return firmwareVersion;
 }
@@ -470,9 +513,9 @@ function readRAS_hardwareVersion(verbose_p) {
     const boardReference = hardwareVersion % Math.pow(2, 8);
     if (verbose_p) {
         plotSmallLine();
-        print("RAS hardware version is:");
-        print(TAB1 + "Model reference: " + to_hexaString(modelReference));
-        print(TAB1 + "Board reference: " + to_hexaString(boardReference));
+        print("|  RAS hardware version is:");
+        print("|      Model reference: " + to_hexaString(modelReference));
+        print("|      Board reference: " + to_hexaString(boardReference));
     }
 	return [modelReference, boardReference];
 }
@@ -536,28 +579,34 @@ function RASscan_overlap(scanPS, scanGS, step_duration_ms, verbose_p) {
     }
     if (scanPS && !scanGS) {
         if (verbose_p) print("Scanning the PS overlap from -4 to 3:");
-        for (var overlap = -4; overlap < 4; overlap++) {
+        for (var overlap = -8; overlap < 8; overlap++) {
             if (verbose_p) print("Setting the overlap to: " + overlap);
+			setRAS_seqMode(OFF);
             setRAS_psOverlap(overlap);
+			setRAS_seqMode(ON);
             waitMs(step_duration_ms);
         }
     }
     if (!scanPS && scanGS) {
         if (verbose_p) print("Scanning the GS overlap from -4 to 3:");
-        for (var overlap = -4; overlap < 4; overlap++) {
+        for (var overlap = -8; overlap < 8; overlap++) {
             if (verbose_p) print("Setting the overlap to: " + overlap);
+			setRAS_seqMode(OFF);
             setRAS_gsOverlap(overlap);
+			setRAS_seqMode(ON);
             waitMs(step_duration_ms);
         }
     }
     if (scanPS && scanGS) {
         var value;
         if (verbose_p) print("Scanning the PS and GS overlap from -4 to 3:");
-        for (var overlap = -4; overlap < 4; overlap++) {
+        for (var overlap = -8; overlap < 8; overlap++) {
             if (verbose_p) print("Setting the overlap to: " + overlap);
             // sending the two settings at the very same time
-            value = convert_sInt_to_2compInt(overlap, 3);
+            value = convert_sInt_to_2compInt(overlap, 4);
+			setRAS_seqMode(OFF);
             sendToRASWriteMultiRegisters(ADD_RAS_PS_OVERLAP, 2, [value, value]);
+			setRAS_seqMode(ON);
             waitMs(step_duration_ms);
         }
     }
@@ -592,7 +641,9 @@ function RASscan_seqDelay(delay1, delay2, nb_steps, step_duration_ms, verbose_p)
     for (var step=0; step<nb_steps; step++) {
         delay = delay1 + step*deltaDelay;
         if (verbose_p) print("Setting sequence delay to " + to_hexaString(delay));
+		setRAS_seqMode(OFF);
         setRAS_seqDelay(delay);
+		setRAS_seqMode(ON);
         waitMs(step_duration_ms);
     }
 }
@@ -665,6 +716,8 @@ function RASscan_dacLevel(dacId, level1, level2, nb_steps, step_duration_ms, ver
  */
 function rasInit(tMux_p, icu_p) {
 
+	setRAS_seqMode(OFF);
+
     // default function parameter values
     if (typeof(tMux_p) === 'undefined') tMux_p = 34;
     if (typeof(icu_p) === 'undefined') icu_p = ICUMain;
@@ -677,7 +730,7 @@ function rasInit(tMux_p, icu_p) {
 
     print(TAB1 + "Selecting " + icu_text);
     sendToTMTC_selectICU(icu_p);
-    waitMs(2000); // waiting so that the FPGA starts
+    waitMs(500); // waiting so that the FPGA starts
 
     print(TAB1 + "Setting the multiplexing factor to " + tMux_p);
     setRAS_tMux(tMux_p);
@@ -695,26 +748,18 @@ function rasInit(tMux_p, icu_p) {
     setRAS_DAC(DAC_GS_HIGH, highLevel);
 
     print(TAB1 + "Setting the default address");
-    // Pixels
-    setRAS_addressSequence( 0, 0x010101010101);
-    setRAS_addressSequence( 1, 0x020202020202);
-    setRAS_addressSequence( 2, 0x040404040404);
-    setRAS_addressSequence( 3, 0x080808080808);
-    setRAS_addressSequence( 4, 0x101010101010);
-    setRAS_addressSequence( 5, 0x202020202020);
-    setRAS_addressSequence( 6, 0x404040404040);
-    setRAS_addressSequence( 7, 0x808080808080);
-    // Groups
-    setRAS_addressSequence( 8, 0x0000000000FF);
-    setRAS_addressSequence( 9, 0x00000000FF00);
-    setRAS_addressSequence(10, 0x000000FF0000);
-    setRAS_addressSequence(11, 0x0000FF000000);
-    setRAS_addressSequence(12, 0x00FF00000000);
-    setRAS_addressSequence(13, 0xFF0000000000);
+	setRAS_fullSequence(seqDefault);
 
-    print(TAB1 + "Setting the SEQUENCE DELAY to 0");
+	print(TAB1 + "Setting the SEQUENCE DELAY to 0");
     setRAS_seqDelay(0);
 
+	print(TAB1 + "Setting the PS OVERLAP to 0");
+    setRAS_psOverlap(0);
+
+	print(TAB1 + "Setting the GS OVERLAP to 0");
+    setRAS_gsOverlap(0);
+
+	setRAS_seqMode(ON);
     print(" ");
 
 }
