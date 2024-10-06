@@ -28,10 +28,10 @@
 // imports
 include("../ras/rasTools.dscript");
 include("../ras/rasRegAddresses.dscript");
+include("../ras/rasSequences.dscript");
 
 include("../common/utilTools.dscript");
 include("../common/constants.dscript");
-
 
 
 /**
@@ -43,18 +43,25 @@ function tc5_address_sequence() {
     print("* Checking the setting of the address sequences...");
     print(" ");
 
-    print(TAB1 + "Setting sequence ON");
-    setRAS_seqMode(ON);
+    answer = getText("Address sequence should be the default one", " ");
 
-    answer = getText("Do the measurements", " ");
+    setRAS_seqMode(OFF);
+    setRAS_fullSequence(seqAllOnes);
+    setRAS_seqMode(ON);
+    answer = getText("All address lines should be set to 1", " ");
+
+    setRAS_seqMode(OFF);
+    setRAS_addressSequence(3, 0x555555555555);
+    setRAS_seqMode(ON);
+    answer = getText("Third address line should be 010101...", " ");
 
     print(TAB1 + "Setting sequence OFF");
     setRAS_seqMode(OFF);
-
 }
 
 rasInit();
 tc5_address_sequence();
 
+print("End of script");
 /**********************************************************************************************************************/
 

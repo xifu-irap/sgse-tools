@@ -42,10 +42,12 @@ function tc9_test_pattern() {
     print("* Checking the test pattern");
     print(" ");
 
+    setRAS_seqMode(OFF);
     print(TAB1 + "Setting the address sequence for PS0 and PS1");
     // Pixels
     setRAS_addressSequence( 0, 0x000000000000);
     setRAS_addressSequence( 1, 0xFFFFFFFFFFFF);
+    setRAS_seqMode(ON);
 
     print(TAB1 + "Setting the test pattern");
     const patternParameters = [
@@ -74,5 +76,6 @@ function tc9_test_pattern() {
 rasInit();
 tc9_test_pattern();
 
+print("End of script");
 /**********************************************************************************************************************/
 

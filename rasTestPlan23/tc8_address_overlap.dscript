@@ -28,6 +28,7 @@
 // imports
 include("../ras/rasTools.dscript");
 include("../ras/rasRegAddresses.dscript");
+include("../ras/rasSequences.dscript");
 
 include("../common/utilTools.dscript");
 include("../common/constants.dscript");
@@ -42,11 +43,7 @@ function tc8_address_overlap() {
     print("* Checking the setting of the address delay");
     print(" ");
 
-    print(TAB1 + "Setting sequence ON");
-    setRAS_seqMode(ON);
-
-    print(" ");
-    const overlap = -4;
+    const overlap = -8;
     print(TAB1 + "Setting the PS overlap to " + overlap);
     setRAS_psOverlap(overlap);
     answer = getText("Measure the delay between the falling edge of PS0 and the rising edge of PS1 (ns)", " ");
@@ -57,7 +54,7 @@ function tc8_address_overlap() {
     answer = getText("Measure the delay between the falling edge of GS0 and the rising edge of GS1 (ns)", " ");
     print(TAB3 + "==> " + answer + "ns");
 
-    const step_ms = 2000;
+    const step_ms = 1000;
     print(" ");
     print(TAB1 + "Scanning the PS overlap");
     RASscan_overlap(true, false, step_ms, true)
@@ -74,9 +71,9 @@ function tc8_address_overlap() {
 
 }
 
-
 rasInit();
 tc8_address_overlap();
 
+print("End of script");
 /**********************************************************************************************************************/
 

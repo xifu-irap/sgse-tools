@@ -28,13 +28,14 @@
 // imports
 include("../ras/rasTools.dscript");
 include("../ras/rasRegAddresses.dscript");
+include("../ras/rasSequences.dscript");
 
 include("../common/utilTools.dscript");
 include("../common/constants.dscript");
 
 
 /**
- * Checks the setting of the address sequences
+ * Checks the setting of the sequences delay
  * @param {number} tMux_p - multiplexing factor (Default = 34)
 
  */
@@ -44,30 +45,39 @@ function tc6_7_sequence_delay(tMux_p) {
     print("* Checking the setting of the sequences delay for TMUX = " + tMux_p);
     print(" ");
 
-    print(TAB1 + "Setting sequence ON");
-    setRAS_seqMode(ON);
-
-    print(" ");
     print(TAB1 + "Setting the SEQUENCE DELAY to 0");
+    setRAS_seqMode(OFF);
     setRAS_seqDelay(0);
+    setRAS_seqMode(ON);
     answer = getText("Measure the delay between SYNC and GS0 rising edges (ns)", " ");
     print(TAB3 + "==> " + answer + "ns");
 
     print(" ");
     print(TAB1 + "Setting the SEQUENCE DELAY to 1");
+    setRAS_seqMode(OFF);
     setRAS_seqDelay(1);
+    setRAS_seqMode(ON);
+    answer = getText("Measure the delay between SYNC and GS0 rising edges (ns)", " ");
+    print(TAB3 + "==> " + answer + "ns");
+
+    print(" ");
+    print(TAB1 + "Setting the SEQUENCE DELAY to 10");
+    setRAS_seqMode(OFF);
+    setRAS_seqDelay(10);
+    setRAS_seqMode(ON);
     answer = getText("Measure the delay between SYNC and GS0 rising edges (ns)", " ");
     print(TAB3 + "==> " + answer + "ns");
 
     print(" ");
     const delay = tMux_p * NB_SAMPLES_PER_PIX - 1;
-    print(TAB1 + "Setting the SEQUENCE DELAY to " + delay);
+    print(TAB1 + "Setting the SEQUENCE DELAY to " + delay + " (-1)");
+    setRAS_seqMode(OFF);
     setRAS_seqDelay(delay);
+    setRAS_seqMode(ON);
     answer = getText("Measure the delay between SYNC and GS0 rising edges (ns)", " ");
     print(TAB3 + "==> " + answer + "ns");
 
     print(" ");
-
 }
 
 
@@ -75,10 +85,6 @@ var tMux = 34
 rasInit(tMux);
 tc6_7_sequence_delay(tMux);
 
-
-tMux = 48
-rasInit(tMux);
-tc6_7_sequence_delay(tMux);
-
+print("End of script");
 /**********************************************************************************************************************/
 
