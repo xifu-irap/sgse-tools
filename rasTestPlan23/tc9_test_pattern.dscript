@@ -28,6 +28,7 @@
 // imports
 include("../ras/rasTools.dscript");
 include("../ras/rasRegAddresses.dscript");
+include("../ras/rasSequences.dscript");
 
 include("../common/utilTools.dscript");
 include("../common/constants.dscript");
@@ -44,10 +45,15 @@ function tc9_test_pattern() {
 
     setRAS_seqMode(OFF);
     print(TAB1 + "Setting the address sequence for PS0 and PS1");
-    // Pixels
     setRAS_addressSequence( 0, 0x000000000000);
+	setRAS_DAC(DAC_PS_LOW, 0x800);
+
     setRAS_addressSequence( 1, 0xFFFFFFFFFFFF);
+	setRAS_DAC(DAC_PS_HIGH, 0x400);
+
     setRAS_seqMode(ON);
+	waitMs(4000);
+
 
     print(TAB1 + "Setting the test pattern");
     const patternParameters = [
@@ -57,23 +63,38 @@ function tc9_test_pattern() {
         [0x0000, 0x0020, 0x0002, 0x07FF],   // Slope upward
         [0x0FFF, 0x0020, -1*0x0002, 0x07FF]];    // Slope downward
     setRAS_testPattern(patternParameters);
+    print(" ");
 
     answer = getText("Ready to start 3 patterns on PS0 line? [yes]", " ");
+    setRAS_seqMode(OFF);
     setRAS_testPatternEnable('PS_LOW', true, false, 3);
-    print(" ");
+    setRAS_seqMode(ON);
 
     answer = getText("Ready to start infinite patterns on PS1 line? [yes]", " ");
+    setRAS_seqMode(OFF);
     setRAS_testPatternEnable('PS_HIGH', true, true, 0);
-    print(" ");
+    setRAS_seqMode(ON);
 
     answer = getText("OK to stop the pattern? [yes]", " ");
+    setRAS_seqMode(OFF);
     setRAS_testPatternEnable('PS_HIGH', false, false, 0);
-    print(" ");
+    setRAS_seqMode(ON);
+
+    print(TAB1 + "Erasing test pattern parameters.");
+    const noPatternParameters = [
+        [0x0000, 0x0000, 0x0000, 0x0000],
+        [0x0000, 0x0000, 0x0000, 0x0000],
+        [0x0000, 0x0000, 0x0000, 0x0000],
+        [0x0000, 0x0000, 0x0000, 0x0000],
+        [0x0000, 0x0000, 0x0000, 0x0000]
+        ];
+    setRAS_testPattern(noPatternParameters);
 
 }
 
-
 rasInit();
+
+
 tc9_test_pattern();
 
 print("End of script");

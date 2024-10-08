@@ -43,29 +43,54 @@ function tc8_address_overlap() {
     print("* Checking the setting of the address delay");
     print(" ");
 
-    const overlap = -8;
-    print(TAB1 + "Setting the PS overlap to " + overlap);
-    setRAS_psOverlap(overlap);
-    answer = getText("Measure the delay between the falling edge of PS0 and the rising edge of PS1 (ns)", " ");
-    print(TAB3 + "==> " + answer + "ns");
 
-    print(TAB1 + "Setting the GS overlap to " + overlap);
+    var overlap = 0;
+    print(TAB1 + "Setting the PS overlap to " + overlap);
+	setRAS_seqMode(OFF);
+    setRAS_psOverlap(overlap);
     setRAS_gsOverlap(overlap);
-    answer = getText("Measure the delay between the falling edge of GS0 and the rising edge of GS1 (ns)", " ");
-    print(TAB3 + "==> " + answer + "ns");
+	setRAS_seqMode(ON);
+    var answer1 = getText("Measure the delay between the falling edge of PS0 and the rising edge of PS1 (ns)", " ");
+    print(TAB3 + "==> " + answer1 + " ns");
+    var answer2 = getText("Measure the delay between the falling edge of GS0 and the rising edge of GS1 (ns)", " ");
+    print(TAB3 + "==> " + answer2 + " ns");
+
+    overlap = -8;
+    print(TAB1 + "Setting the PS overlap to " + overlap);
+	setRAS_seqMode(OFF);
+    setRAS_psOverlap(overlap);
+    setRAS_gsOverlap(overlap);
+	setRAS_seqMode(ON);
+    answer1 = getText("Measure the delay between the falling edge of PS0 and the rising edge of PS1 (ns)", " ");
+    print(TAB3 + "==> " + answer1 + " ns");
+    answer2 = getText("Measure the delay between the falling edge of GS0 and the rising edge of GS1 (ns)", " ");
+    print(TAB3 + "==> " + answer2 + " ns");
+
+    overlap = 7;
+    print(TAB1 + "Setting the PS overlap to " + overlap);
+	setRAS_seqMode(OFF);
+    setRAS_psOverlap(overlap);
+    setRAS_gsOverlap(overlap);
+	setRAS_seqMode(ON);
+    answer1 = getText("Measure the delay between the falling edge of PS0 and the rising edge of PS1 (ns)", " ");
+    print(TAB3 + "==> " + answer1 + " ns");
+    answer2 = getText("Measure the delay between the falling edge of GS0 and the rising edge of GS1 (ns)", " ");
+    print(TAB3 + "==> " + answer2 + " ns");
 
     const step_ms = 1000;
     print(" ");
     print(TAB1 + "Scanning the PS overlap");
+    answer = getText("Click when ready", " ");
+	setRAS_seqMode(OFF);
     RASscan_overlap(true, false, step_ms, true)
-    answer = getText("Measure the delay between the falling edge of PS0 and the rising edge of PS1 (ns)", " ");
-    print(TAB3 + "==> " + answer + "ns");
+	setRAS_seqMode(ON);
 
     print(" ");
     print(TAB1 + "Scanning the GS overlap");
+    answer = getText("Click when ready", " ");
+	setRAS_seqMode(OFF);
     RASscan_overlap(false, true, step_ms, true)
-    answer = getText("Measure the delay between the falling edge of GS0 and the rising edge of GS1 (ns)", " ");
-    print(TAB3 + "==> " + answer + "ns");
+	setRAS_seqMode(ON);
 
     print(" ");
 

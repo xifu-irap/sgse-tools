@@ -43,17 +43,22 @@ function tc5_address_sequence() {
     print("* Checking the setting of the address sequences...");
     print(" ");
 
-    answer = getText("Address sequence should be the default one", " ");
+    answer = getText("Address sequence should be the default one (y/n)", " ");
+	print("  => " + answer);
 
     setRAS_seqMode(OFF);
     setRAS_fullSequence(seqAllOnes);
     setRAS_seqMode(ON);
-    answer = getText("All address lines should be set to 1", " ");
+    answer = getText("All address lines should be set to 1 (y/n)", " ");
+	print("  => " + answer);
+
 
     setRAS_seqMode(OFF);
     setRAS_addressSequence(3, 0x555555555555);
     setRAS_seqMode(ON);
-    answer = getText("Third address line should be 010101...", " ");
+    answer = getText("Third address line should be 010101...  (y/n)", " ");
+	print("  => " + answer);
+
 
     print(TAB1 + "Setting sequence OFF");
     setRAS_seqMode(OFF);

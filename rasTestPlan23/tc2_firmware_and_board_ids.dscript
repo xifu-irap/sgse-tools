@@ -48,10 +48,9 @@ function tc2_read_fw_board_id() {
 
 
 rasInit();
+
 tc2_read_fw_board_id();
 
-
-//print(readRAS_addressSequence(1).toString(16));
 
 print("End of script");
 /**********************************************************************************************************************/
