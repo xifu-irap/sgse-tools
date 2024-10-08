@@ -28,6 +28,7 @@
 // imports
 include("../ras/rasTools.dscript");
 include("../ras/rasRegAddresses.dscript");
+include("../ras/rasSequences.dscript");
 
 include("../common/utilTools.dscript");
 include("../common/constants.dscript");

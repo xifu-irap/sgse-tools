@@ -46,7 +46,8 @@ function tc6_7_sequence_delay(tMux_p) {
     print(" ");
 
     print(TAB1 + "Setting the SEQUENCE DELAY to 0");
-    setRAS_seqMode(OFF);
+    setRAS_seqMode(OFF);
+	setRAS_tMux(tMux_p);
     setRAS_seqDelay(0);
     setRAS_seqMode(ON);
     answer = getText("Measure the delay between SYNC and GS0 rising edges (ns)", " ");

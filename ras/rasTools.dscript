@@ -42,7 +42,7 @@ const NB_RA_DACS = 4;
 const RAS_DAC_NAMES = ["PS LOW", "PS HIGH", "GS LOW", "GS HIGH"];
 
 // HK
-const RAS_NB_HK = 0x10;
+const RAS_NB_HK = 0x0F;
 const RAS_HK_NAMES = ['P5V0_ANA', 'P2V5_ANA', 'M2V5_ANA', 'P1V2_DIG', 'P2V5_DIG', 'M2V5_DIG', 'P3V3_DIG',
     'TEMP_A', 'TEMP_B', 'VPS_LOW', 'VPS_HIGH', 'VGS_LOW', 'VGS_HIGH', 'P3V3_DAC', 'P3V3WFEE', 'NOT USED'];
 // ICU selection (to be used with the XIFU Studio command sendToTMTC_selectICU() )
@@ -115,30 +115,6 @@ function setRAS_fullSequence(seqArray_p) {
 	for (var iAddr=0; iAddr<NB_RA; iAddr++) {
 		setRAS_addressSequence(iAddr, seqArray_p[iAddr]);
 	}
-}
-
-
-/**
- * Sets an address sequence (for all the address lines).
- * @param {array} seqArray_p - set of sequences
- */
-function setRAS_fullSequence2(seqArray_p) {
-
-    if (seqArray_p.length !== NB_RA) {
-        print("ERROR, number of sequences should be ", NB_RA-1, " ( received ", seqArray_p.length, ")");
-        return;
-    }
-
-	var regValues = [3*NB_RA];
-	for (var iSeq=0; iSeq<NB_RA; iSeq++) {
-	//for (var iSeq=0; iSeq<1; iSeq++) {
-		for (var slice=0; slice<3; slice++) {
-			regValues[3*iSeq+slice] = (parseInt(seqArray_p[iSeq] / Math.pow(2, 16*slice)) & 0xFFFF);
-			print(regValues[3*iSeq+slice].toString(16));
-		}
-	}
-
-    sendToRASWriteMultiRegisters(ADD_RAS_SEQ_PS, 3*NB_RA, regValues);
 }
 
 
