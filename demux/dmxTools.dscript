@@ -102,7 +102,8 @@ function readDMX_feedbackOnOff() {
     sendToDMXReadRegister(ADD_DMX_MUX_SQ_FB_ON_OFF);
     getLatestValue("DMX_registers");
 	const registerVal = DMX_registers[ADD_DMX_MUX_SQ_FB_ON_OFF];
-    var fbOnOff = [DMX_NB_COL];
+    var fbOnOff = [DMX_NB_COL];
+
     for (var col=0; col< DMX_NB_COL; col++) fbOnOff[col] = (registerVal >> (4*col)) & 0x0001;
     return fbOnOff;
 }
@@ -917,7 +918,7 @@ function setDMX_pulseShapingSelection(col_p, setId_p) {
 /**
  * Reads the set of pulse shaping (PULSE_SHAPING_SELECTION).
  * @param {number} col_p - column number [0, 3]
- * @return {number} setId - sampling delay.
+ * @return {number} setId - id of the set of values [0; 3].
  */
 function readDMX_pulseShapingSelection(col_p) {
     const reg_address = ADD_DMX_PULSE_SHAPING_SELECTION | (col_p << ADD_DMX_COL_BIT_SHIFT);

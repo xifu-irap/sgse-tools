@@ -1,0 +1,126 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     fbMuxLinearity.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file is used to characterise the linearity of the feedback signal.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+include("../demux/dmxTools.dscript");
+include("../demux/dmxRegAddresses.dscript");
+include("../demux/dmxHk.dscript");
+
+include("../common/utilTools.dscript");
+include("../common/constants.dscript");
+
+/**
+ * Sets different values to a fb DAC in order to measure the output level for each DAC BIT
+ *   The execution of this script has to be combined with measurements at the DEMUX output.
+ * @param {number} col_p - column to be characterized [0, 3].
+ */
+function charac_linearity_fb(col_p) {
+
+    const fbDacNbBits = 14;
+    const fbDacNbBitsFix = 2; // fix point bits - not used here
+
+    print("");
+    print("***");
+    print("* charac_linearity_fb function");
+    print("***");
+    print("");
+
+    // Check the input parameter
+    if (col_p < 0 || col_p > 3) {
+        print("ERROR: Invalid column number.");
+        return;
+    }
+
+    // Switching ON the feedback for the selected column
+	print(TAB1+"Switching column " + col_p + " ON...");
+    var colOnOff = [OFF, OFF, OFF, OFF];
+    colOnOff[col_p] = ON;
+    setDMX_feedbackOnOff(colOnOff);
+
+    // DEMUX feedback
+	print(TAB1+"Setting the DMX feedback mode to OPEN_LOOP (FB0 -> FEEDBACK output)...");
+	setDMX_sqm_FBMode(col_p, makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP));
+
+    // Setting of code 0
+    var value = 0;
+    print(TAB2 + "Setting FB DAC to " + value.toString(16));
+    setDMX_fb0(col_p, makeArray(DMX_NB_PIX_PER_COL, value));
+    // Measurement
+    answer = getText("Please measure the feedback signal. Click when that is done.", " ");
+
+    // Settings for positive values from 2^2 to 2^14
+    //        2^0 and 1^1 are ignored because FB0 format is S(16,2)
+    //        -1 because 2^15 is out of range. The highest power of 2 is 2^14.
+    for (var i_mesure=0; i_mesure<fbDacNbBits-1; i_mesure++) {
+
+        // New setting
+        value = Math.pow(2, 2+i_mesure);
+        print(TAB2 + "Setting FB DAC to " + value.toString(16));
+        setDMX_fb0(col_p, makeArray(DMX_NB_PIX_PER_COL, value));
+
+        // Measurement
+        answer = getText("Please measure the feedback signal. Click when that is done.", " ");
+    }
+
+    // Setting of code 0x7FFC       The 2 LSB are not used because FB0 format is S(16,2)
+    var value = 0x7FFC;
+    print(TAB2 + "Setting FB DAC to " + value.toString(16));
+    setDMX_fb0(col_p, makeArray(DMX_NB_PIX_PER_COL, value));
+    // Measurement
+    answer = getText("Please measure the feedback signal. Click when that is done.", " ");
+
+    // Settings for negative values from -2^2 to -2^15
+    //        2^0 and 1^1 are ignored because FB0 format is S(16,2)
+    for (var i_mesure=0; i_mesure<fbDacNbBits-1; i_mesure++) {
+
+        // New setting
+        value = Math.pow(2, 2+i_mesure);
+        print(TAB2 + "Setting FB DAC to " + value.toString(16));
+        setDMX_fb0(col_p, makeArray(DMX_NB_PIX_PER_COL, value));
+
+        // Measurement
+        answer = getText("Please measure the feedback signal. Click when that is done.", " ");
+    }
+
+}
+
+
+
+// -------------------------------------------------------------------------------------------------------------
+
+const col = 0;
+
+charac_fb_linearity(col);
+
+
+// -------------------------------------------------------------------------------------------------------------
+print("End of script!");
+
+
+
+
+
