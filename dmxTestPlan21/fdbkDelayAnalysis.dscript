@@ -1,0 +1,156 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     fdbkDelayAnalysis.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file is used to characterise the timing parameters in the FPAsim + DMX0 configuration.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+include("../demux/dmxTools.dscript");
+include("../demux/dmxRegAddresses.dscript");
+include("../demux/dmxHk.dscript");
+
+include("../fpasim/fpasim/fpasim.dscript");
+include("../fpasim/fpasim_startup.dscript");
+
+include("../fpasim/fpasim/fpasim_tools.dscript");
+include("../fpasim/fpasim/utils_tools.dscript");
+include("../fpasim/fpasim/cdce72010.dscript");
+include("../fpasim/fpasim/ads62p49.dscript");
+include("../fpasim/fpasim/dac3283.dscript");
+include("../fpasim/fpasim/amc7823.dscript");
+
+include("../common/utilTools.dscript");
+include("../common/constants.dscript");
+
+// relative path from the main script (the calling script path)
+const ram_base_path = "../fpasim/fpasim_default_ram/"
+
+
+/**
+ * Does an acquisition in DUMP mode in order to characterise the proper FB_DELAY.
+ *  Sets all the FPAsim steady states to the same value.
+ *  Sets all the DMX fb0 to the same value except for pixel 0 (in open loop mode)
+ *  Sets all the DMX offset to the same value (in open loop mode)
+ *  Sets the RA_DELAY to the value provided by the parameter ra_delay_p
+ *  Sets the FB_DELAY to the value provided by the parameter fb_delay_p
+ *  Does a DMX dump
+ * @param {number} col_p - column id [0, 3].
+ * @param {number} ra_delay_p - sequence delay [0, 63].
+ * @param {number} fb_delay_p - feedback delay [-512, 40].
+ * @param {number} fb0_p - Feedback at MUX SQUID operating point s(16,2).
+ * @param {number} offsetLSB_p - offset LSB value at AMP SQUID operating point U(12,0).
+ * @param {number} offsetFine_p - offset fine value at AMP SQUID operating point U(3,0).
+ * @param {number} offsetCoarse_p - offset coarse value at AMP SQUID operating point U(12,0).
+ * @param {number} pulseShapingSet_p - Pulse shaping set Id [0-3].
+ */
+function charac_FB_DELAY(col_p, ra_delay_p, fb_delay_p, fb0_p, offsetLSB_p, offsetFine_p, offsetCoarse_p, pulseShapingSet_p) {
+
+    print("");
+    print("***");
+    print("* charac_FB_DELAY function");
+    print("***");
+
+    // set the register: RA_DELAY
+    print(TAB1+"Setting the register RA_DELAY to " + ra_delay_p);
+    sendToFPAsim_configureRaDelay(ra_delay_p);
+
+    // set the register: MUX_SQ_FB_DELAY
+    print(TAB1 + "Setting the register MUX_SQ_FB_DELAY to " + fb_delay_p);
+    setDMX_feedback_delay(col_p, fb_delay_p);
+
+    // TES steady states
+	print(TAB1+"Setting the FPAsim pixel steady states to a constant value");
+	setTesSteadyStates(0);
+	print("");
+
+    // Selecting the pulse shaping set
+	print(TAB1+"Selecting the pulse shaping set number " + pulseShapingSet_p + ":");
+    setDMX_pulseShapingSelection(col_p, pulseShapingSet_p)
+
+    // Switching ON the feedback for all the columns
+	print(TAB1+"Switching the feedback OnOff for all the columns:");
+    var colOnOff = [ON, ON, ON, ON];
+    setDMX_feedbackOnOff(colOnOff);
+
+    // DEMUX feedback
+	print(TAB1+"Setting the DMX feedback mode to OPEN_LOOP (FB0 -> FEEDBACK output)...");
+	setDMX_sqm_FBMode(col_p, makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP));
+	print(TAB1+"Setting the DMX FB0 close to the MUX SQUID operating point except for pixel 0...");
+    var fb = makeArray(DMX_NB_PIX_PER_COL, fb0_p);
+    fb[0] += 500;
+    print(TAB2 + fb);
+	setDMX_fb0(col_p, fb);
+	print("");
+
+    // DEMUX offset
+	print(TAB1+"Setting the offset mode to OFFSET (OFFSET -> OFFSET output)...");
+	setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_OFFSET));
+	print(TAB1+"Setting the Offset close to the AMP SQUID operating point...");
+	setDMX_sqa_OffsetLSB(col_p, offsetLSB_p);
+	setDMX_sqa_OffsetFine(col_p, makeArray(DMX_NB_PIX_PER_COL, offsetFine_p), makeArray(DMX_NB_PIX_PER_COL, 0x0000));
+	setDMX_sqa_OffsetCoarse(col_p, offsetCoarse_p);
+	print("");
+
+    // Data acquisition
+	print(TAB1+"Doing an acquisition in DUMP mode...");
+	setDMX_dataAcqMode(ACQ_MODE_DUMP);
+}
+
+
+// -------------------------------------------------------------------------------------------------------------
+
+const col = 0;
+const pulseShapingSet = 3
+
+// Optimal delay correction settings
+raDelayOpt = 27*2+1;
+fdbkDelayOpt = -92;
+ofcoDelayOpt = -99;
+
+// DEMUX configuration
+const fb0 = 0x6CB0;
+const offsetLSB = 0x0FFF;
+const offsetFine = 0x7;
+const offsetCoarse = 0x37C;
+
+/*
+  Starting and initializing the FPAsim
+  If the FPAsim function is already enabled nothing is done unless the "force_p" parameter is set to true.
+*/
+fpasimStartup();
+
+// Verifying the feedback delay correction resolution and range
+// Doing several Fdbk delay settings close to the optimal value
+for (var i=-3; i<4; i++) {
+    charac_FB_DELAY(col, raDelayOpt, fdbkDelayOpt+i, fb0, offsetLSB, offsetFine, offsetCoarse, pulseShapingSet);
+    // Faire un fichier dump
+}
+
+// -------------------------------------------------------------------------------------------------------------
+print("End of script!");
+
+
+
+
+
