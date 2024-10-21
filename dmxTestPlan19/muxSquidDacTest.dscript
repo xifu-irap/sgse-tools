@@ -114,7 +114,7 @@ function testSequence(colId, fbMode) {
 
 // -------------------------------------------------------------------------------------------------------------
 
-const colId = 0;
+const colId = 1;
 
 // You should uncomment a single of the following lines
 //testSequence(colId, FEEDBACK_MODE_OPEN_LOOP);
@@ -126,7 +126,7 @@ testSequence(colId, FEEDBACK_MODE_TESTPATTERN);
 //setDMX_feedbackOnOff([OFF, OFF, OFF, OFF]);
 
 // Reading the HK
-printDMX_HK();
+//printDMX_HK();
 
 // -------------------------------------------------------------------------------------------------------------
 print("Done!");

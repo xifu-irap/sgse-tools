@@ -34,77 +34,79 @@ include("../common/utilTools.dscript");
 include("../common/constants.dscript");
 
 /**
- * Sets different values to a fb DAC in order to measure the output level for each DAC BIT
- *   The execution of this script has to be combined with measurements at the DEMUX output.
- * @param {number} col_p - column to be characterized [0, 3].
+ * Converts the DAC codes into feedback values.
+ *   The DAC 5675A-SP converts 14-bits unsigned values into an analogue signal.
+ *   At system level the feedback values are considered to be S(16,2) values.
+ *   The DEMUX firmware converts the S(16,2) values to U(14,0) values for the DAC.
+ *   This function does the reverse conversion in order to control the values that
+ *   will be sent to the DAC.
+ * @param {number} val_p - The DAC value U(14,0).
+ * @return feedbackValue - The feedback value S(16,2)
  */
-function charac_linearity_fb(col_p) {
+function convertDac2Feedback(val_p) {
 
-    const fbDacNbBits = 14;
-    const fbDacNbBitsFix = 2; // fix point bits - not used here
+    const FDBK_DAC_NBITS = 14;
+    const offset = Math.pow(2, FDBK_DAC_NBITS-1);
 
-    print("");
-    print("***");
-    print("* charac_linearity_fb function");
-    print("***");
-    print("");
-
-    // Check the input parameter
-    if (col_p < 0 || col_p > 3) {
-        print("ERROR: Invalid column number.");
+    if ((val_p < 0) || (val_p > Math.pow(2, FDBK_DAC_NBITS)-1)) {
+        print("ERROR, DAC value is incorrect! Should be betwwen 0 and 2^14-1 --> " + val_p);
         return;
     }
 
-    // Switching ON the feedback for the selected column
-	print(TAB1+"Switching column " + col_p + " ON...");
-    var colOnOff = [OFF, OFF, OFF, OFF];
-    colOnOff[col_p] = ON;
-    setDMX_feedbackOnOff(colOnOff);
+    return (val_p - offset) * 4;
+}
+
+
+/**
+ * Sets different values to a fb DAC in order to measure the output level for each DAC BIT
+ *   The execution of this script has to be combined with measurements at the DEMUX output.
+ */
+function characLinearityFdbk() {
+
+    const FDBK_DAC_NBITS = 14;
+
+    print("");
+    print("***");
+    print("* characLinearityFdbk function");
+    print("***");
+    print("");
+
+    // Switching ON the feedbacks
+	print(TAB1+"Switching feedbacks ON...");
+    setDMX_feedbackOnOff([ON, ON, ON, ON]);
 
     // DEMUX feedback
 	print(TAB1+"Setting the DMX feedback mode to OPEN_LOOP (FB0 -> FEEDBACK output)...");
-	setDMX_sqm_FBMode(col_p, makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP));
+    const fdbkMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
+    for (var col=0; col<DMX_NB_COL; col++) setDMX_sqm_FBMode(col, fdbkMode);
 
-    // Setting of code 0
+    // Setting the code 0
     var value = 0;
-    print(TAB2 + "Setting FB DAC to " + value.toString(16));
-    setDMX_fb0(col_p, makeArray(DMX_NB_PIX_PER_COL, value));
+    var valueFbck = convertDac2Feedback(value);
+    print(TAB2 + "Setting FB DAC to " + value + " (feedback = " + valueFbck + ")");
+    for (col = 0; col<DMX_NB_COL; col++) setDMX_fb0(col, makeArray(DMX_NB_PIX_PER_COL, valueFbck));
     // Measurement
     answer = getText("Please measure the feedback signal. Click when that is done.", " ");
 
-    // Settings for positive values from 2^2 to 2^14
-    //        2^0 and 1^1 are ignored because FB0 format is S(16,2)
-    //        -1 because 2^15 is out of range. The highest power of 2 is 2^14.
-    for (var i_mesure=0; i_mesure<fbDacNbBits-1; i_mesure++) {
+    // Setting the codes for each bit (from 2^0 to 2^13)
+    for (var bit=0; bit<FDBK_DAC_NBITS-1; bit++) {
 
         // New setting
-        value = Math.pow(2, 2+i_mesure);
-        print(TAB2 + "Setting FB DAC to " + value.toString(16));
-        setDMX_fb0(col_p, makeArray(DMX_NB_PIX_PER_COL, value));
-
+        value = Math.pow(2, bit);
+        var valueFbck = convertDac2Feedback(value);
+        print(TAB2 + "Setting FB DAC to " + value + " (feedback = " + valueFbck + ")");
+        for (col = 0; col<DMX_NB_COL; col++) setDMX_fb0(col, makeArray(DMX_NB_PIX_PER_COL, valueFbck));
         // Measurement
         answer = getText("Please measure the feedback signal. Click when that is done.", " ");
     }
 
-    // Setting of code 0x7FFC       The 2 LSB are not used because FB0 format is S(16,2)
-    var value = 0x7FFC;
-    print(TAB2 + "Setting FB DAC to " + value.toString(16));
-    setDMX_fb0(col_p, makeArray(DMX_NB_PIX_PER_COL, value));
+    // Setting the code for the maximum value (0x3FFF)
+    var value = 0x3FFF;
+    var valueFbck = convertDac2Feedback(value);
+    print(TAB2 + "Setting FB DAC to " + value + " (feedback = " + valueFbck + ")");
+    for (col = 0; col<DMX_NB_COL; col++) setDMX_fb0(col, makeArray(DMX_NB_PIX_PER_COL, valueFbck));
     // Measurement
     answer = getText("Please measure the feedback signal. Click when that is done.", " ");
-
-    // Settings for negative values from -2^2 to -2^15
-    //        2^0 and 1^1 are ignored because FB0 format is S(16,2)
-    for (var i_mesure=0; i_mesure<fbDacNbBits-1; i_mesure++) {
-
-        // New setting
-        value = Math.pow(2, 2+i_mesure);
-        print(TAB2 + "Setting FB DAC to " + value.toString(16));
-        setDMX_fb0(col_p, makeArray(DMX_NB_PIX_PER_COL, value));
-
-        // Measurement
-        answer = getText("Please measure the feedback signal. Click when that is done.", " ");
-    }
 
 }
 
@@ -112,9 +114,8 @@ function charac_linearity_fb(col_p) {
 
 // -------------------------------------------------------------------------------------------------------------
 
-const col = 0;
 
-charac_fb_linearity(col);
+characLinearityFdbk(col);
 
 
 // -------------------------------------------------------------------------------------------------------------

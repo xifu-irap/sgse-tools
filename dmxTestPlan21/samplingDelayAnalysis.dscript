@@ -17,7 +17,7 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     fdbkDelayAnalysis.dscript
+//    @file                     samplingDelayAnalysis.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
@@ -46,38 +46,73 @@ include("../common/constants.dscript");
 // relative path from the main script (the calling script path)
 const ram_base_path = "../fpasim/fpasim_default_ram/"
 
+const STEADY_FSR = Math.pow(2, 16)-1;
+
 
 /**
- * Does an acquisition in DUMP mode in order to characterise the proper FB_DELAY.
+ * Set a TES steady states sequence
+ * Depending on the value of the pattern parameter a specific sequence will be selected.
+ * @param {number} pattern_p - defines the pattern for the set of values.
+ *      0) all pixels at 0
+ *      1) 90 % of FSR
+ *      2) all pixels at 0 and pix 0 at another value
+ *      3) a ramp
+ */
+function setTesSteadyStates(pattern_p) {
+
+	var Steady = [];
+	
+    switch (pattern_p) {
+        case 0:
+            print(TAB1 + "Setting the steady state of FPAsim pixels to: 0");
+            Steady = makeArray(64, 0);
+            Steady = makeArray(DMX_NB_PIX_PER_COL, 0);
+            break;
+        case 1:
+            steadyPourcentage = 90;
+            print(TAB1 + "Setting the steady state of FPAsim pixels to: " + steadyPourcentage + " % of FSR");
+            Steady = makeArray(DMX_NB_PIX_PER_COL, Math.round(STEADY_FSR * steadyPourcentage / 100));
+            break;
+        case 2:
+            print(TAB1 + "Setting the steady state of FPAsim pixels to: 0 except for pixel 0");
+            Steady = makeArray(DMX_NB_PIX_PER_COL, 0);
+            Steady[0] = 1000;
+            break;
+        case 3:
+            for (var pix=0; pix<DMX_NB_PIX_PER_COL; pix+=1) Steady[pix] = pix * 400;
+            break;
+    }
+    sendToFPAsim_loadTES_steadyState(Steady);
+
+    print(TAB1 + "Steady states: ");
+    print(TAB2 + Steady);
+    print("");
+}
+
+/**
+ * Configuring the test setup
  *  Sets all the FPAsim steady states to the same value.
  *  Sets all the DMX fb0 to the same value except for pixel 0 (in open loop mode)
  *  Sets all the DMX offset to the same value (in open loop mode)
  *  Sets the RA_DELAY to the value provided by the parameter ra_delay_p
- *  Sets the FB_DELAY to the value provided by the parameter fb_delay_p
  *  Does a DMX dump
- * @param {number} col_p - column id [0, 3].
  * @param {number} ra_delay_p - sequence delay [0, 63].
- * @param {number} fb_delay_p - feedback delay [-512, 40].
  * @param {number} fb0_p - Feedback at MUX SQUID operating point s(16,2).
  * @param {number} offsetLSB_p - offset LSB value at AMP SQUID operating point U(12,0).
  * @param {number} offsetFine_p - offset fine value at AMP SQUID operating point U(3,0).
  * @param {number} offsetCoarse_p - offset coarse value at AMP SQUID operating point U(12,0).
  * @param {number} pulseShapingSet_p - Pulse shaping set Id [0-3].
  */
-function charac_SAMPLING_DELAY(col_p, ra_delay_p, fb_delay_p, fb0_p, offsetLSB_p, offsetFine_p, offsetCoarse_p, pulseShapingSet_p) {
+function configure_test(ra_delay_p, fb0_p, offsetLSB_p, offsetFine_p, offsetCoarse_p, pulseShapingSet_p) {
 
     print("");
     print("***");
-    print("* charac_FB_DELAY function");
+    print("* Configuring setup");
     print("***");
 
     // set the register: RA_DELAY
     print(TAB1+"Setting the register RA_DELAY to " + ra_delay_p);
     sendToFPAsim_configureRaDelay(ra_delay_p);
-
-    // set the register: MUX_SQ_FB_DELAY
-    print(TAB1 + "Setting the register MUX_SQ_FB_DELAY to " + fb_delay_p);
-    setDMX_feedback_delay(col_p, fb_delay_p);
 
     // TES steady states
 	print(TAB1+"Setting the FPAsim pixel steady states to a constant value");
@@ -86,47 +121,70 @@ function charac_SAMPLING_DELAY(col_p, ra_delay_p, fb_delay_p, fb0_p, offsetLSB_p
 
     // Selecting the pulse shaping set
 	print(TAB1+"Selecting the pulse shaping set number " + pulseShapingSet_p + ":");
-    setDMX_pulseShapingSelection(col_p, pulseShapingSet_p)
+	for (var col=0; col<DMX_NB_COL; col++)	setDMX_pulseShapingSelection(col, pulseShapingSet_p);
 
     // Switching ON the feedback for all the columns
 	print(TAB1+"Switching the feedback OnOff for all the columns:");
-    var colOnOff = [ON, ON, ON, ON];
+    const colOnOff = [ON, ON, ON, ON];
     setDMX_feedbackOnOff(colOnOff);
 
     // DEMUX feedback
 	print(TAB1+"Setting the DMX feedback mode to OPEN_LOOP (FB0 -> FEEDBACK output)...");
-	setDMX_sqm_FBMode(col_p, makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP));
 	print(TAB1+"Setting the DMX FB0 close to the MUX SQUID operating point except for pixel 0...");
     var fb = makeArray(DMX_NB_PIX_PER_COL, fb0_p);
     fb[0] += 500;
     print(TAB2 + fb);
-	setDMX_fb0(col_p, fb);
+	for (var col=0; col<DMX_NB_COL; col++) {
+		setDMX_fb0(col, fb);
+		setDMX_sqm_FBMode(col, makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP));
+	}
 	print("");
 
     // DEMUX offset
 	print(TAB1+"Setting the offset mode to OFFSET (OFFSET -> OFFSET output)...");
 	setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_OFFSET));
 	print(TAB1+"Setting the Offset close to the AMP SQUID operating point...");
-	setDMX_sqa_OffsetLSB(col_p, offsetLSB_p);
-	setDMX_sqa_OffsetFine(col_p, makeArray(DMX_NB_PIX_PER_COL, offsetFine_p), makeArray(DMX_NB_PIX_PER_COL, 0x0000));
-	setDMX_sqa_OffsetCoarse(col_p, offsetCoarse_p);
+	for (var col=0; col<DMX_NB_COL; col++) {
+		setDMX_sqa_OffsetLSB(col, offsetLSB_p);
+		setDMX_sqa_OffsetFine(col, makeArray(DMX_NB_PIX_PER_COL, offsetFine_p), makeArray(DMX_NB_PIX_PER_COL, 0x0000));
+		setDMX_sqa_OffsetCoarse(col, offsetCoarse_p);
+	}
 	print("");
-
-    // Data acquisition
-	print(TAB1+"Doing an acquisition in DUMP mode...");
-	setDMX_dataAcqMode(ACQ_MODE_DUMP);
 }
 
+/**
+ * Sets the SAMPLING_DELAY to a value and does a dump file.
+ *  Sets the FB_DELAY to the value provided by the parameter fb_delay_p
+ *  Does a DMX dump
+ * @param {number} fb_delay_p - feedback delay [-512, 40].
+ * @param {number} boxcarL_p - boxcar length.
+ */
+function set_SAMPLING_DELAY(samp_delay_p, boxcarL_p) {
+
+    print("");
+    print("***");
+    print("* Setting the SAMPLING_DELAY and doing a Dump");
+    print("***");
+
+	// Boxcar length
+	print(TAB1+"Setting the boxcar length to " + boxcarL_p);
+	setDMX_boxcarLength(boxcarL_p);
+
+    // set the register: SAMPLING_DELAY
+    print(TAB1 + "Setting the register SAMPLING_DELAY to " + samp_delay_p);
+	for (var col=0; col<DMX_NB_COL; col++) 	setDMX_sampling_delay(col, samp_delay_p);
+}
 
 // -------------------------------------------------------------------------------------------------------------
+
+sendStartNewSession("laurent_test","")
 
-const col = 0;
-const pulseShapingSet = 3
+const col = 3
+const pulseShapingSet = 3;
 
 // Optimal delay correction settings
 raDelayOpt = 27*2+1;
 fdbkDelayOpt = -92;
-ofcoDelayOpt = -99;
 
 // DEMUX configuration
 const fb0 = 0x6CB0;
@@ -134,25 +192,37 @@ const offsetLSB = 0x0FFF;
 const offsetFine = 0x7;
 const offsetCoarse = 0x37C;
 
+boxcarL = 0;
+
 /*
   Starting and initializing the FPAsim
   If the FPAsim function is already enabled nothing is done unless the "force_p" parameter is set to true.
 */
 fpasimStartup();
 
-charac_FB_DELAY(col, raDelayOpt, fdbkDelayOpt, fb0, offsetLSB, offsetFine, offsetCoarse, pulseShapingSet);
+/*
+  Configuring the setup
+*/
+configure_test(raDelayOpt, fb0, offsetLSB, offsetFine, offsetCoarse, pulseShapingSet)
 
 // Doing several dump files (will be averaged during data processing
 for (var i = 0; i<16; i++) {
-	// faire un fichier dump
+	setDMX_dataAcqMode(ACQ_MODE_DUMP);
 }
 
 // Scanning the different values of the sampling delay
-// Doing several Fdbk delay settings close to the optimal value
+// Using all sampling delay settings 
+setDMX_dataAcqMode(ACQ_MODE_ERROR);
+duration = 500
 for (var sampDelay=0; sampDelay<20; sampDelay++) {
 	setDMX_sampling_delay(col, sampDelay);
-    // Faire un fichier science
+	// Doing an error file
+	filename="Sample_delay_"+maDate();
+	sendToDMXSaveScienceRaw(filename , duration);
+	waitMs(duration)
 }
+
+setDMX_dataAcqMode(ACQ_MODE_IDLE);
 
 // -------------------------------------------------------------------------------------------------------------
 print("End of script!");

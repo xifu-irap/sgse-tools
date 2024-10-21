@@ -361,7 +361,7 @@ function setTesSteadyStates(pattern_p) {
 
 // -------------------------------------------------------------------------------------------------------------
 
-const col = 1;
+const col = 0;
 
 // RA_DELAY
 ra_delay = 27*2+1;
@@ -375,9 +375,11 @@ of_delay = -99;
 
 // DEMUX configuration
 const fb0 = 0x6CB0;
-const offsetLSB = 0x0FFF;
+//const offsetLSB = 0x0FFF;
+const offsetLSB = 0x00FF;
 const offsetFine = 0x7;
 const offsetCoarse = 0x37C;
+
 
 /*
   Starting and initializing the FPAsim
@@ -396,7 +398,6 @@ Does an acquisition in DUMP mode in order to characterise the proper RA_DELAY.
   Sets the RA_DELAY to the value provided by the parameter ra_delay_p
   Does a DMX dump
 */
-
 charac_RA_DELAY(col, ra_delay, fb0, offsetLSB, offsetFine, offsetCoarse);
 
 
