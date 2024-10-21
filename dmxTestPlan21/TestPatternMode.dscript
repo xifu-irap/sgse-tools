@@ -1,0 +1,67 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     muxSquidDacTest.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file tests the Mux SQUID DACs of the DMX boards.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+include("../demux/dmxTools.dscript");
+include("../demux/dmxRegAddresses.dscript");
+include("../demux/dmxHk.dscript");
+include("../common/utilTools.dscript");
+include("../common/constants.dscript");
+
+/**
+ * This function activates the test pattern and the science link
+ */
+function testSequence() {
+
+    // Setting the testPattern to a rising slope
+    const a = -1*Math.pow(2, 15);
+    const b = 0;
+    const c = Math.pow(2,8);
+    const N = Math.pow(2,8) - 1;
+    const sawPattern = [
+        [a, b, c, N],  // Slope upward
+        [a/2, b, c/2, N],  // Slope upward
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0]  // Nothing
+    ];
+    setDMX_testPattern(sawPattern); 
+	setDMX_dataAcqMode(ACQ_MODE_TSTPATTERN);
+	
+        var enable = true;
+        var infinitely = true;
+        var nbTime = 0x3;
+        setDMX_testPatternEnable(enable, infinitely, nbTime);
+}
+
+// -------------------------------------------------------------------------------------------------------------
+
+// You should uncomment a single of the following lines
+testSequence();
+
+// -------------------------------------------------------------------------------------------------------------
+print("Done!");

@@ -1,0 +1,64 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     errorNoiseAnalysis.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file is used to characterise the noise at the input of the DEMUX.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+include("../demux/dmxTools.dscript");
+include("../demux/dmxRegAddresses.dscript");
+include("../demux/dmxHk.dscript");
+
+include("../common/utilTools.dscript");
+include("../common/constants.dscript");
+
+// -------------------------------------------------------------------------------------------------------------
+
+const col = 2;
+
+// Switching ON the feedback for the selected column
+print(TAB1+"Switching the feedback On for the selected column:");
+var colOnOff = [OFF, OFF, OFF, OFF];
+colOnOff[col] = ON;
+//var colOnOff = [ON, ON, ON, ON];
+
+setDMX_feedbackOnOff(colOnOff);
+
+// Verifying the feedback delay correction resolution and range
+// Doing several Fdbk delay settings close to the optimal value
+setDMX_dataAcqMode(ACQ_MODE_SCIENCE);
+
+nbDumps = 1;
+for (var i=0; i<nbDumps; i++) {
+	setDMX_dataAcqMode(ACQ_MODE_DUMP);
+}
+setDMX_dataAcqMode(ACQ_MODE_IDLE);
+
+// -------------------------------------------------------------------------------------------------------------
+print("End of script!");
+
+
+
+
+

@@ -1,0 +1,54 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     fdbkDelayAnalysis.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file is used to characterise the timing parameters in the FPAsim + DMX0 configuration.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+
+include("../fpasim/fpasim/fpasim.dscript");
+include("../fpasim/fpasim_startup.dscript");
+
+include("../fpasim/fpasim/fpasim_tools.dscript");
+include("../fpasim/fpasim/utils_tools.dscript");
+include("../fpasim/fpasim/cdce72010.dscript");
+include("../fpasim/fpasim/ads62p49.dscript");
+include("../fpasim/fpasim/dac3283.dscript");
+include("../fpasim/fpasim/amc7823.dscript");
+
+include("../common/utilTools.dscript");
+include("../common/constants.dscript");
+
+// relative path from the main script (the calling script path)
+const ram_base_path = "../fpasim/fpasim_default_ram/"
+
+/*
+  Starting and initializing the FPAsim
+  If the FPAsim function is already enabled nothing is done unless the "force_p" parameter is set to true.
+*/
+fpasimStartup();
+
+
+
+
+
