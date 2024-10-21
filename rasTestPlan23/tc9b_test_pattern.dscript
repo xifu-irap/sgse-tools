@@ -1,0 +1,79 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     tc9_test_pattern.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This script tests the test pattern.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+include("../ras/rasTools.dscript");
+include("../ras/rasRegAddresses.dscript");
+include("../ras/rasSequences.dscript");
+
+include("../common/utilTools.dscript");
+include("../common/constants.dscript");
+
+
+/**
+ * Checks the setting of the address overlap
+ */
+function tc9_test_pattern() {
+
+    plotLongLine();
+    print("* Checking the test pattern");
+    print(" ");
+
+    setRAS_seqMode(OFF);
+    print(TAB1 + "Setting the address sequence for PS0 and PS1");
+    setRAS_addressSequence( 0, 0x000000000000);
+	setRAS_DAC(DAC_PS_LOW, 0x800);
+
+    setRAS_addressSequence( 1, 0xFFFFFFFFFFFF);
+	setRAS_DAC(DAC_PS_HIGH, 0x400);
+    setRAS_seqMode(ON);
+	waitMs(1000);
+
+    print(TAB1 + "Setting the test pattern");
+    const patternParameters = [
+        [0x0000, 0x0007, 0x0002, 0x07FF],   // Slope upward
+        [0x0FFF, 0x0007, -1*0x0002, 0x07FF],    // Slope downward
+        [0x0000, 0x3FFF, 0x0000, 0x0001],   // Plateau
+        [0x0000, 0x0020, 0x0002, 0x07FF],   // Slope upward
+        [0x0FFF, 0x0020, -1*0x0002, 0x07FF]];    // Slope downward
+    setRAS_testPattern(patternParameters);
+
+    answer = getText("Ready to start 3 patterns on PS0 line? [yes]", " ");
+    setRAS_seqMode(OFF);
+    setRAS_testPatternEnable('PS_LOW', true, false, 3);
+    setRAS_seqMode(ON);
+    print(" ");
+
+}
+
+//rasInit();
+
+tc9_test_pattern();
+
+print("End of script");
+/**********************************************************************************************************************/
+

@@ -41,9 +41,10 @@ include("../common/constants.dscript");
  *   This function does the reverse conversion in order to control the values that
  *   will be sent to the DAC.
  * @param {number} val_p - The DAC value U(14,0).
+ * @param {boolean} neg_p - If true the 14-bit value is replaced by (2^14-1-value).
  * @return feedbackValue - The feedback value S(16,2)
  */
-function convertDac2Feedback(val_p) {
+function convertDac2Feedback(val_p, neg_p) {
 
     const FDBK_DAC_NBITS = 14;
     const offset = Math.pow(2, FDBK_DAC_NBITS-1);
@@ -53,15 +54,20 @@ function convertDac2Feedback(val_p) {
         return;
     }
 
-    return (val_p - offset) * 4;
+	var feedbackValue = (val_p - offset);
+
+	if (neg_p) feedbackValue = Math.pow(2, FDBK_DAC_NBITS)-1 - feedbackValue;
+
+	return feedbackValue*4;
 }
 
 
 /**
  * Sets different values to a fb DAC in order to measure the output level for each DAC BIT
  *   The execution of this script has to be combined with measurements at the DEMUX output.
+ * @param {boolean} neg_p - If true the 14-bit value is replaced by (2^14-1-value).
  */
-function characLinearityFdbk() {
+function characLinearityFdbk(neg_p) {
 
     const FDBK_DAC_NBITS = 14;
 
@@ -82,18 +88,18 @@ function characLinearityFdbk() {
 
     // Setting the code 0
     var value = 0;
-    var valueFbck = convertDac2Feedback(value);
+    var valueFbck = convertDac2Feedback(value, neg_p);
     print(TAB2 + "Setting FB DAC to " + value + " (feedback = " + valueFbck + ")");
     for (col = 0; col<DMX_NB_COL; col++) setDMX_fb0(col, makeArray(DMX_NB_PIX_PER_COL, valueFbck));
     // Measurement
     answer = getText("Please measure the feedback signal. Click when that is done.", " ");
 
     // Setting the codes for each bit (from 2^0 to 2^13)
-    for (var bit=0; bit<FDBK_DAC_NBITS-1; bit++) {
+    for (var bit=0; bit<FDBK_DAC_NBITS; bit++) {
 
         // New setting
         value = Math.pow(2, bit);
-        var valueFbck = convertDac2Feedback(value);
+        var valueFbck = convertDac2Feedback(value, neg_p);
         print(TAB2 + "Setting FB DAC to " + value + " (feedback = " + valueFbck + ")");
         for (col = 0; col<DMX_NB_COL; col++) setDMX_fb0(col, makeArray(DMX_NB_PIX_PER_COL, valueFbck));
         // Measurement
@@ -102,7 +108,7 @@ function characLinearityFdbk() {
 
     // Setting the code for the maximum value (0x3FFF)
     var value = 0x3FFF;
-    var valueFbck = convertDac2Feedback(value);
+    var valueFbck = convertDac2Feedback(value, neg_p);
     print(TAB2 + "Setting FB DAC to " + value + " (feedback = " + valueFbck + ")");
     for (col = 0; col<DMX_NB_COL; col++) setDMX_fb0(col, makeArray(DMX_NB_PIX_PER_COL, valueFbck));
     // Measurement
@@ -115,7 +121,7 @@ function characLinearityFdbk() {
 // -------------------------------------------------------------------------------------------------------------
 
 
-characLinearityFdbk(col);
+characLinearityFdbk(true);
 
 
 // -------------------------------------------------------------------------------------------------------------
