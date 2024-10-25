@@ -1,0 +1,138 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     dmxStart.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file is used to setup the demux firmware.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+/**
+ * Definition of constants
+ */
+
+// Delays
+const fdbkDelayOpt = -92;
+const sampDelayOpt = 16;
+
+// Levels
+const fb0Opt = 4200;
+const offsetLSBOpt = 0x000F;
+const offsetFineOpt = 0x7;
+const offsetCoarseOpt = 0x00F;
+
+
+/**
+ * Configuring the test setup
+ *  Sets all the DMX fb0 to the same value except for pixel 0 (in open loop mode)
+ *  Sets all the DMX offset to the same value (in open loop mode)
+ *  Sets the RA_DELAY to the value provided by the parameter ra_delay_p
+ *  Does a DMX dump
+ * @param {number} samp_delay_p - sampling delay [0, 19].
+ * @param {number} bxLength_p - boxcar length 4 values U(4,0).
+ * @param {number} fb_delay_p - feedback delay [-512, 40].
+ * @param {number} fb0_p - Feedback at MUX SQUID operating point s(16,2).
+ * @param {number} offsetLSB_p - offset LSB value at AMP SQUID operating point U(12,0).
+ * @param {number} offsetFine_p - offset fine value at AMP SQUID operating point U(3,0).
+ * @param {number} offsetCoarse_p - offset coarse value at AMP SQUID operating point U(12,0).
+ * @param {number} pulseShapingSet_p - Pulse shaping set Id [0-3].
+ */
+function demuxStart(samp_delay_p, bxLength_p, fb_delay_p, fb0_p, offsetLSB_p, offsetFine_p, offsetCoarse_p, pulseShapingSet_p) {
+
+    print("");
+    print("***");
+    print("* Configuring DEMUX firmware");
+    print("***");
+
+    // set the register: SAMPLING_DELAY
+    print(TAB1+"Setting the 4 registers SAMPLING_DELAY to " + samp_delay_p);
+	for (var col=0; col<DMX_NB_COL; col++) setDMX_sampling_delay(col, samp_delay_p);
+
+	// Setting the boxcar length
+    print(TAB1+"Setting the boxcar length to " + bxLength_p);
+	setDMX_boxcarLength(bxLength_p);
+
+    // set the register: FEEDBACK_DELAY
+    print(TAB1+"Setting the FB_DELAY to " + fb_delay_p);
+	for (var col=0; col<DMX_NB_COL; col++) setDMX_feedback_delay(col, fb_delay_p);
+
+    // set the register: MUX_SQ_FB_DELAY
+    print(TAB1 + "Setting the register MUX_SQ_FB_DELAY to " + fb_delay_p);
+	for (var col=0; col<DMX_NB_COL; col++) setDMX_feedback_delay(col, fb_delay_p);
+
+    // Selecting the pulse shaping set
+	print(TAB1+"Selecting the pulse shaping set number " + pulseShapingSet_p + ":");
+	for (var col=0; col<DMX_NB_COL; col++)	setDMX_pulseShapingSelection(col, pulseShapingSet_p);
+
+    // Switching ON the feedback for all the columns
+	print(TAB1+"Switching ON the feedback OnOff for all the columns...");
+    const colOnOff = [ON, ON, ON, ON];
+    setDMX_feedbackOnOff(colOnOff);
+
+    // DEMUX feedback
+	pixel = 5;
+	print(TAB1+"Setting the DMX feedback mode to OPEN LOOP...");
+    var fb = makeArray(DMX_NB_PIX_PER_COL, fb0_p);
+	fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
+	for (var col=0; col<DMX_NB_COL; col++) {
+		setDMX_fb0(col, fb);
+		setDMX_sqm_FBMode(col, fbMode);
+	}
+	print("");
+
+	print(TAB1 + "Setting the test pattern");
+    const a = -1*Math.pow(2, 15);
+    const b = 1;
+    const c = 32;
+    const N = 1024;
+/*	const rampPattern = [
+        [a, b, c, N],  // Slope upward
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0]  // Nothing
+    ];*/
+	
+	const rampPattern = [
+        [a, b, c, N],  // Slope upward
+        [0, 256, 0, 1],  // Constant
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0]  // Nothing
+    ];
+	
+    setDMX_testPattern(rampPattern); 
+
+    // DEMUX offset
+	print(TAB1+"Setting the offset mode to OFFSET (OFFSET -> OFFSET output)...");
+	setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_OFFSET));
+	print(TAB1+"Setting the Offset close to the AMP SQUID operating point...");
+	for (var col=0; col<DMX_NB_COL; col++) {
+		setDMX_sqa_OffsetLSB(col, offsetLSB_p);
+		setDMX_sqa_OffsetFine(col, makeArray(DMX_NB_PIX_PER_COL, offsetFine_p), makeArray(DMX_NB_PIX_PER_COL, 0x0000));
+		setDMX_sqa_OffsetCoarse(col, offsetCoarse_p);
+	}
+	print("");
+}
+
+// -------------------------------------------------------------------------------------------------------------
+
+

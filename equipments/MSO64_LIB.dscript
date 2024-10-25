@@ -1,0 +1,625 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     yann.parot@irap.omp.eu
+//    @file                     MSO64_LIB.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This library is used to drive the MSO64 oscilloscope.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+//Définition des constantes
+
+const Z_IN = {
+	Z_1MEG : 1e6,
+	Z_50 : 50
+};
+
+
+const ACQ_MODE = {
+	SAMPLE : "SAMple",
+	PEAKDETECT : "PEAKdetect",
+	HIRES : "HIRes",
+	AVERAGE : "AVErage",
+	ENVELOPE : "ENVelope"
+};
+
+const EXTREM_VAL = {
+	MAX_BW : 1e9, //Hz
+	MIN_BW : 20e6, //Hz
+	MAX_SCALE : 1, //V/div
+	MIN_SCALE : 1e-3, //V/div
+	HDIV : 10, //div
+	VDIV : 10, //div
+	NBCHAN : 4,
+};
+
+const MEAS_TYPE = {
+	ACCOMMONMODE : 'ACCOMMONMODE',
+	ACRMS : 'ACRMS',
+	AMPLITUDE : 'AMPLITUDE',
+	AREA : 'AREA',
+	BASE : 'BASE',
+	BITAMPLITUDE : 'BITAMPLITUDE',
+	BITHIGH : 'BITHIGH',
+	BITLOW : 'BITLOW',
+	BURSTWIDTH : 'BURSTWIDTH',
+	CCJITTER : 'CCJITTER',
+	COMMONMODE : 'COMMONMODE',
+	CPOWER : 'CPOWER',
+	DATARATE : 'DATARATE',
+	DCD : 'DCD',
+	DDJ : 'DDJ',
+	DDRAOS : 'DDRAOS',
+	DDRAOSPERUI : 'DDRAOSPERUI',
+	DDRAUS : 'DDRAUS',
+	DDRAUSPERTCK : 'DDRAUSPERTCK',
+	DDRAUSPERUI : 'DDRAUSPERUI',
+	DDRHOLDDIFF : 'DDRHOLDDIFF',
+	DDRSETUPDIFF : 'DDRSETUPDIFF',
+	DDRTCHABS : 'DDRTCHABS',
+	DDRTCLABS : 'DDRTCLABS',
+	DDRTCLAVERAGE : 'DDRTCLAVERAGE',
+	DDRTERRMN : 'DDRTERRMN',
+	DDRTERRN : 'DDRTERRN',
+	DDRTJITCC : 'DDRTJITCC',
+	DDRTJITDUTY : 'DDRTJITDUTY',
+	DDRTJITPER : 'DDRTJITPER',
+	DDRTPST : 'DDRTPST',
+	DDRTRPRE : 'DDRTRPRE',
+	DDRTWPRE : 'DDRTWPRE',
+	DDRVIXAC : 'DDRVIXAC',
+	DDRTDQSCK : 'DDRTDQSCK',
+	DELAY : 'DELAY',
+	DJ : 'DJ',
+	DJDIRAC : 'DJDIRAC',
+	DPMPSIJ : 'DPMPSIJ',
+	EYEHIGH : 'EYEHIGH',
+	EYELOW : 'EYELOW',
+	FALLSLEWRATE : 'FALLSLEWRATE',
+	FALLTIME : 'FALLTIME',
+	FREQUENCY : 'FREQUENCY',
+	F2 : 'F2',
+	F4 : 'F4',
+	F8 : 'F8',
+	HEIGHT : 'HEIGHT',
+	HEIGHTBER : 'HEIGHTBER',
+	HIGH : 'HIGH',
+	HIGHTIME : 'HIGHTIME',
+	HOLD : 'HOLD',
+	IMDAANGLE : 'IMDAANGLE',
+	IMDADIRECTION : 'IMDADIRECTION',
+	IMDADQ0 : 'IMDADQ0',
+	IMDAEFFICIENCY : 'IMDAEFFICIENCY',
+	IMDAHARMONICS : 'IMDAHARMONICS',
+	IMDAMECHPWR : 'IMDAMECHPWR',
+	IMDAPOWERQUALITY : 'IMDAPOWERQUALITY',
+	IMDASPEED : 'IMDASPEED',
+	IMDASYSEFF : 'IMDASYSEFF',
+	IMDATORQUE : 'IMDATORQUE',
+	JITTERSUMMARY : 'JITTERSUMMARY',
+	J2 : 'J2',
+	J9 : 'J9',
+	LOW : 'LOW',
+	LOWTIME : 'LOWTIME',
+	MAXIMUM : 'MAXIMUM',
+	MEAN : 'MEAN',
+	MINIMUM : 'MINIMUM',
+	NDUty : 'NDUty',
+	NOVERSHOOT : 'NOVERSHOOT',
+	NPERIOD : 'NPERIOD',
+	NPJ : 'NPJ',
+	NWIDTH : 'NWIDTH',
+	OBW : 'OBW',
+	PDUTY : 'PDUTY',
+	PERIOD : 'PERIOD',
+	PHASE : 'PHASE',
+	PHASENOISE : 'PHASENOISE',
+	PJ : 'PJ',
+	PK2Pk : 'PK2Pk',
+	POVERSHOOT : 'POVERSHOOT',
+	PWIDTH : 'PWIDTH',
+	QFACTOR : 'QFACTOR',
+	RISESLEWRATE : 'RISESLEWRATE',
+	RISETIME : 'RISETIME',
+	RJ : 'RJ',
+	RJDIRAC : 'RJDIRAC',
+	RMS : 'RMS',
+	SETUP : 'SETUP',
+	SKEW : 'SKEW',
+	SRJ : 'SRJ',
+	SSCFREQDEV : 'SSCFREQDEV',
+	SSCMODRATE : 'SSCMODRATE',
+	TIE : 'TIE',
+	TIMEOUTSIDELEVEL : 'TIMEOUTSIDELEVEL',
+	TIMETOMAX : 'TIMETOMAX',
+	TIMETOMIN : 'TIMETOMIN',
+	TJBER : 'TJBER',
+	TNTRATIO : 'TNTRATIO',
+	TOP : 'TOP',
+	UNITINTERVAL : 'UNITINTERVAL',
+	VDIFFXOVR : 'VDIFFXOVR',
+	WBGDDT : 'WBGDDT',
+	WBGDIODEDDT : 'WBGDIODEDDT',
+	WBGEOFF : 'WBGEOFF',
+	WBGEON : 'WBGEON',
+	WBGERR : 'WBGERR',
+	WBGIPEAK : 'WBGIPEAK',
+	WBGIRRM : 'WBGIRRM',
+	WBGQOSS : 'WBGQOSS',
+	WBGQRR : 'WBGQRR',
+	WBGTDOFF : 'WBGTDOFF',
+	WBGTDON : 'WBGTDON',
+	WBGTF : 'WBGTF',
+	WBGTON : 'WBGTON',
+	WBGTOFF : 'WBGTOFF',
+	WBGTR : 'WBGTR',
+	WBGTRR : 'WBGTRR',
+	WBGTDT : 'WBGTDT',
+	WBGVPEAK : 'WBGVPEAK',
+	WIDTH : 'WIDTH',
+	WIDTHBER : 'WIDTHBER'
+};
+
+const osc_ip_address = "10.120.1.86";
+const osc_port = 4000;
+const osc_read_timeout = 3000
+
+
+//-------------------------------------------------------------
+
+function disconnect_MSO64(socket){
+	closeTCP(socket);
+};
+
+//-------------------------------------------------------------
+//Fonctions bas niveau
+
+function connect_MSO64(){
+	return openTCP(osc_ip_address,osc_port,"\n",osc_read_timeout);
+};
+
+
+function command(socket, command){
+	sendTCP(socket, command);
+};
+
+
+function query(socket, query){
+	sendTCP(socket, query);
+	return receiveTCP(socket);
+};
+
+
+//-------------------------------------------------------------
+//Identifiant
+function get_osc_id(socket){
+	var data = query(socket,"*IDN?")
+	return data
+}
+
+
+//-------------------------------------------------------------
+//Date
+function get_osc_date(socket){
+	var data = query(socket,"DATE?")
+	return data
+}
+
+
+//-------------------------------------------------------------
+//Heure
+function get_osc_time(socket){
+	var data = query(socket,"TIMe?")
+	return data
+}
+
+
+//-------------------------------------------------------------
+//Test busy
+function wait_not_busy(socket){
+	var busy = 1
+	while (busy == 1) {
+		busy = Number(query(socket, "BUSY?"))
+	}
+}
+
+
+//-------------------------------------------------------------
+//Acquisition
+function SetAcqMode(socket, Mode){
+	command(socket, "ACQuire:MODe "+Mode);
+};
+
+
+function GetAcqMode(socket){
+	return query(socket, "ACQuire:MODe?");
+};
+
+
+function RunAcq(socket){
+	command(socket, "ACQuire:STATE RUN");
+};
+
+
+function StopAcq(socket){
+	command(socket, "ACQuire:STATE STOP");
+};
+
+
+function GetNAcq(socket){
+	var data = query(socket, "ACQuire:NUMACq?");
+	if (data.trim() != ""){
+		return Number(data.trim());
+	}
+	else {
+		return 0;
+	}
+};
+
+
+function WaitForAnAcquisition(socket){
+	var n_acq_init= GetNAcq(socket);
+	var n_acq
+	//RunAcq(socket);
+	do {
+		n_acq = GetNAcq(socket);
+	} while(n_acq == n_acq_init)
+
+	//StopAcq(socket);
+};
+
+
+//-------------------------------------------------------------
+//Horizontal
+function SetManualHorizontalMode(socket,manual){
+	var mode
+	if (manual) {
+		mode="MANual"
+		}
+	else {
+		mode="AUTO"
+	}
+	command(socket,"HORizontal:MODe "+mode)
+}
+
+
+function GetHorizontalMode(socket){
+	var data = query(socket, "HORizontal:MODe?")
+	return data
+}
+
+
+function AdjustRLWhenSRMove(socket,state){
+	var mode
+	if (state){
+		mode = "RECORDLength"
+	}
+	else {
+		mode = "HORIZontalscale"
+	}
+	command(socket, "HORIZONTAL:MODE:MANUAL:CONFIGURE "+mode)
+}
+
+
+function SetSampleRate(socket,SR){
+	command(socket, "HORizontal:MODe:SAMPLERate "+SR)
+}
+
+
+function GetSampleRate(socket){
+	var data = query(socket, "HORizontal:MODe:SAMPLERate?")
+	return float(data.trim())
+}
+
+
+function SetRecordLength(socket,RL){
+	command(socket, "HORizontal:RECOrdlength "+RL)
+}
+
+
+function GetRecordLength(socket) {
+	var data = query(socket, "HORizontal:RECOrdlength?")
+	return float(data.trim())
+}
+
+
+//-------------------------------------------------------------
+//Vertical
+function IsClipping(socket,channel){
+	var data = query(socket, "CH"+channel+":CLIPping?")
+	if (Number(data) == 1){
+		return true
+	}
+	return false
+}
+
+
+function SetScale(socket,channel,Scale){
+	command(socket, "CH"+channel+":Scale "+Scale);
+}
+
+
+function GetScale(socket,channel){
+	var data = query(socket, "CH"+channel+":Scale?")
+	return Number(data.trim())
+}
+
+
+function GetMinScale(socket,channel){
+	var offset = GetOffset(socket, channel)
+	var input_Z = GetInputZ(socket, channel)
+
+	if (input_Z == 50.0) {
+		if (offset > 1) {
+			return 100e-3
+		}
+		else {
+			return 1e-3
+		}
+	}
+	else {
+		if (offset > 10) {
+			return 1
+		}
+		else if (offset > 1){
+			return 64e-3
+		}
+		else {
+			return 500e-6
+		}
+	}
+}
+
+
+function SetPosition(socket,channel,Position){ //Position est en nombre de divisions
+	command(socket, "CH"+channel+":POSition "+Position)
+}
+
+
+function GetPosition(socket,channel){
+	var data = query(socket, "CH"+channel+":POSition?")
+	return Number(data.trim())
+}
+
+
+function SetOffset(socket,channel,Offset){ //Offset en V
+	command(socket, "CH"+channel+":OFFSet "+Offset)
+}
+
+
+function GetOffset(socket,channel){
+	var data = query(socket, "CH"+channel+":OFFSet?")
+	return Number(data.trim())
+}
+
+
+function GetMaxOffset(socket,channel){
+	var scale = GetScale(socket, channel)
+	var input_Z = GetInputZ(socket, channel)
+
+	if (input_Z == 50.0){
+		if (scale < 100e-3){
+			return 1
+		}
+		else {
+			return 10
+		}
+	}
+	else { // Haute imp�dance
+		if (scale < 64e-3){
+			return 1
+		}
+		else if (scale < 1){
+			return 10
+		}
+		else {
+			return 100
+		}
+	}
+}
+
+
+function GetOffsetAccuracy(socket,channel){
+	var scale = GetScale(socket, channel)
+	var offset = GetOffset(socket, channel)
+	var position = GetPosition(socket, channel)*scale
+	return 0.005*abs(offset-position) + GetDCBalance(channel)
+}
+
+
+function GetDCBalance(channel){
+	return 0 // A coder en fonction de la table tektronix / Il faudrait peut-être arranger ça dans un fichier xml attaché à l'équipement
+}
+
+
+//-------------------------------------------------------------
+//Channel
+
+function SetBandwidth(socket,channel,BW){
+	command(socket,"CH"+channel+":BANdwidth "+BW)
+}
+
+
+function GetBandwidth(socket,channel){
+	var data = query(socket,"CH"+channel+":BANdwidth?")
+	return Number(data.trim())
+}
+
+
+function SetLabel(socket,channel,Label){
+	command(socket,"CH"+channel+":LABel:NAMe \""+Label+"\"")
+}
+
+
+function GetLabel(socket,channel){
+	return query(socket,"CH"+channel+":LABel:NAMe?")
+}
+
+
+function SetInputZ(socket,channel,inputZ){
+	command(socket,"CH"+channel+":TERmination "+inputZ)
+}
+
+
+function GetInputZ(socket,channel){
+	var data = query(socket,"CH"+channel+":TERmination?")
+	return Number(data.trim())
+}
+
+
+function SetchannelState(socket,channel,state){ //1 = ON 0=Off
+	command(socket,"SELect:CH"+channel+" "+state)
+}
+
+
+function IschannelActive(socket,channel){
+	var data = query(socket,"SELect:CH"+channel)
+	return bool(int(data.trim()))
+}
+
+
+function GetAllchannelState(socket){
+	var ch_state = new Array(EXTREM_VAL.NBCHAN)
+	for (var i = 0; i < EXTREM_VAL.NBCHAN; i++) {
+		ch_state[i] = IschannelActive(socket,i+1)
+	}
+	return ch_state
+}
+
+
+function SetAllchannelState(socket,ch_state){
+	if (ch_state.length == 0){
+		print("Liste vide")
+		return
+	}
+	if (ch_state.length > EXTREM_VAL.NBCHAN){
+		print("Trop de channels dans la liste")
+		return
+	}
+
+	for (var i = 0; i < ch_state.length; i++) {
+		SetchannelState(socket,i+1,state)
+		ch_state[i] = IschannelActive(socket,i+1)
+	}
+}
+
+
+//-------------------------------------------------------------
+//File
+function GetCurrentWorkingDirectory(socket){
+	return query(socket,"FILESystem:CWD?")
+}
+
+
+function SetCurrentWorkingDirectory(socket,path){
+	command(socket,"FILESystem:CWD "+path)
+}
+
+
+function SaveWaveformAsCSV(socket,channel,filepath,filename){
+	command(socket,"SAVE:WAVEFORM CH"+channel+",\""+filepath+"\\"+filename+".csv\"")
+}
+
+
+function SaveAllWaveformsAsCSV(socket,filepath,filename){
+	command(socket,"SAVE:WAVEFORM ALL,\""+filepath+"\\"+filename+".csv\"")
+}
+
+
+//-------------------------------------------------------------
+//Measurements
+function GetMeasurementsList(socket){
+	var data=query(socket,"MEASUrement:LIST?")
+	if ((data.trim()).toUpperCase()=="NONE"){
+		return []
+	}
+	else {
+		return (data.trim()).split(",")
+	}
+}
+
+
+function AddNewMeasurement(socket,MeasType){
+	command(socket,"MEASUREMENT:ADDMEAS "+MeasType)
+}
+
+
+function AddNewMeasurementAtIndex(socket,channel,MeasID,MeasType){
+	//Création de la mesure
+	command(socket,"MEASUrement:MEAS"+MeasID+":TYPe "+MeasType)
+
+	//Application au channel
+	command(socket,"MEASUrement:MEAS"+MeasID+":SOUrce CH"+channel)
+}
+
+
+function DeleteMeasurement(socket,MeasID){
+	command(socket,"MEASUREMENT:DELETE \"MEAS"+MeasID+"\"")
+}
+
+
+function GetMeasurementMeanValue(socket,MeasID){
+	var data = query(socket,"MEASUrement:MEAS"+MeasID+":RESUlts:CURRentacq:MEAN?")
+	return Number(data.trim())
+}
+
+
+function GetImmediateMeasurement(socket,channel,MeasType){
+	SetchannelState(socket,channel,1)
+	command(socket,"MEASUrement:IMMEDiate:TYPe "+MeasType)
+	wait_not_busy(socket)
+	var data = query(socket,"MEASUrement:IMMEDiate:VALue?")
+	return Number(data.trim())
+}
+
+
+//-------------------------------------------------------------
+//Autoscale
+
+function VerticalAutoScale(socket){
+	//Statut des paramètres autoset
+	var old_acq_autoset = query(socket,"AUTOSet:ACQuisition:ENAble?")
+	var old_hr_autoset = query(socket,"AUTOSet:HORizontal:ENAble?")
+	var old_trg_autoset = query(socket,"AUTOSet:TRIGger:ENAble?")
+	var old_vt_autoset = query(socket,"AUTOSet:VERTical:ENAble?")
+
+	//Disable de tout sauf l'échelle verticale pour l'autoset
+	command(socket,"AUTOSet:ACQuisition:ENAble OFF")
+	command(socket,"AUTOSet:HORizontal:ENAble OFF")
+	command(socket,"AUTOSet:TRIGger:ENAble OFF")
+	command(socket,"AUTOSet:VERTical:ENAble ON")
+
+	//Autoset
+	command(socket,"AUTOSet EXECute")
+	print("Autoset Vertical en cours")
+
+	//Attente Oscilloscope
+	wait_not_busy(socket)
+	print("Autoset Vertical terminé")
+
+	//Retour aux paramètres originaux
+	command(socket,"AUTOSet:ACQuisition:ENAble "+old_acq_autoset)
+	command(socket,"AUTOSet:HORizontal:ENAble "+old_hr_autoset)
+	command(socket,"AUTOSet:TRIGger:ENAble "+old_trg_autoset)
+	command(socket,"AUTOSet:VERTical:ENAble "+old_vt_autoset)
+}
+
+//-------------------------------------------------------------

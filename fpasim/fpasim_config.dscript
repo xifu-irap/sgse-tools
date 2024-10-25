@@ -1,0 +1,88 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     fpasimConfig.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file is used to configure some parameters of the FPAsim.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// Optimal RA delay
+const raDelayOpt = 27*2+1;
+
+// TES default steady state
+const STEADY_FSR = Math.pow(2, 16)-1;
+const SteadyMode0 = 0;
+const SteadyMode90Fsr = 1;
+const SteadyModePix0 = 2;
+const SteadyModeRamp = 3;
+
+/**
+ * Set a TES steady states sequence
+ * Depending on the value of the pattern parameter a specific sequence will be selected.
+ * @param {number} pattern_p - defines the pattern for the set of values.
+ *      0) all pixels at 0
+ *      1) 90 % of FSR
+ *      2) all pixels at 0 and pix 0 at another value
+ *      3) a ramp
+ */
+function setTesSteadyStates(pattern_p) {
+
+	var Steady = [];
+	
+    switch (pattern_p) {
+        case SteadyMode0:
+            print(TAB1 + "Setting the steady state of FPAsim pixels to: 0");
+            Steady = makeArray(64, 0);
+            Steady = makeArray(DMX_NB_PIX_PER_COL, 0);
+            break;
+        case SteadyMode90Fsr:
+            steadyPourcentage = 90;
+            print(TAB1 + "Setting the steady state of FPAsim pixels to: " + steadyPourcentage + " % of FSR");
+            Steady = makeArray(DMX_NB_PIX_PER_COL, Math.round(STEADY_FSR * steadyPourcentage / 100));
+            break;
+        case SteadyModePix0:
+            print(TAB1 + "Setting the steady state of FPAsim pixels to: 0 except for pixel 0");
+            Steady = makeArray(DMX_NB_PIX_PER_COL, 0);
+            Steady[0] = 1000;
+            break;
+        case SteadyModeRamp:
+            for (var pix=0; pix<DMX_NB_PIX_PER_COL; pix+=1) Steady[pix] = pix * 400;
+            break;
+    }
+    sendToFPAsim_loadTES_steadyState(Steady);
+
+    print(TAB1 + "Steady states: ");
+    print(TAB2 + Steady);
+    print("");
+}
+
+
+function fpasimConfig(ra_delay_p, steadyStateMode_p) {
+
+	// set the register: RA_DELAY
+	print(TAB1+"Setting the register RA_DELAY to " + ra_delay_p);
+	sendToFPAsim_configureRaDelay(ra_delay_p);
+
+	// TES steady states
+	print(TAB1+"Setting the FPAsim pixel steady states to a constant value");
+	setTesSteadyStates(steadyStateMode_p);
+}
