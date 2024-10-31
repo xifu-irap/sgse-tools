@@ -17,7 +17,7 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     samplingDelayAnalysis.dscript
+//    @file                     fdbkDelayAnalysis.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
@@ -25,15 +25,9 @@
 //
 // -------------------------------------------------------------------------------------------------------------
 
-// imports
-include("../demux/dmxTools.dscript");
-include("../demux/dmxRegAddresses.dscript");
-include("../demux/dmxHk.dscript");
-include("../demux/dmxStart.dscript");
 
 include("../fpasim/fpasim/fpasim.dscript");
 include("../fpasim/fpasim_startup.dscript");
-include("../fpasim/fpasim_config.dscript");
 
 include("../fpasim/fpasim/fpasim_tools.dscript");
 include("../fpasim/fpasim/utils_tools.dscript");
@@ -45,10 +39,11 @@ include("../fpasim/fpasim/amc7823.dscript");
 include("../common/utilTools.dscript");
 include("../common/constants.dscript");
 
-// -------------------------------------------------------------------------------------------------------------
+// relative path from the main script (the calling script path)
+const ram_base_path = "../fpasim/fpasim_default_ram/"
 
-const col = 2;
-const pulseShapingSet = 0;
+
+// -------------------------------------------------------------------------------------------------------------
 
 /*
   Starting and initializing the FPAsim
@@ -56,44 +51,9 @@ const pulseShapingSet = 0;
 */
 fpasimStartup();
 
-/*
-  Configuring the FPAsim
-*/
-fpasimConfig(raDelayOpt, SteadyMode90Fsr);
-
-/*
- Starting and configuring the DEMUX
-*/
-const pulseShapingSet  = 0;
-const boxcarL = 0;
-const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
-demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSet)
-
-
-pixel = 5;
-print(TAB1+"Setting the DMX feedback mode of pixel " + pixel + " to TEST PATTERN...");
-fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
-fbMode[pixel] = FEEDBACK_MODE_TESTPATTERN;
-fbMode[27] = FEEDBACK_MODE_TESTPATTERN;
-for (var col=0; col<DMX_NB_COL; col++) {
-	setDMX_sqm_FBMode(col, fbMode);
-}
-
-print(TAB1 + "Starting data acquisition in ERROR mode...");
-setDMX_dataAcqMode(ACQ_MODE_ERROR);
-
-print(TAB1 + "Activating the test pattern...");
-var enable = true;
-var infinitely = true;
-var nbTime = 0x9;
-setDMX_testPatternEnable(enable, infinitely, nbTime);
-
-waitMs(6000000, true, true, "Acquisition en cours...");
-
-setDMX_dataAcqMode(ACQ_MODE_IDLE);
-
 // -------------------------------------------------------------------------------------------------------------
-print("End of script!");
+
+print("End of FPAsim startup");
 
 
 

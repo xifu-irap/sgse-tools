@@ -610,7 +610,65 @@ function dmxCheckReadWrite() {
 
     if (fwVersion > 2) {
 
-        /**************************************************************************************************************/
+        /**************************************************************************************************************/
+        plotLongLine();
+        print("Testing the setting of the LSB of the AMP SQUID offset (AMP_SQ_OFFSET_FINE):");
+
+        for (var col=0; col<DMX_NB_COL; col++) {
+            print(TAB1 + "Testing column " + col);
+
+            checked_values = readDMX_sqa_OffsetFine(col);
+            print(TAB2 + "Initial values are: ");
+            print(checked_values[0]);
+            print(checked_values[1]);
+
+            var values0 = [DMX_NB_PIX_PER_COL];
+            var values1 = [DMX_NB_PIX_PER_COL];
+            for (pix = 0; pix < DMX_NB_PIX_PER_COL; pix++) {
+                values0[pix] = pix % 7;
+                print(TAB2 + "Pixel " + pix + ": offset fine (STD) = " + values0[pix]);
+                values1[pix] = (pix + 3) % 7;
+                print(TAB2 + "Pixel " + pix + ": offset fine (PTR) = " + values1[pix]);
+            }
+            print(TAB1 + "Setting new values: ");
+            print(values0);
+            print(values1);
+            setDMX_sqa_OffsetFine(col, values0, values1);
+
+            checked_values = readDMX_sqa_OffsetFine(col);
+            print(TAB1 + "Reading the new values: " + checked_values);
+            print(checked_values[0]);
+            print(checked_values[1]);
+
+            MESSAGE = MESSAGE_ERROR;
+            if (arraysAreEquals(values0, checked_values[0]) && arraysAreEquals(values1, checked_values[1])) MESSAGE = MESSAGE_OK;
+            print(TAB1 + MESSAGE);
+            if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
+        }
+
+
+        /**************************************************************************************************************/
+        plotLongLine();
+        print("Testing the setting of the weight of the LSB of the AMP SQUID offset for test patterns (AMP_SQ_OFFSET_LSB_PTR):");
+
+        checked_values = [4];
+        for (var col=0; col<DMX_NB_COL; col++) checked_values[col] = readDMX_sqa_OffsetLSBptr(col);
+        print(TAB1 + "Initial values are: " + checked_values);
+
+		values = [0x0ABA, 0x0000, 0x0F2F, 0x0666];
+        print(TAB1 + "Setting new values: " + values);
+        for (var col=0; col<DMX_NB_COL; col++) setDMX_sqa_OffsetLSBptr(col, values[col]);
+
+        for (var col=0; col<DMX_NB_COL; col++) checked_values[col] = readDMX_sqa_OffsetLSBptr(col);
+        print(TAB1 + "Reading the new values: " + checked_values);
+
+        MESSAGE = MESSAGE_ERROR;
+        if (arraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
+        print(TAB1 + MESSAGE);
+        if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
+
+
+        /**************************************************************************************************************/
         plotLongLine();
         print("Testing the setting of the input gain:");
 
@@ -690,64 +748,6 @@ function dmxCheckReadWrite() {
 
         checked_values = [4];
         for (var col=0; col<DMX_NB_COL; col++) checked_values[col] = readDMX_sqa_knorm(col);
-        print(TAB1 + "Reading the new values: " + checked_values);
-
-        MESSAGE = MESSAGE_ERROR;
-        if (arraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
-        print(TAB1 + MESSAGE);
-        if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
-
-
-        /**************************************************************************************************************/
-        plotLongLine();
-        print("Testing the setting of the LSB of the AMP SQUID offset (AMP_SQ_OFFSET_FINE):");
-
-        for (var col=0; col<DMX_NB_COL; col++) {
-            print(TAB1 + "Testing column " + col);
-
-            checked_values = readDMX_sqa_OffsetFine(col);
-            print(TAB2 + "Initial values are: ");
-            print(checked_values[0]);
-            print(checked_values[1]);
-
-            var values0 = [DMX_NB_PIX_PER_COL];
-            var values1 = [DMX_NB_PIX_PER_COL];
-            for (pix = 0; pix < DMX_NB_PIX_PER_COL; pix++) {
-                values0[pix] = pix % 7;
-                print(TAB2 + "Pixel " + pix + ": offset fine (STD) = " + values0[pix]);
-                values1[pix] = (pix + 3) % 7;
-                print(TAB2 + "Pixel " + pix + ": offset fine (PTR) = " + values1[pix]);
-            }
-            print(TAB1 + "Setting new values: ");
-            print(values0);
-            print(values1);
-            setDMX_sqa_OffsetFine(col, values0, values1);
-
-            checked_values = readDMX_sqa_OffsetFine(col);
-            print(TAB1 + "Reading the new values: " + checked_values);
-            print(checked_values[0]);
-            print(checked_values[1]);
-
-            MESSAGE = MESSAGE_ERROR;
-            if (arraysAreEquals(values0, checked_values[0]) && arraysAreEquals(values1, checked_values[1])) MESSAGE = MESSAGE_OK;
-            print(TAB1 + MESSAGE);
-            if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
-        }
-
-
-        /**************************************************************************************************************/
-        plotLongLine();
-        print("Testing the setting of the weight of the LSB of the AMP SQUID offset for test patterns (AMP_SQ_OFFSET_LSB_PTR):");
-
-        checked_values = [4];
-        for (var col=0; col<DMX_NB_COL; col++) checked_values[col] = readDMX_sqa_OffsetLSBptr(col);
-        print(TAB1 + "Initial values are: " + checked_values);
-
-		values = [0x0ABA, 0x0000, 0x0F2F, 0x0666];
-        print(TAB1 + "Setting new values: " + values);
-        for (var col=0; col<DMX_NB_COL; col++) setDMX_sqa_OffsetLSBptr(col, values[col]);
-
-        for (var col=0; col<DMX_NB_COL; col++) checked_values[col] = readDMX_sqa_OffsetLSBptr(col);
         print(TAB1 + "Reading the new values: " + checked_values);
 
         MESSAGE = MESSAGE_ERROR;

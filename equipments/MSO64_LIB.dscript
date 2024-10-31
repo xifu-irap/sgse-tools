@@ -281,7 +281,7 @@ function WaitForAnAcquisition(socket){
 	//RunAcq(socket);
 	do {
 		n_acq = GetNAcq(socket);
-	} while(n_acq == n_acq_init)
+	} while(n_acq < n_acq_init+2)
 
 	//StopAcq(socket);
 };
@@ -326,7 +326,7 @@ function SetSampleRate(socket,SR){
 
 function GetSampleRate(socket){
 	var data = query(socket, "HORizontal:MODe:SAMPLERate?")
-	return float(data.trim())
+	return Number(data.trim())
 }
 
 
@@ -337,7 +337,7 @@ function SetRecordLength(socket,RL){
 
 function GetRecordLength(socket) {
 	var data = query(socket, "HORizontal:RECOrdlength?")
-	return float(data.trim())
+	return Number(data.trim())
 }
 
 
@@ -492,7 +492,7 @@ function SetchannelState(socket,channel,state){ //1 = ON 0=Off
 
 function IschannelActive(socket,channel){
 	var data = query(socket,"SELect:CH"+channel)
-	return bool(int(data.trim()))
+	return Number(data.trim())
 }
 
 
@@ -516,8 +516,8 @@ function SetAllchannelState(socket,ch_state){
 	}
 
 	for (var i = 0; i < ch_state.length; i++) {
-		SetchannelState(socket,i+1,state)
-		ch_state[i] = IschannelActive(socket,i+1)
+		SetchannelState(socket,i+1,ch_state[i])
+		//ch_state[i] = IschannelActive(socket,i+1)
 	}
 }
 

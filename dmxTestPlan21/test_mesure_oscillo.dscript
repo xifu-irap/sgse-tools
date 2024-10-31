@@ -1,0 +1,1 @@
+include("../equipments/MSO64_LIB.dscript")socket = connect_MSO64()SetAllchannelState(socket,[1,1,1,1])command(socket,"MEASUrement:IMMEDiate:TYPe MAX")wait_not_busy(socket)print(query(socket,"MEASUrement:IMMEDiate:VALue?"))

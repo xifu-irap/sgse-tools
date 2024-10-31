@@ -294,10 +294,10 @@ function readDMX_a(col_p) {
 }
 
 /**
- * Sets the value of the demux input gain (MUX_SQ_INPUT_GAIN).
+ * Sets the value of the demux input gain (MUX_SQ_INPUT_GAIN) S(16,12)
  * It is used in all configuration except in AMP SQUID closed loop.
  * @param {number} col_p - column number [0, 3]
- * @param {number} input_gain_p - value of the input gain S(16,12).
+ * @param {number} input_gain_p - value of the input gain S(4,0).
  */
 function setDMX_sqm_inputGain(col_p, input_gain_p) {
     if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
@@ -308,8 +308,9 @@ function setDMX_sqm_inputGain(col_p, input_gain_p) {
     if (input_gain_p > Math.pow(2, 16)) {
         print("ERROR, gain value is too high!  --> " + input_gain_p);
     }
+	const value = convert_sInt_to_2compInt(input_gain_p, 16);
     const reg_address = ADD_DMX_MUX_SQ_INPUT_GAIN | (col_p << ADD_DMX_COL_BIT_SHIFT);
-    sendToDMXWriteRegister(reg_address, input_gain_p);
+    sendToDMXWriteRegister(reg_address, value);
 }
 
 /**
@@ -321,7 +322,8 @@ function readDMX_sqm_inputGain(col_p) {
     const reg_address = ADD_DMX_MUX_SQ_INPUT_GAIN | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");
-    return DMX_registers[reg_address] / Math.pow(2,12);
+	value = convert_2compInt_to_sInt(DMX_registers[reg_address], 16);
+    return value / Math.pow(2,12);
 }
 
 /**
@@ -564,7 +566,7 @@ function setDMX_sqa_OffsetFine(col_p, offsetFine_p, offsetFinePTR_p) {
     for (var pix=0; pix < DMX_NB_PIX_PER_COL; pix++) {
         // Checking the value of offsetFine
         if ((offsetFine_p[pix] < valMin) || (offsetFine_p[pix] > valMax)) {
-            print("ERROR, the fine offset for pixel " + pix + " is incorrect!  > " + offsetFine_p[pix]);
+            print("ERROR, the fine offset for pixel " + pix + " is incorrect!: " + offsetFine_p[pix]);
             print("Setting the value to 0 instead");
             offsetFine_p[pix] = 0;
         }

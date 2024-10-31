@@ -46,9 +46,14 @@ include("../common/utilTools.dscript");
 include("../common/constants.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
+
+const col = 2;
+sessionName = "lockingLoop-col"+col;
+sendStartNewSession(sessionName, "");
+
 
-const col = 2;
-const pulseShapingSet = 0;
+const doingPulses = false;
+const knorm = 40 // 28000 est la valeur par défaut
 
 /*
   Starting and initializing the FPAsim
@@ -60,6 +65,7 @@ fpasimStartup();
   Configuring the FPAsim
 */
 fpasimConfig(raDelayOpt, SteadyMode90Fsr);
+//fpasimConfig(raDelayOpt, SteadyMode0);
 
 /*
  Starting and configuring the DEMUX
@@ -68,48 +74,53 @@ const pulseShapingSet  = 0;
 const boxcarL = 0;
 const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
 // Nulling the fast DAC contribution to the offset
-OffsetFine0 = 0;
+offsetFine0 = 0;
 offsetLSB0 = 0;
-inputGain =  [1, 1, 1, 1];
-demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSB0, OffsetFine0, offsetCoarseOpt, pulseShapingSet, lockPointVOpt, inputGain);
-
-print(TAB1 + "Setting the test pattern to a reduced range (TEMPORARY)");
-const a1 = -1*Math.pow(2, 15)+64*530;
-const b1 = 0;
-const c1 = -64;
-const N1 = 530;
-const a2 = -1*Math.pow(2, 15);
-const b2 = 0;
-const c2 = 64;
-const N2 = 530;
-const rampPattern = [
-	[a1, b1, c1, N1],  // Slope upward
-	[a2, b2, c2, N2],  // Slope upward
-	[0, 0, 0, 0],  // Nothing
-	[0, 0, 0, 0],  // Nothing
-	[0, 0, 0, 0]  // Nothing
-];
-setDMX_testPattern(rampPattern);
+inputGain = [1, 1, 1, 1];
+demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSB0, offsetFine0, offsetCoarseOpt, pulseShapingSet, lockPointVOpt, inputGain);
 
-	
-print(TAB1+"Setting the DMX offset mode to TEST PATTERN...");
-setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_TESTPATTERN));
+print(TAB1 + "Setting knorm to " + knorm);
+for (col=0; col<DMX_NB_COL; col++) setDMX_sqm_knorm(col, makeArray(DMX_NB_PIX_PER_COL, knorm));
+print(">>>>>>" + readDMX_sqm_knorm(2));
 
-print(TAB1 + "Starting data acquisition in ERROR mode...");
-setDMX_dataAcqMode(ACQ_MODE_ERROR);
+//print(TAB1 + "Setting the input gain to -1");
+//setDMX_sqm_inputGain(2, -1);
+
+print(TAB1 + "Starting data acquisition in ERROR mode...");
+setDMX_dataAcqMode(ACQ_MODE_ERROR);
 
-print(TAB1 + "Activating the test pattern...");
-var enable = true;
-var infinitely = true;
-var nbTime = 0x9;
-setDMX_testPatternEnable(enable, infinitely, nbTime);
+pixels = [6, 26];
+fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
+for (var iPix=0; iPix<pixels.length; iPix++) fbMode[pixels[iPix]] = FEEDBACK_MODE_CLOSED_LOOP;
+
+// Doing a data acquisition (Attention cela fait de très gros fichiers !)
+//sendToDMXSaveScienceRaw("error_start_closed_loop", 8000 , 4);
+
+print(TAB1 + "closing the feedback loop for pixel 5");
+for (col=0; col< DMX_NB_COL; col++) setDMX_sqm_FBMode(col, fbMode);
+
+if (doingPulses) {
+	hauteurPourCent = 30;
+	hauteur = Math.round(STEADY_FSR * hauteurPourCent / 100);
+
+	// Doing a data acquisition
+	sendToDMXSaveScienceRaw("pulses" , 2000 , 4);
+
+	// Doing a pulseShapingSet
+	for (pulse=0; pulse<100; pulse++) {
+		for (iPix=0; iPix<pixels.length; iPix++) sendToFPAsim_makePulse(pixels[iPix], 0, hauteur);
+		print(pulse);
+	}
+}
 
 waitMs(6000000, true, true, "Acquisition en cours...");
 
 setDMX_dataAcqMode(ACQ_MODE_IDLE);
-
-// -------------------------------------------------------------------------------------------------------------
-print("End of script!");
+
+
+// -------------------------------------------------------------------------------------------------------------
+sendStopSession();
+print("End of script!");
 
 
 
