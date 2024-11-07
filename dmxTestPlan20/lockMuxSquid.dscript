@@ -46,14 +46,17 @@ include("../common/utilTools.dscript");
 include("../common/constants.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
-
-const col = 2;
-sessionName = "lockingLoop-col"+col;
-sendStartNewSession(sessionName, "");
-
 
-const doingPulses = false;
-const knorm = 40 // 28000 est la valeur par défaut
+const col = 2;
+sessionName = "lockingLoop-col"+col;
+sendStartNewSession(sessionName, "");
+
+
+const doingPulses = true;
+const knorm = 20000 // 28000 est la valeur par dï¿½faut
+
+const ki = 1.2;
+const kiknorm = ki*knorm;
 
 /*
   Starting and initializing the FPAsim
@@ -76,38 +79,38 @@ const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
 // Nulling the fast DAC contribution to the offset
 offsetFine0 = 0;
 offsetLSB0 = 0;
-inputGain = [1, 1, 1, 1];
-demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSB0, offsetFine0, offsetCoarseOpt, pulseShapingSet, lockPointVOpt, inputGain);
-
-print(TAB1 + "Setting knorm to " + knorm);
-for (col=0; col<DMX_NB_COL; col++) setDMX_sqm_knorm(col, makeArray(DMX_NB_PIX_PER_COL, knorm));
-print(">>>>>>" + readDMX_sqm_knorm(2));
+inputGain = [1, 1, -1, 1];
+demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSB0, offsetFine0, offsetCoarseOpt, pulseShapingSet, lockPointVOpt, inputGain, aOpt);
 
-//print(TAB1 + "Setting the input gain to -1");
-//setDMX_sqm_inputGain(2, -1);
-
-print(TAB1 + "Starting data acquisition in ERROR mode...");
-setDMX_dataAcqMode(ACQ_MODE_ERROR);
+print(TAB1 + "Setting knorm to " + knorm);
+print(TAB1 + "Setting ki to " + ki);
+print(TAB1 + "Setting kiknorm to " + kiknorm);
+for (var colId=0; colId<DMX_NB_COL; colId++) {
+	setDMX_sqm_knorm(colId, makeArray(DMX_NB_PIX_PER_COL, knorm));
+	setDMX_sqm_kiknorm(colId, makeArray(DMX_NB_PIX_PER_COL, kiknorm));
+}
+print(TAB3 + "Checking KNorm: " + readDMX_sqm_knorm(col)[0]);
+print(TAB3 + "Checking KiKNorm: " + readDMX_sqm_kiknorm(col)[0]);
+
+print(TAB1 + "Starting data acquisition in ERROR mode...");
+setDMX_dataAcqMode(ACQ_MODE_ERROR);
 
 pixels = [6, 26];
-fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
-for (var iPix=0; iPix<pixels.length; iPix++) fbMode[pixels[iPix]] = FEEDBACK_MODE_CLOSED_LOOP;
-
-// Doing a data acquisition (Attention cela fait de très gros fichiers !)
-//sendToDMXSaveScienceRaw("error_start_closed_loop", 8000 , 4);
-
-print(TAB1 + "closing the feedback loop for pixel 5");
-for (col=0; col< DMX_NB_COL; col++) setDMX_sqm_FBMode(col, fbMode);
+print(TAB1 + "closing the feedback loop for pixel(s) " + pixels);
+
+fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
+for (var iPix=0; iPix<pixels.length; iPix++) fbMode[pixels[iPix]] = FEEDBACK_MODE_CLOSED_LOOP;
+setDMX_sqm_FBMode(col, fbMode);
 
 if (doingPulses) {
-	hauteurPourCent = 30;
+	hauteurPourCent = 4;
 	hauteur = Math.round(STEADY_FSR * hauteurPourCent / 100);
 
 	// Doing a data acquisition
 	sendToDMXSaveScienceRaw("pulses" , 2000 , 4);
 
 	// Doing a pulseShapingSet
-	for (pulse=0; pulse<100; pulse++) {
+	for (pulse=0; pulse<300; pulse++) {
 		for (iPix=0; iPix<pixels.length; iPix++) sendToFPAsim_makePulse(pixels[iPix], 0, hauteur);
 		print(pulse);
 	}
@@ -116,11 +119,11 @@ if (doingPulses) {
 waitMs(6000000, true, true, "Acquisition en cours...");
 
 setDMX_dataAcqMode(ACQ_MODE_IDLE);
-
-
-// -------------------------------------------------------------------------------------------------------------
-sendStopSession();
-print("End of script!");
+
+
+// -------------------------------------------------------------------------------------------------------------
+sendStopSession();
+print("End of script!");
 
 
 

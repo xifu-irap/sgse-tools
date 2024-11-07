@@ -35,15 +35,15 @@ const sampDelayOpt = 16;
 
 // Levels
 //const fb0Opt = 2200;
-//const fb0Opt = 0;
-const fb0Opt = 4000;
+const fb0Opt = 0;
+//const fb0Opt = 4000;
 const offsetLSBOpt = 0;
 const offsetFineOpt = 0;
 //const offsetCoarseOpt = 420;
-//const offsetCoarseOpt = 590;
-const offsetCoarseOpt = 170;
+const offsetCoarseOpt = 590;
+//const offsetCoarseOpt = 170;
 const lockPointVOpt = [5000, 5000, 5000, 5000];
-
+const aOpt = [0x6000, 0x6000, 0x6000, 0x3333];
 
 /**
  * Configuring the test setup
@@ -61,8 +61,9 @@ const lockPointVOpt = [5000, 5000, 5000, 5000];
  * @param {number} pulseShapingSet_p - Pulse shaping set Id [0-3].
  * @param {number} lockPointV_p - Feedback lockpoints (four values) (S(12,0).
  * @param {number} inputGain_p - input gain (four values) S(4,0).
+ * @param {number} a_p - parameter a = 1/(1+Tau) (four values) U(16, 16).
  */
-function demuxStart(samp_delay_p, bxLength_p, fb_delay_p, fb0_p, offsetLSB_p, offsetFine_p, offsetCoarse_p, pulseShapingSet_p, lockPointV_p, inputGain_p) {
+function demuxStart(samp_delay_p, bxLength_p, fb_delay_p, fb0_p, offsetLSB_p, offsetFine_p, offsetCoarse_p, pulseShapingSet_p, lockPointV_p, inputGain_p, a_p) {
 
 	// Autorelock parameters
 	//const relockThreshold = 0x1000;
@@ -84,28 +85,24 @@ function demuxStart(samp_delay_p, bxLength_p, fb_delay_p, fb0_p, offsetLSB_p, of
 	print(TAB1 + "Setting the test pattern");
     const a1 = -1*Math.pow(2, 15);
     const b = 0;
-    const c1 = 64;
+    const c = 64;
     const N = 1023;
-    const a2 = Math.pow(2, 15);
-    const b = 0;
-    const c2 = -64;
-    const N = 1023;
-	const rampPattern = [
-        [a1, b, c1, N],  // Slope upward
-//        [a2, b, c2, N],  // Nothing
-        [0, 0, 0, 0],  // Nothing
+    const a2 = Math.pow(2, 15)-1;
+	const sawPattern = [
+        [a1, b, c, N],  // Slope upward -32768 -> 32704
+        [a2, b, -c, N],  // Slope downward 32767 -> -32705
         [0, 0, 0, 0],  // Nothing
         [0, 0, 0, 0],  // Nothing
         [0, 0, 0, 0]  // Nothing
     ];
-    setDMX_testPattern(rampPattern); 
+    setDMX_testPattern(sawPattern);
 	print("");
 
     // set the register: SAMPLING_DELAY
     print(TAB1+"Setting the 4 registers SAMPLING_DELAY to " + samp_delay_p);
 	for (var col=0; col<DMX_NB_COL; col++) setDMX_sampling_delay(col, samp_delay_p);
 
-	// Setting the boxcar length
+	// Setting the BOXCAR LENGTH
     print(TAB1+"Setting the boxcar length to " + bxLength_p);
 	setDMX_boxcarLength(bxLength_p);
 
@@ -137,12 +134,16 @@ function demuxStart(samp_delay_p, bxLength_p, fb_delay_p, fb0_p, offsetLSB_p, of
 		setDMX_sqa_OffsetFine(col, makeArray(DMX_NB_PIX_PER_COL, offsetFine_p), makeArray(DMX_NB_PIX_PER_COL, 0x0000));
 		setDMX_sqa_OffsetCoarse(col, offsetCoarse_p);
 	}
+
+    // Setting parameter A
+	print(TAB1+"Setting the feedback parameter A: " + a_p);
+	for (col=0; col<DMX_NB_COL; col++)	setDMX_a(col, a_p);
 	
-    // Setting the feedback lockpoint
+    // Setting the feedback LOCKPOINT_V
 	print(TAB1+"Setting the feedback lockpoints : " + lockPointV_p);
 	for (col=0; col<DMX_NB_COL; col++)	setDMX_lockpointV(col, lockPointV_p);
 
-    // Setting the input gain
+    // Setting the INPUT GAIN
 	print(TAB1 + "Setting the input gain to " + inputGain_p);
 	for (col=0; col<DMX_NB_COL; col++) setDMX_sqm_inputGain(col, inputGain_p[col]);
 
@@ -163,7 +164,6 @@ function demuxStart(samp_delay_p, bxLength_p, fb_delay_p, fb0_p, offsetLSB_p, of
 	fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
 	for (col=0; col<DMX_NB_COL; col++) setDMX_sqm_FBMode(col, fbMode);
 
-	
 
 
 }

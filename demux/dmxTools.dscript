@@ -50,6 +50,12 @@ const ACQ_MODE_TSTPATTERN = 7; // test pattern
 // Model versions
 const DMX_MODEL_VERSION = ['DM', 'EM', 'PFM', 'FM', 'Unknown', 'Unknown', 'Unknown', 'Dev kit'];
 
+// DMX constants
+OFFSET_COARSE_ADU_MIN = 10;
+OFFSET_COARSE_ADU_MAX = Math.pow(2,12)-1;
+OFFSET_LSB_ADU_MIN = 10;
+OFFSET_LSB_ADU_MAX = Math.pow(2,12)-1;
+
 /**
  * Sets the data acquisition mode (DATA_ACQ_MODE).
  * @param {number} dataAcqMode_p - [0, 7].
@@ -81,7 +87,6 @@ function readDMX_dataAcqMode() {
  *      1: feedback is on.
  */
 function setDMX_feedbackOnOff(feedbackOnOff_p) {
-
     var value = 0;
     for (var col=0; col<DMX_NB_COL; col++) {
         // Checking the value of feedbackOnOff
@@ -92,6 +97,8 @@ function setDMX_feedbackOnOff(feedbackOnOff_p) {
         value = value + (feedbackOnOff_p[col] << (4 * col));
     }
 	sendToDMXWriteRegister(ADD_DMX_MUX_SQ_FB_ON_OFF, value);
+
+	sendToDMXReadRegister(ADD_DMX_MUX_SQ_FB_ON_OFF);  // pour que XIFU STUDIO r�cup�re l'information
 }
 
 /**
@@ -123,6 +130,7 @@ function setDMX_offsetMode(offsetMode_p) {
         value = value + (offsetMode_p[col] << (4 * col));
     }
 	sendToDMXWriteRegister(ADD_DMX_AMP_SQ_OFFSET_MODE, value);
+	sendToDMXReadRegister(ADD_DMX_AMP_SQ_OFFSET_MODE);  // pour que XIFU STUDIO recupere l'information
 }
 
 /**
@@ -166,7 +174,6 @@ function setDMX_testPattern(parameters_p) {
 			else result.push(parameters_p[i][j]);
 		}
 	}
-
     sendToDMXWriteMultiRegisters(ADD_DMX_TEST_PATTERN, DMX_TEST_PATTERN_NBREGIONS * DMX_TEST_PATTERN_NBPARAMS, result);
 }
 
@@ -287,6 +294,10 @@ function setDMX_a(col_p, a_p) {
  * @return {array} a - value of the parameter a (one value per pixel).
  */
 function readDMX_a(col_p) {
+    if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
+        print("ERROR, column number is incorrect!  --> " + col_p);
+        return;
+    }
     const reg_address = ADD_DMX_A | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadMultiRegisters(reg_address, DMX_NB_PIX_PER_COL);
     getLatestValue("DMX_registers");
@@ -319,6 +330,11 @@ function setDMX_sqm_inputGain(col_p, input_gain_p) {
  * @return {number} input_gain - value of the input gain (one value per pixel).
  */
 function readDMX_sqm_inputGain(col_p) {
+    if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
+        print("ERROR, column number is incorrect!  --> " + col_p);
+        return;
+    }
+
     const reg_address = ADD_DMX_MUX_SQ_INPUT_GAIN | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");
@@ -351,6 +367,11 @@ function setDMX_sqa_inputGain(col_p, input_gain_p) {
  * @return {number} input_gain - value of the input gain (one value per pixel).
  */
 function readDMX_sqa_inputGain(col_p) {
+    if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
+        print("ERROR, column number is incorrect!  --> " + col_p);
+        return;
+    }
+
     const reg_address = ADD_DMX_AMP_SQ_INPUT_GAIN | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");
@@ -360,7 +381,7 @@ function readDMX_sqa_inputGain(col_p) {
 /**
  * Sets the values of ki.knorm for the MUX SQUID closed loop mode (MUX_SQ_KIKNORM).
  * @param {number} col_p - column number [0, 3]
- * @param {array} kiknorm_p - one value of ki.knorm per pixel.
+ * @param {array} kiknorm_p - one value of ki.knorm per pixel : U(16,16).
  */
 function setDMX_sqm_kiknorm(col_p, kiknorm_p) {
     if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
@@ -377,6 +398,11 @@ function setDMX_sqm_kiknorm(col_p, kiknorm_p) {
  * @return {array} kiknorm - value of ki.knorm (one value per pixel).
  */
 function readDMX_sqm_kiknorm(col_p) {
+    if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
+        print("ERROR, column number is incorrect!  --> " + col_p);
+        return;
+    }
+
     const reg_address = ADD_DMX_MUX_SQ_KIKNORM | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadMultiRegisters(reg_address, DMX_NB_PIX_PER_COL);
     getLatestValue("DMX_registers");
@@ -386,7 +412,7 @@ function readDMX_sqm_kiknorm(col_p) {
 /**
  * Sets the value of ki.knorm for the AMP SQUID closed loop mode (AMP_SQ_KIKNORM).
  * @param {number} col_p - column number [0, 3]
- * @param {number} kiknorm_p - value of ki.knorm.
+ * @param {number} kiknorm_p - value of ki.knorm: U(16,16)
  */
 function setDMX_sqa_kiknorm(col_p, kiknorm_p) {
     if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
@@ -403,6 +429,11 @@ function setDMX_sqa_kiknorm(col_p, kiknorm_p) {
  * @return {number} kiknorm - value of the kiknorm (one value per pixel).
  */
 function readDMX_sqa_kiknorm(col_p) {
+    if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
+        print("ERROR, column number is incorrect!  --> " + col_p);
+        return;
+    }
+
     const reg_address = ADD_DMX_AMP_SQ_KIKNORM | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");
@@ -426,9 +457,14 @@ function setDMX_sqm_knorm(col_p, knorm_p) {
 /**
  * Reads the value of knorm for the MUX SQUID closed loop mode (MUX_SQ_KNORM).
  * @param {number} col_p - column number [0, 3].
- * @return {array} knorm - value of knorm (one value per pixel).
+ * @return {array} knorm - value of knorm (one value per pixel): U(16,18)
  */
 function readDMX_sqm_knorm(col_p) {
+    if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
+        print("ERROR, column number is incorrect!  --> " + col_p);
+        return;
+    }
+
     const reg_address = ADD_DMX_MUX_SQ_KNORM | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadMultiRegisters(reg_address, DMX_NB_PIX_PER_COL);
     getLatestValue("DMX_registers");
@@ -455,6 +491,10 @@ function setDMX_sqa_knorm(col_p, knorm_p) {
  * @return {number} knorm - value of knorm (one value per pixel).
  */
 function readDMX_sqa_knorm(col_p) {
+    if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
+        print("ERROR, column number is incorrect!  --> " + col_p);
+        return;
+    }
     const reg_address = ADD_DMX_AMP_SQ_KNORM | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");
@@ -481,6 +521,10 @@ function setDMX_fb0(col_p, fb0_p) {
  * @return {array} fb0 - value of the default feedback (one value per pixel).
  */
 function readDMX_fb0(col_p) {
+    if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
+        print("ERROR, column number is incorrect!  --> " + col_p);
+        return;
+    }
     const reg_address = ADD_DMX_MUX_SQ_FB0 | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadMultiRegisters(reg_address, DMX_NB_PIX_PER_COL);
     getLatestValue("DMX_registers");
@@ -490,7 +534,7 @@ function readDMX_fb0(col_p) {
 /**
  * Sets the values of the feedbacks lockpoint voltage (MUX_SQ_LOCKPOINT_V).
  * @param {number} col_p - column number [0, 3]
- * @param {array} lockpointV_p - one value of lockpointV per pixel.
+ * @param {array} lockpointV_p - one value of lockpointV per pixel S(16,2).
  */
 function setDMX_lockpointV(col_p, lockpointV_p) {
     if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
@@ -507,6 +551,10 @@ function setDMX_lockpointV(col_p, lockpointV_p) {
  * @return {array} lockpointV - value of the lockpoint (one value per pixel).
  */
 function readDMX_lockpointV(col_p) {
+    if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
+        print("ERROR, column number is incorrect!  --> " + col_p);
+        return;
+    }
     const reg_address = ADD_DMX_MUX_SQ_LOCKPOINT_V | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadMultiRegisters(reg_address, DMX_NB_PIX_PER_COL);
     getLatestValue("DMX_registers");
@@ -519,12 +567,12 @@ function readDMX_lockpointV(col_p) {
  * @param {array} fbMode_p - one value of feedback mode per pixel.
  */
 function setDMX_sqm_FBMode(col_p, fbMode_p) {
-	var reg_address = ADD_DMX_MUX_SQ_FB_MODE | (col_p << ADD_DMX_COL_BIT_SHIFT);
-
     if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
         print("ERROR, column number is incorrect!  --> " + col_p);
         return;
     }
+	var reg_address = ADD_DMX_MUX_SQ_FB_MODE | (col_p << ADD_DMX_COL_BIT_SHIFT);
+
     for (var pix=0; pix < DMX_NB_PIX_PER_COL; pix++) {
         if (fbMode_p[pix] > 2) {
             print("ERROR, unrecognised feedback mode for pixel " + pix + "! > " + fbMode_p[pix]);
@@ -542,6 +590,10 @@ function setDMX_sqm_FBMode(col_p, fbMode_p) {
  * @return {array} fbMode - feedback mode (one value per pixel).
  */
 function readDMX_sqm_FBMode(col_p) {
+    if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
+        print("ERROR, column number is incorrect!  --> " + col_p);
+        return;
+    }
     const reg_address = ADD_DMX_MUX_SQ_FB_MODE | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadMultiRegisters(reg_address, DMX_NB_PIX_PER_COL);
     getLatestValue("DMX_registers");
@@ -551,8 +603,8 @@ function readDMX_sqm_FBMode(col_p) {
 /**
  * Sets the LSB of the AMP SQUID offset (AMP_SQ_OFFSET_FINE).
  * @param {number} col_p - column number [0, 3]
- * @param {array} offsetFine_p - fine offset: U(3, 0)
- * @param {array} offsetFinePTR_p - fine offset for test pattern: U(3, 0)
+ * @param {array} offsetFine_p - fine offset: one U(3, 0) value per pixel
+ * @param {array} offsetFinePTR_p - fine offset for test pattern: one U(3, 0) value per pixel
  */
 function setDMX_sqa_OffsetFine(col_p, offsetFine_p, offsetFinePTR_p) {
     const valMin = 0;
@@ -589,6 +641,10 @@ function setDMX_sqa_OffsetFine(col_p, offsetFine_p, offsetFinePTR_p) {
  * @return {array} offsetFinePTR - fine offset for test pattern: U(3, 0)
  */
 function readDMX_sqa_OffsetFine(col_p) {
+    if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
+        print("ERROR, column number is incorrect!  --> " + col_p);
+        return;
+    }
     const reg_address = ADD_DMX_AMP_SQ_OFFSET_FINE | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadMultiRegisters(reg_address, DMX_NB_PIX_PER_COL);
     getLatestValue("DMX_registers");
@@ -608,8 +664,8 @@ function readDMX_sqa_OffsetFine(col_p) {
  * @param {number} offsetLSBptr_p - weight of the offset LSB: U(12, 0)
  */
 function setDMX_sqa_OffsetLSBptr(col_p, offsetLSBptr_p) {
-	const valMin = 0;
-	const valMax = Math.pow(2, 12)-1;
+	const valMin = OFFSET_LSB_ADU_MIN;
+	const valMax = OFFSET_LSB_ADU_MAX;
 	
     if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
         print("ERROR, column number is incorrect!  --> " + col_p);
@@ -629,6 +685,10 @@ function setDMX_sqa_OffsetLSBptr(col_p, offsetLSBptr_p) {
  * @return {number} sqaOffsetLSB - weight of the offset LSB.
  */
 function readDMX_sqa_OffsetLSBptr(col_p) {
+    if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
+        print("ERROR, column number is incorrect!  --> " + col_p);
+        return;
+    }
     const reg_address = ADD_DMX_AMP_SQ_OFFSET_LSB_PTR | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");
@@ -641,16 +701,20 @@ function readDMX_sqa_OffsetLSBptr(col_p) {
  * @param {number} offsetLSB_p - weight of the offset LSB: U(12, 0)
  */
 function setDMX_sqa_OffsetLSB(col_p, offsetLSB_p) {
-    const valMin = 0;
-    const valMax = Math.pow(2, 12)-1;
+    const valMin = OFFSET_LSB_ADU_MIN;
+    const valMax = OFFSET_LSB_ADU_MAX;
 
     if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
         print("ERROR, column number is incorrect!  --> " + col_p);
         return;
     }
-    if ((offsetLSB_p < valMin ) || (offsetLSB_p > valMax)) {
-        print("ERROR, the weight of the LSB is incorrect! > " + offsetLSB_p);
-        return;
+    if (offsetLSB_p < valMin ) {
+        print("ERROR, the weight of the LSB is < " + valMin + ", Setting the value to " + valMin);
+        offsetLSB_p = valMin;
+    }
+    if (offsetLSB_p > valMax) {
+        print("ERROR, the weight of the LSB is > " + valMax + ", Setting the value to " + valMax);
+        offsetLSB_p = valMax;
     }
     const reg_address = ADD_DMX_AMP_SQ_OFFSET_LSB | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXWriteRegister(reg_address, offsetLSB_p);
@@ -662,6 +726,10 @@ function setDMX_sqa_OffsetLSB(col_p, offsetLSB_p) {
  * @return {number} sqaOffsetLSB - weight of the offset LSB.
  */
 function readDMX_sqa_OffsetLSB(col_p) {
+    if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
+        print("ERROR, column number is incorrect!  --> " + col_p);
+        return;
+    }
     const reg_address = ADD_DMX_AMP_SQ_OFFSET_LSB | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");
@@ -674,16 +742,20 @@ function readDMX_sqa_OffsetLSB(col_p) {
  * @param {number} offsetCoarse_p - common AMP SQUID coarse offset : U(12, 0)
  */
 function setDMX_sqa_OffsetCoarse(col_p, offsetCoarse_p) {
-    const valMin = 0;
-    const valMax = Math.pow(2, 12)-1;
+    const valMin = OFFSET_COARSE_ADU_MIN;
+    const valMax = OFFSET_COARSE_ADU_MAX;
 
     if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
         print("ERROR, column number is incorrect!  --> " + col_p);
         return;
     }
-    if ((offsetCoarse_p < valMin ) || (offsetCoarse_p > valMax)) {
-        print("ERROR, the common coarse offset is incorrect! > " + offsetCoarse_p);
-        return;
+    if (offsetCoarse_p < valMin) {
+        print("ERROR, the common coarse offset is < " + valMin + ", Setting the value to " + valMin);
+        offsetCoarse_p = valMin;
+    }
+    if (offsetCoarse_p > valMax) {
+        print("ERROR, the common coarse offset is > " + valMax + ", Setting the value to " + valMax);
+        offsetCoarse_p = valMax;
     }
     const reg_address = ADD_DMX_AMP_SQ_OFFSET_COARSE | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXWriteRegister(reg_address, offsetCoarse_p);
@@ -695,6 +767,10 @@ function setDMX_sqa_OffsetCoarse(col_p, offsetCoarse_p) {
  * @return {number} offsetCoarse -  common AMP SQUID coarse offset.
  */
 function readDMX_sqa_OffsetCoarse(col_p) {
+    if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
+        print("ERROR, column number is incorrect!  --> " + col_p);
+        return;
+    }
     const reg_address = ADD_DMX_AMP_SQ_OFFSET_COARSE | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");
@@ -728,6 +804,10 @@ function setDMX_feedback_delay(col_p, feedback_delay_p) {
  * @return {number} feedback_delay - delay of the feedback signal.
  */
 function readDMX_feedback_delay(col_p) {
+    if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
+        print("ERROR, column number is incorrect!  --> " + col_p);
+        return;
+    }
     const reg_address = ADD_DMX_MUX_SQ_FB_DELAY | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");
@@ -760,6 +840,10 @@ function setDMX_offsetDAC_delay(col_p, offsetDAC_delay_p) {
  * @return {number} offsetDAC_delay - offset/DAC delay.
  */
 function readDMX_offsetDAC_delay(col_p) {
+    if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
+        print("ERROR, column number is incorrect!  --> " + col_p);
+        return;
+    }
     const reg_address = ADD_DMX_AMP_SQ_OFFSET_DAC_DELAY | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");
@@ -793,6 +877,10 @@ function setDMX_offsetMUX_delay(col_p, offsetMUX_delay_p) {
  * @return {number} offsetMUX_delay - offset/MUX delay.
  */
 function readDMX_offsetMUX_delay(col_p) {
+    if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
+        print("ERROR, column number is incorrect!  --> " + col_p);
+        return;
+    }
     const reg_address = ADD_DMX_AMP_SQ_OFFSET_MUX_DELAY | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");
@@ -825,6 +913,10 @@ function setDMX_sampling_delay(col_p, sampling_delay_p) {
  * @return {number} sampling_delay - sampling delay.
  */
 function readDMX_sampling_delay(col_p) {
+    if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
+        print("ERROR, column number is incorrect!  --> " + col_p);
+        return;
+    }
     const reg_address = ADD_DMX_SAMPLING_DELAY | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");
@@ -880,6 +972,10 @@ function setDMX_pulseShaping(col_p, values_p) {
  * @return {array} values - a set of pulse shaping parameters.
  */
 function readDMX_pulseShapingSet(col_p, setId_p) {
+    if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
+        print("ERROR, column number is incorrect!  --> " + col_p);
+        return;
+    }
     const reg_address = ADD_DMX_PULSE_SHAPING[setId_p] | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadMultiRegisters(reg_address, DMX_PULSESHAPING_NBVALUES);
     getLatestValue("DMX_registers");
@@ -893,6 +989,10 @@ function readDMX_pulseShapingSet(col_p, setId_p) {
  */
 function readDMX_pulseShaping(col_p) {
     var values = [];
+    if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
+        print("ERROR, column number is incorrect!  --> " + col_p);
+        return;
+    }
     for (set=0; set<4; set++) {
         values[set] = readDMX_pulseShapingSet(col_p, set);
     }
@@ -923,6 +1023,10 @@ function setDMX_pulseShapingSelection(col_p, setId_p) {
  * @return {number} setId - id of the set of values [0; 3].
  */
 function readDMX_pulseShapingSelection(col_p) {
+    if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
+        print("ERROR, column number is incorrect!  --> " + col_p);
+        return;
+    }
     const reg_address = ADD_DMX_PULSE_SHAPING_SELECTION | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");
@@ -949,6 +1053,10 @@ function setDMX_relock_delay(col_p, relock_delay_p) {
  * @return {number} relock_delay - delay of the relock algorithm (number of periods of frame clock).
  */
 function readDMX_relock_delay(col_p) {
+    if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
+        print("ERROR, column number is incorrect!  --> " + col_p);
+        return;
+    }
     const reg_address = ADD_DMX_RELOCK_DELAY | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");
@@ -975,6 +1083,10 @@ function setDMX_relock_threshold(col_p, relock_threshold_p) {
  * @return {number} relock_threshold - delay of the relock algorithm (number of periods of frame clock).
  */
 function readDMX_relock_threshold(col_p) {
+    if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
+        print("ERROR, column number is incorrect!  --> " + col_p);
+        return;
+    }
     const reg_address = ADD_DMX_RELOCK_THRESHOLD | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");
