@@ -47,33 +47,31 @@ include("../common/constants.dscript");
  *   will be sent to the DAC.
  * @param {number} val_p - The DAC value U(14,0).
  * @param {boolean} neg_p - If true the 14-bit value is replaced by (2^14-1-value).
- * @return feedbackValue - The feedback value S(16,2)
+ * @return feedbackValue - The feedback value [-2^14; 2^14-1[
  */
 function convertDac2Feedback(val_p, neg_p) {
 
     const FDBK_DAC_NBITS = 14;
-    const offset = Math.pow(2, FDBK_DAC_NBITS-1);
 
     if ((val_p < 0) || (val_p > Math.pow(2, FDBK_DAC_NBITS)-1)) {
-        print("ERROR, DAC value is incorrect! Should be betwwen 0 and 2^14-1 --> " + val_p);
+        print("ERROR, DAC value is incorrect! Should be between 0 and 2^14-1 --> " + val_p);
         return;
     }
-
-	var feedbackValue = (val_p - offset);
-
-	if (neg_p) feedbackValue = Math.pow(2, FDBK_DAC_NBITS)-1 - feedbackValue;
-
-	return feedbackValue*4;
+	
+	if (neg_p) feedbackValue = Math.pow(2, FDBK_DAC_NBITS-1)-1 - val_p;
+	else feedbackValue = -Math.pow(2, FDBK_DAC_NBITS-1) + val_p;
+	
+	return feedbackValue;
 }
 
 
 /**
- * Sets different values to a fb DAC in order to measure the output level for each DAC BIT
- *   The execution of this script has to be combined with measurements at the DEMUX output.
- * @param {boolean} neg_p - If true the 14-bit value is replaced by (2^14-1-value).
+ * Runs a scan at the DEMUX feedback DAC outputs 
+ * whyle measuring the corresponding voltage with the MSO64 oscilloscope.
+ * @param {boolean} neg_p - Array of 4 booleans. If true the 14-bit value is replaced by (2^14-1-value).
  */
 function characLinearityFdbk(neg_p) {
-
+	
 	//Open the oscilloscope socket
 	var osc_socket = connect_MSO64();
 	print("Connected to "+get_osc_id(osc_socket));
@@ -106,13 +104,10 @@ function characLinearityFdbk(neg_p) {
 
 	//oscilloscope init
 
-	
-
-	//installation des mesures
+	//   installation des mesures
 
 	for(var nchan=1;nchan<5;nchan++) AddNewMeasurementAtIndex(osc_socket,nchan,nchan,MEAS_TYPE.ACRMS)
 
-	
 	SetAllchannelState(osc_socket,[1,1,1,1]); // All channels ON
 	SetManualHorizontalMode(osc_socket,true); //Can set RL and SR independantly 
 	AdjustRLWhenSRMove(osc_socket,false); //=> (time/div will change when RL or SR is changed)
@@ -129,22 +124,23 @@ function characLinearityFdbk(neg_p) {
 		SetPosition(osc_socket,nchan,position)
 		SetBandwidth(osc_socket,nchan,500e6); //Bandwidth 500 MHz
 	}
-	SetAcqMode(osc_socket, ACQ_MODE.HIRES); //Hires (12bits minimum guaranted. 16 bits � =625 G�ch./s (Haute r�solution) ; 200 MHz sur toutes les voies )
+	SetAcqMode(osc_socket, ACQ_MODE.HIRES); //Hires (12bits minimum guaranted. 16 bits � =625 Gech./s (Haute resolution) ; 200 MHz sur toutes les voies )
 	
 	//Set the MUX FBDK at  max to measure worst case rms
 	print(TAB1 + "Estimating the lenght of an acquisition... ");
 	var value = 0x3FFF;
 	var acrms = new Array(4)
-    var valueFbck = convertDac2Feedback(value, neg_p);
     for (col = 0; col<DMX_NB_COL; col++){
+		valueFbck = convertDac2Feedback(value, neg_p[col]);
 		setDMX_fb0(col, makeArray(DMX_NB_PIX_PER_COL, valueFbck));
+		//RunAcq(osc_socket) // start acquisition
 		WaitForAnAcquisition(osc_socket); //wait for a complete acquisition to estimate RMS
+		//StopAcq(osc_socket) // permet d'arreter acquisition (pour remise a 0 des mesures lors d'un run acq)
 		//acrms[col] = GetImmediateMeasurement(osc_socket,col+1,MEAS_TYPE.ACRMS);
 
 		acrms[col] = GetMeasurementMeanValue(osc_socket,col+1)
 	}
-
-	
+	print("Done")
 	rl = Math.pow(Math.max(acrms[0],acrms[1],acrms[2],acrms[3]),2)/Math.pow(DAC_HALF_LSB,2) *10  // 10 stands here from additional margin compare to the half LSB only
 	
 	SetRecordLength(osc_socket,rl);
@@ -159,42 +155,71 @@ function characLinearityFdbk(neg_p) {
 	for(var nchan=1;nchan<5;nchan++) addToFile("Analog Bandwidth Channel "+nchan+": "+GetBandwidth(osc_socket,nchan))
 	addToFile("Record Length: "+GetRecordLength(osc_socket))
 	addToFile("Sample Rate: "+GetSampleRate(osc_socket))
-	addToFile("Col0,Col1,Col2,Col3")
+	addToFile("ADU0,Meas0,ADU1,Meas1,ADU2,Meas2,ADU3,Meas3")
 	
 	//answer = getText("Start loop", " ");
     // Setting the codes for each bit (from 2^0 to 2^13)
 	var meas = new Array(4)
-    for (var code=0; code<Math.pow(2,FDBK_DAC_NBITS); code+=128) {
+	var adu = new Array(4)
+    for (var code=0; code<Math.pow(2,FDBK_DAC_NBITS); code+=2) {
+    //for (var code=0; code<Math.pow(2,FDBK_DAC_NBITS); code+=256) {
 
+		codeUp = code;
         // New setting
-        var valueFbck = convertDac2Feedback(code, neg_p);
-        print(TAB2 + "Setting FB DAC to " + code + " (feedback = " + valueFbck + ")");
-        for (col = 0; col<DMX_NB_COL; col++) setDMX_fb0(col, makeArray(DMX_NB_PIX_PER_COL, valueFbck));
-        
-		for (col = 0; col<DMX_NB_COL; col++){	
+        print(TAB2 + "Setting FB DAC to " + codeUp);
+        for (col = 0; col<DMX_NB_COL; col++){
+			 adu[col] = convertDac2Feedback(codeUp, neg_p[col]);
+			 setDMX_fb0(col, makeArray(DMX_NB_PIX_PER_COL, adu[col]));
+		}
+
 		// Measurement
+		for (col = 0; col<DMX_NB_COL; col++){	
+			//RunAcq(osc_socket) // start acquisition
 			WaitForAnAcquisition(osc_socket); //wait for a complete acquisition to estimate RMS
+			//StopAcq(osc_socket) //permet d'arreter acquisition (pour remise a 0 des mesures lors d'un run acq)
 			//meas[col] = GetImmediateMeasurement(osc_socket,col+1,MEAS_TYPE.MEAN);
 
-			meas[col] = GetMeasurementMeanValue(osc_socket,col+1)
+			meas[col] = GetMeasurementMeanValue(osc_socket,col+1);
 		}
 		// Save
-		addToFile(meas[0]+","+meas[1]+","+meas[2]+","+meas[3])
+		addToFile(adu[0]+","+meas[0]+","+adu[1]+","+meas[1]+","+adu[2]+","+meas[2]+","+adu[3]+","+meas[3]);
 
+
+		codeDown = Math.pow(2,FDBK_DAC_NBITS)-1 - code;
+        // New setting
+        print(TAB2 + "Setting FB DAC to " + codeDown);
+        for (col = 0; col<DMX_NB_COL; col++){
+			 adu[col] = convertDac2Feedback(codeDown, neg_p[col]);
+			 setDMX_fb0(col, makeArray(DMX_NB_PIX_PER_COL, adu[col]));
+		}
+
+		// Measurement
+		for (col = 0; col<DMX_NB_COL; col++){	
+			//RunAcq(osc_socket) // start acquisition
+			WaitForAnAcquisition(osc_socket); //wait for a complete acquisition to estimate RMS
+			//StopAcq(osc_socket) // permet d'arreter acquisition (pour remise a 0 des mesures lors d'un run acq)
+			//meas[col] = GetImmediateMeasurement(osc_socket,col+1,MEAS_TYPE.MEAN);
+
+			meas[col] = GetMeasurementMeanValue(osc_socket,col+1);
+		}
+		// Save
+		addToFile(adu[0]+","+meas[0]+","+adu[1]+","+meas[1]+","+adu[2]+","+meas[2]+","+adu[3]+","+meas[3]);
+		
     }
 
-	saveFileContent("MUX_FDBK_LINEARITY_MEAS.csv")
+	fileName = maDate() + "_fdbkLinearity.csv";
+	saveFileContent(fileName);
 	
-	disconnect_MSO64(osc_socket)
+	disconnect_MSO64(osc_socket);
 }
 
 
 
 // -------------------------------------------------------------------------------------------------------------
 
+const neg = [false, true, true, false];
 
-characLinearityFdbk(true);
-
+characLinearityFdbk(neg);
 
 // -------------------------------------------------------------------------------------------------------------
 print("End of script!");

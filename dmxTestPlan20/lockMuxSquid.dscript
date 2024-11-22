@@ -17,11 +17,11 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     samplingDelayAnalysis.dscript
+//    @file                     lockMuxSquid.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
-//    This file is used to characterise the timing parameters in the FPAsim + DMX0 configuration.
+//    This file is used to use the DEMUX and the MUX SQUID of the FPAsim in closed loop mode.
 //
 // -------------------------------------------------------------------------------------------------------------
 
@@ -47,16 +47,25 @@ include("../common/constants.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
 
-const col = 2;
-sessionName = "lockingLoop-col"+col;
+const col = 3;
+sessionName = "lockingMuxLoop-col"+col;
 sendStartNewSession(sessionName, "");
 
-
 const doingPulses = true;
-const knorm = 20000 // 28000 est la valeur par d�faut
+const pulseHeightPc = [15, 20];
+pulseHeight = [pulseHeightPc.length];
+for (var i=0; i<pulseHeightPc.length; i++) {
+	pulseHeight[i] = Math.round(STEADY_FSR * pulseHeightPc[i] / 100);
+}
+
+const nbIterations = 1000; // number of pulses per pixels and per energy
+
+const knorm_reel = 1/16;
+const knorm = Math.round(knorm_reel * Math.pow(2, 18)); 
 
 const ki = 1.2;
-const kiknorm = ki*knorm;
+const kiknorm_reel = ki*knorm_reel;
+const kiknorm = Math.round(kiknorm_reel * Math.pow(2, 16)); 
 
 /*
   Starting and initializing the FPAsim
@@ -68,7 +77,6 @@ fpasimStartup();
   Configuring the FPAsim
 */
 fpasimConfig(raDelayOpt, SteadyMode90Fsr);
-//fpasimConfig(raDelayOpt, SteadyMode0);
 
 /*
  Starting and configuring the DEMUX
@@ -76,11 +84,11 @@ fpasimConfig(raDelayOpt, SteadyMode90Fsr);
 const pulseShapingSet  = 0;
 const boxcarL = 0;
 const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
-// Nulling the fast DAC contribution to the offset
-offsetFine0 = 0;
-offsetLSB0 = 0;
-inputGain = [1, 1, -1, 1];
-demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSB0, offsetFine0, offsetCoarseOpt, pulseShapingSet, lockPointVOpt, inputGain, aOpt);
+const pattern = "FULL";
+
+demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSet, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
+
+print(TAB1 + "Delock counters at the beggining: " + readDMX_delockCounters(col, false));
 
 print(TAB1 + "Setting knorm to " + knorm);
 print(TAB1 + "Setting ki to " + ki);
@@ -89,43 +97,57 @@ for (var colId=0; colId<DMX_NB_COL; colId++) {
 	setDMX_sqm_knorm(colId, makeArray(DMX_NB_PIX_PER_COL, knorm));
 	setDMX_sqm_kiknorm(colId, makeArray(DMX_NB_PIX_PER_COL, kiknorm));
 }
-print(TAB3 + "Checking KNorm: " + readDMX_sqm_knorm(col)[0]);
-print(TAB3 + "Checking KiKNorm: " + readDMX_sqm_kiknorm(col)[0]);
 
-print(TAB1 + "Starting data acquisition in ERROR mode...");
-setDMX_dataAcqMode(ACQ_MODE_ERROR);
+//print(TAB1 + "Starting data acquisition in ERROR mode...");
+//sendToDMXGoToErrorSignalMode();
 
-pixels = [6, 26];
-print(TAB1 + "closing the feedback loop for pixel(s) " + pixels);
+print(TAB1 + "Setting data acquisition in SCIENCE mode...");
+sendToDMXGoToScienceMode();
 
-fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
-for (var iPix=0; iPix<pixels.length; iPix++) fbMode[pixels[iPix]] = FEEDBACK_MODE_CLOSED_LOOP;
+/*
+Closing the loop
+*/
+
+waitMs(6000000, true, true, "OK to close the loop?");
+print(TAB1 + "closing the feedback loop ...");
+
+//fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
+//fbMode[11] = FEEDBACK_MODE_CLOSED_LOOP;
+fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_CLOSED_LOOP);
 setDMX_sqm_FBMode(col, fbMode);
 
+/*
+Doing pulses
+*/
+
 if (doingPulses) {
-	hauteurPourCent = 4;
-	hauteur = Math.round(STEADY_FSR * hauteurPourCent / 100);
+	waitMs(6000000, true, true, "OK to send the pulses?");
 
 	// Doing a data acquisition
-	sendToDMXSaveScienceRaw("pulses" , 2000 , 4);
+	sendToDMXSaveScienceRaw("pulses" , 1000 , 8);
 
-	// Doing a pulseShapingSet
-	for (pulse=0; pulse<300; pulse++) {
-		for (iPix=0; iPix<pixels.length; iPix++) sendToFPAsim_makePulse(pixels[iPix], 0, hauteur);
-		print(pulse);
+	for (iteration = 0; iteration < nbIterations; iteration++) {
+		print(TAB2 + "Iteration " + iteration + " / " + nbIterations);
+		for (iPulse=0; iPulse < pulseHeight.length; iPulse++) {
+			for (var iPix=0; iPix < DMX_NB_PIX_PER_COL; iPix++) {
+				sendToFPAsim_makePulse(iPix, 0, pulseHeight[iPulse]);
+			}
+		}
 	}
 }
 
-waitMs(6000000, true, true, "Acquisition en cours...");
-
-setDMX_dataAcqMode(ACQ_MODE_IDLE);
+waitMs(6000000, true, true, "Measurement of pulses is ongoing...");
 
 
 // -------------------------------------------------------------------------------------------------------------
 sendStopSession();
-print("End of script!");
+onAbortScript();
 
-
+function onAbortScript() {
+	sendToDMXGoToIdleMode();
+	print(TAB1 + "Delock counters at the end: " + readDMX_delockCounters(col, false));
+	print("End of script!");
+}
 
 
 

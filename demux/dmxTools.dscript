@@ -97,8 +97,7 @@ function setDMX_feedbackOnOff(feedbackOnOff_p) {
         value = value + (feedbackOnOff_p[col] << (4 * col));
     }
 	sendToDMXWriteRegister(ADD_DMX_MUX_SQ_FB_ON_OFF, value);
-
-	sendToDMXReadRegister(ADD_DMX_MUX_SQ_FB_ON_OFF);  // pour que XIFU STUDIO r�cup�re l'information
+	sendToDMXReadRegister(ADD_DMX_MUX_SQ_FB_ON_OFF);  // pour que XIFU STUDIO recupere l'information
 }
 
 /**
@@ -504,15 +503,26 @@ function readDMX_sqa_knorm(col_p) {
 /**
  * Sets the values of the default feedback for the MUX SQUID (FB0).
  * @param {number} col_p - column number [0, 3]
- * @param {array} fb0_p - one value of FB0 per pixel s(16,2).
+ * @param {array} fb0_p - one value of FB0 per pixel [-2^14; 2^14[ (to be converted to s(16,2)).
  */
 function setDMX_fb0(col_p, fb0_p) {
     if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
         print("ERROR, column number is incorrect!  --> " + col_p);
         return;
     }
+	// Conversion of Fb0 values to s(16,2) format
+
+	fb0 = [DMX_NB_PIX_PER_COL];
+	for (var pix = 0; pix < DMX_NB_PIX_PER_COL; pix++) {
+		if ((fb0_p[pix] < -Math.pow(2, 14)) || (fb0_p[pix] > Math.pow(2, 14)-1)) {
+			print(TAB2 + "Wrong value of FB0 for pixel " + pix + ":  " + fb0_p[pix]);
+			print(TAB2 + "Value replaced by 0");
+			fb0[pix] = 0;
+		}
+		fb0[pix] = convert_sInt_to_2compInt(4*fb0_p[pix], 16);
+	}	
     const reg_address = ADD_DMX_MUX_SQ_FB0 | (col_p << ADD_DMX_COL_BIT_SHIFT);
-    sendToDMXWriteMultiRegisters(reg_address, DMX_NB_PIX_PER_COL, fb0_p);
+    sendToDMXWriteMultiRegisters(reg_address, DMX_NB_PIX_PER_COL, fb0);
 }
 
 /**

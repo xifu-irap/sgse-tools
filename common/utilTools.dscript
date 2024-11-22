@@ -137,7 +137,7 @@ function printArrayInSlices(tab, startStr, sliceSize) {
 function convert_sInt_to_2compInt(value_p, width_p) {
     var val;
     if ((value_p < -Math.pow(2, width_p-1)) || (value_p > Math.pow(2, width_p-1)-1)) {
-        print("ERROR, impossible to do the conversion.");
+        print("ERROR, impossible to do the conversion." + value_p);
     } else {
 		if (value_p < 0) val = Math.pow(2, width_p-1) | (value_p + Math.pow(2, width_p-1));
 		else val = value_p;

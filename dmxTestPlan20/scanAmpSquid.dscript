@@ -47,8 +47,6 @@ include("../common/constants.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
 
-const col = 2;
-const pulseShapingSet = 0;
 
 /*
   Starting and initializing the FPAsim
@@ -60,6 +58,7 @@ fpasimStartup();
   Configuring the FPAsim
 */
 fpasimConfig(raDelayOpt, SteadyMode90Fsr);
+//fpasimConfig(raDelayOpt, SteadyMode0);
 
 /*
  Starting and configuring the DEMUX
@@ -67,35 +66,29 @@ fpasimConfig(raDelayOpt, SteadyMode90Fsr);
 const pulseShapingSet  = 0;
 const boxcarL = 0;
 const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
-// Nulling the fast DAC contribution to the offset
-OffsetFine0 = 0;
-offsetLSB0 = 0;
-inputGain =  [1, 1, 1, 1];
-demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSB0, OffsetFine0, offsetCoarseOpt, pulseShapingSet, lockPointVOpt, inputGain);
+const pattern = "FULL";
+demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSet, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
 
-shortened_pattern = false;
-if (shortened_pattern) {
-	print(TAB1 + "Setting the test pattern to a reduced range (TEMPORARY)");
-	const a1 = -1 * Math.pow(2, 15) + 64 * 530;
-	const b = 0;
-	const c = -64;
-	const N = 530;
-	const a2 = -1 * Math.pow(2, 15);
-	const shortSawPattern = [
-		[a1, b, c, N],  // Slope upward
-		[a2, b, -c, N],  // Slope upward
-		[0, 0, 0, 0],  // Nothing
-		[0, 0, 0, 0],  // Nothing
-		[0, 0, 0, 0]  // Nothing
-	];
-	setDMX_testPattern(shortSawPattern);
-}
+print(TAB1 + "Setting the test pattern to a SLOW ramp");
+const a1 = -1 * Math.pow(2, 15);
+const b = 3;
+const c = 128;
+const N = 511;
+const a2 = Math.pow(2, 15)-1;
+const shortSawPattern = [
+	[a1, b, c, N],  // Slope upward
+	[a2, b, -c, N],  // Slope upward
+	[0, 0, 0, 0],  // Nothing
+	[0, 0, 0, 0],  // Nothing
+	[0, 0, 0, 0]  // Nothing
+];
+setDMX_testPattern(shortSawPattern);
 	
 print(TAB1+"Setting the DMX offset mode to TEST PATTERN...");
 setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_TESTPATTERN));
 
 print(TAB1 + "Starting data acquisition in ERROR mode...");
-setDMX_dataAcqMode(ACQ_MODE_ERROR);
+sendToDMXGoToErrorSignalMode();
 
 print(TAB1 + "Activating the test pattern...");
 var enable = true;
@@ -105,10 +98,14 @@ setDMX_testPatternEnable(enable, infinitely, nbTime);
 
 waitMs(6000000, true, true, "Acquisition en cours...");
 
-setDMX_dataAcqMode(ACQ_MODE_IDLE);
 
 // -------------------------------------------------------------------------------------------------------------
-print("End of script!");
+onAbortScript();
+
+function onAbortScript() {
+	sendToDMXGoToIdleMode();
+	print("End of script!");
+}
 
 
 

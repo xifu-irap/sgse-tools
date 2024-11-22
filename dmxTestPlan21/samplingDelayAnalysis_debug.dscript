@@ -45,55 +45,24 @@ include("../fpasim/fpasim/amc7823.dscript");
 include("../common/utilTools.dscript");
 include("../common/constants.dscript");
 
+
 // -------------------------------------------------------------------------------------------------------------
 
-/*
-  Starting and initializing the FPAsim
-  If the FPAsim function is already enabled nothing is done unless the "force_p" parameter is set to true.
-*/
-fpasimStartup();
+const col = 2;
+sampDelay = 0;
+const test = "DUMP";
+//const test = "ERROR";
 
-/*
-  Configuring the FPAsim
-*/
-fpasimConfig(raDelayOpt, SteadyMode90Fsr);
-//fpasimConfig(raDelayOpt, SteadyMode0);
+if (test === "DUMP") {
+	print("Measuring a dump files...");
+	sendToDMXGoToDumpMode();
+}
 
-/*
- Starting and configuring the DEMUX
-*/
-const pulseShapingSet  = 0;
-const boxcarL = 0;
-const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
-const pattern = "FULL";
-demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSet, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
+if (test === "ERROR") {
+	print("Doing a measurement with a SAMPLING DELAY set to " + sampDelay);
+	setDMX_sampling_delay(col, sampDelay);
+	sendToDMXGoToErrorSignalMode();
+}
 
-
-pixels = [6, 27];
-print(TAB1+"Setting the DMX feedback mode to TEST PATTERN for pixels " + pixels);
-fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
-for (var iPix=0; iPix<pixels.length; iPix++) fbMode[pixels[iPix]] = FEEDBACK_MODE_TESTPATTERN;
-for (var col=0; col<DMX_NB_COL; col++) setDMX_sqm_FBMode(col, fbMode);
-
-print(TAB1 + "Starting data acquisition in ERROR mode...");
-sendToDMXGoToErrorSignalMode();
-
-print(TAB1 + "Activating the test pattern...");
-var enable = true;
-var infinitely = true;
-var nbTime = 0x9;
-setDMX_testPatternEnable(enable, infinitely, nbTime);
-
-waitMs(6000000, true, true, "Acquisition en cours...");
-
-// -------------------------------------------------------------------------------------------------------------
-onAbortScript();
-
-function onAbortScript() {
-	sendToDMXGoToIdleMode();
-	print("End of script!");
-}
-
-
-
-
+// -------------------------------------------------------------------------------------------------------------
+print("End of script!");

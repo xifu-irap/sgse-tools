@@ -64,14 +64,14 @@ fpasimConfig(raDelayOpt, SteadyMode90Fsr);
 /*
  Starting and configuring the DEMUX
 */
-const pulseShapingSet  = 3;
-const boxcarL = 7;
+const pulseShapingSet  =  3;
+const boxcarL = 1;
+const nbDumpFiles = 16;
+
+
 const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
-// Nulling the fast DAC contribution to the offset
-OffsetFine0 = 0;
-offsetLSB0 = 0;
-inputGain =  [1, 1, 1, 1];
-demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSB0, OffsetFine0, offsetCoarseOpt, pulseShapingSet, lockPointVOpt, inputGain);
+const pattern = "FULL";
+demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSet, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
 
 // DEMUX feedback
 print(TAB1+"Setting a different FB0 for pixel 0...");
@@ -84,16 +84,15 @@ sessionName = "samplingDelay-col"+col+"-Bxl"+("00" + boxcarL).slice(-2);
 sendStartNewSession(sessionName, "");
 
 // Doing several dump files (will be averaged during data processing
-nbDumpFiles = 16;
 print(TAB1+"Measuring " + nbDumpFiles + " dump files...");
 for (var i = 0; i<nbDumpFiles; i++) {
-	setDMX_dataAcqMode(ACQ_MODE_DUMP);
+	sendToDMXGoToDumpMode();
 }
 
 // Scanning the different values of the sampling delay
 // Using all sampling delay settings 
-setDMX_dataAcqMode(ACQ_MODE_ERROR);
-//setDMX_dataAcqMode(ACQ_MODE_SCIENCE);
+sendToDMXGoToErrorSignalMode();
+//sendToDMXGoToScienceMode();
 duration = 200;
 delta_duration=100;
 nbErrorFiles = 20;
@@ -110,7 +109,7 @@ for (var sampDelay=0; sampDelay<nbErrorFiles; sampDelay++) {
 	waitMs(duration+delta_duration);
 }
 
-setDMX_dataAcqMode(ACQ_MODE_IDLE);
+sendToDMXGoToIdleMode();
 
 // -------------------------------------------------------------------------------------------------------------
 sendStopSession();
