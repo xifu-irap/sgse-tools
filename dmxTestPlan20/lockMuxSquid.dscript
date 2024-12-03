@@ -47,12 +47,12 @@ include("../common/constants.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
 
-const col = 3;
+const col = 2;
 sessionName = "lockingMuxLoop-col"+col;
 sendStartNewSession(sessionName, "");
 
 const doingPulses = true;
-const pulseHeightPc = [15, 20];
+const pulseHeightPc = [15, 60];
 pulseHeight = [pulseHeightPc.length];
 for (var i=0; i<pulseHeightPc.length; i++) {
 	pulseHeight[i] = Math.round(STEADY_FSR * pulseHeightPc[i] / 100);
@@ -60,7 +60,8 @@ for (var i=0; i<pulseHeightPc.length; i++) {
 
 const nbIterations = 1000; // number of pulses per pixels and per energy
 
-const knorm_reel = 1/16;
+//const knorm_reel = 1/16;
+const knorm_reel = 1/72;
 const knorm = Math.round(knorm_reel * Math.pow(2, 18)); 
 
 const ki = 1.2;

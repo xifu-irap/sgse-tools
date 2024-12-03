@@ -49,11 +49,13 @@ const ram_base_path = "../fpasim/fpasim_default_ram/"
   Starting and initializing the FPAsim
   If the FPAsim function is already enabled nothing is done unless the "force_p" parameter is set to true.
 */
-fpasimStartup();
+fpasimStartup();
 
 // -------------------------------------------------------------------------------------------------------------
 
-print("End of FPAsim startup");
+print("End of FPAsim startup");
+print(get_FPAsim_FirmwareID())
+
 
 
 

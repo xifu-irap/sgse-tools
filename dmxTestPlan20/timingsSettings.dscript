@@ -29,9 +29,11 @@
 include("../demux/dmxTools.dscript");
 include("../demux/dmxRegAddresses.dscript");
 include("../demux/dmxHk.dscript");
+include("../demux/dmxStart.dscript");
 
 include("../fpasim/fpasim/fpasim.dscript");
 include("../fpasim/fpasim_startup.dscript");
+include("../fpasim/fpasim_config.dscript");
 
 include("../fpasim/fpasim/fpasim_tools.dscript");
 include("../fpasim/fpasim/utils_tools.dscript");
@@ -46,58 +48,31 @@ include("../common/constants.dscript");
 // relative path from the main script (the calling script path)
 const ram_base_path = "../fpasim/fpasim_default_ram/"
 
-const STEADY_FSR = Math.pow(2, 16)-1;
-
 
 /**
  * Does an acquisition in DUMP mode in order to characterise the proper RA_DELAY.
  *   Sets all the FPAsim steady states to the same value except for pixel 0.
- *   Sets all the DMX fb0 to the same value (in open loop mode)
- *   Sets all the DMX offset to the same value (in open loop mode)
  *   Sets the RA_DELAY to the value provided by the parameter ra_delay_p
  *   Does a DMX dump  * @param {number} col_p - column id [0, 3].
  * @param {number} ra_delay_p - Sequence delay [0, 63].
- * @param {number} fb0_p - Feedback at MUX SQUID operating point s(16,2).
- * @param {number} offsetLSB_p - offset LSB value at AMP SQUID operating point U(12,0).
- * @param {number} offsetFine_p - offset fine value at AMP SQUID operating point U(3,0).
- * @param {number} offsetCoarse_p - offset coarse value at AMP SQUID operating point U(12,0).
  */
-function charac_RA_DELAY(col_p, ra_delay_p, fb0_p, offsetLSB_p, offsetFine_p, offsetCoarse_p) {
+function charac_RA_DELAY(ra_delay_p) {
 
     print("");
     print("***");
     print("* charac_RA_DELAY function");
     print("***");
 
+	// Configuring the FPAsim
+	fpasimConfig(ra_delay, SteadyModePix0);
+	print("");
+
     // set the register: RA_DELAY
     print(TAB1+"Setting the register RA_DELAY to " + ra_delay_p);
     sendToFPAsim_configureRaDelay(ra_delay_p);
 
-    // TES steady states
-	print(TAB1+"Updating the FPAsim pixel steady states with specific values:");
-	setTesSteadyStates(2);
-	print("");
-
-    // Switching ON the feedback for the selected column
-    var colOnOff = [OFF, OFF, OFF, OFF];
-    colOnOff[col_p] = ON;
-    setDMX_feedbackOnOff(colOnOff);
-
-    // DEMUX feedback
-	print(TAB1+"Setting the DMX feedback mode to OPEN_LOOP (FB0 -> FEEDBACK output)...");
-	setDMX_sqm_FBMode(col_p, makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP));
-	print(TAB1+"Setting the DMX FB0 close to the MUX SQUID operating point...");
-	setDMX_fb0(col_p, makeArray(DMX_NB_PIX_PER_COL, fb0_p));
-	print("");
-
-    // DEMUX offset
-	print(TAB1+"Setting the offset mode to OFFSET (OFFSET -> OFFSET output)...");
-	setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_OFFSET));
-	print(TAB1+"Setting the Offset close to the AMP SQUID operating point...");
-	setDMX_sqa_OffsetLSB(col_p, offsetLSB_p);
-	setDMX_sqa_OffsetFine(col_p, makeArray(DMX_NB_PIX_PER_COL, offsetFine_p), makeArray(DMX_NB_PIX_PER_COL, 0x0000));
-	setDMX_sqa_OffsetCoarse(col_p, offsetCoarse_p);
-	print("");
+    // Switching ON the feedbacks
+    setDMX_feedbackOnOff([ON, ON, ON, ON]);
 
     // Data acquisition
 	waitMs(500);
@@ -108,62 +83,41 @@ function charac_RA_DELAY(col_p, ra_delay_p, fb0_p, offsetLSB_p, offsetFine_p, of
 
 /**
  * Does an acquisition in DUMP mode in order to characterise the proper FB_DELAY.
- *  Sets all the FPAsim steady states to the same value.
  *  Sets all the DMX fb0 to the same value except for pixel 0 (in open loop mode)
- *  Sets all the DMX offset to the same value (in open loop mode)
  *  Sets the RA_DELAY to the value provided by the parameter ra_delay_p
  *  Sets the FB_DELAY to the value provided by the parameter fb_delay_p
  *  Does a DMX dump
- * @param {number} col_p - column id [0, 3].
- * @param {number} ra_delay_p - sequence delay [0, 63].
  * @param {number} fb_delay_p - feedback delay [-512, 40].
  * @param {number} fb0_p - Feedback at MUX SQUID operating point s(16,2).
- * @param {number} offsetLSB_p - offset LSB value at AMP SQUID operating point U(12,0).
- * @param {number} offsetFine_p - offset fine value at AMP SQUID operating point U(3,0).
- * @param {number} offsetCoarse_p - offset coarse value at AMP SQUID operating point U(12,0).
  */
-function charac_FB_DELAY(col_p, ra_delay_p, fb_delay_p, fb0_p, offsetLSB_p, offsetFine_p, offsetCoarse_p) {
+function charac_FB_DELAY(fb_delay_p, fb0_p) {
 
     print("");
     print("***");
     print("* charac_FB_DELAY function");
     print("***");
 
-    // set the register: RA_DELAY
-    print(TAB1+"Setting the register RA_DELAY to " + ra_delay_p);
-    sendToFPAsim_configureRaDelay(ra_delay_p);
+	// Configuring the FPAsim
+	fpasimConfig(ra_delay, SteadyMode0);
+	print("");
 
     // set the register: MUX_SQ_FB_DELAY
     print(TAB1 + "Setting the register MUX_SQ_FB_DELAY to " + fb_delay_p);
-    setDMX_feedback_delay(col_p, fb_delay_p);
+	for (var colId=0; colId<DMX_NB_COL; colId++) {
+		setDMX_feedback_delay(colId, fb_delay_p);
+	}
 
-    // TES steady states
-	print(TAB1+"Setting the FPAsim pixel steady states to a constant value");
-	setTesSteadyStates(0);
-	print("");
-
-    // Switching ON the feedback for the selected column
-    var colOnOff = [OFF, OFF, OFF, OFF];
-    colOnOff[col_p] = ON;
-    setDMX_feedbackOnOff(colOnOff);
+    // Switching ON the feedbacks
+    setDMX_feedbackOnOff([ON, ON, ON, ON]);
 
     // DEMUX feedback
-	print(TAB1+"Setting the DMX feedback mode to OPEN_LOOP (FB0 -> FEEDBACK output)...");
-	setDMX_sqm_FBMode(col_p, makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP));
-	print(TAB1+"Setting the DMX FB0 close to the MUX SQUID operating point except for pixel 0...");
+	print(TAB1+"Setting the DMX FB0 to a constant value except for pixel 0...");
     var fb = makeArray(DMX_NB_PIX_PER_COL, fb0_p);
-    fb[0] += 500;
+    fb[0] += 200;
     print(TAB2 + fb);
-	setDMX_fb0(col_p, fb);
-	print("");
-
-    // DEMUX offset
-	print(TAB1+"Setting the offset mode to OFFSET (OFFSET -> OFFSET output)...");
-	setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_OFFSET));
-	print(TAB1+"Setting the Offset close to the AMP SQUID operating point...");
-	setDMX_sqa_OffsetLSB(col_p, offsetLSB_p);
-	setDMX_sqa_OffsetFine(col_p, makeArray(DMX_NB_PIX_PER_COL, offsetFine_p), makeArray(DMX_NB_PIX_PER_COL, 0x0000));
-	setDMX_sqa_OffsetCoarse(col_p, offsetCoarse_p);
+	for (colId=0; colId<DMX_NB_COL; colId++) {
+		setDMX_fb0(colId, fb);
+	}
 	print("");
 
     // Data acquisition
@@ -174,69 +128,44 @@ function charac_FB_DELAY(col_p, ra_delay_p, fb_delay_p, fb0_p, offsetLSB_p, offs
 
 /**
  * Does an acquisition in DUMP mode in order to characterise the proper FB_DELAY.
- *   Sets all the FPAsim steady states to the same value.
- *   Sets all the DMX fb0 to the same value (in open loop mode)
  *   Sets all the DMX offset to the same value except for pixel 0 (in open loop mode)
  *   Sets the RA_DELAY to the value provided by the parameter ra_delay_p
  *   Sets the FB_DELAY to the value provided by the parameter fb_delay_p
  *   Sets the OF_DELAY to the value provided by the parameter of_delay_p
  *   Does a DMX dump
- * @param {number} col_p - column id [0, 3].
- * @param {number} ra_delay_p - sequence delay [0, 63].
- * @param {number} fb_delay_p - feedback delay [-512, 40].
  * @param {number} of_delay_p - feedback delay [-512, 40].
- * @param {number} fb0_p - Feedback at MUX SQUID operating point s(16,2).
- * @param {number} offsetLSB_p - offset LSB value at AMP SQUID operating point U(12,0).
- * @param {number} offsetFine_p - offset fine value at AMP SQUID operating point U(3,0).
- * @param {number} offsetCoarse_p - offset coarse value at AMP SQUID operating point U(12,0).
  */
-function charac_OFFSET_DELAY(col_p, ra_delay_p, fb_delay_p, of_delay_p, fb0_p, offsetLSB_p, offsetFine_p, offsetCoarse_p) {
+function charac_OFFSET_DELAY(of_delay_p) {
 
     print("");
     print("***");
     print("* Charac_OF_DELAY function");
     print("***");
 
-    // set the register: RA_DELAY
-    print(TAB1+"Setting the register RA_DELAY to " + ra_delay_p);
-    sendToFPAsim_configureRaDelay(ra_delay_p);
-
-    // set the register: MUX_SQ_FB_DELAY
-    print(TAB1 + "Setting the register MUX_SQ_FB_DELAY to " + fb_delay_p);
-    setDMX_feedback_delay(col_p, fb_delay_p);
-
+	// Configuring the FPAsim
+	fpasimConfig(ra_delay, SteadyMode0);
+	print("");
+	
     // set the register: AMP_SQ_OFFSET_MUX_DELAY
     print(TAB1 + "Setting the register AMP_SQ_OFFSET_MUX_DELAY to " + of_delay_p);
-	setDMX_offsetMUX_delay(col_p, of_delay_p)
-
-    // TES steady states
-	print(TAB1+"Setting the FPAsim pixel steady states to a constant value");
-	setTesSteadyStates(0);
-	print("");
-
-    // Switching ON the feedback for the selected column
-    var colOnOff = [OFF, OFF, OFF, OFF];
-    colOnOff[col_p] = ON;
-    setDMX_feedbackOnOff(colOnOff);
-
-    // DEMUX feedback
-	print(TAB1+"Setting the DMX feedback mode to OPEN_LOOP (FB0 -> FEEDBACK output)...");
-	setDMX_sqm_FBMode(col_p, makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP));
-	print(TAB1+"Setting the DMX FB0 close to the MUX SQUID operating...");
-    var fb = makeArray(DMX_NB_PIX_PER_COL, fb0_p);
-    print(TAB2 + fb);
-	setDMX_fb0(col_p, fb);
-	print("");
+	for (colId=0; colId<DMX_NB_COL; colId++) {
+		setDMX_offsetMUX_delay(colId, of_delay_p)
+	}
+	
+    // Switching ON the feedbacks
+    setDMX_feedbackOnOff([ON, ON, ON, ON]);
 
     // DEMUX offset
 	print(TAB1+"Setting the offset mode to OFFSET (OFFSET -> OFFSET output)...");
 	setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_OFFSET));
-	print(TAB1+"Setting the Offset close to the AMP SQUID operating point...");
-	setDMX_sqa_OffsetLSB(col_p, offsetLSB_p);
-	off_fine = makeArray(DMX_NB_PIX_PER_COL, offsetFine_p);
-	off_fine[0] = 0;
-	setDMX_sqa_OffsetFine(col_p, off_fine, makeArray(DMX_NB_PIX_PER_COL, 0x0000));
-	setDMX_sqa_OffsetCoarse(col_p, offsetCoarse_p);
+	print(TAB1+"Setting the MUX Offset to a constant except for pixel 0");
+	var offsetFine = makeArray(DMX_NB_PIX_PER_COL, 7);
+	offsetFine[0] = 4;
+	for (colId=0; colId<DMX_NB_COL; colId++) {
+		setDMX_sqa_OffsetLSB(colId, 0xFFF);
+		setDMX_sqa_OffsetFine(colId, offsetFine, offsetFine);
+		setDMX_sqa_OffsetCoarse(colId, 0x07FF);
+	}
 	print("");
 
     // Data acquisition
@@ -258,16 +187,17 @@ function charac_OFFSET_DELAY(col_p, ra_delay_p, fb_delay_p, of_delay_p, fb0_p, o
  * @param {number} fb_delay_p - feedback delay [-512, 40].
  * @param {number} of_delay_p - feedback delay [-512, 40].
  * @param {number} fb0_p - Feedback at MUX SQUID operating point s(16,2).
- * @param {number} offsetLSB_p - offset LSB value at AMP SQUID operating point U(12,0).
- * @param {number} offsetFine_p - offset fine value at AMP SQUID operating point U(3,0).
- * @param {number} offsetCoarse_p - offset coarse value at AMP SQUID operating point U(12,0).
  */
-function check_everything(col_p, ra_delay_p, fb_delay_p, of_delay_p, fb0_p, offsetLSB_p, offsetFine_p, offsetCoarse_p) {
+function check_everything(ra_delay_p, fb_delay_p, of_delay_p, fb0_p) {
 
     print("");
     print("***");
     print("* Check everything at the same time ...");
     print("***");
+
+	// Configuring the FPAsim
+	fpasimConfig(ra_delay, SteadyModePix0);
+	print("");
 
     // set the register: RA_DELAY
     print(TAB1+"Setting the register RA_DELAY to " + ra_delay_p);
@@ -275,41 +205,40 @@ function check_everything(col_p, ra_delay_p, fb_delay_p, of_delay_p, fb0_p, offs
 
     // set the register: MUX_SQ_FB_DELAY
     print(TAB1 + "Setting the register MUX_SQ_FB_DELAY to " + fb_delay_p);
-    setDMX_feedback_delay(col_p, fb_delay_p);
+	for (var colId=0; colId<DMX_NB_COL; colId++) {
+		setDMX_feedback_delay(colId, fb_delay_p);
+	}
 
     // set the register: AMP_SQ_OFFSET_MUX_DELAY
     print(TAB1 + "Setting the register AMP_SQ_OFFSET_MUX_DELAY to " + of_delay_p);
-	setDMX_offsetMUX_delay(col_p, of_delay_p)
-
-    // TES steady states
-	print(TAB1+"Setting the FPAsim pixel steady states to a constant value");
-	setTesSteadyStates(2);
-	print("");
-
-    // Switching ON the feedback for the selected column
-    var colOnOff = [OFF, OFF, OFF, OFF];
-    colOnOff[col_p] = ON;
-    setDMX_feedbackOnOff(colOnOff);
+	for (colId=0; colId<DMX_NB_COL; colId++) {
+		setDMX_offsetMUX_delay(colId, of_delay_p)
+	}
+	
+    // Switching ON the feedbacks
+    setDMX_feedbackOnOff([ON, ON, ON, ON]);
 
     // DEMUX feedback
-	print(TAB1+"Setting the DMX feedback mode to OPEN_LOOP (FB0 -> FEEDBACK output)...");
-	setDMX_sqm_FBMode(col_p, makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP));
-	print(TAB1+"Setting the DMX FB0 close to the MUX SQUID operating point except for pixel 0...");
+	print(TAB1+"Setting the DMX FB0 to a constant value except for pixel 0...");
     var fb = makeArray(DMX_NB_PIX_PER_COL, fb0_p);
-    fb[0] += 500;
+    fb[0] += 200;
     print(TAB2 + fb);
-	setDMX_fb0(col_p, fb);
+	for (colId=0; colId<DMX_NB_COL; colId++) {
+		setDMX_fb0(colId, fb);
+	}
 	print("");
 
     // DEMUX offset
 	print(TAB1+"Setting the offset mode to OFFSET (OFFSET -> OFFSET output)...");
 	setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_OFFSET));
-	print(TAB1+"Setting the Offset close to the AMP SQUID operating point...");
-	setDMX_sqa_OffsetLSB(col_p, offsetLSB_p);
-	off_fine = makeArray(DMX_NB_PIX_PER_COL, offsetFine_p);
-	off_fine[0] = 0;
-	setDMX_sqa_OffsetFine(col_p, off_fine, makeArray(DMX_NB_PIX_PER_COL, 0x0000));
-	setDMX_sqa_OffsetCoarse(col_p, offsetCoarse_p);
+	print(TAB1+"Setting the MUX Offset to a constant except for pixel 0");
+	var offsetFine = makeArray(DMX_NB_PIX_PER_COL, 7);
+	offsetFine[0] = 4;
+	for (colId=0; colId<DMX_NB_COL; colId++) {
+		setDMX_sqa_OffsetLSB(colId, 0xFFF);
+		setDMX_sqa_OffsetFine(colId, offsetFine, offsetFine);
+		setDMX_sqa_OffsetCoarse(colId, 0x07FF);
+	}
 	print("");
 
     // Data acquisition
@@ -317,69 +246,80 @@ function check_everything(col_p, ra_delay_p, fb_delay_p, of_delay_p, fb0_p, offs
 	setDMX_dataAcqMode(ACQ_MODE_DUMP);
 }
 
-
-/**
- * Set a TES steady states sequence
- * Depending on the value of the pattern parameter a specific sequence will be selected.
- * @param {number} pattern_p - defines the pattern for the set of values.
- *      0) all pixels at 0
- *      1) 90 % of FSR
- *      2) all pixels at 0 and pix 0 at another value
- *      3) a ramp
- */
-function setTesSteadyStates(pattern_p) {
-
-	var Steady = [];
-	
-    switch (pattern_p) {
-        case 0:
-            print(TAB1 + "Setting the steady state of FPAsim pixels to: 0");
-            Steady = makeArray(64, 0);
-            Steady = makeArray(DMX_NB_PIX_PER_COL, 0);
-            break;
-        case 1:
-            steadyPourcentage = 90;
-            print(TAB1 + "Setting the steady state of FPAsim pixels to: " + steadyPourcentage + " % of FSR");
-            Steady = makeArray(DMX_NB_PIX_PER_COL, Math.round(STEADY_FSR * steadyPourcentage / 100));
-            break;
-        case 2:
-            print(TAB1 + "Setting the steady state of FPAsim pixels to: 0 except for pixel 0");
-            Steady = makeArray(DMX_NB_PIX_PER_COL, 0);
-            Steady[0] = 1000;
-            break;
-        case 3:
-            for (var pix=0; pix<DMX_NB_PIX_PER_COL; pix+=1) Steady[pix] = pix * 400;
-            break;
-    }
-    sendToFPAsim_loadTES_steadyState(Steady);
-
-    print(TAB1 + "Steady states: ");
-    print(TAB2 + Steady);
-    print("");
-}
-
+
+/**
+ * Does an acquisition in DUMP mode to check alignment of Steady-state and Feedback signals.
+ *   Sets all the FPAsim steady states to the same value except for pixel 0.
+ *   Sets all the DMX fb0 to the same value except for pixel 0 (in open loop mode)
+ *   Sets the RA_DELAY to the value provided by the parameter ra_delay_p
+ *   Sets the FB_DELAY to the value provided by the parameter fb_delay_p
+ *   Does a DMX dump * @param {number} col_p - column id [0, 3].
+ * @param {number} ra_delay_p - sequence delay [0, 63].
+ * @param {number} fb_delay_p - feedback delay [-512, 40].
+ * @param {number} of_delay_p - feedback delay [-512, 40].
+ * @param {number} fb0_p - Feedback at MUX SQUID operating point s(16,2).
+ */
+function check_feedback_vs_RA(ra_delay_p, fb_delay_p, fb0_p) {
+
+    print("");
+    print("***");
+    print("* Check everything at the same time ...");
+    print("***");
+
+	// Configuring the FPAsim
+	fpasimConfig(ra_delay, SteadyModePix0);
+	print("");
+
+    // set the register: RA_DELAY
+    print(TAB1+"Setting the register RA_DELAY to " + ra_delay_p);
+    sendToFPAsim_configureRaDelay(ra_delay_p);
+
+    // set the register: MUX_SQ_FB_DELAY
+    print(TAB1 + "Setting the register MUX_SQ_FB_DELAY to " + fb_delay_p);
+	for (var colId=0; colId<DMX_NB_COL; colId++) {
+		setDMX_feedback_delay(colId, fb_delay_p);
+	}
+
+    // Switching ON the feedbacks
+    setDMX_feedbackOnOff([ON, ON, ON, ON]);
+
+    // DEMUX feedback
+	print(TAB1+"Setting the DMX FB0 to a constant value except for pixel 0...");
+    var fb = makeArray(DMX_NB_PIX_PER_COL, fb0_p);
+    fb[0] += 200;
+    print(TAB2 + fb);
+	for (colId=0; colId<DMX_NB_COL; colId++) {
+		setDMX_fb0(colId, fb);
+	}
+	print("");
+
+    // Data acquisition
+	print(TAB1+"Doing an acquisition in DUMP mode...");
+	setDMX_dataAcqMode(ACQ_MODE_DUMP);
+}
 
 // -------------------------------------------------------------------------------------------------------------
 
-const col = 0;
-
 // RA_DELAY
-ra_delay = 27*2+1;
+const ra_delay = 48;
+//const ra_delay = 0;
 
 // MUX_SQ_FB_DELAY
-fb_delay = -92;
+const fb_delay = -91;
+//const fb_delay = 0;
 
 // AMP_SQ_OFFSET_MUX_DELAY
-of_delay = -99;
+const of_delay = -94;
+//const of_delay = 0;
 
+const samp_delay = 0;
 
-// DEMUX configuration
-const fb0 = 0x6CB0;
-//const offsetLSB = 0x0FFF;
-const offsetLSB = 0x00FF;
-const offsetFine = 0x7;
-const offsetCoarse = 0x37C;
-
+/* 
+  Starting and initializing the DEMUX
+*/
+const boxcarL = 0;
+const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
+const pattern = "FULL";
 
 /*
   Starting and initializing the FPAsim
@@ -387,43 +327,36 @@ const offsetCoarse = 0x37C;
 */
 fpasimStartup();
 
+demuxStart(samp_delay, boxcarL, fb_delay, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSetOpt, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
+
 
 // Uncomment the function call accordingly with the delay characterization you are interested in.
 
 /* RA_DELAY characterization
 Does an acquisition in DUMP mode in order to characterise the proper RA_DELAY.
   Sets all the FPAsim steady states to the same value except for pixel 0.
-  Sets all the DMX fb0 to the same value (in open loop mode)
-  Sets all the DMX offset to the same value (in open loop mode)
   Sets the RA_DELAY to the value provided by the parameter ra_delay_p
   Does a DMX dump
 */
-charac_RA_DELAY(col, ra_delay, fb0, offsetLSB, offsetFine, offsetCoarse);
+//charac_RA_DELAY(ra_delay);
 
 
 /* FEEDBACK_DELAY characterization
 Does an acquisition in DUMP mode in order to characterise the proper FB_DELAY.
-  Sets all the FPAsim steady states to the same value.
   Sets all the DMX fb0 to the same value except for pixel 0 (in open loop mode)
-  Sets all the DMX offset to the same value (in open loop mode)
-  Sets the RA_DELAY to the value provided by the parameter ra_delay_p
   Sets the FB_DELAY to the value provided by the parameter fb_delay_p
   Does a DMX dump
 */
-//charac_FB_DELAY(col, ra_delay, fb_delay, fb0, offsetLSB, offsetFine, offsetCoarse);
+//charac_FB_DELAY(fb_delay, fb0Opt);
 
 
 /* OFFSET_DELAY characterization
 Does an acquisition in DUMP mode in order to characterise the proper FB_DELAY.
-  Sets all the FPAsim steady states to the same value.
-  Sets all the DMX fb0 to the same value (in open loop mode)
   Sets all the DMX offset to the same value except for pixel 0 (in open loop mode)
-  Sets the RA_DELAY to the value provided by the parameter ra_delay_p
-  Sets the FB_DELAY to the value provided by the parameter fb_delay_p
   Sets the OF_DELAY to the value provided by the parameter of_delay_p
   Does a DMX dump
  */
-//charac_OFFSET_DELAY(col, ra_delay, fb_delay, of_delay, fb0, offsetLSB, offsetFine, offsetCoarse);
+//charac_OFFSET_DELAY(of_delay);
 
 
 /* Check all the timing corrections together
@@ -436,9 +369,17 @@ Does an acquisition in DUMP mode to check alignment of Steady-state, Feedback an
   Sets the OF_DELAY to the value provided by the parameter of_delay_p
   Does a DMX dump * @param {number} col_p - column id [0, 3].
  */
-//check_everything(col, ra_delay, fb_delay, of_delay, fb0, offsetLSB, offsetFine, offsetCoarse);
-
-
+//check_everything(ra_delay, fb_delay, of_delay, fb0Opt);
+
+/* Check all the timing corrections together
+Does an acquisition in DUMP mode to check alignment of Steady-state, Feedback and Offset compensation signals.
+  Sets all the FPAsim steady states to the same value except for pixel 0.
+  Sets all the DMX fb0 to the same value except for pixel 0 (in open loop mode)
+  Sets the RA_DELAY to the value provided by the parameter ra_delay_p
+  Sets the FB_DELAY to the value provided by the parameter fb_delay_p
+  Does a DMX dump * @param {number} col_p - column id [0, 3].
+ */
+check_feedback_vs_RA(ra_delay, fb_delay, fb0Opt);
 
 // -------------------------------------------------------------------------------------------------------------
 print("End of script!");

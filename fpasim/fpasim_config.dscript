@@ -26,14 +26,14 @@
 // -------------------------------------------------------------------------------------------------------------
 
 // Optimal RA delay
-const raDelayOpt = 27*2+1;
+const raDelayOpt = 48;
 
 // TES default steady state
 const STEADY_FSR = Math.pow(2, 16)-1;
-const SteadyMode0 = 0;
-const SteadyMode90Fsr = 1;
-const SteadyModePix0 = 2;
-const SteadyModeRamp = 3;
+const SteadyMode0 = 0;
+const SteadyMode90Fsr = 1;
+const SteadyModePix0 = 2;
+const SteadyModeRamp = 3;
 
 /**
  * Set a TES steady states sequence

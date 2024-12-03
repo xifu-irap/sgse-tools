@@ -102,7 +102,7 @@ function setDMX_feedbackOnOff(feedbackOnOff_p) {
 
 /**
  * Reads the feedback status (MUX_SQ_FB_ON_OFF).
- * @return {number} feedbackOnOff - Feedback on/off mode [0, 7].
+ * @return {array} feedbackOnOff - Feedback on/off mode [0, 7].
  */
 function readDMX_feedbackOnOff() {
     sendToDMXReadRegister(ADD_DMX_MUX_SQ_FB_ON_OFF);
@@ -134,7 +134,7 @@ function setDMX_offsetMode(offsetMode_p) {
 
 /**
  * Reads the AMP SQUID offset mode (AMP_SQ_OFFSET_MODE).
- * @return {number} offsetMode - Offset mode.
+ * @return {array} offsetMode - Offset mode.
  */
 function readDMX_offsetMode() {
     sendToDMXReadRegister(ADD_DMX_AMP_SQ_OFFSET_MODE);
@@ -380,7 +380,8 @@ function readDMX_sqa_inputGain(col_p) {
 /**
  * Sets the values of ki.knorm for the MUX SQUID closed loop mode (MUX_SQ_KIKNORM).
  * @param {number} col_p - column number [0, 3]
- * @param {array} kiknorm_p - one value of ki.knorm per pixel : U(16,16).
+ * @param {array} kiknorm_p - one value of ki.knorm per pixel (float)
+ * This function converts the float values into U(16,16) values.
  */
 function setDMX_sqm_kiknorm(col_p, kiknorm_p) {
     if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
@@ -388,7 +389,18 @@ function setDMX_sqm_kiknorm(col_p, kiknorm_p) {
         return;
     }
     const reg_address = ADD_DMX_MUX_SQ_KIKNORM | (col_p << ADD_DMX_COL_BIT_SHIFT);
-    sendToDMXWriteMultiRegisters(reg_address, DMX_NB_PIX_PER_COL, kiknorm_p);
+
+    if (kiknorm_p.length !== DMX_NB_PIX_PER_COL) {
+        print("ERROR, size of knorm array is incorrect!  --> " + knorm_p.length);
+        return;
+    }
+
+    var values = [kiknorm_p.length];
+    for (var pix = 0; pix<DMX_NB_PIX_PER_COL; pix++) {
+        values[pix] = Math.round(kiknorm_p[pix] * Math.pow(2, 16));
+    }
+
+    sendToDMXWriteMultiRegisters(reg_address, DMX_NB_PIX_PER_COL, values);
 }
 
 /**
@@ -405,13 +417,20 @@ function readDMX_sqm_kiknorm(col_p) {
     const reg_address = ADD_DMX_MUX_SQ_KIKNORM | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadMultiRegisters(reg_address, DMX_NB_PIX_PER_COL);
     getLatestValue("DMX_registers");
-    return DMX_registers.slice(reg_address, reg_address+DMX_NB_PIX_PER_COL);
+
+    var kiknorm = DMX_registers.slice(reg_address, reg_address+DMX_NB_PIX_PER_COL);
+    for (var pix = 0; pix<DMX_NB_PIX_PER_COL; pix++) {
+        kiknorm[pix] /= Math.pow(2, 16);
+    }
+
+    return kiknorm;
 }
 
 /**
  * Sets the value of ki.knorm for the AMP SQUID closed loop mode (AMP_SQ_KIKNORM).
  * @param {number} col_p - column number [0, 3]
- * @param {number} kiknorm_p - value of ki.knorm: U(16,16)
+ * @param {number} kiknorm_p - value of ki.knorm: (float)
+ * This function converts the float value into U(16,16) value.
  */
 function setDMX_sqa_kiknorm(col_p, kiknorm_p) {
     if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
@@ -419,7 +438,10 @@ function setDMX_sqa_kiknorm(col_p, kiknorm_p) {
         return;
     }
     const reg_address = ADD_DMX_AMP_SQ_KIKNORM | (col_p << ADD_DMX_COL_BIT_SHIFT);
-    sendToDMXWriteRegister(reg_address, kiknorm_p);
+
+    const value = Math.round(kiknorm_p * Math.pow(2, 16));
+
+    sendToDMXWriteRegister(reg_address, value);
 }
 
 /**
@@ -436,13 +458,15 @@ function readDMX_sqa_kiknorm(col_p) {
     const reg_address = ADD_DMX_AMP_SQ_KIKNORM | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");
-    return DMX_registers[reg_address];
+
+    return DMX_registers[reg_address] / Math.pow(2, 16);
 }
 
 /**
  * Sets the values of knorm for the MUX SQUID closed loop mode (MUX_SQ_KNORM).
  * @param {number} col_p - column number [0, 3]
- * @param {array} knorm_p - one value of knorm per pixel.
+ * @param {array} knorm_p - one value of knorm per pixel (float)
+ * This function converts the float values into U(16,18) values.
  */
 function setDMX_sqm_knorm(col_p, knorm_p) {
     if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
@@ -450,13 +474,25 @@ function setDMX_sqm_knorm(col_p, knorm_p) {
         return;
     }
     const reg_address = ADD_DMX_MUX_SQ_KNORM | (col_p << ADD_DMX_COL_BIT_SHIFT);
-    sendToDMXWriteMultiRegisters(reg_address, DMX_NB_PIX_PER_COL, knorm_p);
+
+    if (knorm_p.length !== DMX_NB_PIX_PER_COL) {
+        print("ERROR, size of knorm array is incorrect!  --> " + knorm_p.length);
+        return;
+    }
+
+    var values = [knorm_p.length];
+    for (var pix = 0; pix<DMX_NB_PIX_PER_COL; pix++) {
+        values[pix] = Math.round(knorm_p[pix] * Math.pow(2, 18));
+    }
+
+    sendToDMXWriteMultiRegisters(reg_address, DMX_NB_PIX_PER_COL, values);
 }
 
 /**
  * Reads the value of knorm for the MUX SQUID closed loop mode (MUX_SQ_KNORM).
  * @param {number} col_p - column number [0, 3].
- * @return {array} knorm - value of knorm (one value per pixel): U(16,18)
+ * @return {array} knorm - value of knorm (one value per pixel): (float)
+ * This function converts the float values into U(16,18) values.
  */
 function readDMX_sqm_knorm(col_p) {
     if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
@@ -467,13 +503,19 @@ function readDMX_sqm_knorm(col_p) {
     const reg_address = ADD_DMX_MUX_SQ_KNORM | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadMultiRegisters(reg_address, DMX_NB_PIX_PER_COL);
     getLatestValue("DMX_registers");
-    return DMX_registers.slice(reg_address, reg_address+DMX_NB_PIX_PER_COL);
+
+    var knorm = DMX_registers.slice(reg_address, reg_address+DMX_NB_PIX_PER_COL);
+    for (var pix = 0; pix<DMX_NB_PIX_PER_COL; pix++) {
+        knorm[pix] /= Math.pow(2, 18);
+    }
+    return knorm;
 }
 
 /**
  * Sets the value of knorm for the AMP SQUID closed loop mode (AMP_SQ_KNORM).
  * @param {number} col_p - column number [0, 3]
- * @param {number} knorm_p - value of knorm.
+ * @param {number} knorm_p - value of knorm. (float)
+ * This function converts the float value into U(16,18) value.
  */
 function setDMX_sqa_knorm(col_p, knorm_p) {
     if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
@@ -481,7 +523,10 @@ function setDMX_sqa_knorm(col_p, knorm_p) {
         return;
     }
     const reg_address = ADD_DMX_AMP_SQ_KNORM | (col_p << ADD_DMX_COL_BIT_SHIFT);
-    sendToDMXWriteRegister(reg_address, knorm_p);
+
+    const value = Math.round(knorm_p * Math.pow(2, 18));
+
+    sendToDMXWriteRegister(reg_address, value);
 }
 
 /**
@@ -497,7 +542,7 @@ function readDMX_sqa_knorm(col_p) {
     const reg_address = ADD_DMX_AMP_SQ_KNORM | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");
-    return DMX_registers[reg_address];
+    return DMX_registers[reg_address] / Math.pow(2, 18);
 }
 
 /**
