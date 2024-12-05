@@ -103,7 +103,7 @@ function testSequence(colId, offsetMode, offsetLSB, offsetFine) {
 		// Setting the LSB size to 0
 		setDMX_sqa_OffsetLSB(colId, 0);
 
-        // Setting the feedback mode of column 0 to "test pattern"
+        // Setting the offset mode of column 0 to "test pattern"
         colOffsetMode[colId] = OFFSET_MODE_TESTPATTERN;
         setDMX_offsetMode(colOffsetMode);
 
@@ -116,17 +116,27 @@ function testSequence(colId, offsetMode, offsetLSB, offsetFine) {
 
 // -------------------------------------------------------------------------------------------------------------
 
-const colId = 0;
+const colId = 1;
 
 const AMP_SQ_OFFSET_LSB = Math.pow(2, 12)-1;  // between 0 and 2^12-1
 //const AMP_SQ_OFFSET_LSB = 0x555; 
-const AMP_SQ_OFFSET_FINE = [  // 34 3-bit values
+/*const AMP_SQ_OFFSET_FINE = [  // 34 3-bit values
     0, 1, 2, 3, 4, 5, 6, 7,
     0, 1, 2, 3, 4, 5, 6, 7,
     7, 6, 5, 4, 3, 2, 1, 0,
     7, 6, 5, 4, 3, 2, 1, 0,
     5, 2
-];
+];
+*/
+
+const AMP_SQ_OFFSET_FINE = [  // 34 3-bit values
+   7, 7, 0, 0, 0, 0, 0, 0,
+   0, 0, 0, 0, 0, 0, 0, 0,
+   0, 0, 0, 0, 0, 0, 0, 0,
+   0, 0, 0, 0, 0, 0, 0, 0,
+   0, 0
+];
+
 
 // You should uncomment a single of the following lines
 //testSequence(colId, OFFSET_MODE_OFF);
@@ -138,6 +148,7 @@ testSequence(colId, OFFSET_MODE_OFFSET, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE);
 
 // -------------------------------------------------------------------------------------------------------------
 
+/*
 col=0;
 
 
@@ -170,5 +181,6 @@ function loop_LSB() {
 loop_LSB()
 
 setDMX_sqa_OffsetLSB(col, v0); */
+
 
 print("Done !")

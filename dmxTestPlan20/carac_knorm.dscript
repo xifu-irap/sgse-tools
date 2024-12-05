@@ -49,10 +49,13 @@ include("../common/constants.dscript");
 
 const col = 2;
 
-const knorm = makeArray(1/72, DMX_NB_PIX_PER_COL);
+const knorm = 1/75;
+//const knorm = 10/72;
+//const knorm = 0.07;
+
 const kiknorm = knorm;
 
-sessionName = "carac-knorm-col"+col+"_knorm="+knorm;
+sessionName = "carac-knorm-col"+col+"_knorm-"+knorm;
 sendStartNewSession(sessionName, "");
 
 /*
@@ -92,10 +95,10 @@ Closing the loop
 */
 fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_CLOSED_LOOP);
 const durationMs = 3000;
-// Starting data acquisition while loop is open
+
+print(TAB1 + "Starting Error acquisition while the loop is still open, then closing the feedback loop ...");
 sendToDMXSaveScienceRaw("errorDataWhileClosingLoop.fits", durationMs, 1<<col);
 waitMs(100);
-print(TAB1 + "closing the feedback loop ...");
 setDMX_sqm_FBMode(col, fbMode);
 waitMs(durationMs);
 

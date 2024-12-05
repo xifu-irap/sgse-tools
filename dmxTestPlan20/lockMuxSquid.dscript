@@ -60,13 +60,10 @@ for (var i=0; i<pulseHeightPc.length; i++) {
 
 const nbIterations = 1000; // number of pulses per pixels and per energy
 
-//const knorm_reel = 1/16;
-const knorm_reel = 1/72;
-const knorm = Math.round(knorm_reel * Math.pow(2, 18)); 
-
+//const knorm_reel = 1/16;
+const knorm = 0.07;
 const ki = 1.2;
-const kiknorm_reel = ki*knorm_reel;
-const kiknorm = Math.round(kiknorm_reel * Math.pow(2, 16)); 
+const kiknorm = ki*knorm; 
 
 /*
   Starting and initializing the FPAsim
@@ -82,12 +79,11 @@ fpasimConfig(raDelayOpt, SteadyMode90Fsr);
 /*
  Starting and configuring the DEMUX
 */
-const pulseShapingSet  = 0;
 const boxcarL = 0;
 const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
 const pattern = "FULL";
 
-demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSet, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
+demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSetOpt, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
 
 print(TAB1 + "Delock counters at the beggining: " + readDMX_delockCounters(col, false));
 
@@ -99,23 +95,22 @@ for (var colId=0; colId<DMX_NB_COL; colId++) {
 	setDMX_sqm_kiknorm(colId, makeArray(DMX_NB_PIX_PER_COL, kiknorm));
 }
 
-//print(TAB1 + "Starting data acquisition in ERROR mode...");
-//sendToDMXGoToErrorSignalMode();
-
-print(TAB1 + "Setting data acquisition in SCIENCE mode...");
-sendToDMXGoToScienceMode();
-
 /*
 Closing the loop
 */
+fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_CLOSED_LOOP);
+const durationMs = 2000;
 
 waitMs(6000000, true, true, "OK to close the loop?");
-print(TAB1 + "closing the feedback loop ...");
+sendToDMXGoToErrorSignalMode();
 
-//fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
-//fbMode[11] = FEEDBACK_MODE_CLOSED_LOOP;
-fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_CLOSED_LOOP);
-setDMX_sqm_FBMode(col, fbMode);
+print(TAB1 + "Starting Error acquisition while the loop is still open, then closing the feedback loop ...");
+sendToDMXSaveScienceRaw("errorDataWhileClosingLoop.fits", durationMs, 1<<col);
+setDMX_sqm_FBMode(col, fbMode);
+waitMs(durationMs);
+
+print(TAB1 + "Setting data acquisition in SCIENCE mode...");
+sendToDMXGoToScienceMode();
 
 /*
 Doing pulses
@@ -125,7 +120,7 @@ if (doingPulses) {
 	waitMs(6000000, true, true, "OK to send the pulses?");
 
 	// Doing a data acquisition
-	sendToDMXSaveScienceRaw("pulses" , 1000 , 8);
+	//sendToDMXSaveScienceRaw("pulses" , 1000 , 8);
 
 	for (iteration = 0; iteration < nbIterations; iteration++) {
 		print(TAB2 + "Iteration " + iteration + " / " + nbIterations);
