@@ -36,10 +36,6 @@ const sampDelayOpt = 16;
 const pulseShapingSetOpt = 1;
 
 // Levels
-//const fb0Opt = 2200;
-//const fb0Opt = 850;
-//const fb0Opt = -80;
-
 const fb0Opt = -528;
 
 //const fb0Opt = 620*4;
@@ -49,23 +45,12 @@ const offsetFineOpt = 0;
 //const offsetFineOpt = 7;
 //const offsetCoarseOpt = 1900;
 const offsetCoarseOpt = 800;
-//const offsetCoarseOpt = 590;
-//const offsetCoarseOpt = 170;
-//const lockPointVOpt = [5000, 5000, 5000, 5000];
-//const lpv = 8050;
-//const lockPointVOpt = 7950;
-//const lockPointVOpt = 8920; // Pour etre alignes sur le mode open loop (col 3)
-//const lockPointVOpt = 3000; // Pour etre alignes sur le mode open loop (col 3)
-//const lockPointVOpt = 17450; // Pour etre alignes sur le mode open loop (col 3)
-//const lockPointVOpt = 18450; // Pour etre alignes sur le mode open loop (col 3)
 
-//const lockPointVOpt = -15148; // Pour etre alignes sur le mode open loop (col 3)
+//const lockPointVOpt = -15148;
+const lockPointVOpt = -14900/4;
 
-const lockPointVOpt = -14900; // Pour etre alignes sur le mode open loop (col 3)
-
-//const lockPointVOpt = 8560; // Pour etre alignes sur le mode open loop (col 0)
 const aOpt = [0.2, 0.2, 0.2, 0.2];
-const muxInputGain = [1, 1, -1, 1];
+const muxInputGain = [-1, -1, -1, -1];
 const ampInputGain = [1, 1, 1, 1];
 //const pattern = "FULL";
 //const pattern = "MINI";
@@ -227,5 +212,3 @@ function demuxStart(samp_delay_p, bxLength_p, fb_delay_p, fb0_p, offsetLSB_p, of
 }
 
 // -------------------------------------------------------------------------------------------------------------
-
-

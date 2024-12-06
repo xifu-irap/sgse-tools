@@ -291,7 +291,7 @@ function setDMX_a(col_p, a_p) {
     }
 
     const valMin = 0;
-    const valMax = 1;
+    const valMax = 1 - 1/Math.pow(2, 16);
     var values = [DMX_NB_PIX_PER_COL];
     for (var pix=0; pix<DMX_NB_PIX_PER_COL; pix++) {
         if ((a_p[pix] < valMin) || (a_p[pix] > valMax)) {
@@ -334,8 +334,8 @@ function setDMX_sqm_inputGain(col_p, input_gain_p) {
     }
 
     const valMin = -Math.pow(2, 4);
-    const valMax = Math.pow(2, 4)-1;
-    if ((input_gain_p[pix] < valMin) || (input_gain_p[pix] > valMax)) {
+    const valMax = Math.pow(2, 4) - 1/Math.pow(2,12);
+    if ((input_gain_p < valMin) || (input_gain_p > valMax)) {
         print("ERROR, gain value is incorrect!  --> " + input_gain_p);
         return;
     }
@@ -376,8 +376,8 @@ function setDMX_sqa_inputGain(col_p, input_gain_p) {
     }
 
     const valMin = -Math.pow(2, 4);
-    const valMax = Math.pow(2, 4)-1;
-    if ((input_gain_p[pix] < valMin) || (input_gain_p[pix] > valMax)) {
+    const valMax = Math.pow(2, 4) - 1/Math.pow(2,12);
+    if ((input_gain_p < valMin) || (input_gain_p > valMax)) {
         print("ERROR, gain value is incorrect!  --> " + input_gain_p);
         return;
     }
@@ -424,7 +424,7 @@ function setDMX_sqm_kiknorm(col_p, kiknorm_p) {
     }
 
     const valMin = 0;
-    const valMax = 1;
+    const valMax = 1 - 1/Math.pow(2, 16);
     var values = [DMX_NB_PIX_PER_COL];
     for (var pix=0; pix<DMX_NB_PIX_PER_COL; pix++) {
         if ((kiknorm_p[pix] < valMin) || (kiknorm_p[pix] > valMax)) {
@@ -474,7 +474,7 @@ function setDMX_sqa_kiknorm(col_p, kiknorm_p) {
     const reg_address = ADD_DMX_AMP_SQ_KIKNORM | (col_p << ADD_DMX_COL_BIT_SHIFT);
 
     const valMin = 0;
-    const valMax = 1;
+    const valMax = 1 - 1/Math.pow(2,16);
     if ((kiknorm_p < valMin) || (kiknorm_p > valMax)) {
         print("ERROR, value of AMP_SQ_KIKNORM for col " + col_p + " is incorrect!  --> " + kiknorm_p);
         return;
@@ -522,7 +522,7 @@ function setDMX_sqm_knorm(col_p, knorm_p) {
     }
 
     const valMin = 0;
-    const valMax = Math.pow(2,16) / Math.pow(2, 18);
+    const valMax = (Math.pow(2,16) - 1) / Math.pow(2, 18);
     var values = [DMX_NB_PIX_PER_COL];
     for (var pix=0; pix<DMX_NB_PIX_PER_COL; pix++) {
         if ((knorm_p[pix] < valMin) || (knorm_p[pix] > valMax)) {
@@ -572,7 +572,7 @@ function setDMX_sqa_knorm(col_p, knorm_p) {
     const reg_address = ADD_DMX_AMP_SQ_KNORM | (col_p << ADD_DMX_COL_BIT_SHIFT);
 
     const valMin = 0;
-    const valMax = Math.pow(2,16) / Math.pow(2, 18);
+    const valMax = (Math.pow(2,16) - 1) / Math.pow(2, 18);
     if ((knorm_p < valMin) || (knorm_p > valMax)) {
         print("ERROR, value of AMP_SQ_KNORM for col " + col_p + " is incorrect!  --> " + knorm_p);
         return;
@@ -611,7 +611,7 @@ function setDMX_fb0(col_p, fb0_p) {
     const reg_address = ADD_DMX_MUX_SQ_FB0 | (col_p << ADD_DMX_COL_BIT_SHIFT);
 
     const valMin = -Math.pow(2,14);
-    const valMax = Math.pow(2,14)-1;
+    const valMax = Math.pow(2,14) - 1/Math.pow(2, 2);
     var values = [DMX_NB_PIX_PER_COL];
     for (var pix=0; pix<DMX_NB_PIX_PER_COL; pix++) {
         if ((fb0_p[pix] < valMin) || (fb0_p[pix] > valMax)) {
@@ -664,7 +664,7 @@ function setDMX_lockpointV(col_p, lockpointV_p) {
     }
 
     const valMin = -Math.pow(2, 14);
-    const valMax = Math.pow(2, 14)-1;
+    const valMax = Math.pow(2, 14) - 1/4;
     var values = [lockpointV_p.length];
     for (var pix=0; pix<DMX_NB_PIX_PER_COL; pix++) {
         if ((lockpointV_p[pix] < valMin) || (lockpointV_p[pix] > valMax)) {
