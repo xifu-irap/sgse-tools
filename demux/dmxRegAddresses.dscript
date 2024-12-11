@@ -54,7 +54,8 @@ const ADD_DMX_HK_TEMP_AVE = 0x4609;
 const ADD_DMX_HK_TEMP_MAX = 0x460A;
 const ADD_DMX_HK_P2V5_AUX = 0x460B;
 const ADD_DMX_HK_VREF_TEMP = 0x460C;
-const ADD_DMX_HK_VREF_R2R = 0x460D;
+const ADD_DMX_HK_VREF_R2R = 0x460D;
+const ADD_DMX_HK_VGND = 0x460E;
 const ADD_DMX_DELOCK_FLAG = 0x4610;
 
 // Status (read only)

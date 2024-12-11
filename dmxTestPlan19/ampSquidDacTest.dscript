@@ -58,7 +58,7 @@ function testSequence(colId, offsetMode, offsetLSB, offsetFine) {
     const minVal = 0;
     const midVal = Math.pow(2, 11);
     const maxVal = Math.pow(2,12)-1;
-    setDMX_sqa_OffsetCoarse(colId, midVal);
+    setDMX_sqa_OffsetCoarse(colId, minVal);
 
     // Setting the testPattern to a rising slope
     const a = -1*Math.pow(2, 15);
@@ -116,7 +116,7 @@ function testSequence(colId, offsetMode, offsetLSB, offsetFine) {
 
 // -------------------------------------------------------------------------------------------------------------
 
-const colId = 1;
+const colId = 2;
 
 const AMP_SQ_OFFSET_LSB = Math.pow(2, 12)-1;  // between 0 and 2^12-1
 //const AMP_SQ_OFFSET_LSB = 0x555; 
@@ -130,10 +130,10 @@ const AMP_SQ_OFFSET_LSB = Math.pow(2, 12)-1;  // between 0 and 2^12-1
 */
 
 const AMP_SQ_OFFSET_FINE = [  // 34 3-bit values
-   7, 7, 0, 0, 0, 0, 0, 0,
-   0, 0, 0, 0, 0, 0, 0, 0,
-   0, 0, 0, 0, 0, 0, 0, 0,
-   0, 0, 0, 0, 0, 0, 0, 0,
+   7, 7, 7, 7,  7, 7,  7, 7,
+   7, 7, 7, 7,  7, 7,  7, 7,
+   7, 7, 7, 7,  7, 7,  7, 7,
+   7, 7, 7, 7,  7, 7,  7, 7,
    0, 0
 ];
 

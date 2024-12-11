@@ -47,33 +47,30 @@ include("../common/constants.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
 
-const col = 2;
+const col = 3;
 sessionName = "lockingMuxLoop-col"+col;
 sendStartNewSession(sessionName, "");
 
-const doingPulses = true;
-const pulseHeightPc = [15, 60];
-pulseHeight = [pulseHeightPc.length];
-for (var i=0; i<pulseHeightPc.length; i++) {
-	pulseHeight[i] = Math.round(STEADY_FSR * pulseHeightPc[i] / 100);
-}
+const savingDataWhileClosingLoop = false;
 
-const nbIterations = 1000; // number of pulses per pixels and per energy
+const doingPulses = true;
+//const pulseHeightPc = [15, 60];
+//pulseHeight = [pulseHeightPc.length];
+//for (var i=0; i<pulseHeightPc.length; i++) {
+//	pulseHeight[i] = Math.round(STEADY_FSR * pulseHeightPc[i] / 100);
+//}
+
+const nbIterations = 100000; // number of pulses per pixels and per energy
 
 //const knorm_reel = 1/16;
-const knorm = 0.07;
+const knorm = 0.077;
 const ki = 1.2;
 const kiknorm = ki*knorm; 
 
 /*
   Starting and initializing the FPAsim
-  If the FPAsim function is already enabled nothing is done unless the "force_p" parameter is set to true.
 */
-fpasimStartup();
-
-/*
-  Configuring the FPAsim
-*/
+fpasimStartup(); // If the FPAsim is already enabled nothing is done unless the "force_p" parameter is set to true.
 fpasimConfig(raDelayOpt, SteadyMode90Fsr);
 
 /*
@@ -82,7 +79,6 @@ fpasimConfig(raDelayOpt, SteadyMode90Fsr);
 const boxcarL = 0;
 const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
 const pattern = "FULL";
-
 demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSetOpt, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
 
 print(TAB1 + "Delock counters at the beggining: " + readDMX_delockCounters(col, false));
@@ -98,41 +94,47 @@ for (var colId=0; colId<DMX_NB_COL; colId++) {
 /*
 Closing the loop
 */
-fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_CLOSED_LOOP);
-const durationMs = 2000;
+fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_CLOSED_LOOP);
+const fileDurationMs = 2000;
 
 waitMs(6000000, true, true, "OK to close the loop?");
-sendToDMXGoToErrorSignalMode();
+sendToDMXGoToErrorSignalMode();
 
-print(TAB1 + "Starting Error acquisition while the loop is still open, then closing the feedback loop ...");
-sendToDMXSaveScienceRaw("errorDataWhileClosingLoop.fits", durationMs, 1<<col);
-setDMX_sqm_FBMode(col, fbMode);
-waitMs(durationMs);
-
-print(TAB1 + "Setting data acquisition in SCIENCE mode...");
-sendToDMXGoToScienceMode();
+print(TAB1 + "Starting Error acquisition while the loop is still open, then closing the feedback loop ...");
+if (savingDataWhileClosingLoop) sendToDMXSaveScienceRaw("errorDataWhileClosingLoop.fits", fileDurationMs, 1<<col);
+setDMX_sqm_FBMode(col, fbMode);
+waitMs(fileDurationMs);
+
+print(TAB1 + "Setting data acquisition in SCIENCE mode...");
+sendToDMXGoToScienceMode();
+
 
 /*
 Doing pulses
 */
-
 if (doingPulses) {
 	waitMs(6000000, true, true, "OK to send the pulses?");
 
 	// Doing a data acquisition
 	//sendToDMXSaveScienceRaw("pulses" , 1000 , 8);
 
+	// Computing pseudo random energies
+	const a = 1103515245;
+	const b = 12345;
+	const m = 2**31;
+	const pcMax = 90;
+	var pulseHeightPc = 77;
 	for (iteration = 0; iteration < nbIterations; iteration++) {
 		print(TAB2 + "Iteration " + iteration + " / " + nbIterations);
-		for (iPulse=0; iPulse < pulseHeight.length; iPulse++) {
-			for (var iPix=0; iPix < DMX_NB_PIX_PER_COL; iPix++) {
-				sendToFPAsim_makePulse(iPix, 0, pulseHeight[iPulse]);
-			}
+		for (var iPix=0; iPix < DMX_NB_PIX_PER_COL; iPix++) {
+				pulseHeightPc = ((pulseHeightPc * a + b) % m ) % pcMax;
+				pulseHeight = Math.round(STEADY_FSR * pulseHeightPc / 100);
+				sendToFPAsim_makePulse(iPix, 0, pulseHeight);
 		}
 	}
 }
 
-waitMs(6000000, true, true, "Measurement of pulses is ongoing...");
+waitMs(6000000, true, true, "Measurement of pulses is done");
 
 
 // -------------------------------------------------------------------------------------------------------------

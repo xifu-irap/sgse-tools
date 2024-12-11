@@ -166,7 +166,7 @@ function setDMX_testPattern(parameters_p) {
         }
     }
 
-	var result = [DMX_TEST_PATTERN_NBREGIONS * DMX_TEST_PATTERN_NBPARAMS];
+	var result = [];
     for (var i=0; i<DMX_TEST_PATTERN_NBREGIONS; i++) {
 		for (var j=0; j<DMX_TEST_PATTERN_NBPARAMS; j++) {
 			if (j===0 || j===2) result.push(convert_sInt_to_2compInt(parameters_p[i][j], 16));
@@ -831,7 +831,6 @@ function readDMX_sqa_OffsetLSBptr(col_p) {
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");
 
-	print(">>>>>>> " + DMX_registers[reg_address]);
     return DMX_registers[reg_address];
 }
 

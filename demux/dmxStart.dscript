@@ -43,11 +43,10 @@ const offsetLSBOpt = 10;
 const offsetFineOpt = 0;
 //const offsetLSBOpt = 0x0FFF;
 //const offsetFineOpt = 7;
-//const offsetCoarseOpt = 1900;
 const offsetCoarseOpt = 800;
 
-//const lockPointVOpt = -15148;
-const lockPointVOpt = -14900/4;
+//const lockPointVOpt = -3832;
+const lockPointVOpt = -3832;
 
 const aOpt = [0.2, 0.2, 0.2, 0.2];
 const muxInputGain = [-1, -1, -1, -1];

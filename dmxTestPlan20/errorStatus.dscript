@@ -30,7 +30,7 @@ include("../demux/dmxTools.dscript");
 include("../demux/dmxRegAddresses.dscript");
 include("../demux/dmxHk.dscript");
 include("../common/utilTools.dscript");
-include("../common/constants.dscript");
+include("../common/constants.dscript");
 
 
 // -------------------------------------------------------------------------------------------------------------
@@ -56,9 +56,17 @@ function checkParameterOOR() {
 
 //----------------------------------------------
 
-checkInvalidRegisterAddress();
-checkWriteToReadOnly();
-checkParameterOOR();
+//checkInvalidRegisterAddress();
+//checkWriteToReadOnly();
+//checkParameterOOR();
+
+sendToDMXReadRegister(0x460E);
+sendToDMXReadRegister(0x460D);
+
+// Print the DMX HK
+printDMX_HK(true);
 
 // -------------------------------------------------------------------------------------------------------------
 print("Done!");
+
+

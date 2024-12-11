@@ -25,11 +25,11 @@
 //
 // -------------------------------------------------------------------------------------------------------------
 
-const DMX_NB_HK = 14;
+const DMX_NB_HK = 15;
 const DMX_HK_NAMES = ['P5V0_ANA', 'P3V3_ANA', 'P2V5_ANA', 'P1V8_ANA', 'M2V5_ANA', 'M5V0_ANA', 'P3V3_DIG',
-    'P2V5_DIG', 'P1V2_DIG', 'TEMP_AVE', 'TEMP_MAX', 'P2V5_AUX', 'VREF_TEM', 'VREF_R2R'];
+    'P2V5_DIG', 'P1V2_DIG', 'TEMP_AVE', 'TEMP_MAX', 'P2V5_AUX', 'VREF_TEM', 'VREF_R2R', 'GND'];
 const DMX_HK_UNITS = [' V', ' V', ' V', ' V', ' V', ' V', ' V',
-    ' V', ' V', ' C', ' C', ' V', ' V', ' V'];
+    ' V', ' V', ' C', ' C', ' V', ' V', ' V', ' V'];
 const DMX_HK_Tmax = + 60;
 const DMX_HK_Tmin = -40;
 const DMX_HK_Vmax = 3.2;
@@ -38,8 +38,8 @@ const DMX_HK_FSRRatio = 3.3 / (Math.pow(2,12) - 1);
 const DMX_HK_TEMP_A = DMX_HK_FSRRatio * (DMX_HK_Tmax - DMX_HK_Tmin) / (DMX_HK_Vmax - DMX_HK_Vmin);
 const DMX_HK_TEMP_B = DMX_HK_Tmin - DMX_HK_Vmin / DMX_HK_TEMP_A;
 const DMX0_HK_CONV_A = [4.74/1955, 3.174/1971, 2.364/1878, 1.8/2015, -2.439/1912, -4.983/1954, 3.157/1951,
-    2.404/1832, 1.125/1900, DMX_HK_TEMP_A, DMX_HK_TEMP_A, 2.379/1893, 2.497/1979, 3.182/1972];
-const DMX0_HK_CONV_B = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, DMX_HK_TEMP_B, DMX_HK_TEMP_B, 0.0, 0.0, 0.0];
+    2.404/1832, 1.125/1900, DMX_HK_TEMP_A, DMX_HK_TEMP_A, 2.379/1893, 2.497/1979, 3.182/1972, -4.983/1954];
+const DMX0_HK_CONV_B = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, DMX_HK_TEMP_B, DMX_HK_TEMP_B, 0.0, 0.0, 0.0, 0.0];
 
 /**
  * Reads the housekeepings.
