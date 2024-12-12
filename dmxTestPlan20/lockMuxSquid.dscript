@@ -47,7 +47,7 @@ include("../common/constants.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
 
-const col = 3;
+const col = 2;
 sessionName = "lockingMuxLoop-col"+col;
 sendStartNewSession(sessionName, "");
 
@@ -60,7 +60,7 @@ const doingPulses = true;
 //	pulseHeight[i] = Math.round(STEADY_FSR * pulseHeightPc[i] / 100);
 //}
 
-const nbIterations = 100000; // number of pulses per pixels and per energy
+const nbIterations = 500000; // number of pulses per pixels and per energy
 
 //const knorm_reel = 1/16;
 const knorm = 0.077;
@@ -76,7 +76,7 @@ fpasimConfig(raDelayOpt, SteadyMode90Fsr);
 /*
  Starting and configuring the DEMUX
 */
-const boxcarL = 0;
+const boxcarL = 1;
 const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
 const pattern = "FULL";
 demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSetOpt, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
@@ -119,16 +119,19 @@ if (doingPulses) {
 	//sendToDMXSaveScienceRaw("pulses" , 1000 , 8);
 
 	// Computing pseudo random energies
+	const steady =  Math.round(STEADY_FSR * 90 / 100);
 	const a = 1103515245;
 	const b = 12345;
-	const m = 2**31;
-	const pcMax = 90;
-	var pulseHeightPc = 77;
+	const m = Math.pow(2,31);
+	const pcMax = 70; // --> Pas de delock
+	//const pcMax = 80; // --> Delocks
+	var pulseHeightPc = 1;  // initialisation
 	for (iteration = 0; iteration < nbIterations; iteration++) {
 		print(TAB2 + "Iteration " + iteration + " / " + nbIterations);
 		for (var iPix=0; iPix < DMX_NB_PIX_PER_COL; iPix++) {
-				pulseHeightPc = ((pulseHeightPc * a + b) % m ) % pcMax;
-				pulseHeight = Math.round(STEADY_FSR * pulseHeightPc / 100);
+				pulseHeightPc = ((pulseHeightPc * a + b) % m ) * pcMax / m;
+				//print(pulseHeightPc)
+				pulseHeight = Math.round(steady * pulseHeightPc / 100);
 				sendToFPAsim_makePulse(iPix, 0, pulseHeight);
 		}
 	}
