@@ -575,4 +575,6 @@ function dmxCheckDefaults() {
 
 }
 
+// for (col=0; col<DMX_NB_COL; col++) readDMX_sqa_OffsetLSBptr(col);
+
 dmxCheckDefaults();

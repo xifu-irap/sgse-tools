@@ -116,10 +116,11 @@ function testSequence(colId, offsetMode, offsetLSB, offsetFine) {
 
 // -------------------------------------------------------------------------------------------------------------
 
-const colId = 2;
+const colId = 3;
 
 const AMP_SQ_OFFSET_LSB = Math.pow(2, 12)-1;  // between 0 and 2^12-1
 //const AMP_SQ_OFFSET_LSB = 0x555; 
+
 /*const AMP_SQ_OFFSET_FINE = [  // 34 3-bit values
     0, 1, 2, 3, 4, 5, 6, 7,
     0, 1, 2, 3, 4, 5, 6, 7,
@@ -136,6 +137,7 @@ const AMP_SQ_OFFSET_FINE = [  // 34 3-bit values
    7, 7, 7, 7,  7, 7,  7, 7,
    0, 0
 ];
+
 
 
 // You should uncomment a single of the following lines

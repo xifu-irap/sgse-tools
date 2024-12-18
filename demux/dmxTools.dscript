@@ -325,7 +325,7 @@ function readDMX_a(col_p) {
  * Sets the value of the demux input gain (MUX_SQ_INPUT_GAIN) S(16,12)
  * It is used in all configuration except in AMP SQUID closed loop.
  * @param {number} col_p - column number [0, 3]
- * @param {number} input_gain_p - value of the input gain; float --> S(4,0).
+ * @param {number} input_gain_p - value of the input gain; float --> S(16, 12).
  */
 function setDMX_sqm_inputGain(col_p, input_gain_p) {
     if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
@@ -402,7 +402,8 @@ function readDMX_sqa_inputGain(col_p) {
     const reg_address = ADD_DMX_AMP_SQ_INPUT_GAIN | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");
-    return DMX_registers[reg_address] / Math.pow(2,12);
+	value = convert_2compInt_to_sInt(DMX_registers[reg_address], 16);
+    return value / Math.pow(2,12);
 }
 
 /**
@@ -810,7 +811,7 @@ function setDMX_sqa_OffsetLSBptr(col_p, offsetLSBptr_p) {
         return;
     }
     if ((offsetLSBptr_p < valMin ) || (offsetLSBptr_p > valMax)) {
-        print("ERROR, the weight of the LSB is incorrect! > " + offsetLSBptr_p);
+        print("ERROR, the weight of the LSB is incorrect! --> " + offsetLSBptr_p);
         return;
     }
     const reg_address = ADD_DMX_AMP_SQ_OFFSET_LSB_PTR | (col_p << ADD_DMX_COL_BIT_SHIFT);
@@ -1329,4 +1330,5 @@ function readDMX_delockCounters(col_p, verbose_p) {
     return DELOCK_COUNTERS;
 }
 
-// -------------------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------------------
+

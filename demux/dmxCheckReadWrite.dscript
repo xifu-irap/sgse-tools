@@ -128,6 +128,7 @@ function dmxCheckReadWrite() {
     if (arraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
     print(TAB1 + MESSAGE);
     if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
+    setDMX_feedbackOnOff([OFF, OFF, OFF, OFF]); // Switching columns OFF
 
 
     /******************************************************************************************************************/
@@ -222,9 +223,9 @@ function dmxCheckReadWrite() {
         print(TAB2 + "Initial values are: " + readDMX_a(col));
 
         values = [DMX_NB_PIX_PER_COL];
-        for (pix = 0; pix < DMX_NB_PIX_PER_COL; pix++) {
+        for (pix = 0; pix < DMX_NB_PIX_PER_COL; pix++) {
 			values[pix] = Math.round((pix / DMX_NB_PIX_PER_COL) * Math.pow(2,16))/ Math.pow(2,16);
-		}
+		}
         print(TAB2 + "Setting new values:" + values);
         setDMX_a(col, values);
 
@@ -248,9 +249,9 @@ function dmxCheckReadWrite() {
         print(TAB2 + "Initial values are: " + readDMX_sqm_kiknorm(col));
 
         values = [DMX_NB_PIX_PER_COL];
-        for (pix = 0; pix < DMX_NB_PIX_PER_COL; pix++) {
+        for (pix = 0; pix < DMX_NB_PIX_PER_COL; pix++) {
 			values[pix] = Math.round((pix*2+1) / (2*DMX_NB_PIX_PER_COL) * Math.pow(2,16)) / Math.pow(2,16);
-		}
+		}
         print(TAB2 + "Setting new values:" + values);
         setDMX_sqm_kiknorm(col, values);
 
@@ -274,8 +275,8 @@ function dmxCheckReadWrite() {
         print(TAB2 + "Initial values are: " + readDMX_sqm_knorm(col));
 
         values = [DMX_NB_PIX_PER_COL];
-        for (pix = 0; pix < DMX_NB_PIX_PER_COL; pix++) {
-			values[pix] = Math.round(pix / (7*DMX_NB_PIX_PER_COL) * Math.pow(2,18)) / Math.pow(2,18);
+        for (pix = 0; pix < DMX_NB_PIX_PER_COL; pix++) {
+			values[pix] = Math.round(pix / (7*DMX_NB_PIX_PER_COL) * Math.pow(2,18)) / Math.pow(2,18);
 		}
         print(TAB2 + "Setting new values:" + values);
         setDMX_sqm_knorm(col, values);
@@ -366,7 +367,7 @@ function dmxCheckReadWrite() {
     plotLongLine();
     print("Testing the setting of the weight of the LSB of the AMP SQUID offset (AMP_SQ_OFFSET_LSB):");
 
-    values = [0x0ABA, 0x0000, 0x0F2F, 0x0666];
+    values = [0x0ABA, 0x000B, 0x0F2F, 0x0666];
     checked_values = [DMX_NB_COL];
 
     for (var col=0; col<DMX_NB_COL; col++) {
@@ -391,7 +392,7 @@ function dmxCheckReadWrite() {
     plotLongLine();
     print("Testing the setting of the common coarse offset for the AMP SQUID (AMP_SQ_OFFSET_COARSE):");
 
-    values = [0x0ABA, 0x0000, 0x0F2F, 0x0666];
+    values = [0x0ABA, 0x000B, 0x0F2F, 0x0666];
     checked_values = [DMX_NB_COL];
 
     for (var col=0; col<DMX_NB_COL; col++) {
@@ -661,7 +662,7 @@ function dmxCheckReadWrite() {
         for (var col=0; col<DMX_NB_COL; col++) checked_values[col] = readDMX_sqa_OffsetLSBptr(col);
         print(TAB1 + "Initial values are: " + checked_values);
 
-		values = [0x0ABA, 0x0000, 0x0F2F, 0x0666];
+		values = [0x0ABA, 0x000B, 0x0F2F, 0x0666];
         print(TAB1 + "Setting new values: " + values);
         for (var col=0; col<DMX_NB_COL; col++) setDMX_sqa_OffsetLSBptr(col, values[col]);
 
@@ -682,7 +683,7 @@ function dmxCheckReadWrite() {
         for (var col=0; col<DMX_NB_COL; col++) checked_values[col] = readDMX_sqm_inputGain(col);
         print(TAB1 + "Initial values are: " + checked_values);
 
-        values = [0x0007, 0x0004, 0x000F, 0x0000];
+        values = [7, 4, -8, 0];
         print(TAB1 + "Setting new values: " + values);
         for (var col=0; col<DMX_NB_COL; col++) setDMX_sqm_inputGain(col, values[col]);
 
@@ -704,7 +705,7 @@ function dmxCheckReadWrite() {
         for (var col=0; col<DMX_NB_COL; col++) checked_values[col] = readDMX_sqa_inputGain(col);
         print(TAB1 + "Initial values are: " + checked_values);
 
-        values = [0x0007, 0x0004, 0x000F, 0x0000];
+        values = [7, 4, -8, 0];
         print(TAB1 + "Setting new values: " + values);
         for (var col=0; col<DMX_NB_COL; col++) setDMX_sqa_inputGain(col, values[col]);
 
@@ -726,16 +727,21 @@ function dmxCheckReadWrite() {
         for (var col=0; col<DMX_NB_COL; col++) checked_values[col] = readDMX_sqa_kiknorm(col);
         print(TAB1 + "Initial values are: " + checked_values);
 
-        values = [0xBABA, 0x0000, 0x2F2F, 0x6666];
+        values = [0.01212, 0.2626, 0.55, 0.99];
         print(TAB1 + "Setting new values: " + values);
         for (var col=0; col<DMX_NB_COL; col++) setDMX_sqa_kiknorm(col, values[col]);
 
         checked_values = [4];
-        for (var col=0; col<DMX_NB_COL; col++) checked_values[col] = readDMX_sqa_kiknorm(col);
+		expected_values = [4];
+        for (var col=0; col<DMX_NB_COL; col++) {
+			checked_values[col] = readDMX_sqa_kiknorm(col);
+			expected_values[col] = Math.round(values[col] * Math.pow(2,16)) / Math.pow(2, 16);
+		}
+
         print(TAB1 + "Reading the new values: " + checked_values);
 
         MESSAGE = MESSAGE_ERROR;
-        if (arraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
+        if (arraysAreEquals(expected_values, checked_values)) MESSAGE = MESSAGE_OK;
         print(TAB1 + MESSAGE);
         if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
 
@@ -748,16 +754,20 @@ function dmxCheckReadWrite() {
         for (var col=0; col<DMX_NB_COL; col++) checked_values[col] = readDMX_sqa_knorm(col);
         print(TAB1 + "Initial values are: " + checked_values);
 
-        values = [0xBABA, 0x0000, 0x2F2F, 0x6666];
+        values = [0.01212, 0.245, 0.12, 0.0001];
         print(TAB1 + "Setting new values: " + values);
         for (var col=0; col<DMX_NB_COL; col++) setDMX_sqa_knorm(col, values[col]);
 
         checked_values = [4];
-        for (var col=0; col<DMX_NB_COL; col++) checked_values[col] = readDMX_sqa_knorm(col);
+		expected_values = [4];
+        for (var col=0; col<DMX_NB_COL; col++) {
+			checked_values[col] = readDMX_sqa_knorm(col);
+			expected_values[col] = Math.round(values[col] * Math.pow(2,18)) / Math.pow(2, 18);
+		}
         print(TAB1 + "Reading the new values: " + checked_values);
 
         MESSAGE = MESSAGE_ERROR;
-        if (arraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
+        if (arraysAreEquals(expected_values, checked_values)) MESSAGE = MESSAGE_OK;
         print(TAB1 + MESSAGE);
         if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
 
@@ -774,5 +784,10 @@ function dmxCheckReadWrite() {
     plotLongLine();
 
 }
+
+
+//values = [0x0ABA, 0x000B, 0x0F2F, 0x0666];
+//for (var col=0; col<DMX_NB_COL; col++) setDMX_sqa_OffsetLSBptr(col, values[col]);
+//for (col=0; col<DMX_NB_COL; col++) readDMX_sqa_OffsetLSBptr(col);
 
 dmxCheckReadWrite();

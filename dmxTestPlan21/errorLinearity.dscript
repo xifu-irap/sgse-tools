@@ -17,17 +17,23 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     fdbkDelayAnalysis.dscript
+//    @file                     errorLinearity.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
-//    This file is used to characterise the timing parameters in the FPAsim + DMX0 configuration.
+//    This script is used to characterize the linearity of the error signal using the feedback signal as a reference input.
 //
 // -------------------------------------------------------------------------------------------------------------
 
+// imports
+include("../demux/dmxTools.dscript");
+include("../demux/dmxRegAddresses.dscript");
+include("../demux/dmxHk.dscript");
+include("../demux/dmxStart.dscript");
 
 include("../fpasim/fpasim/fpasim.dscript");
 include("../fpasim/fpasim_startup.dscript");
+include("../fpasim/fpasim_config.dscript");
 
 include("../fpasim/fpasim/fpasim_tools.dscript");
 include("../fpasim/fpasim/utils_tools.dscript");
@@ -39,24 +45,59 @@ include("../fpasim/fpasim/amc7823.dscript");
 include("../common/utilTools.dscript");
 include("../common/constants.dscript");
 
-// relative path from the main script (the calling script path)
-const ram_base_path = "../fpasim/fpasim_default_ram/"
-
-
 // -------------------------------------------------------------------------------------------------------------
+
+const col = 2;
+sessionName = "errorLinearity-col"+col;
+sendStartNewSession(sessionName, "");
 
 /*
-  Starting and initializing the FPAsim
-  If the FPAsim function is already enabled nothing is done unless the "force_p" parameter is set to true.
+ Starting and configuring the DEMUX
 */
-fpasimStartup();
+const boxcarL = 1;
+const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
+const pattern = "FULL";
+demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSetOpt, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
 
-// -------------------------------------------------------------------------------------------------------------
+// Defining the test pattern for the scan of the ADC values
+print(TAB1 + "Setting the test pattern");
+const a1 = -1*Math.pow(2, 15);
+const b1 = 0;
+const c1 = 8;
+const N1 = 8191;
+const aa1 = Math.pow(2, 15)-1;
+const fullPattern = [
+	[a1, b1, c1, N1],  // Slope upward 
+	[aa1, b1, -c1, N1],  // Slope downward 
+	[0, 0, 0, 0],  // Nothing
+	[0, 0, 0, 0],  // Nothing
+	[0, 0, 0, 0]  // Nothing
+];
 
-print("End of FPAsim startup");
+pixels = [0, 1, 2, 3, 4, 5 ,6 ,7 ,8 ,9, 10, 11, 12, 13, 14, 15 ,16 ,17 ,18 ,19, 20, 21, 22, 23, 24, 25 ,26 ,27 ,28 ,29, 30, 31, 32, 33];  
+print(TAB1+"Setting the DMX feedback mode to TEST PATTERN for pixels " + pixels);
+fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
+for (var iPix=0; iPix<pixels.length; iPix++) fbMode[pixels[iPix]] = FEEDBACK_MODE_TESTPATTERN;
+for (var colId=0; colId<DMX_NB_COL; colId++) setDMX_sqm_FBMode(colId, fbMode);
 
+print(TAB1 + "Starting data acquisition in ERROR mode...");
+sendToDMXGoToErrorSignalMode();
 
+print(TAB1 + "Activating the test pattern...");
+var enable = true;
+var infinitely = true;
+var nbTime = 0x9;
+setDMX_testPatternEnable(enable, infinitely, nbTime);
 
+waitMs(6000000, true, true, "Scan du Feedback en cours...");
+
+sendStopSession();
+onAbortScript();
+
+function onAbortScript() {
+	sendToDMXGoToIdleMode();
+	print("End of script!");
+}
 
 
 
