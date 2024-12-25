@@ -51,10 +51,14 @@ const ACQ_MODE_TSTPATTERN = 7; // test pattern
 const DMX_MODEL_VERSION = ['DM', 'EM', 'PFM', 'FM', 'Unknown', 'Unknown', 'Unknown', 'Dev kit'];
 
 // DMX constants
-OFFSET_COARSE_ADU_MIN = 10;
-OFFSET_COARSE_ADU_MAX = Math.pow(2,12)-1;
-OFFSET_LSB_ADU_MIN = 10;
-OFFSET_LSB_ADU_MAX = Math.pow(2,12)-1;
+const OFFSET_COARSE_ADU_MIN = 10;
+const OFFSET_COARSE_ADU_MAX = Math.pow(2,12)-1;
+const OFFSET_LSB_ADU_MIN = 10;
+const OFFSET_LSB_ADU_MAX = Math.pow(2,12)-1;
+const DMX_NB_BITS_ADC_ERROR = 14;
+const DMX_NB_BITS_DAC_FDBK = 14;
+const DMX_NB_BITS_DAC_OFCO = 12;
+const DMX_NB_BITS_TPT = 16;
 
 /**
  * Sets the data acquisition mode (DATA_ACQ_MODE).
@@ -402,7 +406,8 @@ function readDMX_sqa_inputGain(col_p) {
     const reg_address = ADD_DMX_AMP_SQ_INPUT_GAIN | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");
-	value = convert_2compInt_to_sInt(DMX_registers[reg_address], 16);
+	value = convert_2compInt_to_sInt(DMX_registers[reg_address], 16);
+
     return value / Math.pow(2,12);
 }
 
@@ -1330,5 +1335,7 @@ function readDMX_delockCounters(col_p, verbose_p) {
     return DELOCK_COUNTERS;
 }
 
-// -------------------------------------------------------------------------------------------------------------
-
+// -------------------------------------------------------------------------------------------------------------
+
+
+

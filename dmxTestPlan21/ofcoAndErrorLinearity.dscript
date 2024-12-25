@@ -17,11 +17,14 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     errorLinearity.dscript
+//    @file                     fdbkAndErrorLinearity.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
-//    This script is used to characterize the linearity of the error signal using the feedback signal as a reference input.
+//    This script is used to characterize the linearity of the feedback + error signals linearity.
+//    This is a global characterization. The linearity of the error and feedback signals are not characterized
+//    Individualy.
+//    The scan is done in several ietrations to reduce the number of measurements per scan
 //
 // -------------------------------------------------------------------------------------------------------------
 
@@ -47,49 +50,76 @@ include("../common/constants.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
 
-const col = 2;
-sessionName = "errorLinearity-col"+col;
+plotSmallLine();
+print("/ Ofco and Error linearity measurement");
+plotSmallLine();
+print("");
+
+sessionName = "ofcoAndErrorLinearity";
 sendStartNewSession(sessionName, "");
 
 /*
  Starting and configuring the DEMUX
 */
+print(TAB1 + "Starting the DEMUX with the default parameters");
 const boxcarL = 1;
 const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
 const pattern = "FULL";
 demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSetOpt, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
 
-// Defining the test pattern for the scan of the ADC values
-print(TAB1 + "Setting the test pattern");
-const a1 = -1*Math.pow(2, 15);
-const b1 = 0;
-const c1 = 8;
-const N1 = 8191;
-const aa1 = Math.pow(2, 15)-1;
-const fullPattern = [
-	[a1, b1, c1, N1],  // Slope upward 
-	[aa1, b1, -c1, N1],  // Slope downward 
-	[0, 0, 0, 0],  // Nothing
-	[0, 0, 0, 0],  // Nothing
-	[0, 0, 0, 0]  // Nothing
-];
+print(TAB1 + "Configuring the offset compensation");
 
-pixels = [0, 1, 2, 3, 4, 5 ,6 ,7 ,8 ,9, 10, 11, 12, 13, 14, 15 ,16 ,17 ,18 ,19, 20, 21, 22, 23, 24, 25 ,26 ,27 ,28 ,29, 30, 31, 32, 33];  
-print(TAB1+"Setting the DMX feedback mode to TEST PATTERN for pixels " + pixels);
-fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
-for (var iPix=0; iPix<pixels.length; iPix++) fbMode[pixels[iPix]] = FEEDBACK_MODE_TESTPATTERN;
-for (var colId=0; colId<DMX_NB_COL; colId++) setDMX_sqm_FBMode(colId, fbMode);
+print(TAB2 + "Nulling the offset Fine");
+const offsetLSB = 0;
+const offsetFineArray = makeArray(DMX_NB_PIX_PER_COL, 0);
+for (var colId=0; colId<DMX_NB_COL; colId++) {
+	setDMX_sqa_OffsetLSB(colId, offsetLSB);
+	setDMX_sqa_OffsetLSBptr(colId, offsetLSB);
+	setDMX_sqa_OffsetFine(colId, offsetFineArray, offsetFineArray);
+}
 
-print(TAB1 + "Starting data acquisition in ERROR mode...");
+print(TAB2 + "Setting the DMX offset mode to TEST PATTERN for all columns");
+setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_TESTPATTERN));
+
+print(TAB1 + "Setting data acquisition mode to ERROR mode...");
 sendToDMXGoToErrorSignalMode();
 
-print(TAB1 + "Activating the test pattern...");
-var enable = true;
-var infinitely = true;
-var nbTime = 0x9;
-setDMX_testPatternEnable(enable, infinitely, nbTime);
+// Defining the test pattern for the scan of the ofco DAC coarse values
+const nbStepsMaxBits = 10;
+const nbStepsMax = Math.pow(2, nbStepsMaxBits);
+const nbIterations = Math.pow(2, DMX_NB_BITS_DAC_OFCO-1) / nbStepsMax;
+print(TAB1 + nbIterations + " scans will be measured:");
 
-waitMs(6000000, true, true, "Scan du Feedback en cours...");
+for (var iter=0; iter<nbIterations; iter++) {
+
+	print(TAB3 + "Setting test pattern number " + iter);
+	const a = -1 * Math.pow(2, DMX_NB_BITS_TPT - 1) + iter;
+	const b = 0;
+	const c = Math.pow(2, DMX_NB_BITS_TPT) / (nbStepsMax / 2);
+	const N = nbStepsMax / 2;
+	const aa = Math.pow(2, DMX_NB_BITS_TPT - 1) - 1 - iter;
+	const fullPattern = [
+		[a, b, c, N],  // Slope upward
+		[aa, b, -c, N],  // Slope downward
+		[0, 0, 0, 0],  // Nothing
+		[0, 0, 0, 0],  // Nothing
+		[0, 0, 0, 0]  // Nothing
+	];
+
+	print(TAB3 + "Activating the test pattern...");
+	var enable = true;
+	var infinitely = true;
+	var nbTime = 0x9;
+	setDMX_testPatternEnable(enable, infinitely, nbTime);
+
+	waitMs(1000);
+	getText("Scan of the offco and error signals is ongoing. Do a scan acquisition:", "OK");
+
+	print(TAB1 + "Stopping the test pattern...");
+	var enable = false;
+	setDMX_testPatternEnable(enable, infinitely, nbTime);
+
+}
 
 sendStopSession();
 onAbortScript();
