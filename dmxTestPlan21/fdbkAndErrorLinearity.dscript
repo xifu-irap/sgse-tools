@@ -68,46 +68,51 @@ const pattern = "FULL";
 demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSetOpt, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
 
 print(TAB1 + "Setting the DMX feedback mode to TEST PATTERN for all columns and all pixels");
-fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_TESTPATTERN);
-for (var colId=0; colId<DMX_NB_COL; colId++) setDMX_sqm_FBMode(colId, fbMode);
+fbMode_TPT = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_TESTPATTERN);
+for (var colId=0; colId<DMX_NB_COL; colId++) setDMX_sqm_FBMode(colId, fbMode_TPT);
 
 print(TAB1 + "Setting data acquisition mode to ERROR mode...");
 sendToDMXGoToErrorSignalMode();
 
 // Defining the test pattern for the scan of the feedback DAC values
-const nbStepsMaxBits = 10;
-const nbStepsMax = Math.pow(2, nbStepsMaxBits);
-const nbIterations = Math.pow(2, DMX_NB_BITS_DAC_FDBK-1) / nbStepsMax;
-print(TAB1 + nbIterations + " scans will be measured:");
+const infinitely = true;
+const nbTime = 0x9;
+const increment = Math.pow(2, DMX_NB_BITS_TPT) / Math.pow(2, DMX_NB_BITS_DAC_FDBK);
+const nbStepsPerScanBits = 11;
+const nbStepsPerScan = Math.pow(2, nbStepsPerScanBits);
+const nbStepsTotal = Math.pow(2, DMX_NB_BITS_DAC_FDBK);
+const nbScans = nbStepsTotal / nbStepsPerScan;
+print(TAB1 + nbScans + " scans will be measured:");
 
-for (var iter=0; iter<nbIterations; iter++) {
+for (var scan=0; scan<nbScans; scan++) {
 
-	print(TAB3 + "Setting test pattern number " + iter);
-	const a = -1 * Math.pow(2, DMX_NB_BITS_TPT - 1) + iter;
+	print(TAB3 + "Setting test pattern number " + scan);
+	const a = -1 * Math.pow(2, DMX_NB_BITS_TPT - 1) + scan*increment;
 	const b = 0;
-	const c = Math.pow(2, DMX_NB_BITS_TPT) / (nbStepsMax / 2);
-	const N = nbStepsMax / 2;
-	const aa = Math.pow(2, DMX_NB_BITS_TPT - 1) - 1 - iter;
-	const fullPattern = [
+	const c = Math.pow(2, DMX_NB_BITS_TPT) / nbStepsPerScan;
+	const N = nbStepsPerScan;
+	const rampPattern = [
 		[a, b, c, N],  // Slope upward
-		[aa, b, -c, N],  // Slope downward
+		[0, 0, 0, 0],  // Nothing
 		[0, 0, 0, 0],  // Nothing
 		[0, 0, 0, 0],  // Nothing
 		[0, 0, 0, 0]  // Nothing
 	];
+	setDMX_testPattern(rampPattern);
 
 	print(TAB3 + "Activating the test pattern...");
-	var enable = true;
-	var infinitely = true;
-	var nbTime = 0x9;
-	setDMX_testPatternEnable(enable, infinitely, nbTime);
+	setDMX_testPatternEnable(true, infinitely, nbTime);
 
 	waitMs(1000);
-	getText("Scan of the feedback and error signals is ongoing. Do a scan acquisition:", "OK");
+
+	print(TAB1 + "Saving the scans for the 4 columns...");
+	for (var colId=0; colId<DMX_NB_COL; colId++) {
+		saveDmxScan(colId, "col_"+colId);  // To be updated with the appropriate syntax
+	}
 
 	print(TAB1 + "Stopping the test pattern...");
-	var enable = false;
-	setDMX_testPatternEnable(enable, infinitely, nbTime);
+	setDMX_testPatternEnable(false, infinitely, nbTime);
+	print("");
 
 }
 
