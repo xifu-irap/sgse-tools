@@ -66,7 +66,8 @@ const boxcarL = 1;
 const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
 const pattern = "FULL";
 demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSetOpt, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
-
+
+
 print(TAB1 + "Configuring the offset compensation");
 
 print(TAB2 + "Nulling the offset Fine");
@@ -100,11 +101,12 @@ for (var scan=0; scan<nbScans; scan++) {
 	const a = -1 * Math.pow(2, DMX_NB_BITS_TPT - 1) + scan*increment;
 	const b = 3;
 	const c = Math.pow(2, DMX_NB_BITS_TPT) / nbStepsPerScan;
-	const N = Math.round(nbStepsPerScan * 0.91);
+	const N = Math.round(nbStepsPerScan * 0.91);
+
 	const a2 = a + N*c;
 	const rampPattern = [
-		[a, b, c, N],  // Slope upward
-		[a2, b, -c, N],  // Slope downward
+		[a, b, c, N],  // Slope upward
+		[a2, b, -c, N],  // Slope downward
 		[0, 0, 0, 0],  // Nothing
 		[0, 0, 0, 0],  // Nothing
 		[0, 0, 0, 0]  // Nothing
@@ -116,10 +118,11 @@ for (var scan=0; scan<nbScans; scan++) {
 
 	waitMs(1000);
 
-	if (scan === 0) getText("OK to save the scan files for all the columns?", "OK");	
-	for (var colId=0; colId<DMX_NB_COL; colId++) {
-		sendSaveDMXScan(colId, "scan_"+maDate()+"_col"+colId+".fits");
-	}
+	if (scan === 0) getText("OK to save the scan files for all the columns?", "OK");	
+
+	for (var colId=0; colId<DMX_NB_COL; colId++) {
+		sendSaveDMXScan(colId, "scan_"+maDate()+"_col"+colId+".fits");
+	}
 
 	print(TAB1 + "Stopping the test pattern...");
 	setDMX_testPatternEnable(false, infinitely, nbTime);
