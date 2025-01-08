@@ -65,7 +65,8 @@ print(TAB1 + "Starting the DEMUX with the default parameters");
 const boxcarL = 1;
 const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
 const pattern = "FULL";
-demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSetOpt, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
+const fdbkDelayBob = -3;
+demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayBob, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSetOpt, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
 
 print(TAB1 + "Setting the DMX feedback mode to TEST PATTERN for all columns and all pixels");
 fbMode_TPT = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_TESTPATTERN);
@@ -86,7 +87,7 @@ print(TAB1 + nbScans + " scans will be measured:");
 
 for (var scan=0; scan<nbScans; scan++) {
 
-	print(TAB3 + "Setting test pattern number " + scan);
+	print(TAB3 + "Setting test pattern number " + scan + " / " + nbScans);
 	const a = -1 * Math.pow(2, DMX_NB_BITS_TPT - 1) + scan*increment;
 	const b = 0;
 	const c = Math.pow(2, DMX_NB_BITS_TPT) / nbStepsPerScan;
@@ -105,9 +106,9 @@ for (var scan=0; scan<nbScans; scan++) {
 
 	waitMs(1000);
 
-	print(TAB1 + "Saving the scans for the 4 columns...");
+	if (scan === 0) getText("OK to save the scan files for all the columns?", "OK");	
 	for (var colId=0; colId<DMX_NB_COL; colId++) {
-		saveDmxScan(colId, "col_"+colId);  // To be updated with the appropriate syntax
+		sendSaveDMXScan(colId, "scan_"+maDate()+"_col"+colId+".fits");
 	}
 
 	print(TAB1 + "Stopping the test pattern...");

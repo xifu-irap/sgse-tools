@@ -1,0 +1,78 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     errorEnobAnalysis.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file is used to characterise the ENOB of the error signals.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+include("../demux/dmxTools.dscript");
+include("../demux/dmxRegAddresses.dscript");
+include("../demux/dmxHk.dscript");
+include("../demux/dmxStart.dscript");
+
+include("../fpasim/fpasim/fpasim.dscript");
+include("../fpasim/fpasim_startup.dscript");
+include("../fpasim/fpasim_config.dscript");
+
+include("../fpasim/fpasim/fpasim_tools.dscript");
+include("../fpasim/fpasim/utils_tools.dscript");
+include("../fpasim/fpasim/cdce72010.dscript");
+include("../fpasim/fpasim/ads62p49.dscript");
+include("../fpasim/fpasim/dac3283.dscript");
+include("../fpasim/fpasim/amc7823.dscript");
+
+include("../common/utilTools.dscript");
+include("../common/constants.dscript");
+
+
+// -------------------------------------------------------------------------------------------------------------
+
+const col = 3;
+
+/*
+ Starting and configuring the DEMUX
+*/
+const boxcarL = 1;
+const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
+const pattern = "FULL";
+pulseShapingSet = 0;
+demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSet, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
+
+sessionName = "errorEnob-col"+col;
+sendStartNewSession(sessionName, "");
+
+getText("OK to measuring one data file in error mode...", "yes");
+sendToDMXGoToErrorSignalMode();
+duration = 10000;
+delta_duration=1000;
+
+filename="EnobError_col" + col;
+sendToDMXSaveScienceRaw(filename, duration, 1<<col);
+waitMs(duration+delta_duration);
+
+sendToDMXGoToIdleMode();
+
+// -------------------------------------------------------------------------------------------------------------
+sendStopSession();
+print("End of script!");
