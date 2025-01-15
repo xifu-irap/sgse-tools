@@ -60,13 +60,23 @@ sendToDMXWriteRegister(0x4113, 0x0800); // 2048 marches
 // Activation des 4 colonnes
 sendToDMXWriteRegister(0x4001, 0x1111);
 
+// Configuration du feedback mode col0 pixel 3 en TST PATTERN
+sendToDMXWriteRegister(0x0303, 0x0002);
+// Configuration du feedback mode col1 pixel 6 en TST PATTERN
+sendToDMXWriteRegister(0x1306, 0x0002);
+// Configuration du feedback mode col2 pixel 7 en TST PATTERN
+sendToDMXWriteRegister(0x2307, 0x0002);
+// Configuration du feedback mode col3 pixel 10 en TST PATTERN
+sendToDMXWriteRegister(0x330A, 0x0002);
+
 // Passage du data acquisition mode en ERROR SIGNAL
 sendToDMXWriteRegister(0x4000, 0x0002);
 
-// Activation du test pattern en infini
-sendToDMXWriteRegister(0x4150, 0x0030);
+// Activation du test pattern (decommenter la ligne souhaitee)
+sendToDMXWriteRegister(0x4150, 0x0030); // a l'infini
+//sendToDMXWriteRegister(0x4150, 0x002F); // 15 fois
 
-// Attente
+// Attente pour acquisition
 waitMs(5000);
 
 // Passage du data acquisition mode en IDLE
