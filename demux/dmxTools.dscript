@@ -120,7 +120,7 @@ function readDMX_feedbackOnOff() {
 
 /**
  * Sets the AMP SQUID offset mode (AMP_SQ_OFFSET_MODE).
- * @param {array} offsetMode_p - four values (one value column) in [0; 3].
+ * @param {array} offsetMode_p - four values (one per column) in [0; 3].
  */
 function setDMX_offsetMode(offsetMode_p) {
     var value = 0;
@@ -707,8 +707,8 @@ function readDMX_lockpointV(col_p) {
 
 /**
  * Sets the MUX SQUID feedback mode (MUX_SQ_FB_MODE).
- * @param {number} col_p - column number [0: Open loop, 1: closed loop, 2 pattern]
- * @param {array} fbMode_p - one value of feedback mode per pixel.
+ * @param {number} col_p - column number [0, 3]
+ * @param {array} fbMode_p - one value of feedback mode per pixel [0: Open loop, 1: closed loop, 2 pattern]
  */
 function setDMX_sqm_FBMode(col_p, fbMode_p) {
     if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
@@ -1035,7 +1035,7 @@ function readDMX_offsetMUX_delay(col_p) {
 /**
  * Sets the sampling delay (SAMPLING_DELAY).
  * @param {number} col_p - column number [0, 3]
- * @param {number} sampling_delay_p - sampling delay (number of periods of 125MHz clock): U(5, 0)
+ * @param {number} sampling_delay_p - sampling delay (number of periods of 125MHz clock): U(5, 0) in [0; 19]
  */
 function setDMX_sampling_delay(col_p, sampling_delay_p) {
     const valMin = 0;

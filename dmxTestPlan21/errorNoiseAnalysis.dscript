@@ -47,14 +47,15 @@ include("../common/constants.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
 
-col=3;
+const signal = "erro-only";
+const signal = "erro-fdbk";
 const nbDumpFiles = 128;
-const errorFileDurationInS = 40;
+const errorFileDurationInS = 10;
+const errorFilenames="error_noise";
 
-sessionName = "errorNoiseAnlysis_col"+col;
-sendStartNewSession(sessionName, "");
+const sessionName = "noise_"+signal;
+startSession(sessionName);
 
-// Switching ON the feedback for the selected column
 print(TAB1+"Configuring the DEMUX");
 const pulseShapingSet  =  3;
 const boxcarL = 1;
@@ -62,21 +63,24 @@ const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
 const pattern = "FULL";
 demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSet, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
 
-
-// Doing several dump files (will be averaged during data processing)
+// Measuring several dump files (will be averaged during data processing)
 print(TAB1+"Measuring " + nbDumpFiles + " dump files...");
-for (var i = 0; i<nbDumpFiles; i++) {
-	sendToDMXGoToDumpMode();
-}
+for (var i = 0; i<nbDumpFiles; i++) sendToDMXGoToDumpMode();
 
 // Measuring error data
 sendToDMXGoToErrorSignalMode();
-
-filename="errorNoise";
-sendToDMXSaveScienceRaw(filename, errorFileDurationInS*1000, 1<<col);
+sendToDMXSaveScienceRaw(errorFilenames, errorFileDurationInS*1000, OxF);
 waitMs(errorFileDurationInS*1000);
 
 onAbortScript();
+
+function startSession(sessionName) {
+    // Init CDIF IRAP
+    sendToTMTC_SetWireIn(0, 1);
+    sendToTMTC_SetWireIn(0, 0);
+    sendToTMTC_SetWireIn(0, 2);
+    sendStartNewSession(sessionName, "");
+}
 
 function onAbortScript() {
 	sendStopSession();

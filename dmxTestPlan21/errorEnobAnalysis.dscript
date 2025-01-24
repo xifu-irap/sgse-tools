@@ -55,14 +55,16 @@ const col = 3;
 */
 const boxcarL = 1;
 const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
-const pattern = "FULL";
+const pattern = "FULL";
+
 pulseShapingSet = 0;
 demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSet, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
 
 sessionName = "errorEnob-col"+col;
 sendStartNewSession(sessionName, "");
 
-getText("OK to measuring one data file in error mode...", "yes");
+getText("OK to measure one data file in error mode...", "yes");
+
 sendToDMXGoToErrorSignalMode();
 duration = 10000;
 delta_duration=1000;

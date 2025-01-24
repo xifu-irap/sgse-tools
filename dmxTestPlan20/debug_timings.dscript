@@ -1,0 +1,112 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     debug_timings.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file is used to investigate issues with the setting of the timings with the DevKit.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+include("../demux/dmxTools.dscript");
+include("../demux/dmxRegAddresses.dscript");
+include("../demux/dmxHk.dscript");
+include("../demux/dmxStart.dscript");
+
+include("../common/utilTools.dscript");
+include("../common/constants.dscript");
+
+
+/**
+ * Does an acquisition in DUMP mode in order to characterise the proper FB_DELAY.
+ *  Sets all the DMX fb0 to the same value except for pixel 0 and pixel 33 (in open loop mode)
+ *  Sets the FB_DELAY to the value provided by the parameter fb_delay_p
+ *  Does a DMX dump
+ * @param {number} fb_delay_p - feedback delay [-512, 40].
+ * @param {number} fb0_p - Feedback at MUX SQUID operating point s(16,2).
+ */
+function charac_FB_DELAY(fb_delay_p, fb0_p) {
+
+    print("");
+    print("***");
+    print("* charac_FB_DELAY function");
+    print("***");
+
+    // set the register: MUX_SQ_FB_DELAY
+    print(TAB1 + "Setting the register MUX_SQ_FB_DELAY to " + fb_delay_p);
+	for (var colId=0; colId<DMX_NB_COL; colId++) {
+		setDMX_feedback_delay(colId, fb_delay_p);
+	}
+
+    // Switching ON the feedbacks
+    setDMX_feedbackOnOff([ON, ON, ON, ON]);
+
+    // DEMUX feedback
+	print(TAB1+"Setting the DMX FB0 to a constant value except for pixel 0...");
+    var fb = makeArray(DMX_NB_PIX_PER_COL, fb0_p);
+    fb[0] += 200;
+    fb[33] += 100;
+    print(TAB2 + fb);
+	for (colId=0; colId<DMX_NB_COL; colId++) {
+		setDMX_fb0(colId, fb);
+	}
+	print("");
+
+    // Data acquisition
+	print(TAB1+"Doing an acquisition in DUMP mode...");
+	setDMX_dataAcqMode(ACQ_MODE_DUMP);
+}
+
+
+// -------------------------------------------------------------------------------------------------------------
+
+const samp_delay = 0;
+const fb_delay = 16;
+
+/* 
+  Starting and initializing the DEMUX
+*/
+const boxcarL = 0;
+const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
+const pattern = "FULL";
+const pulseShapingSet = 0; // To have perfect square shapes
+demuxStart(samp_delay, boxcarL, fb_delay, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSet, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
+
+
+/* FEEDBACK_DELAY characterization
+Does an acquisition in DUMP mode in order to characterise the proper FB_DELAY.
+  Sets all the DMX fb0 to the same value except for pixel 0 (in open loop mode)
+  Sets the FB_DELAY to the value provided by the parameter fb_delay_p
+  Does a DMX dump
+*/
+charac_FB_DELAY(fb_delay, fb0Opt);
+
+plotLongLine();
+print("Feedback delay: ", fb_delay);
+print("Sampling delay: ", samp_delay);
+plotSmallLine();
+// -------------------------------------------------------------------------------------------------------------
+print("End of script!");
+
+
+
+
+
