@@ -48,6 +48,11 @@ include("../common/constants.dscript");
 // -------------------------------------------------------------------------------------------------------------
 
 
+// Init CDIF
+sendToTMTC_SetWireIn(0 , 1);
+sendToTMTC_SetWireIn(0 , 0);
+sendToTMTC_SetWireIn(0 , 2);
+
 /*
   Starting and initializing the FPAsim
   If the FPAsim function is already enabled nothing is done unless the "force_p" parameter is set to true.

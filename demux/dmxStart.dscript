@@ -45,14 +45,12 @@ const offsetFineOpt = 0;
 //const offsetFineOpt = 7;
 const offsetCoarseOpt = 800;
 
-//const lockPointVOpt = -3832;
-const lockPointVOpt = -3832;
+//const lockPointVOpt = -3832;  // pour locker sur le MUX SQUID
+const lockPointVOpt = 1000;  // pour locker sur l'AMP SQUID
 
 const aOpt = [0.2, 0.2, 0.2, 0.2];
 const muxInputGain = [-1, -1, -1, -1];
-const ampInputGain = [1, 1, 1, 1];
-//const pattern = "FULL";
-//const pattern = "MINI";
+const ampInputGain = [-1, -1, -1, -1];
 
 /**
  * Configuring the test setup
@@ -100,8 +98,8 @@ function demuxStart(samp_delay_p, bxLength_p, fb_delay_p, fb0_p, offsetLSB_p, of
 	print(TAB1 + "Setting the test pattern");
     const a1 = -1*Math.pow(2, 15);
     const b1 = 0;
-    const c1 = 64;
-    const N1 = 1023;
+    const c1 = 8;
+    const N1 = 8191;
     const aa1 = Math.pow(2, 15)-1;
 	const fullPattern = [
         [a1, b1, c1, N1],  // Slope upward -32768 -> 32704
@@ -144,10 +142,6 @@ function demuxStart(samp_delay_p, bxLength_p, fb_delay_p, fb0_p, offsetLSB_p, of
 	// Setting the BOXCAR LENGTH
     print(TAB1+"Setting the boxcar length to " + bxLength_p);
 	setDMX_boxcarLength(bxLength_p);
-
-    // set the register: FEEDBACK_DELAY
-    print(TAB1+"Setting the FB_DELAY to " + fb_delay_p);
-	for (col=0; col<DMX_NB_COL; col++) setDMX_feedback_delay(col, fb_delay_p);
 
     // set the register: MUX_SQ_FB_DELAY
     print(TAB1 + "Setting the register MUX_SQ_FB_DELAY to " + fb_delay_p);

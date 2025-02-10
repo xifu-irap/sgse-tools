@@ -47,10 +47,13 @@ include("../common/constants.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
 
-const signal = "erro-only";
-const signal = "erro-fdbk";
+const signal = "erro-100o";
+//const signal = "erro-only";
+//const signal = "erro-fdbk";
+//const signal = "erro-ofco";
+//const signal = "conf-FPAs";
 const nbDumpFiles = 128;
-const errorFileDurationInS = 10;
+const errorFileDurationInS = 20;
 const errorFilenames="error_noise";
 
 const sessionName = "noise_"+signal;
@@ -58,10 +61,14 @@ startSession(sessionName);
 
 print(TAB1+"Configuring the DEMUX");
 const pulseShapingSet  =  3;
-const boxcarL = 1;
+const boxcarL = 0;
 const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
 const pattern = "FULL";
-demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSet, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
+const fb_Volts = 0.4;
+const fb_ADU = fb_Volts * Math.pow(2, 14)/ 2;
+const offsetCoarse_Volts = 0.4;
+const offsetCoarse_ADU = offsetCoarse_Volts * Math.pow(2, 12)/ 1;
+demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb_ADU, offsetLSBOpt, offsetFineOpt, offsetCoarse_ADU, pulseShapingSet, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
 
 // Measuring several dump files (will be averaged during data processing)
 print(TAB1+"Measuring " + nbDumpFiles + " dump files...");
@@ -69,7 +76,7 @@ for (var i = 0; i<nbDumpFiles; i++) sendToDMXGoToDumpMode();
 
 // Measuring error data
 sendToDMXGoToErrorSignalMode();
-sendToDMXSaveScienceRaw(errorFilenames, errorFileDurationInS*1000, OxF);
+sendToDMXSaveScienceRaw(errorFilenames, errorFileDurationInS*1000, 0xF, 0);
 waitMs(errorFileDurationInS*1000);
 
 onAbortScript();

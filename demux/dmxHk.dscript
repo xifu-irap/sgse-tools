@@ -24,6 +24,10 @@
 //    This file contains dmx hk read and conversion functions.
 //
 // -------------------------------------------------------------------------------------------------------------
+
+include("../demux/dmxRegAddresses.dscript");
+include("../common/constants.dscript");
+include("../common/utilTools.dscript");
 
 const DMX_NB_HK = 15;
 const DMX_HK_NAMES = ['P5V0_ANA', 'P3V3_ANA', 'P2V5_ANA', 'P1V8_ANA', 'M2V5_ANA', 'M5V0_ANA', 'P3V3_DIG',
@@ -77,4 +81,7 @@ function printDMX_HK(formatADU_p) {
         else outputText2 = convertDMX_HK(dmxHk[iHK], DMX0_HK_CONV_A[iHK], DMX0_HK_CONV_B[iHK]).toFixed(3) + DMX_HK_UNITS[iHK];
         print(outputText1 + outputText2);
     }
-}
+}
+
+printDMX_HK(true);
+

@@ -46,13 +46,21 @@ include("../common/utilTools.dscript");
 include("../common/constants.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
+
+const col = 3;
+sessionName = "lockingAmpLoop-col"+col;
+sendStartNewSession(sessionName, "");
 
-const knorm_reel = 1/11;
-const knorm = Math.round(knorm_reel * Math.pow(2, 18)); 
-
+const sqa_knorm = 1/11;
 const ki = 1.2;
-const kiknorm_reel = ki*knorm_reel;
-const kiknorm = Math.round(kiknorm_reel * Math.pow(2, 16)); 
+const sqa_kiknorm = ki*sqa_knorm;
+
+const savingDataWhileClosingLoop = true;
+
+// Init CDIF
+sendToTMTC_SetWireIn(0 , 1);
+sendToTMTC_SetWireIn(0 , 0);
+sendToTMTC_SetWireIn(0 , 2);
 
 /*
   Starting and initializing the FPAsim
@@ -71,82 +79,85 @@ fpasimConfig(raDelayOpt, SteadyMode90Fsr);
 const pulseShapingSet  = 0;
 const boxcarL = 0;
 const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
-const patternType = "FULL";
+const patternType = "FULL";
 
 demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSet, lockPointVOpt, muxInputGain, ampInputGain, aOpt, patternType);
-
-
-print(TAB1 + "Setting the test pattern");
-
-const a1 = -1*Math.pow(2, 15);
-const b1 = 7;
-const c1 = 64;
-const N1 = 1023;
-const aa1 = Math.pow(2, 15)-1;
-const fullPattern = [
-	[a1, b1, c1, N1],  // Slope upward -32768 -> 32704
-	[aa1, b1, -c1, N1],  // Slope downward 32767 -> -32705
-	[0, 0, 0, 0],  // Nothing
-	[0, 0, 0, 0],  // Nothing
-	[0, 0, 0, 0]  // Nothing
-];
-
-const N2 = 128;
-const c2 = 4;
-const a2 = fb0Opt - Math.round(N2/2*c2);
-const aa2 = fb0Opt + Math.round(N2/2*c2);
-const b2 = 7;
-const miniPattern = [
-	[a2, b2, c2, N2],  // Slope upward
-	[aa2, b2, -c2, N2],  // Slope downward
-	[0, 0, 0, 0],  // Nothing
-	[0, 0, 0, 0],  // Nothing
-	[0, 0, 0, 0]  // Nothing
-];
-
-if (patternType === "FULL") {
-	print(TAB2 + "Defining the pattern over a full range"); 
-	setDMX_testPattern(fullPattern);
-}
-else {
-	if (patternType === "MINI") {
-		print(TAB2 + "Defining the pattern over a reduced range"); 
-		setDMX_testPattern(miniPattern);
-	}
-	else print(TAB2 + "Error, unknown pattern type");
-}
-print("");
-
 
-print(TAB1 + "Setting knorm to " + knorm);
-print(TAB1 + "Setting ki to " + ki);
-print(TAB1 + "Setting kiknorm to " + kiknorm);
-for (var colId=0; colId<DMX_NB_COL; colId++) {
-	setDMX_sqa_knorm(colId, knorm);
-	setDMX_sqa_kiknorm(colId, kiknorm);
+
+print(TAB1 + "Setting the test pattern");
+
+const a1 = -1*Math.pow(2, 15);
+const b1 = 7;
+const c1 = 64;
+const N1 = 1023;
+const aa1 = Math.pow(2, 15)-1;
+const fullPattern = [
+	[a1, b1, c1, N1],  // Slope upward -32768 -> 32704
+	[aa1, b1, -c1, N1],  // Slope downward 32767 -> -32705
+	[0, 0, 0, 0],  // Nothing
+	[0, 0, 0, 0],  // Nothing
+	[0, 0, 0, 0]  // Nothing
+];
+
+const N2 = 128;
+const c2 = 4;
+const a2 = fb0Opt - Math.round(N2/2*c2);
+const aa2 = fb0Opt + Math.round(N2/2*c2);
+const b2 = 7;
+const miniPattern = [
+	[a2, b2, c2, N2],  // Slope upward
+	[aa2, b2, -c2, N2],  // Slope downward
+	[0, 0, 0, 0],  // Nothing
+	[0, 0, 0, 0],  // Nothing
+	[0, 0, 0, 0]  // Nothing
+];
+
+if (patternType === "FULL") {
+	print(TAB2 + "Defining the pattern over a full range"); 
+	setDMX_testPattern(fullPattern);
 }
+else {
+	if (patternType === "MINI") {
+		print(TAB2 + "Defining the pattern over a reduced range"); 
+		setDMX_testPattern(miniPattern);
+	}
+	else print(TAB2 + "Error, unknown pattern type");
+}
+print("");
 
-//print(TAB1 + "Starting data acquisition in ERROR mode...");
-//sendToDMXGoToErrorSignalMode();
 
-print(TAB1 + "Setting data acquisition in SCIENCE mode...");
-sendToDMXGoToScienceMode();
+print(TAB1 + "Setting knorm to " + sqa_knorm);
+print(TAB1 + "Setting ki to " + ki);
+print(TAB1 + "Setting kiknorm to " + sqa_kiknorm);
+for (var colId=0; colId<DMX_NB_COL; colId++) {
+	setDMX_sqa_knorm(colId, sqa_knorm);
+	setDMX_sqa_kiknorm(colId, sqa_kiknorm);
+}
+
 
 /*
 Closing the loop
 */
 
 waitMs(6000000, true, true, "OK to close the loop?");
-print(TAB1 + "closing the offset loop ...");
-
+
+print(TAB1 + "Starting Error acquisition while the loop is still open, then closing the feedback loop ...");
+sendToDMXGoToErrorSignalMode();
+const fileDurationMs = 2000;
+if (savingDataWhileClosingLoop) sendToDMXSaveScienceRaw("errorDataWhileClosingLoop.fits", fileDurationMs, 1<<col, 0 );
+
 offsetMode = makeArray(DMX_NB_COL, OFFSET_MODE_CLOSED);
 setDMX_offsetMode(offsetMode);
-
+waitMs(fileDurationMs);
+
+print(TAB1 + "Setting data acquisition in SCIENCE mode...");
+sendToDMXGoToScienceMode();
 
 // -------------------------------------------------------------------------------------------------------------
 onAbortScript();
 
 function onAbortScript() {
+	sendStopSession();
 	sendToDMXGoToIdleMode();
 	print("End of script!");
 }

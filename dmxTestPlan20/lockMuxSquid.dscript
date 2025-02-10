@@ -47,7 +47,7 @@ include("../common/constants.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
 
-const col = 2;
+const col = 3;
 sessionName = "lockingMuxLoop-col"+col;
 sendStartNewSession(sessionName, "");
 
@@ -93,15 +93,15 @@ for (var colId=0; colId<DMX_NB_COL; colId++) {
 
 /*
 Closing the loop
-*/
-fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_CLOSED_LOOP);
-const fileDurationMs = 2000;
-
-waitMs(6000000, true, true, "OK to close the loop?");
-sendToDMXGoToErrorSignalMode();
+*/
+waitMs(6000000, true, true, "OK to close the loop?");
 
 print(TAB1 + "Starting Error acquisition while the loop is still open, then closing the feedback loop ...");
+sendToDMXGoToErrorSignalMode();
+const fileDurationMs = 2000;
 if (savingDataWhileClosingLoop) sendToDMXSaveScienceRaw("errorDataWhileClosingLoop.fits", fileDurationMs, 1<<col);
+
+fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_CLOSED_LOOP);
 setDMX_sqm_FBMode(col, fbMode);
 waitMs(fileDurationMs);
 
@@ -141,10 +141,10 @@ waitMs(6000000, true, true, "Measurement of pulses is done");
 
 
 // -------------------------------------------------------------------------------------------------------------
-sendStopSession();
 onAbortScript();
 
 function onAbortScript() {
+	sendStopSession();
 	sendToDMXGoToIdleMode();
 	print(TAB1 + "Delock counters at the end: " + readDMX_delockCounters(col, false));
 	print("End of script!");

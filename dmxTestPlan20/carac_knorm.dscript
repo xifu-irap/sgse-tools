@@ -47,10 +47,10 @@ include("../common/constants.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
 
-const col = 2;
+const col = 3;
 
-//const knorm = 0.054;
-const knorm = 0.068;
+//const knorm = 0.054;
+const knorm = 0.068;
 
 const kiknorm = knorm;
 
@@ -74,10 +74,10 @@ fpasimConfig(raDelayOpt, SteadyMode90Fsr);
 const boxcarL = 0;
 const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
 const pattern = "FULL";
-const lockPointV = lockPointVOpt + 1500; // Shifting the lockpoint in order to have a greater step (less noise impact)
+const lockPointV = lockPointVOpt + 1500; // Shifting the lockpoint in order to have a greater step (less noise impact)
 
-demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSetOpt, lockPointV, muxInputGain, ampInputGain, aOpt, pattern);
-
+demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSetOpt, lockPointV, muxInputGain, ampInputGain, aOpt, pattern);
+
 
 print(TAB1 + "Delock counters at the beggining: " + readDMX_delockCounters(col, false));
 
