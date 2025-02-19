@@ -17,11 +17,14 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     errorEnobAnalysis.dscript
+//    @file                     linearity_fdbkAndError.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
-//    This file is used to characterise the ENOB of the error signals.
+//    This script is used to characterize the linearity of the feedback + error signals linearity.
+//    This is a global characterization. The linearity of the error and feedback signals are not characterized
+//    Individualy.
+//    The scan is done in several ietrations to reduce the number of measurements per scan
 //
 // -------------------------------------------------------------------------------------------------------------
 
@@ -45,36 +48,82 @@ include("../fpasim/fpasim/amc7823.dscript");
 include("../common/utilTools.dscript");
 include("../common/constants.dscript");
 
-
 // -------------------------------------------------------------------------------------------------------------
 
-const col = 3;
+plotSmallLine();
+print("/ Feedback and Error linearity measurement");
+plotSmallLine();
+print("");
+
+sessionName = "fdbkAndErrorLinearity";
+sendStartNewSession(sessionName, "");
 
 /*
  Starting and configuring the DEMUX
 */
+print(TAB1 + "Starting the DEMUX with the default parameters");
 const boxcarL = 1;
 const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
 const pattern = "FULL";
+const fdbkDelayBob = -3;
+demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayBob, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSetOpt, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
 
-pulseShapingSet = 0;
-demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSet, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
+print(TAB1 + "Setting the DMX feedback mode to TEST PATTERN for all columns and all pixels");
+fbMode_TPT = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_TESTPATTERN);
+for (var colId=0; colId<DMX_NB_COL; colId++) setDMX_sqm_FBMode(colId, fbMode_TPT);
 
-sessionName = "errorEnob-col"+col;
-sendStartNewSession(sessionName, "");
-
-getText("OK to measure one data file in error mode...", "yes");
-
+print(TAB1 + "Setting data acquisition mode to ERROR mode...");
 sendToDMXGoToErrorSignalMode();
-duration = 10000;
-delta_duration=1000;
 
-filename="EnobError_col" + col;
-sendToDMXSaveScienceRaw(filename, duration, 1<<col);
-waitMs(duration+delta_duration);
+// Defining the test pattern for the scan of the feedback DAC values
+const infinitely = true;
+const nbTime = 0x9;
+const increment = Math.pow(2, DMX_NB_BITS_TPT) / Math.pow(2, DMX_NB_BITS_DAC_FDBK);
+const nbStepsPerScanBits = 11;
+const nbStepsPerScan = Math.pow(2, nbStepsPerScanBits);
+const nbStepsTotal = Math.pow(2, DMX_NB_BITS_DAC_FDBK);
+const nbScans = nbStepsTotal / nbStepsPerScan;
+print(TAB1 + nbScans + " scans will be measured:");
 
-sendToDMXGoToIdleMode();
+for (var scan=0; scan<nbScans; scan++) {
 
-// -------------------------------------------------------------------------------------------------------------
+	print(TAB3 + "Setting test pattern number " + scan + " / " + nbScans);
+	const a = -1 * Math.pow(2, DMX_NB_BITS_TPT - 1) + scan*increment;
+	const b = 0;
+	const c = Math.pow(2, DMX_NB_BITS_TPT) / nbStepsPerScan;
+	const N = nbStepsPerScan;
+	const rampPattern = [
+		[a, b, c, N],  // Slope upward
+		[0, 0, 0, 0],  // Nothing
+		[0, 0, 0, 0],  // Nothing
+		[0, 0, 0, 0],  // Nothing
+		[0, 0, 0, 0]  // Nothing
+	];
+	setDMX_testPattern(rampPattern);
+
+	print(TAB3 + "Activating the test pattern...");
+	setDMX_testPatternEnable(true, infinitely, nbTime);
+
+	waitMs(1000);
+
+	if (scan === 0) getText("OK to save the scan files for all the columns?", "OK");	
+	for (var colId=0; colId<DMX_NB_COL; colId++) {
+		sendSaveDMXScan(colId, "scan_"+maDate()+"_col"+colId+".fits");
+	}
+
+	print(TAB1 + "Stopping the test pattern...");
+	setDMX_testPatternEnable(false, infinitely, nbTime);
+	print("");
+
+}
+
 sendStopSession();
-print("End of script!");
+onAbortScript();
+
+function onAbortScript() {
+	sendToDMXGoToIdleMode();
+	print("End of script!");
+}
+
+
+

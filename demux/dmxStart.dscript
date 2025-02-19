@@ -30,7 +30,7 @@
  */
 
 // Delays
-const fdbkDelayOpt = -90;
+const fdbkDelayOpt = -91;
 const offsetDelayOpt = -94;
 const sampDelayOpt = 16;
 const pulseShapingSetOpt = 1;
@@ -45,12 +45,13 @@ const offsetFineOpt = 0;
 //const offsetFineOpt = 7;
 const offsetCoarseOpt = 800;
 
-//const lockPointVOpt = -3832;  // pour locker sur le MUX SQUID
-const lockPointVOpt = 1000;  // pour locker sur l'AMP SQUID
+const lockPointVOpt = -3832;  // pour locker sur le MUX SQUID
+//const lockPointVOpt = 1000;  // pour locker sur l'AMP SQUID
+//const lockPointVOpt = 500;  // pour locker sur l'AMP SQUID
 
 const aOpt = [0.2, 0.2, 0.2, 0.2];
 const muxInputGain = [-1, -1, -1, -1];
-const ampInputGain = [-1, -1, -1, -1];
+const ampInputGain = [-1, -1, -1, -1];
 
 /**
  * Configuring the test setup
@@ -75,10 +76,10 @@ const ampInputGain = [-1, -1, -1, -1];
 function demuxStart(samp_delay_p, bxLength_p, fb_delay_p, fb0_p, offsetLSB_p, offsetFine_p, offsetCoarse_p, pulseShapingSet_p, lockPointV_p, muxInputGain_p, ampInputGain_p, a_p, pattern_p) {
 
 	// Autorelock parameters
-	//const relockThreshold = 0xFFFF;
-	//const relockDelay = 0xFFFF;
-	const relockThreshold = 0x0500;
-	const relockDelay = 600;  // Number of frames
+	const relockThreshold = 0xFFFF;
+	const relockDelay = 0xFFFF;
+	//const relockThreshold = 0x0500;
+	//const relockDelay = 600;  // Number of frames
 	
     print("");
     print("***");
@@ -98,8 +99,8 @@ function demuxStart(samp_delay_p, bxLength_p, fb_delay_p, fb0_p, offsetLSB_p, of
 	print(TAB1 + "Setting the test pattern");
     const a1 = -1*Math.pow(2, 15);
     const b1 = 0;
-    const c1 = 8;
-    const N1 = 8191;
+    const c1 = 16;
+    const N1 = 4095;
     const aa1 = Math.pow(2, 15)-1;
 	const fullPattern = [
         [a1, b1, c1, N1],  // Slope upward -32768 -> 32704
