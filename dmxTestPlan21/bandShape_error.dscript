@@ -106,7 +106,7 @@ for (var i=0; i<nbErrorFiles; i++) {
 
 	filename="ErrorFile_" + ("00" + i).slice(-2);
 
-	sendToDMXSaveScienceRaw(filename, duration, 1<<col);
+	sendToDMXSaveScienceRaw(filename, duration, 1<<col, 0);
 
 	waitMs(duration+delta_duration);
 

@@ -85,29 +85,14 @@ sendToDMXWriteRegister(0x4000, 0x0007);
 // Sauvegarde des donnees 
 // UTILISATION DE COMMANDES SPECIFIQUES AU GSE IRAP
 duration_ms = 2000;
-
-sendToDMXSaveScienceRaw('tpt_'+maDate()+'.fits', duration_ms, 0xF)
-
-
-
-
+sendToDMXSaveScienceRaw('tpt_'+maDate()+'.fits', duration_ms, 0xF, 0)
 
 // Activation du test pattern (decommenter la ligne souhaitee)
-
 sendToDMXWriteRegister(0x4150, 0x0030); // a l'infini
-
 //sendToDMXWriteRegister(0x4150, 0x0021); // 1 fois
 
-
-
-
-
 // Attente pendant l acquisition
-
 waitMs(duration_ms);
-
-
-
 
 //----
 // Fin du test

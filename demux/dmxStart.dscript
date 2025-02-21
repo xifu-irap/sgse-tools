@@ -51,7 +51,7 @@ const lockPointVOpt = -3832;  // pour locker sur le MUX SQUID
 
 const aOpt = [0.2, 0.2, 0.2, 0.2];
 const muxInputGain = [-1, -1, -1, -1];
-const ampInputGain = [-1, -1, -1, -1];
+const ampInputGain = [-1, -1, -1, -1];
 
 /**
  * Configuring the test setup
@@ -78,8 +78,8 @@ function demuxStart(samp_delay_p, bxLength_p, fb_delay_p, fb0_p, offsetLSB_p, of
 	// Autorelock parameters
 	const relockThreshold = 0xFFFF;
 	const relockDelay = 0xFFFF;
-	//const relockThreshold = 0x0500;
-	//const relockDelay = 600;  // Number of frames
+	//const relockThreshold = 0x0030;
+	//const relockDelay = 400;  // Number of frames
 	
     print("");
     print("***");

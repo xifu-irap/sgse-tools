@@ -98,7 +98,7 @@ fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_CLOSED_LOOP);
 const durationMs = 3000;
 
 print(TAB1 + "Starting Error acquisition while the loop is still open, then closing the feedback loop ...");
-sendToDMXSaveScienceRaw("errorDataWhileClosingLoop.fits", durationMs, 1<<col);
+sendToDMXSaveScienceRaw("errorDataWhileClosingLoop.fits", durationMs, 1<<col, 0);
 waitMs(100);
 setDMX_sqm_FBMode(col, fbMode);
 waitMs(durationMs);
