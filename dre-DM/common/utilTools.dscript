@@ -1,0 +1,262 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     utilTools.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file contains different tools used by other scripts of this project.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// -- CONSTANTS ---------
+
+// strings
+const TAB1 = "   ";
+const TAB2 = repeat(TAB1, 2);
+const TAB3 = repeat(TAB1, 3);
+
+
+// -- FUNCTIONS --------
+
+/**
+ * Check if an array includes a value
+ * @param {array} array_p - array
+ * @param {number} value_p - value
+ */
+function doesArrayInclude(array_p, value_p) {
+	var answer = false;
+	for (var i=0; i<array_p.length; i++) {
+		if (array_p[i] === value_p) answer = true;
+	}
+	return answer;
+}
+
+/**
+ * Creates and initialises an array with a single value.
+ * @param {number} nValues - Number
+ * @param {number} value - Number
+ * @return {array} tab - output array
+ */
+function makeArray(nValues, value) {
+	var tab = [];
+	for (var i = 0; i < nValues; i++) tab[i] = value;
+	return tab;
+}
+
+/**
+ * Compares the content of two arrays.
+ * @param {array} tabA_p - First array
+ * @param {array} tabB_p - Second array
+ * @return {boolean} areEqual - True if the two arrays are equal, False if not
+ */
+function arraysAreEquals(tabA_p, tabB_p) {
+    var areEqual = true;
+	if (tabA_p.length !== tabB_p.length) {
+        areEqual = false;
+    } else {
+        for (var i=0; i<tabA_p.length; i++) {
+            if (tabA_p[i] !== tabB_p[i]) areEqual = false;
+        }
+    }
+    return areEqual;
+}
+
+/**
+ * Compares the content of two 2Darrays.
+ * @param {array} tabA_p - First array
+ * @param {array} tabB_p - Second array
+ * @return {boolean} areEqual - True if the two arrays are equal, False if not
+ */
+function twoDArraysAreEquals(tabA_p, tabB_p) {
+    var areEqual = true;
+	if (tabA_p.length !== tabB_p.length) {
+        areEqual = false;
+    } else {
+        for (var i=0; i<tabA_p.length; i++) {
+            if (!arraysAreEquals(tabA_p[i], tabB_p[i])) areEqual = false;
+        }
+    }
+    return areEqual;
+}
+
+/**
+ * Flattens a 2D array
+ * @param {array} array_p - 2D array
+ * @return {array} result - 1D array
+ */
+function flatten(array_p) {
+	var result = [];
+	for (var i=0; i<array_p.length; i++) {
+		for (var j=0; j<array_p[i].length; j++) {
+			result.push(array_p[i][j])
+		}
+	}
+	return result;
+}
+
+/**
+ * Prints the content of an array in several lines.
+ * @param {array} tab - Array
+ * @param {string} startStr - String to be print at the beginning of each line
+ * @param {number} sliceSize - Number of elements per line
+ */
+function printArrayInSlices(tab, startStr, sliceSize) {
+	// Default values
+	if (typeof(startStr) === 'undefined') startStr = "";
+	if (typeof(sliceSize) === 'undefined') sliceSize = 10;
+
+	const l = tab.length;
+    for (var i=0; i<l; i+=sliceSize) {
+        print(startStr + tab.slice(i, i+sliceSize));
+    }
+}
+
+/**
+ * Converts a signed int value into a 2's complement signed int value.
+ * @param {number} value_p - signed int value to convert
+ * @param {number} width_p - value number of bits
+ * @return {number} converted value
+ */
+function convert_sInt_to_2compInt(value_p, width_p) {
+    var val;
+    if ((value_p < -Math.pow(2, width_p-1)) || (value_p > Math.pow(2, width_p-1)-1)) {
+        print("ERROR, impossible to do the conversion." + value_p);
+    } else {
+		if (value_p < 0) val = Math.pow(2, width_p-1) | (value_p + Math.pow(2, width_p-1));
+		else val = value_p;
+		return val;
+	}
+}
+
+/**
+ * Convert a 2's complement signed int to a signed int value.
+ * @param {number} value_p - 2's complement signed int value to convert
+ * @param {number} width_p - value number of bits
+ * @return {number} converted value
+ */
+function convert_2compInt_to_sInt(value_p, width_p) {
+    var val;
+    if ((value_p >> width_p) !== 0) {
+        print("ERROR, incorrect number of bits.");
+    } else {
+		if (value_p >> (width_p-1) === 0) {  // value is positive
+			val = value_p;
+		}
+		else {  // value is negative
+			val = -Math.pow(2, (width_p-1)) + value_p % Math.pow(2, (width_p-1));
+		}
+		return val;
+	}
+}
+
+
+/**
+ * Print a line with "-".
+ */
+function plotLongLine() {
+    print("/--------------------------------------------------------------------------------------------------------/");
+}
+
+
+/**
+ * Print a small line with "-".
+ */
+function plotSmallLine() {
+    print("/-------------------");
+}
+
+/**
+ * Converts an integer into a string in hexadecimal format.
+ * @param {number} value_p - Integer to be converted
+ * @return {string} converted value
+ */
+function to_hexaString(value_p) {
+	var result = "undefined";
+	//if (typeof(value_p) !== 'undefined') result = "0x" + value_p.toString(16).toUpperCase().slice(-4);
+	if (typeof(value_p) !== 'undefined') result = "0x" + value_p.toString(16).toUpperCase();
+    return result;
+}
+
+
+/**
+ * Repeats a string.
+ * @param {string} str_in - base string
+ * @param {number} nb - number of repetitions
+ * @return {string} str_out - the output string
+ */
+function repeat(str_in, nb) {
+    var str_out = "";
+	for (var i=0; i<nb; i++) str_out += str_in;
+    return str_out;
+}
+
+
+/**
+ * GUI to read operator name
+ *   A list of pre-defined names is proposed.
+ *   If none is selected a tab allows to enter a text
+ * @return {string} operatorName - selected name
+ */
+ function get_operatorName()
+{
+	const operatorTab = ["", "Augusto", "Corentin", "David", "Odile", "Laurent", "Sylvain", "Yann"];
+    var operatorName;
+	var operatorId = getItem("Please, select the operator name: ", operatorTab);
+	if (operatorId === -1) operatorName = getText("Please, type the operator name:", "");
+	else operatorName = operatorTab[operatorId];
+	return(operatorName);
+}
+
+
+/**
+ * GUI to read a name for the session
+ * @return {string} sessionName - name of the session
+ */
+function get_sessionName()
+{
+	var sessionName = getText("Please, type the session name:", "Default_session_name");
+	return(sessionName);
+}
+
+
+/**
+ * Provides the current date
+ * @return {string} date - date in the format : YYYYMMDD_HHMMSS
+ */
+function maDate()
+{
+	const d = new Date();
+	return d.getFullYear()+"-"+(("00" +(d.getMonth()+1).toString()).slice(-2))+"-"+(("00" +(d.getDate()).toString()).slice(-2))+"_"+(("00" +(d.getHours()).toString()).slice(-2))+"h"+(("00" +(d.getMinutes()).toString()).slice(-2))+"m"+(("00" +(d.getSeconds()).toString()).slice(-2))+"s";
+}
+
+
+/**
+* Converts a duration in ms to a duration string in minutes, seconds and ms
+* @param {number} tMs - Duration in ms
+* @return {string} - MmSSsXXX
+*/
+function tMs_2_string(tMs) {
+    const tMin = Math.floor(tMs/60000);
+    const tSec = Math.floor((tMs-tMin*60000)/1000);
+    const tMs2 = Math.floor(tMs-tMin*60000-tSec*1000);
+    return(tMin+"m"+tSec+"s"+tMs2)
+}
+
+//---------------------------------------------------------------------------------------
