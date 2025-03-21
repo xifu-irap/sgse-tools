@@ -129,6 +129,7 @@ function onAbortScript() {
     // de-activating the test pattern
     setDMX_testPatternEnable(false, false, 0);
 
+	sendToDMXGoToIdleMode();
 	print("End of script!");
 }
 
@@ -137,8 +138,8 @@ function onAbortScript() {
 startSession("muxSquidTest");
 
 // You should uncomment a single of the following lines
-//testSequence(FEEDBACK_MODE_OPEN_LOOP);
-testSequence(FEEDBACK_MODE_TESTPATTERN);
+testSequence(FEEDBACK_MODE_OPEN_LOOP);
+//testSequence(FEEDBACK_MODE_TESTPATTERN);
 
 onAbortScript();
 

@@ -83,8 +83,23 @@ function testSequence(offsetMode, offsetLSB, offsetFine, offsetCoarse) {
         var infinitely = true;
         var nbTime = 0x9;
         setDMX_testPatternEnable(enable, infinitely, nbTime);
-    }
-
+    }
+
+
+    // Saving some data
+    // You need to loop the offco in the error input to see the feedback
+	var answer=getText("Start saving some data?", "");
+
+    // Saving some data in error acquisition mode
+    sendToDMXGoToErrorSignalMode();
+    const durationMs = 800;
+    sendToDMXSaveScienceRaw("feedbackInErrorSignal", durationMs, 0xF, 0);
+	waitMs(durationMs + 100);
+
+    // Saving some data in dump acquisition mode
+    sendToDMXGoToDumpMode();
+
+
 	var answer=getText("Type enter to finish the test", "");
 }
 
@@ -104,6 +119,7 @@ function onAbortScript() {
     // de-activating the test pattern
     setDMX_testPatternEnable(false, false, 0);
 
+	sendToDMXGoToIdleMode();
 	print("End of script!");
 }
 
