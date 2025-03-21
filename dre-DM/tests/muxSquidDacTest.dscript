@@ -42,9 +42,9 @@ function testSequence(fbMode) {
     setDMX_feedbackOnOff([ON, ON, ON, ON]);
 
     // Setting the feedback FB0 values
-    const minVal = -1*Math.pow(2, 14);
+    const minVal = -1*Math.pow(2, 13);
     const midVal = 0;
-    const maxVal = Math.pow(2, 14) - (1/Math.pow(2, 2));
+    const maxVal = Math.pow(2, 13) - (1/Math.pow(2, 2));
 	
     const tabFb0 = [
         minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
@@ -88,7 +88,8 @@ function testSequence(fbMode) {
         var infinitely = true;
         var nbTime = 0x9;
         setDMX_testPatternEnable(enable, infinitely, nbTime);
-    }
+    }
+	var answer=getText("Type enter to finish the test", "");
 }
 
 /**
