@@ -50,13 +50,12 @@ function testSequence() {
         [0, 0, 0, 0]  // Nothing
     ];
     setDMX_testPattern(sawPattern);
-	setDMX_dataAcqMode(ACQ_MODE_TSTPATTERN);
+    sendToDMXGoToTestPatternMode();
 
     const durationMs = 800;
     sendToDMXSaveScienceRaw("tptAcqMode", durationMs, 0xF, 0);
 	waitMs(100);  // To not miss first data
 
-	
 	// Starting the test pattern
 	var enable = true;
     var infinitely = true;
