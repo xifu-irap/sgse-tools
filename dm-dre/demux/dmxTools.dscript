@@ -925,7 +925,7 @@ function readDMX_sqa_OffsetCoarse(col_p) {
 /**
  * Sets the feedback delay (MUX_SQ_FB_DELAY).
  * @param {number} col_p - column number [0, 3]
- * @param {number} feedback_delay_p - feedback delay (number of periods of 125MHz clock): S(10, 0) [-512, +40]
+ * @param {number} feedback_delay_p - feedback delay (number of periods of 125MHz clock): [-512, +40]
  */
 function setDMX_feedback_delay(col_p, feedback_delay_p) {
     const valMin = -512;

@@ -1,0 +1,129 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     ras_address_overlap.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This script tests the setting of the address overlap.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+include("../ras/rasTools.dscript");
+include("../ras/rasRegAddresses.dscript");
+include("../ras/rasSequences.dscript");
+
+include("../common/utilTools.dscript");
+include("../common/constants.dscript");
+
+
+/**
+ * Checks the setting of the ps overlap
+ */
+function ras_ps_overlap() {
+
+    plotLongLine();
+    print("* Checking the setting of the ps overlap");
+    print(" ");
+
+
+    var overlap = 0;
+    print(TAB1 + "Setting the PS overlap to " + overlap);
+	setRAS_seqMode(OFF);
+    setRAS_psOverlap(overlap);
+	setRAS_seqMode(ON);
+    var answer1 = getText("Observe the delay between the falling edge of PS7 and the rising edge of PS0", " ");
+
+    overlap = -8;
+    print(TAB1 + "Setting the PS overlap to " + overlap);
+	setRAS_seqMode(OFF);
+    setRAS_psOverlap(overlap);
+	setRAS_seqMode(ON);
+    answer1 = getText("Observe the delay between the falling edge of PS7 and the rising edge of PS0", " ");
+
+    overlap = 7;
+    print(TAB1 + "Setting the PS overlap to " + overlap);
+	setRAS_seqMode(OFF);
+    setRAS_psOverlap(overlap);
+	setRAS_seqMode(ON);
+    answer1 = getText("Observe the delay between the falling edge of PS7 and the rising edge of PS0", " ");
+
+    const step_ms = 600;
+    print(" ");
+    print(TAB1 + "Scanning the PS overlap");
+    answer = getText("Click when ready", " ");
+	setRAS_seqMode(OFF);
+    RASscan_overlap(true, false, step_ms, true)
+	setRAS_seqMode(ON);
+
+    print(" ");
+
+}
+
+/**
+ * Checks the setting of the gs overlap
+ */
+function ras_gs_overlap() {
+
+    plotLongLine();
+    print("* Checking the setting of the gs overlap");
+    print(" ");
+
+
+    var overlap = 0;
+    print(TAB1 + "Setting the GS overlap to " + overlap);
+	setRAS_seqMode(OFF);
+    setRAS_gsOverlap(overlap);
+	setRAS_seqMode(ON);
+    var answer2 = getText("Observe the delay between the falling edge of GS5 and the rising edge of GS0", " ");
+
+    overlap = -8;
+    print(TAB1 + "Setting the GS overlap to " + overlap);
+	setRAS_seqMode(OFF);
+    setRAS_gsOverlap(overlap);
+	setRAS_seqMode(ON);
+    var answer2 = getText("Observe the delay between the falling edge of GS5 and the rising edge of GS0", " ");
+
+    overlap = 7;
+    print(TAB1 + "Setting the GS overlap to " + overlap);
+	setRAS_seqMode(OFF);
+    setRAS_gsOverlap(overlap);
+	setRAS_seqMode(ON);
+    var answer2 = getText("Observe the delay between the falling edge of GS5 and the rising edge of GS0", " ");
+
+    const step_ms = 600;
+    print(" ");
+    print(TAB1 + "Scanning the GS overlap");
+    answer = getText("Click when ready", " ");
+	setRAS_seqMode(OFF);
+    RASscan_overlap(false, true, step_ms, true)
+	setRAS_seqMode(ON);
+
+    print(" ");
+
+}
+
+rasInit();
+ras_ps_overlap();
+ras_gs_overlap();
+
+print("End of script");
+/**********************************************************************************************************************/
+
