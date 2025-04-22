@@ -21,7 +21,7 @@
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
-//    This script tests the setting of the PS levels.
+//    This script tests the setting of the PS and GS levels.
 //
 // -------------------------------------------------------------------------------------------------------------
 
@@ -29,7 +29,6 @@
 include("../ras/rasTools.dscript");
 include("../ras/rasRegAddresses.dscript");
 include("../ras/rasSequences.dscript");
-
 
 include("../common/constants.dscript");
 include("../common/utilTools.dscript");
@@ -39,17 +38,14 @@ include("../common/utilTools.dscript");
  * Checks the address line levels
  * @param {number} dac1_p - first DAC id
  * @param {number} dac2_p - second DAC id
- * @param {number} add_p - address line
- *  0 - 7 for PS0 - PS7
- *  8 - 13 for GS0 - GS5
  * @param {number} seq_p - 48 bits sequence
  * @param {array} values_p - a set of 3 values for the low level
  */
-function ras_ps_gs_levels(dac1_p, dac2_p, add_p, seq_p, values_p) {
+function ras_ps_gs_levels(dac1_p, dac2_p, seq_p, values_p) {
 
-    print(TAB1 + "Setting address sequence for address " + add_p);
+    print(TAB1 + "Setting address sequence for address " + add);
 	setRAS_seqMode(OFF);
-    setRAS_addressSequence(add_p, seq_p);
+	for (var add=0; add<14; add++) setRAS_addressSequence(add, seq_p);
 
     print(TAB1 + "Setting sequence ON");
     setRAS_seqMode(ON);
@@ -77,25 +73,25 @@ function ras_ps_gs_levels(dac1_p, dac2_p, add_p, seq_p, values_p) {
     }
     plotSmallLine();
 
-    const step_duration = 1000;
+    const step_duration = 250;
     const level1 = 0x000;
     const level2 = 0xFC0;
     const nSteps = 64;
     // Scanning the HIGH level on address line 1
-    print(TAB1 + "Scanning the HIGH level on address line " + add_p);
+    print(TAB1 + "Scanning the HIGH levels");
 	setRAS_seqMode(OFF);
 
-    setRAS_addressSequence(add_p, 0xFFFFFFFFFFFF);
+    for (add=0; add<14; add++) setRAS_addressSequence(add, 0xFFFFFFFFFFFF);
 	setRAS_seqMode(ON);
 
     RASscan_dacLevel(dac1_p, level1, level2, nSteps, step_duration, true);
     plotSmallLine();
 
     // Scanning the LOW level on address line 2
-    print(TAB1 + "Scanning the LOW level on address line " + add_p);
+    print(TAB1 + "Scanning the LOW levels");
 	setRAS_seqMode(OFF);
 
-    setRAS_addressSequence(add_p, 0x000000000000);
+    for (add=0; add<14; add++) setRAS_addressSequence(add, 0x000000000000);
 	setRAS_seqMode(ON);
 
     RASscan_dacLevel(dac2_p, level1, level2, nSteps, step_duration, true);
@@ -104,21 +100,19 @@ function ras_ps_gs_levels(dac1_p, dac2_p, add_p, seq_p, values_p) {
 }
 
 const seq = 0x0FFF0FFF0FFF;
-const values = [0x000, 0x040, 0xFFF];
+const values = [0x000, 0x080, 0xFFF];
 
 plotLongLine();
 print("* Checking the setting of the PS levels...");
-var addressId1 = 0; // pixel select 0
 rasInit();
-ras_ps_gs_levels(DAC_PS_HIGH, DAC_PS_LOW, addressId1, seq, values);
+ras_ps_gs_levels(DAC_PS_HIGH, DAC_PS_LOW, seq, values);
 print(" ");
 
 
 plotLongLine();
 print("* Checking the setting of the GS levels...");
-addressId1 = 8; // group select 0
 rasInit();
-ras_ps_gs_levels(DAC_GS_HIGH, DAC_GS_LOW, addressId1, seq, values);
+ras_ps_gs_levels(DAC_GS_HIGH, DAC_GS_LOW, seq, values);
 
 print("End of script");
 /**********************************************************************************************************************/

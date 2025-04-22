@@ -17,7 +17,7 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     ras_sequence_delay.dscript
+//    @file                     ras_dmx_delay.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
@@ -30,61 +30,85 @@ include("../ras/rasTools.dscript");
 include("../ras/rasRegAddresses.dscript");
 include("../ras/rasSequences.dscript");
 
+include("../demux/dmxTools.dscript");
+include("../demux/dmxRegAddresses.dscript");
+include("../demux/dmxHk.dscript");
+
 include("../common/utilTools.dscript");
 include("../common/constants.dscript");
 
 
 /**
  * Checks the setting of the sequences delay
- * @param {number} tMux_p - multiplexing factor (Default = 34)
-
  */
-function ras_sequence_delay(tMux_p) {
-
-    // default function parameter values
-    if (typeof(tMux_p) === 'undefined') tMux_p = 34;
+function ras_sequence_delay() {
 
     plotLongLine();
-    print("* Checking the setting of the sequences delay for TMUX = " + tMux_p);
+
+    print("* Checking the setting of the sequences delay");
     print(" ");
+
+	print(TAB1+"Switching ON the RAS");
+	const tMux = 34
+	rasInit(tMux);
+	
+	print(TAB1+"Switching ON the DEMUX columns");
+    setDMX_feedbackOnOff([ON, ON, ON, ON]);
+
+    print(TAB1+"Setting the feedback FB0 values");
+	const margin = 1800
+    const minVal = -1*Math.pow(2, 13) + margin;
+    const midVal = 0;
+    const maxVal = Math.pow(2, 13) - margin;
+
+	
+    const tabFb0 = [
+        maxVal, midVal, midVal, midVal, midVal, midVal, midVal, midVal, midVal,
+        midVal, midVal, midVal, midVal, midVal, midVal, midVal, midVal, midVal,
+        midVal, midVal, midVal, midVal, midVal, midVal, midVal, midVal, midVal,
+        midVal, midVal, midVal, midVal, midVal, midVal, midVal
+    ];
+
+	print(TAB1+" >> " + tabFb0);
+    for (var col=0; col<DMX_NB_COL; col++) setDMX_fb0(col, tabFb0);
+
 
     print(TAB1 + "Setting the SEQUENCE DELAY to 0");
     setRAS_seqMode(OFF);
-
-	setRAS_tMux(tMux_p);
     setRAS_seqDelay(0);
     setRAS_seqMode(ON);
-    answer = getText("Observe the delay between SYNC and GS0 rising edges (ns)", " ");
+    answer = getText("Observe the delay between feedback and GS0", " ");
+
 
     print(" ");
     print(TAB1 + "Setting the SEQUENCE DELAY to 1");
     setRAS_seqMode(OFF);
     setRAS_seqDelay(1);
     setRAS_seqMode(ON);
-    answer = getText("Observe the delay between SYNC and GS0 rising edges (ns)", " ");
+    answer = getText("Observe the delay between feedback and GS0", " ");
+
 
     print(" ");
     print(TAB1 + "Setting the SEQUENCE DELAY to 10");
     setRAS_seqMode(OFF);
     setRAS_seqDelay(10);
     setRAS_seqMode(ON);
-    answer = getText("Observe the delay between SYNC and GS0 rising edges (ns)", " ");
+    answer = getText("Observe the delay between feedback and GS0", " ");
+
 
     print(" ");
-    const delay = tMux_p * NB_SAMPLES_PER_PIX - 1;
+    const delay = tMux * NB_SAMPLES_PER_PIX - 1;
     print(TAB1 + "Setting the SEQUENCE DELAY to " + delay + " (corresponds to -1)");
     setRAS_seqMode(OFF);
     setRAS_seqDelay(delay);
     setRAS_seqMode(ON);
-    answer = getText("Observe the delay between SYNC and GS0 rising edges (ns)", " ");
+    answer = getText("Observe the delay between feedback and GS0", " ");
 
     print(" ");
 }
 
 
-var tMux = 34
-rasInit(tMux);
-ras_sequence_delay(tMux);
+ras_sequence_delay();
 
 print("End of script");
 /**********************************************************************************************************************/

@@ -49,21 +49,21 @@ function ras_ps_overlap() {
 	setRAS_seqMode(OFF);
     setRAS_psOverlap(overlap);
 	setRAS_seqMode(ON);
-    var answer1 = getText("Observe the delay between the falling edge of PS7 and the rising edge of PS0", " ");
+    var answer1 = getText("Observe the delay between the falling edge of PS7 and the rising edge of PS0 (set to 0)", " ");
 
     overlap = -8;
     print(TAB1 + "Setting the PS overlap to " + overlap);
 	setRAS_seqMode(OFF);
     setRAS_psOverlap(overlap);
 	setRAS_seqMode(ON);
-    answer1 = getText("Observe the delay between the falling edge of PS7 and the rising edge of PS0", " ");
+    answer1 = getText("Observe the delay between the falling edge of PS7 and the rising edge of PS0 (set to -8)", " ");
 
     overlap = 7;
     print(TAB1 + "Setting the PS overlap to " + overlap);
 	setRAS_seqMode(OFF);
     setRAS_psOverlap(overlap);
 	setRAS_seqMode(ON);
-    answer1 = getText("Observe the delay between the falling edge of PS7 and the rising edge of PS0", " ");
+    answer1 = getText("Observe the delay between the falling edge of PS7 and the rising edge of PS0 (set to 7)", " ");
 
     const step_ms = 600;
     print(" ");
@@ -92,21 +92,21 @@ function ras_gs_overlap() {
 	setRAS_seqMode(OFF);
     setRAS_gsOverlap(overlap);
 	setRAS_seqMode(ON);
-    var answer2 = getText("Observe the delay between the falling edge of GS5 and the rising edge of GS0", " ");
+    var answer2 = getText("Observe the delay between the falling edge of GS4 and the rising edge of GS0 (set to 0)", " ");
 
     overlap = -8;
     print(TAB1 + "Setting the GS overlap to " + overlap);
 	setRAS_seqMode(OFF);
     setRAS_gsOverlap(overlap);
 	setRAS_seqMode(ON);
-    var answer2 = getText("Observe the delay between the falling edge of GS5 and the rising edge of GS0", " ");
+    var answer2 = getText("Observe the delay between the falling edge of GS4 and the rising edge of GS0 (set to -8)", " ");
 
     overlap = 7;
     print(TAB1 + "Setting the GS overlap to " + overlap);
 	setRAS_seqMode(OFF);
     setRAS_gsOverlap(overlap);
 	setRAS_seqMode(ON);
-    var answer2 = getText("Observe the delay between the falling edge of GS5 and the rising edge of GS0", " ");
+    var answer2 = getText("Observe the delay between the falling edge of GS4 and the rising edge of GS0 (set to 7)", " ");
 
     const step_ms = 600;
     print(" ");

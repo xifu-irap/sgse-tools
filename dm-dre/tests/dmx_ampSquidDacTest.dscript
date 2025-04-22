@@ -49,17 +49,18 @@ function testSequence(offsetMode, offsetLSB, offsetFine, offsetCoarse) {
 
     // Setting the testPattern to 2 rising slopes
     const a = -1*Math.pow(2, 15);
-    const b = 0;
-    const c = Math.pow(2,8);
-    const N = Math.pow(2,8) - 1;
-    const sawPattern = [
+    const b = 12;
+    const c = Math.pow(2,6);
+	const margin = 90; // to avoid saturation of ADC when ofco is looped back to the error
+    const N = Math.pow(2,10) - 1 - margin;
+    const rampPattern = [
         [a, b, c, N],  // Slope upward
-        [a/2, b, c/2, N],  // Slope upward
+        [0, 0, 0, 0],  // Nothing
         [0, 0, 0, 0],  // Nothing
         [0, 0, 0, 0],  // Nothing
         [0, 0, 0, 0]  // Nothing
     ]; 
-    setDMX_testPattern(sawPattern);
+    setDMX_testPattern(rampPattern);
 
     if (offsetMode === OFFSET_MODE_OFF) {
         // Setting the offset mode to OFF for all the columns
@@ -97,9 +98,19 @@ function testSequence(offsetMode, offsetLSB, offsetFine, offsetCoarse) {
     // Saving some data in dump acquisition mode
     sendToDMXGoToDumpMode();
 
-
 	var answer=getText("Type enter to finish the test", "");
 }
+
+
+function startSession(sessionName) {
+
+    // Init CDIF
+    sendToTMTC_SetWireIn(0, 1);
+    sendToTMTC_SetWireIn(0, 0);
+    sendToTMTC_SetWireIn(0, 2);
+    sendStartNewSession(sessionName, "");
+}
+
 
 /**
  * This function is called when the script is aborted
@@ -123,6 +134,10 @@ function onAbortScript() {
 
 // -------------------------------------------------------------------------------------------------------------
 
+
+startSession("offcoTest");
+
+
 const AMP_SQ_OFFSET_LSB = Math.pow(2, 12)-1;  // between 0 and 2^12-1
 //const AMP_SQ_OFFSET_LSB = 0x555; 
 
@@ -133,7 +148,6 @@ const AMP_SQ_OFFSET_FINE_1 = [  // 34 3-bit values
     7, 6, 5, 4, 3, 2, 1, 0,
     5, 2
 ];
-
 
 const AMP_SQ_OFFSET_FINE_2 = [  // 34 3-bit values
    7, 7, 7, 7, 7, 7, 7, 7,
@@ -148,9 +162,9 @@ const midValCoarse = Math.pow(2, 11);
 const maxValCoarse = Math.pow(2, 12)-1;
 
 //======= You should uncomment a single of the following lines
-//testSequence(OFFSET_MODE_OFFSET, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE_1, midValCoarse);
-testSequence(OFFSET_MODE_OFFSET, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE_2, midValCoarse);
-//testSequence(OFFSET_MODE_TESTPATTERN, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE_2, midValCoarse);
+//testSequence(OFFSET_MODE_OFFSET, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE_1, minValCoarse);
+//testSequence(OFFSET_MODE_OFFSET, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE_2, midValCoarse);
+testSequence(OFFSET_MODE_TESTPATTERN, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE_2, midValCoarse);
 
 // -------------------------------------------------------------------------------------------------------------
 

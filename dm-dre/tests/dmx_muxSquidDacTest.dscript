@@ -44,17 +44,24 @@ function testSequence(fbMode,fb_delay_p,  plsIndex_p) {
     setDMX_feedbackOnOff([ON, ON, ON, ON]);
 
     // Setting the feedback FB0 values
-    const minVal = -1*Math.pow(2, 13);
+	const margin = 1800
+    const minVal = -1*Math.pow(2, 13) + margin;
     const midVal = 0;
-    const maxVal = Math.pow(2, 13) - (1/Math.pow(2, 2));
+    const maxVal = Math.pow(2, 13) - (1/Math.pow(2, 2)) - margin;
 	
-    const tabFb0 = [
+    const tabFb0_0 = [
         minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
         minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
         minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
         minVal, midVal, maxVal, minVal, midVal, maxVal, minVal
     ];
-    for (var col=0; col<DMX_NB_COL; col++) setDMX_fb0(col, tabFb0);
+    const tabFb0_1 = [
+        maxVal, minVal, minVal, minVal, minVal, minVal, minVal, minVal, minVal,
+        minVal, minVal, minVal, minVal, minVal, minVal, minVal, minVal, minVal,
+        minVal, minVal, minVal, minVal, minVal, minVal, minVal, minVal, minVal,
+        minVal, minVal, minVal, minVal, minVal, minVal, minVal
+    ];
+    for (var col=0; col<DMX_NB_COL; col++) setDMX_fb0(col, tabFb0_1);
 
     // Setting the testPattern to 2 rising slopes
     const a = -1*Math.pow(2, 15);
@@ -68,10 +75,22 @@ function testSequence(fbMode,fb_delay_p,  plsIndex_p) {
         [0, 0, 0, 0],  // Nothing
         [0, 0, 0, 0]  // Nothing
     ];
+
+    const c2 = Math.pow(2,4);
+    const N2 = Math.pow(2,12) - 1;
+	const rampPattern = [
+        [a, b, c2, N2],  // Slope upward
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0]  // Nothing
+    ];
+
     setDMX_testPattern(sawPattern); 
+    //setDMX_testPattern(rampPattern); 
 
     // Selecting the pulse shaping type (0, 1, 2, 3)
-    print(TAB1 + "Setting the pulse shapping (PULSE_SHAPING_SELECTION) to " + fb_delay_p);
+    print(TAB1 + "Setting the pulse shapping (PULSE_SHAPING_SELECTION) to " + plsIndex_p);
     for (col=0; col<DMX_NB_COL; col++) setDMX_pulseShapingSelection(col, plsIndex_p);
 
     // setting the feedback delay (register: MUX_SQ_FB_DELAY)
@@ -103,7 +122,7 @@ function testSequence(fbMode,fb_delay_p,  plsIndex_p) {
 
     // Saving some data in error acquisition mode
     sendToDMXGoToErrorSignalMode();
-    const durationMs = 800;
+    const durationMs = 500;
     sendToDMXSaveScienceRaw("feedbackInErrorSignal", durationMs, 0xF, 0);
 	waitMs(durationMs + 100);
 
@@ -141,13 +160,13 @@ function onAbortScript() {
 
 // -------------------------------------------------------------------------------------------------------------
 
-startSession("muxSquidTest");
+startSession("fdbkTest");
 
 const FEEDBACK_MODE = FEEDBACK_MODE_OPEN_LOOP;
 //const FEEDBACK_MODE = FEEDBACK_MODE_TESTPATTERN;
 
 const PLS_INDEX = 0;  // PLS_INDEX in [0; 3]
-const FB_DELAY = 0;   // FB_DELAY in [-512, +40]
+const FB_DELAY = -3;   // FB_DELAY in [-512, +40]
 
 
 testSequence(FEEDBACK_MODE, FB_DELAY, PLS_INDEX);

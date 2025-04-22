@@ -44,15 +44,15 @@ function ras_test_pattern() {
     print(" ");
 
     setRAS_seqMode(OFF);
-    print(TAB1 + "Setting the address sequence for PS0 and PS1");
+    print(TAB1 + "Setting the address sequence for PS0 and PS7");
     setRAS_addressSequence( 0, 0x000000000000);
 	setRAS_DAC(DAC_PS_LOW, 0x800);
 
-    setRAS_addressSequence( 1, 0xFFFFFFFFFFFF);
+    setRAS_addressSequence( 7, 0xFFFFFFFFFFFF);
 	setRAS_DAC(DAC_PS_HIGH, 0x400);
 
     setRAS_seqMode(ON);
-	waitMs(4000);
+	waitMs(1000);
 
 
     print(TAB1 + "Setting the test pattern");
@@ -70,7 +70,7 @@ function ras_test_pattern() {
     setRAS_testPatternEnable('PS_LOW', true, false, 3);
     setRAS_seqMode(ON);
 
-    answer = getText("Ready to start infinite patterns on PS1 line? [yes]", " ");
+    answer = getText("Ready to start infinite patterns on PS7 line? [yes]", " ");
     setRAS_seqMode(OFF);
     setRAS_testPatternEnable('PS_HIGH', true, true, 0);
     setRAS_seqMode(ON);
@@ -93,7 +93,6 @@ function ras_test_pattern() {
 }
 
 rasInit();
-
 
 ras_test_pattern();
 
