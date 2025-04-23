@@ -26,11 +26,11 @@
 // -------------------------------------------------------------------------------------------------------------
 
 // imports
+include("../common/utilTools.dscript");
+include("../common/constants.dscript");
+
 include("../demux/dmxTools.dscript");
 include("../demux/dmxRegAddresses.dscript");
 include("../demux/dmxCheckDefaults.dscript");
-
-include("../common/utilTools.dscript");
-include("../common/constants.dscript");
 
 dmxCheckDefaults();

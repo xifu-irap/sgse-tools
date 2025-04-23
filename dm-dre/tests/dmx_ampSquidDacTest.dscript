@@ -26,10 +26,10 @@
 // -------------------------------------------------------------------------------------------------------------
 
 // imports
-include("../demux/dmxTools.dscript");
-include("../demux/dmxRegAddresses.dscript");
 include("../common/utilTools.dscript");
 include("../common/constants.dscript");
+include("../demux/dmxTools.dscript");
+include("../demux/dmxRegAddresses.dscript");
 
 /**
  * This function outputs a set of values or the test pattern on the offset compensation output
