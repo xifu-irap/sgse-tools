@@ -40,10 +40,9 @@ include("../demux/dmxRegAddresses.dscript");
  */
 function testSequence(offsetMode, offsetLSB, offsetFine, offsetCoarse) {
 
-    // Setting the Offset LSB, the offset fine and the offset coarse
+    // Setting the Offset LSB and the offset coarse
     for (var col = 0; col < DMX_NB_COL; col++) {
         setDMX_sqa_OffsetLSB(col, offsetLSB);
-        setDMX_sqa_OffsetFine(col, offsetFine, offsetFine);
         setDMX_sqa_OffsetCoarse(col, offsetCoarse);
     }
 
@@ -72,6 +71,9 @@ function testSequence(offsetMode, offsetLSB, offsetFine, offsetCoarse) {
         // Setting the offset mode to OFFSET for all the columns
         colOffsetMode = [OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET];
         setDMX_offsetMode(colOffsetMode);
+
+        // Setting the Offset fine
+        for (var col = 0; col < DMX_NB_COL; col++) setDMX_sqa_OffsetFine(col, offsetFine, offsetFine);
     }
 
     if (offsetMode === OFFSET_MODE_TESTPATTERN) {
