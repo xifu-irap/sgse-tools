@@ -48,8 +48,8 @@ include("../common/constants.dscript");
 // -------------------------------------------------------------------------------------------------------------
 
 //const signal = "erro-100o";
-//const signal = "erro-only";
-const signal = "erro-fdbk";
+const signal = "erro-only";
+//const signal = "erro-fdbk";
 //const signal = "erro-ofco";
 //const signal = "conf-FPAs";
 const nbDumpFiles = 128;

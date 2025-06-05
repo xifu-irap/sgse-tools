@@ -73,7 +73,7 @@ function testSequence(colOnOff) {
     for (var col = 0; col < DMX_NB_COL; col++) {
 
         // MUX SQUID and ERROR ADC
-        setDMX_feedbackOnOff(feedbackOnOff);
+        setDMX_safeFeedbackOnOff(feedbackOnOff);
 
 
         // AMP SQUID
@@ -128,7 +128,7 @@ function testSequence(colOnOff) {
         }
     }
 
-    setDMX_feedbackOnOff(feedbackOnOff);
+    setDMX_safeFeedbackOnOff(feedbackOnOff);
     setDMX_offsetMode(offsetMode);
 }
 

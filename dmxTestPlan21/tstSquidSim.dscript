@@ -51,7 +51,7 @@ function tstSquidSim(col_A_p, fb0_A_p, col_B_p, fb0_B_p) {
 
     // Switching ON the feedback for all the columns
 	print(TAB1+"Switching ON the feedback OnOff for all the columns...");
-    setDMX_feedbackOnOff([ON, ON, ON, ON]);
+    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
 
     // DEMUX feedback
 	print(TAB1+"Setting the DMX FB0 values for col : " + col_A_p);

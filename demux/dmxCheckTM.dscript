@@ -27,7 +27,8 @@
 
 // imports
 include("../demux/dmxTools.dscript");
-include("../common/constants.dscript");
+include("../common/constants.dscript");
+
 
 /**
  * This function makes different kinds of TM files (TEST PATTERN, ERROR, DUMP)
@@ -100,7 +101,7 @@ function dmxTMCheck() {
     setDMX_sqm_FBMode(colId, FBMode);
 
     print("  Setting the MUX SQUID feedback ON for column 1");
-    setDMX_feedbackOnOff([OFF, ON, OFF, OFF]);
+    setDMX_safeFeedbackOnOff([OFF, ON, OFF, OFF]);
 
     print("  Enabling the test pattern for 4 iterations");
     setDMX_testPatternEnable(enable, infinite, numberIterations);

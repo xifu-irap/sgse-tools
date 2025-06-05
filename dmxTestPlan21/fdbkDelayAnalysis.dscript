@@ -126,7 +126,7 @@ function configure_test(ra_delay_p, fb0_p, offsetLSB_p, offsetFine_p, offsetCoar
     // Switching ON the feedback for all the columns
 	print(TAB1+"Switching the feedback OnOff for all the columns:");
     const colOnOff = [ON, ON, ON, ON];
-    setDMX_feedbackOnOff(colOnOff);
+    setDMX_safeFeedbackOnOff(colOnOff);
 
     // DEMUX feedback
 	print(TAB1+"Setting the DMX feedback mode to OPEN_LOOP (FB0 -> FEEDBACK output)...");

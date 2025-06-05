@@ -72,7 +72,7 @@ function charac_RA_DELAY(ra_delay_p) {
     sendToFPAsim_configureRaDelay(ra_delay_p);
 
     // Switching ON the feedbacks
-    setDMX_feedbackOnOff([ON, ON, ON, ON]);
+    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
 
     // Data acquisition
 	waitMs(500);
@@ -108,7 +108,7 @@ function charac_FB_DELAY(fb_delay_p, fb0_p) {
 	}
 
     // Switching ON the feedbacks
-    setDMX_feedbackOnOff([ON, ON, ON, ON]);
+    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
 
     // DEMUX feedback
 	print(TAB1+"Setting the DMX FB0 to a constant value except for pixel 0...");
@@ -153,15 +153,23 @@ function charac_OFFSET_DELAY(of_delay_p) {
 	}
 	
     // Switching ON the columns
-    setDMX_feedbackOnOff([ON, ON, ON, ON]);
-
-    // setting the feedback to 0 
-	print(TAB1+"Setting the all DMX FB0 to 0...");
-    var fb = makeArray(DMX_NB_PIX_PER_COL, 0);
-	for (colId=0; colId<DMX_NB_COL; colId++) {
-		setDMX_fb0(colId, fb);
-	}
-	print("");
+    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
+
+
+    // setting the feedback to 0 
+
+	print(TAB1+"Setting the all DMX FB0 to 0...");
+
+    var fb = makeArray(DMX_NB_PIX_PER_COL, 0);
+
+	for (colId=0; colId<DMX_NB_COL; colId++) {
+
+		setDMX_fb0(colId, fb);
+
+	}
+
+	print("");
+
 
     // DEMUX offset
 	print(TAB1+"Setting the offset mode to OFFSET (OFFSET -> OFFSET output)...");
@@ -224,7 +232,7 @@ function check_everything(ra_delay_p, fb_delay_p, of_delay_p, fb0_p) {
 	}
 	
     // Switching ON the feedbacks
-    setDMX_feedbackOnOff([ON, ON, ON, ON]);
+    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
 
     // DEMUX feedback
 	print(TAB1+"Setting the DMX FB0 to a constant value except for pixel 0...");
@@ -289,7 +297,7 @@ function check_feedback_vs_RA(ra_delay_p, fb_delay_p, fb0_p) {
 	}
 
     // Switching ON the feedbacks
-    setDMX_feedbackOnOff([ON, ON, ON, ON]);
+    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
 
     // DEMUX feedback
 	print(TAB1+"Setting the DMX FB0 to a constant value except for pixel 0...");

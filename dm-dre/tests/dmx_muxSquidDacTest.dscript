@@ -41,7 +41,7 @@ include("../demux/dmxHk.dscript");
 function testSequence(fbMode,fb_delay_p,  plsIndex_p) {
 
     // Switching ON the columns
-    setDMX_feedbackOnOff([ON, ON, ON, ON]);
+    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
 
     // Setting the feedback FB0 values
 	const margin = 1800
@@ -55,6 +55,8 @@ function testSequence(fbMode,fb_delay_p,  plsIndex_p) {
         minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
         minVal, midVal, maxVal, minVal, midVal, maxVal, minVal
     ];
+
+	
     const tabFb0_1 = [
         maxVal, minVal, minVal, minVal, minVal, minVal, minVal, minVal, minVal,
         minVal, minVal, minVal, minVal, minVal, minVal, minVal, minVal, minVal,

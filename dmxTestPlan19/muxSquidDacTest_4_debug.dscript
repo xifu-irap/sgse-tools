@@ -35,11 +35,8 @@ include("../common/constants.dscript");
 /**
  * This function activates the Mux SQUID and outputs the FB0 set of values or the test pattern
  * @param {number} fbMode - feedback mode (FEEDBACK_MODE_OPEN_LOOP or FEEDBACK_MODE_TESTPATTERN)
- * @param {string} TST_PATTERN - Name of the test pattern
- * @param {boolean} SAVE_DUMP - if true a dump is saved
- * @param {boolean} SAVE_ERROR - if true data are saved in error acquisition mode
  */
-function testSequence(fbMode, TST_PATTERN, SAVE_DUMP, SAVE_ERROR) {
+function testSequence(fbMode) {
 
     // Switching ON the columns
     setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
@@ -56,6 +53,45 @@ function testSequence(fbMode, TST_PATTERN, SAVE_DUMP, SAVE_ERROR) {
         minVal, midVal, maxVal, minVal, midVal, maxVal, minVal
     ];
     for (var col=0; col<DMX_NB_COL; col++) setDMX_fb0(col, tabFb0);
+
+    // Setting the feedback FB0 values to test problem on D9 (512) on col 1===============================
+	const base1 = 529; // seuil pour voir probleme a 512 sur col 1
+	//const base1 = 550; // seuil pas de probleme sur col 1
+    const minVal1 = base1 + 10;
+    const maxVal1 = base1 + 20;
+	const base1_2 = 529 + 512 + 38; // seuil pour voir probleme a 1024 sur col 1
+    const minVal1_2 = base1_2 + 10;
+    const maxVal1_2 = base1_2 + 20;
+	
+    // Setting the feedback FB0 values to test problem on col 3===============================
+	//const base2 = 32; // seuil pour voir probleme a 16 sur col 3
+	const base2 = 150; // seuil pour voir probleme a 128 sur col 3
+	//const base2 = 550; // seuil pas de probleme sur col 1
+	//const base2 = 529 + 512 + 40; // seuil pour voir probleme a 1024 sur col 1
+    const minVal2 = base2 + 0;
+    const maxVal2 = base2 + 16;
+
+	const Offset = 50;
+    const tabFb0_1 = [
+        maxVal1, minVal1, maxVal1, minVal1, maxVal1, minVal1, maxVal1,
+        Offset,  Offset,  Offset,  Offset,  Offset,  
+		maxVal1_2, minVal1_2, maxVal1_2, minVal1_2, maxVal1_2, minVal1_2, maxVal1_2,
+		Offset, Offset, Offset, Offset,  
+        maxVal2, minVal2, maxVal2, minVal2, maxVal2, minVal2, maxVal2,
+        Offset, Offset, Offset, Offset,  
+    ];
+    for (col=0; col<DMX_NB_COL; col++) setDMX_fb0(col, tabFb0_1);
+
+	const v1 = 800;
+	const v2 = 1256;
+    const tabFb0_3 = [
+        v1, v2, v1, v2, v1, v2, v1, v2,
+        v1, v2, v1, v2, v1, v2, v1, v2,
+        v1, v2, v1, v2, v1, v2, v1, v2,
+        v1, v2, v1, v2, v1, v2, v1, v2,
+        v1, v2
+    ];
+    for (col=0; col<DMX_NB_COL; col++) setDMX_fb0(col, tabFb0_3);
 
 
     // Setting a testPattern to 2 rising slopes
@@ -95,11 +131,11 @@ function testSequence(fbMode, TST_PATTERN, SAVE_DUMP, SAVE_ERROR) {
         [0, 0, 0, 0],  // Nothing
         [0, 0, 0, 0],  // Nothing
         [0, 0, 0, 0]  // Nothing
-    ];
+     ];
 	
-    if (TST_PATTERN === "SAW_PATTERN") setDMX_testPattern(sawPattern);
-    if (TST_PATTERN === "HR_RISE_RAMP_PATTERN") setDMX_testPattern(HRRiseRampPattern);
-    if (TST_PATTERN === "HR_FALL_RAMP_PATTERN") setDMX_testPattern(HRFallRampPattern);
+    //setDMX_testPattern(sawPattern); 
+    //setDMX_testPattern(HRRiseRampPattern); 
+    setDMX_testPattern(HRFallRampPattern); 
 
     // Selecting the pulse shaping type (0, 1, 2, 3)
     var pulseShapingType = 0;
@@ -121,19 +157,14 @@ function testSequence(fbMode, TST_PATTERN, SAVE_DUMP, SAVE_ERROR) {
         var infinitely = true;
         var nbTime = 0x9;
         setDMX_testPatternEnable(enable, infinitely, nbTime);
+		
     }
-
-    if (SAVE_DUMP) {
-        sendToDMXGoToDumpMode();
-    }
-
-    if (SAVE_ERROR) {
-        print("Saving some data in error acquisition mode");
-        sendToDMXGoToErrorSignalMode();
-        const durationMs = 300;
-        sendToDMXSaveScienceRaw("feedbackInErrorSignal", durationMs, 0xF, 0);
-        waitMs(durationMs + 100);
-    }
+	
+	print("Saving some data in error acquisition mode");
+    sendToDMXGoToErrorSignalMode();
+    const durationMs = 300;
+    sendToDMXSaveScienceRaw("feedbackInErrorSignal", durationMs, 0xF, 0);
+	waitMs(durationMs + 100);
 
 	var answer=getText("Type enter to finish the test", "");
 }
@@ -152,8 +183,12 @@ function onAbortScript() {
     // de-activating the test pattern
     setDMX_testPatternEnable(false, false, 0);
 
+
     // de-activating data acquisition
+
     sendToDMXGoToIdleMode();
+
+
 	print("End of script!");
 }
 
@@ -161,19 +196,9 @@ function onAbortScript() {
 
 startSession("test_dmx_feedback");
 
-// ----- Configuration of the test (comment / uncomment the lines accordingly)
-const FB_MODE = FEEDBACK_MODE_OPEN_LOOP;
-//const FB_MODE = FEEDBACK_MODE_TESTPATTERN;
-
-const TST_PATTERN = "SAW_PATTERN";
-//const TST_PATTERN = "HR_RISE_RAMP_PATTERN";
-//const TST_PATTERN = "HR_FALL_RAMP_PATTERN";
-
-SAVE_DUMP = false;
-SAVE_ERROR = false;
-
-// ----- Running the test
-testSequence(FB_MODE, TST_PATTERN, SAVE_DUMP, SAVE_ERROR);
+// You should uncomment a single of the following lines
+testSequence(FEEDBACK_MODE_OPEN_LOOP);
+//testSequence(FEEDBACK_MODE_TESTPATTERN);
 
 onAbortScript();
 

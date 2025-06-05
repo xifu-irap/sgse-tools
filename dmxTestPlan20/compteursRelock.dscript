@@ -39,12 +39,12 @@ function setFeedbackOn(colId) {
  // Switching ON the feedback for the selected column
     var colOnOff = [OFF, OFF, OFF, OFF];
     colOnOff[colId] = ON;
-    setDMX_feedbackOnOff(colOnOff);
+    setDMX_safeFeedbackOnOff(colOnOff);
 }
 
 function setFeedbacksOff() {
 	// Switching the feedback Off for the all the columns
-    setDMX_feedbackOnOff([OFF, OFF, OFF, OFF]);
+    setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
 }
 	
 // Tester la saturation des compteurs de relock
@@ -108,7 +108,10 @@ for (var col = 0; col < DMX_NB_COL; col+=1) {
 
 // -------------------------------------------------------------------------------------------------------------
 print("Done!");
-
-//setDMX_delockCounters(0, 0x0005);
-//print("Delock counters: " + readDMX_delockCounters(0));
+
+
+//setDMX_delockCounters(0, 0x0005);
+
+//print("Delock counters: " + readDMX_delockCounters(0));
+
 

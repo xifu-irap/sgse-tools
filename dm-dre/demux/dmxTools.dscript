@@ -104,6 +104,7 @@ function setDMX_feedbackOnOff(feedbackOnOff_p) {
 	sendToDMXReadRegister(ADD_DMX_MUX_SQ_FB_ON_OFF);  // pour que XIFU STUDIO recupere l'information
 }
 
+
 /**
  * Reads the feedback status (MUX_SQ_FB_ON_OFF).
  * @return {array} feedbackOnOff - Feedback on/off mode [0, 7].
@@ -117,6 +118,28 @@ function readDMX_feedbackOnOff() {
     for (var col=0; col< DMX_NB_COL; col++) fbOnOff[col] = (registerVal >> (4*col)) & 0x0001;
     return fbOnOff;
 }
+
+
+/**
+ * Sets the mux SQUID feedback On or Off (MUX_SQ_FB_ON_OFF).
+ * This functions updates the status of the feedback OnOff one colum after the other
+ * To reduce the current skews on the DEMUX board
+ * @param {array} feedbackOnOff_p - four values (one per column):
+ *      0: feedback is off
+ *      1: feedback is on.
+ */
+function setDMX_safeFeedbackOnOff(feedbackOnOff_p) {
+    var value = 0;
+    const current_feedbackOnOff = readDMX_feedbackOnOff();
+
+    for (var col=0; col<DMX_NB_COL; col++) {
+        if (feedbackOnOff_p[col] !== current_feedbackOnOff[col]) {
+            current_feedbackOnOff[col] = feedbackOnOff_p[col];
+            setDMX_feedbackOnOff(current_feedbackOnOff);
+        }
+    }
+}
+
 
 /**
  * Sets the AMP SQUID offset mode (AMP_SQ_OFFSET_MODE).

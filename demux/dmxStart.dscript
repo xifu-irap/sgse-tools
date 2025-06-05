@@ -94,7 +94,7 @@ function demuxStart(samp_delay_p, bxLength_p, fb_delay_p, fb0_p, offsetLSB_p, of
 
     // Switching ON the feedback for all the columns
 	print(TAB1+"Switching OFF the feedback OnOff for all the columns...");
-    setDMX_feedbackOnOff([OFF, OFF, OFF, OFF]);
+    setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
 	
 	print(TAB1 + "Setting the test pattern");
     const a1 = -1*Math.pow(2, 15);
@@ -192,7 +192,7 @@ function demuxStart(samp_delay_p, bxLength_p, fb_delay_p, fb0_p, offsetLSB_p, of
 	for (col=0; col<DMX_NB_COL; col++) setDMX_fb0(col, fb);
 
 	print(TAB1+"Switching ON the feedback OnOff for all the columns...");
-    setDMX_feedbackOnOff([ON, ON, ON, ON]);
+    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
 
 	print(TAB1+"Setting the DMX feedback mode to OPEN LOOP...");
 	fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);

@@ -51,7 +51,7 @@ function ras_sequence_delay() {
 	rasInit(tMux);
 	
 	print(TAB1+"Switching ON the DEMUX columns");
-    setDMX_feedbackOnOff([ON, ON, ON, ON]);
+    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
 
     print(TAB1+"Setting the feedback FB0 values");
 	const margin = 1800

@@ -119,7 +119,7 @@ function dmxCheckReadWrite() {
 
     values = [ON, OFF, OFF, ON];
     print(TAB1 + "Setting new values: " + values);
-    setDMX_feedbackOnOff(values);
+    setDMX_safeFeedbackOnOff(values);
 
     checked_values = readDMX_feedbackOnOff();
     print(TAB1 + "Reading the new values from the firmware: " + checked_values);
@@ -128,7 +128,7 @@ function dmxCheckReadWrite() {
     if (arraysAreEquals(values, checked_values)) MESSAGE = MESSAGE_OK;
     print(TAB1 + MESSAGE);
     if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
-    setDMX_feedbackOnOff([OFF, OFF, OFF, OFF]); // Switching columns OFF
+    setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]); // Switching columns OFF
 
 
     /******************************************************************************************************************/

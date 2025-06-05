@@ -95,7 +95,7 @@ function characLinearityFdbk(neg_p) {
 
     // Switching ON the feedbacks
 	print(TAB1+"Switching feedbacks ON...");
-    setDMX_feedbackOnOff([ON, ON, ON, ON]);
+    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
 
     // DEMUX feedback
 	print(TAB1+"Setting the DMX feedback mode to OPEN_LOOP (FB0 -> FEEDBACK output)...");
