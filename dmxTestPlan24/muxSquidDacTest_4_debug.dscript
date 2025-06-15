@@ -183,11 +183,11 @@ function onAbortScript() {
     // de-activating the test pattern
     setDMX_testPatternEnable(false, false, 0);
 
-
     // de-activating data acquisition
-
     sendToDMXGoToIdleMode();
 
+    // Switching OFF the columns
+    setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
 
 	print("End of script!");
 }

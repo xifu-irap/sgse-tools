@@ -35,6 +35,8 @@ include("../common/constants.dscript");
  */
 function dmxTMCheck() {
 
+    const saveDataDurationMs = 300;
+
     /******************************************************************************************************************/
     plotLongLine();
     print("Configuring the test pattern...");
@@ -60,16 +62,21 @@ function dmxTMCheck() {
 
     /******************************************************************************************************************/
     plotLongLine();
-    print("Sending the test pattern to the TM link...");
+    print("===> Testing the TEST PATTERN data acquisition mode...");
 
-    print("  Configuring the data acquisition mode to: TEST_PATTERN");
+    print(TAB1 + "Configuring the data acquisition mode to: TEST_PATTERN");
     setDMX_dataAcqMode(ACQ_MODE_TSTPATTERN);
 
-    print("  Enabling the test pattern for 4 iterations");
+    // Start saving some data
+    sendToDMXSaveScienceRaw("feedbackInErrorSignal", saveDataDurationMs, 0xF, 0);
+
+    print(TAB1 + "Saving some data while enabling the test pattern for 4 iterations");
     const enable = true;
     const infinite = false;
     const numberIterations = 4;
     setDMX_testPatternEnable(enable, infinite, numberIterations)
+
+    waitMs(1000); //      On attend que le test pattern soit passé
 
     //      Des données de type test pattern sont envoyées sur le lien science
     // ==>> La sauvegarde dans un fichier SCIENCE / TEST PATTERN doit commencer
@@ -80,15 +87,16 @@ function dmxTMCheck() {
 
     /******************************************************************************************************************/
     plotLongLine();
+    print("===> Testing the ERROR data acquisition mode...");
     print("Sending the test pattern to the SQM feedback...");
-    print("  The feedback is looped back to the error ADC. The test pattern can be observed on the error signal.");
+    print(TAB1 + "The feedback loopback shall be plugged on the DEMUX!!");
 
-    print("  Configuring the data acquisition mode to: ERROR");
+    print(TAB1 + "Configuring the data acquisition mode to: ERROR");
     setDMX_dataAcqMode(ACQ_MODE_ERROR);
     //      Des données de type ERROR commencent à être envoyées sur le lien science
     // ==>> La sauvegarde dans un fichier ERROR doit commencer
 
-    print("  Configuring the feedback mode of column 1, pixel 0 and 5 to: TEST PATTERN");
+    print(TAB1 + "Configuring the feedback mode of column 1, pixel 0 and 5 to: TEST PATTERN");
     var colId = 1;
     var FBMode = [
         FEEDBACK_MODE_TESTPATTERN, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP,
@@ -100,14 +108,16 @@ function dmxTMCheck() {
         FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP];
     setDMX_sqm_FBMode(colId, FBMode);
 
-    print("  Setting the MUX SQUID feedback ON for column 1");
-    setDMX_safeFeedbackOnOff([OFF, ON, OFF, OFF]);
+    print(TAB1 + "Activating the 4 columns");
+    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
 
-    print("  Enabling the test pattern for 4 iterations");
+    // Start saving some data
+    sendToDMXSaveScienceRaw("feedbackInErrorSignal", saveDataDurationMs, 0xF, 0);
+
+    print(TAB1 + "Saving some data while enabling the test pattern for 4 iterations");
     setDMX_testPatternEnable(enable, infinite, numberIterations);
 
-    waitMs(1000);
-    //      On attend que le test pattern soit passé
+    waitMs(1000); //      On attend que le test pattern soit passé
 
     print("  Configuring the data acquisition mode to: IDLE");
     setDMX_dataAcqMode(ACQ_MODE_IDLE);
@@ -118,10 +128,25 @@ function dmxTMCheck() {
 
     /******************************************************************************************************************/
     plotLongLine();
-    print("Measuring a dump file...");
-    print("  Not sure to see data from the test pattern (the dump is too short).")
+    print("===> Testing the DUMP data acquisition mode...");
 
-    print("  Configuring the data acquisition mode to: DUMP");
+    print(TAB1 + "Setting the feedback FB0 values");
+    const minVal = -1*Math.pow(2, 13);
+    const maxVal = Math.pow(2, 13) - (1/Math.pow(2, 2));
+
+    const tabFb0 = [
+        maxVal, minVal, maxVal, minVal, minVal, minVal, minVal, minVal, minVal,
+        minVal, minVal, minVal, minVal, minVal, minVal, minVal, minVal, minVal,
+        minVal, minVal, minVal, minVal, minVal, minVal, minVal, minVal, minVal,
+        minVal, minVal, minVal, minVal, minVal, minVal, minVal
+    ];
+    for (var col=0; col<DMX_NB_COL; col++) setDMX_fb0(col, tabFb0);
+
+    print(TAB1 + "Configuring the feedback mode to: OPEN LOOP");
+    var tabFbModesOpenLoop = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
+    for (col=0; col<DMX_NB_COL; col++) setDMX_sqm_FBMode(col, tabFbModesOpenLoop);
+
+    print(TAB1 + "Measuring DUMP data");
     setDMX_dataAcqMode(ACQ_MODE_DUMP);
 
     //      Des données de type DUMP sont envoyées sur le lien science
@@ -133,3 +158,38 @@ function dmxTMCheck() {
     /******************************************************************************************************************/
     plotLongLine();
 }
+
+
+function startSession(sessionName) {
+    sendStartNewSession(sessionName, "");
+}
+
+
+/**
+ * This function is called when the script is aborted
+ */
+function onAbortScript() {
+
+    // de-activating the test pattern
+    setDMX_testPatternEnable(false, false, 0);
+
+    // de-activating data acquisition
+    sendToDMXGoToIdleMode();
+
+    // Switching OFF the columns
+    setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
+
+	print("End of script!");
+}
+
+
+// -------------------------------------------------------------------------------------------------------------
+
+startSession("dmxCheckTM");
+
+// ----- Running the test
+dmxTMCheck();
+
+onAbortScript();
+
+// -------------------------------------------------------------------------------------------------------------

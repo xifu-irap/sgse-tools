@@ -36,4 +36,15 @@ const ON = 1;
 const OFF = 0;
 const TABUL = "   ";
 
+// SPI error codes
+const SPI_ERROR_NONE = 0xFFFF;
+const SPI_ERROR_INVALID_REGISTER_ADDRESS = 0x7FFF;
+const SPI_ERROR_DATA_NOT_COMPLETE = 0xBFFF;
+const SPI_ERROR_READ_ONLY_REGISTER = 0xDFFF;
+const SPI_ERROR_PARAMETER_OUT_OF_RANGE = 0xEFFF;
+const SPI_ERROR_PARAMETER_NOT_INITIALIZED = 0xF7FF;
+const SPI_ERROR_COMMAND_INCOMPATIBILITY = 0xFBFF;
+const SPI_ERROR_MODULE_IS_BUSY = 0xFDFF;
+const SPI_ERROR_MODULE_IS_OFF = 0x0000;
+
 // -------------------------------------------------------------------------------------------------------------
