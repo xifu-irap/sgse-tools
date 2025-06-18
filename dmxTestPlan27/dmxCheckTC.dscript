@@ -32,6 +32,10 @@ include("../common/constants.dscript");
 
 /**
  * This function sends a TC for a specific SPI error
+ * @param {string} ERROR_NAME_p - name of the error flag to be displayed.
+ * @param {number} ADDRESS_p - address of the register to be used when sending the command.
+ * @param {number} VALUE_p - value of the parameter to be used when sending the command.
+ * @param {number} ERROR_CODE_p - expected error code related to the command.
  */
 function makeTCError(ERROR_NAME_p, ADDRESS_p, VALUE_p, ERROR_CODE_p) {
     print(TAB1 + "Sending value " + VALUE + " to address " + ADDRESS);
