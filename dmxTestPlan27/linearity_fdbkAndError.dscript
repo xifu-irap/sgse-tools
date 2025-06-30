@@ -117,11 +117,11 @@ for (var scan=0; scan<nbScans; scan++) {
 
 }
 
-sendStopSession();
 onAbortScript();
 
 function onAbortScript() {
 	sendToDMXGoToIdleMode();
+	sendStopSession();
 	print("End of script!");
 }
 

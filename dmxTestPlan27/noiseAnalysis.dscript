@@ -58,7 +58,7 @@ const pattern = "FULL";
 
 function noiseAnalysis(signal, fb_Volts) {
 
-    const sessionName = "noise_" + signal + "_Fb=" + fb_Volts + "V";
+    const sessionName = "noise_" + signal + "_Fb" + fb_Volts + "V";
     startSession(sessionName);
 
     print(TAB1 + "Configuring the DEMUX");
@@ -92,9 +92,9 @@ function onAbortScript() {
 // -------------------------------------------------------------------------------------------------------------
 
 //const analysed_signal = "erro-100o";
-const analysed_signal = "erro-only";
+//const analysed_signal = "erro-only";
 //const analysed_signal = "erro-fdbk";
-//const analysed_signal = "erro-ofco";
+const analysed_signal = "erro-ofco";
 //const analysed_signal = "conf-FPAs";
 const fb0_Volts = 0.4;
 

@@ -37,84 +37,72 @@ include("../common/constants.dscript");
 /**
  *
  */
-function caracErrorkBandShape() {
+function caracErrorBandShape() {
 
-	/*
-	Starting and configuring the DEMUX
-	*/
-	const pulseShapingSet  = 0;
-	const boxcarL = 0;
-	const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
-	// Nulling the fast DAC contribution to the offset
-	OffsetFine0 = 0;
-	offsetLSB0 = 0;
-	inputGain =  [1, 1, 1, 1];
-	demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSB0, OffsetFine0, offsetCoarseOpt, pulseShapingSet, lockPointVOpt, inputGain);
-
+    print("");
+    print("***");
+    print("* Configuring setup");
+    print("***");
+
+    // Selecting the pulse shaping set
+	pulseShapingSet = 0;
+	print(TAB1+"Selecting the pulse shaping set number " + pulseShapingSet + " (highest BW of the Feedback)");
+	for (var col=0; col<DMX_NB_COL; col++)setDMX_pulseShapingSelection(col, pulseShapingSet);
+
+    // Switching ON the feedback for all the columns
+	print(TAB1+"Switching the feedback OnOff for all the columns:");
+    const colOnOff = [ON, ON, ON, ON];
+    setDMX_safeFeedbackOnOff(colOnOff);
+
+    // DEMUX feedback
+	print(TAB1+"Setting the DMX feedback mode to OPEN_LOOP (FB0 -> FEEDBACK output)...");
+	print(TAB1+"Setting the DMX FB0 to 0 except for pixel 0...");
+    var fb = makeArray(DMX_NB_PIX_PER_COL, 0);
+    fb[0] = 1000;
+	for (var col=0; col<DMX_NB_COL; col++) {
+		setDMX_fb0(col, fb);
+		setDMX_sqm_FBMode(col, makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP));
+	}
+	print("");
+
+
+	// Doing several dump files (will be averaged during data processing
+	nbDumpFiles = 32;
+	print(TAB1+"Measuring " + nbDumpFiles + " dump files...");
+	for (var i = 0; i<nbDumpFiles; i++) sendToDMXGoToDumpMode();
+
 }
+
+
+function startSession(sessionName) {
+    sendStartNewSession(sessionName, "");
+}
+
+
+/**
+ * This function is called when the script is aborted
+ */
+function onAbortScript() {
+
+    // de-activating data acquisition
+    sendToDMXGoToIdleMode();
+
+    // Switching OFF the columns
+    setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
+
+	print("End of script!");
+}
+
+// -------------------------------------------------------------------------------------------------------------
+
+sessionName = "caracErrorBandShape";
+startSession(sessionName);
+
+caracErrorBandShape();
 
-//caracErrorkBandShape();
-
-
-
-
-col=2;
-
-
-
-sessionName = "errorBandShape-col"+col;
-
-sendStartNewSession(sessionName, "");
-
-
-
-
-
-// Doing several dump files (will be averaged during data processing
-
-nbDumpFiles = 32;
-
-print(TAB1+"Measuring " + nbDumpFiles + " dump files...");
-
-for (var i = 0; i<nbDumpFiles; i++) {
-
-	setDMX_dataAcqMode(ACQ_MODE_DUMP);
-
-}
-
-
-
-// Scanning the different values of the sampling delay
-
-// Using all sampling delay settings 
-
-setDMX_dataAcqMode(ACQ_MODE_ERROR);
-
-duration = 200;
-
-delta_duration=100;
-
-nbErrorFiles = 32;
-
-print(TAB1+"Measuring " + nbErrorFiles + " error files...");
-
-
-
-for (var i=0; i<nbErrorFiles; i++) {
-
-	// Doing an error file
-
-	filename="ErrorFile_" + ("00" + i).slice(-2);
-
-	sendToDMXSaveScienceRaw(filename, duration, 1<<col, 0);
-
-	waitMs(duration+delta_duration);
-
-}
-
+onAbortScript();
 
 // -------------------------------------------------------------------------------------------------------------
-print("End of script!");
 
 
 
