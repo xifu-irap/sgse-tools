@@ -108,7 +108,7 @@ function sendToWFEEReadRegister(address) {
     sendToRASReadRegister(addressField);    // Readout from the RAS
 
     getLatestValue("RAS_registers");
-    return(RAS_register[addressField]);
+    return(RAS_registers[addressField]);
 }
 
 /**

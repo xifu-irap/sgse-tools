@@ -1,0 +1,2754 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Ken-ji de la Rosa, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE Focal Plane Assembly simulator.
+//
+//                              fpasim-fw is free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                   kenji.delarosa@alten.com
+//    @file                   cdcd72010.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    Automatic Generation    No
+//    Code Rules Reference
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//   This script defines base functions to access (read/write) the CDCE device (FMC150 card) via the FPASim SPI module bridge.
+//
+//    Note:
+//       . Tested with javascript
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// import libraries
+//include("./fpasim/utils_tools.dscript");
+//include("./fpasim/fpasim.dscript");
+
+// define the SPI device registers (see datasheet: cdce72010 device)
+const CDCE_ADDR = {};
+CDCE_ADDR['reg0'] = 0x00;
+CDCE_ADDR['reg1'] = 0x01;
+CDCE_ADDR['reg2'] = 0x02;
+CDCE_ADDR['reg3'] = 0x03;
+CDCE_ADDR['reg4'] = 0x04;
+CDCE_ADDR['reg5'] = 0x05;
+CDCE_ADDR['reg6'] = 0x06;
+CDCE_ADDR['reg7'] = 0x07;
+CDCE_ADDR['reg8'] = 0x08;
+CDCE_ADDR['reg9'] = 0x09;
+CDCE_ADDR['reg10'] = 0x0A;
+CDCE_ADDR['reg11'] = 0x0B;
+CDCE_ADDR['reg12'] = 0x0C;
+
+// verbosity min to display register access
+const c_CDCE_REG_VERBOSITY_MIN = 0;
+// verbosity min to display (addr,data)
+const c_CDCE_ADDR_VERBOSITY_MIN = 1;
+// verbosity min to display register bit
+const c_CDCE_BIT_VERBOSITY_MIN = 2;
+
+// address width of the spi device register
+const c_CDCE_SPI_ADDR_WIDTH = 4;
+// data width of the spi device register
+const c_CDCE_SPI_DATA_WIDTH = 28;
+
+
+/**
+  This function reverse the bit orders.
+  Example:
+      width_p  | value_p            | return value               |
+      ---------|--------------------|----------------------------|
+      4        | 1 ("0001")         | 8 ("1000")                 |
+      4        | 3 ("0011")         | 12 ("1100")                |
+      4        | 3 ("0111")         | 14 ("1110")                |
+      5        | 1 ("00001")        | 16 ("10000")               |
+
+  * @param {number} value_p - value.
+  * @param {number} width_p - width of the input value (expressed in bits)
+  * @return {number} value with the reversed bit
+
+*/
+function reverse_bit_order(value_p, width_p) {
+    res = 0;
+    bit_max_pos = width_p - 1;
+    for (i = 0; i < width_p; i++) {
+        // get bit value (LSB first)
+        value = (value_p >> i) & 0x1;
+        res = res + value * Math.pow(2, bit_max_pos - i);
+    }
+    return res;
+}
+
+/**
+ * Enable the FPASIM SPI MODULE (bridge)
+ *
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ */
+function cdce_spi_enable(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+
+    const level0 = level_p;
+
+    //---------------------------------------------------------------------
+    //-- write in the SPI_CTRL register
+    //---------------------------------------------------------------------
+
+    // en the spi links
+    const rst = 0;
+    const en = 1;
+    fpasim_set_spi_ctrl(rst, en, level0, mode_p, verbosity_p);
+}
+
+/**
+ * Write a spi device register through the FPASIM SPI MODULE (bridge).
+ *
+ * @param {number} addr_p - register address of the SPI device to write.
+ * @param {number} data_p - value to write in the spi device register.
+ */
+function cdce_write_command(addr_p, data_p) {
+
+    //---------------------------------------------------------------------
+    // write in the SPI_CONF0 register
+    //---------------------------------------------------------------------
+    const spi_mode = 1; // 0: rd, 1: wr
+    const spi_id = 0; // 0: cdce,1: adc, 2: dac, 3: amc
+    fpasim_set_spi_conf0(spi_id, spi_mode, 0, 0, -1);
+
+    //---------------------------------------------------------------------
+    // build and write the SPI commands
+    //    (seecdcd72010 datasheet)
+    //---------------------------------------------------------------------
+    // bit27 bit26 ... bit0 addr3 .. addr0
+    spi_cmd = (data_p << 4) + addr_p;
+
+    // reverse bit order:
+    // addr0 addr1 .... bit0 ... bit26 bit27
+    spi_cmd = reverse_bit_order(spi_cmd, 32);
+    fpasim_set_spi_wr_data(spi_cmd, 0, 0, -1);
+}
+
+/**
+ * Read spi device register value.
+ *
+ * @param {number} addr_p - register address of the SPI device to read.
+ * @return {number} read value from the spi device register.
+ *
+ */
+function cdce_read_command(addr_p) {
+
+    //---------------------------------------------------------------------
+    // write in the SPI_CONF0 register
+    //---------------------------------------------------------------------
+    const spi_mode = 0; // 0: rd, 1: wr
+    const spi_id = 0; // 0: cdce,1: adc, 2: dac, 3: amc
+    fpasim_set_spi_conf0(spi_id, spi_mode, 0, 0, -1);
+
+    //---------------------------------------------------------------------
+    // First access
+    //  build the read command
+    //     (seecdcd72010 datasheet)
+    //---------------------------------------------------------------------
+    // 0 .... 0 A A A A  1 1 1 0
+    mask = 0xF;
+    data = (addr_p & mask);
+    addr = parseInt('1110', 2);
+    spi_cmd = (data << 4) + addr;
+
+    // reverse bit order:
+    // from: bit27 bit26 ... bit1 bit0 addr3 .. addr0
+    // to:   addr0 addr1 .... bit0 ... bit26 bit27
+    spi_cmd = reverse_bit_order(spi_cmd, 32);
+    fpasim_set_spi_wr_data(spi_cmd, 0, 0, -1);
+
+    waitMs(10);
+
+
+    //---------------------------------------------------------------------
+    // Second access
+    //  get the read data
+    //    (seecdcd72010 datasheet)
+    //---------------------------------------------------------------------
+    // bit27 bit26 ... bit0 addr3 .. addr0
+    data = 0x0000000;
+    addr = 0x0;
+    spi_cmd = (data << 4) + addr;
+
+    // reverse bit order:
+    // from: bit27 bit26 ... bit1 bit0 addr3 .. addr0
+    // to:   addr0 addr1 .... bit0 ... bit26 bit27
+    spi_cmd = reverse_bit_order(spi_cmd, 32);
+    fpasim_set_spi_wr_data(spi_cmd, 0, 0, -1);
+
+    waitMs(10);
+
+    //---------------------------------------------------------------------
+    // Read the register value from the spi device
+    //---------------------------------------------------------------------
+    data = fpasim_get_wireout_spi_rd_data(0, 0, -1);
+    // reverse bit order:
+    // from:   addr0 addr1 .... bit0 ... bit26 bit27
+    // to: bit27 bit26 ... bit1 bit0 addr3 .. addr0
+    data = reverse_bit_order(data, 32);
+
+    // keep only the data part
+    // from: bit27 bit26 ... bit1 bit0 addr3 .. addr0
+    // to: bit27 bit26 ... bit1 bit0
+    data = (data >> 4);
+    return data;
+
+}
+
+/**
+ * Set the register0 of the spi device.
+ *
+ * @param {number} level_p - level of indentation at the beginning
+ * @param {number} mode_p - define the print output
+ * @param {number} verbosity_p - level of verbosity
+ *
+ * [27:26]: R/W: outbufsel0yx[1:0]
+ * [25:24]: R/W: cmosmode0nyx[1:0]
+ * [23:22]: R/W: cmosmode0pyx[1:0]
+ * [21]: R/W: pecl0hiswing[0]
+ * [20]: R/W: irefres[0]
+ * [17:14]: R/W: icp[3:0]
+ * [13]: R/W: cp_pre[0]
+ * [12]: R/W: cp_opa[0]
+ * [11]: R/W: cp_snk[0]
+ * [10]: R/W: cp_src[0]
+ * [9]: R/W: cp_dir[0]
+ * [7:6]: R/W: delay_pfd[1:0]
+ * [5]: R/W: refselcntrl[0]
+ * [4]: R/W: vcxosel[0]
+ * [3]: R/W: secsel[0]
+ * [2]: R/W: prisel[0]
+ * [1:0]: R/W: inbufselyx[1:0]
+ */
+function cdce_set_config0(
+    outbufsel0yx_p, cmosmode0nyx_p,
+    cmosmode0pyx_p, pecl0hiswing_p, irefres_p,
+    icp_p, cp_pre_p, cp_opa_p,
+    cp_snk_p, cp_src_p, cp_dir_p,
+    delay_pfd_p, refselcntrl_p, vcxosel_p,
+    secsel_p, prisel_p, inbufselyx_p,
+    level_p, mode_p, verbosity_p
+
+) {
+    // default function parameter values
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    const reserved = 0;
+    const data5 = (outbufsel0yx_p << 26) + (cmosmode0nyx_p << 24);
+    const data4 = (cmosmode0pyx_p << 22) + (pecl0hiswing_p << 21) + (irefres_p << 20);
+    const data3 = (icp_p << 14) + (cp_pre_p << 13) + (cp_opa_p << 12);
+    const data2 = (cp_snk_p << 11) + (cp_src_p << 10) + (cp_dir_p << 9);
+    const data1 = (delay_pfd_p << 6) + (refselcntrl_p << 5) + (vcxosel_p << 4);
+    const data0 = (secsel_p << 3) + (prisel_p << 2) + (inbufselyx_p << 0);
+
+    const data = data5 + data4 + data3 + data2 + data1 + data0;
+
+    const addr = CDCE_ADDR['reg0'];
+    cdce_write_command(addr, data);
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_CDCE_REG_VERBOSITY_MIN) {
+            const msg = "[cdce_set_config0]: Set the register value ";
+            display(msg, level0, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_ADDR_VERBOSITY_MIN) {
+            display_register(addr, c_CDCE_SPI_ADDR_WIDTH, data, c_CDCE_SPI_DATA_WIDTH, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_BIT_VERBOSITY_MIN) {
+            display_bit("outbufsel0yx_p", outbufsel0yx_p, 2, level2, mode_p);
+            display_bit("cmosmode0nyx_p", cmosmode0nyx_p, 2, level2, mode_p);
+            display_bit("cmosmode0pyx_p", cmosmode0pyx_p, 2, level2, mode_p);
+            display_bit("pecl0hiswing_p", pecl0hiswing_p, 1, level2, mode_p);
+            display_bit("irefres_p", irefres_p, 1, level2, mode_p);
+            display_bit("icp_p", icp_p, 4, level2, mode_p);
+            display_bit("cp_pre_p", cp_pre_p, 1, level2, mode_p);
+            display_bit("cp_opa_p", cp_opa_p, 1, level2, mode_p);
+            display_bit("cp_snk_p", cp_snk_p, 1, level2, mode_p);
+            display_bit("cp_src_p", cp_src_p, 1, level2, mode_p);
+            display_bit("cp_dir_p", cp_dir_p, 1, level2, mode_p);
+            display_bit("delay_pfd_p", delay_pfd_p, 2, level2, mode_p);
+            display_bit("refselcntrl_p", refselcntrl_p, 1, level2, mode_p);
+            display_bit("vcxosel_p", vcxosel_p, 1, level2, mode_p);
+            display_bit("secsel_p", secsel_p, 1, level2, mode_p);
+            display_bit("prisel_p", prisel_p, 1, level2, mode_p);
+            display_bit("inbufselyx_p", inbufselyx_p, 2, level2, mode_p);
+        }
+    }
+
+}
+/**
+ * Set the register1 of the spi device.
+ *
+ * @param {number} level_p - level of indentation at the beginning
+ * @param {number} mode_p - define the print output
+ * @param {number} verbosity_p - level of verbosity
+ *
+ * [27:26]: R/W: outbufsel1yx_p[1:0]
+ * [25:24]: R/W: cmosmode1nyx_p[1:0]
+ * [23:22]: R/W: cmosmode1pyx_p[1:0]
+ * [21]: R/W: pecl1hiswing_p[0]
+ * [20]: R/W: en01div_p[0]
+ * [19:13]: R/W: out1divrsel_p[6:0]
+ * [12:6]: R/W: ph1adjc_p[6:0]
+ * [5]: R/W: failsafe[0]
+ * [4]: R/W: secinvbb[0]
+ * [3]: R/W: priinvbb[0]
+ * [2]: R/W: termsel[0]
+ * [1]: R/W: hysten[0]
+ * [0]: R/W: acdcsel[0]
+ */
+function cdce_set_config1(
+    outbufsel1yx_p, cmosmode1nyx_p,
+    cmosmode1pyx_p, pecl1hiswing_p, en01div_p,
+    out1divrsel_p, ph1adjc_p,
+    failsafe_p, secinvbb_p,
+    priinvbb_p, termsel_p, hysten_p, acdcsel_p,
+    level_p, mode_p, verbosity_p
+) {
+
+    // default function parameter values
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    const reserved = 0;
+    const data4 = (outbufsel1yx_p << 26) + (cmosmode1nyx_p << 24);
+    const data3 = (cmosmode1pyx_p << 22) + (pecl1hiswing_p << 21) + (en01div_p << 20);
+    const data2 = (out1divrsel_p << 13) + (ph1adjc_p << 6);
+    const data1 = (failsafe_p << 5) + (secinvbb_p << 4);
+    const data0 = (priinvbb_p << 3) + (termsel_p << 2) + (hysten_p << 1) + (acdcsel_p << 0);
+
+    const data = data4 + data3 + data2 + data1 + data0;
+
+    const addr = CDCE_ADDR['reg1'];
+    cdce_write_command(addr, data);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_CDCE_REG_VERBOSITY_MIN) {
+            const msg = "[cdce_set_config1]: Set the register value ";
+            display(msg, level0, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_ADDR_VERBOSITY_MIN) {
+            display_register(addr, c_CDCE_SPI_ADDR_WIDTH, data, c_CDCE_SPI_DATA_WIDTH, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_BIT_VERBOSITY_MIN) {
+            display_bit("outbufsel1yx_p", outbufsel1yx_p, 2, level2, mode_p);
+            display_bit("cmosmode1nyx_p", cmosmode1nyx_p, 2, level2, mode_p);
+            display_bit("cmosmode1pyx_p", cmosmode1pyx_p, 2, level2, mode_p);
+            display_bit("pecl1hiswing_p", pecl1hiswing_p, 1, level2, mode_p);
+            display_bit("en01div_p", en01div_p, 1, level2, mode_p);
+            display_bit("out1divrsel_p", out1divrsel_p, 7, level2, mode_p);
+            display_bit("ph1adjc_p", ph1adjc_p, 7, level2, mode_p);
+            display_bit("failsafe_p", failsafe_p, 1, level2, mode_p);
+            display_bit("secinvbb_p", secinvbb_p, 1, level2, mode_p);
+            display_bit("priinvbb_p", priinvbb_p, 1, level2, mode_p);
+            display_bit("termsel_p", termsel_p, 1, level2, mode_p);
+            display_bit("hysten_p", hysten_p, 1, level2, mode_p);
+            display_bit("acdcsel_p", acdcsel_p, 1, level2, mode_p);
+        }
+    }
+}
+
+/**
+ * Set the register2 of the spi device.
+ *
+ * @param {number} level_p - level of indentation at the beginning
+ * @param {number} mode_p - define the print output
+ * @param {number} verbosity_p - level of verbosity
+ *
+ * [27:26]: R/W: outbufsel2yx[1:0]
+ * [25:24]: R/W: cmosmode2nyx[1:0]
+ * [23:22]: R/W: cmosmode2pyx[1:0]
+ * [21]: R/W: pecl2hiswing[0]
+ * [20]: R/W: en2div[0]
+ * [19:13]: R/W: out2divrsel[6:0]
+ * [12:6]: R/W: ph2adjc[6:0]
+ * [5:3]: R/W: dlyn[2:0]
+ * [2:0]: R/W: dlym[2:0]
+ */
+function cdce_set_config2(
+    outbufsel2yx_p, cmosmode2nyx_p,
+    cmosmode2pyx_p, pecl2hiswing_p, en2div_p,
+    out2divrsel_p, ph2adjc_p,
+    dlyn_p, dlym_p,
+    level_p, mode_p, verbosity_p
+) {
+    // default function parameter values
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    const reserved = 0;
+    const data3 = (outbufsel2yx_p << 26) + (cmosmode2nyx_p << 24);
+    const data2 = (cmosmode2pyx_p << 22) + (pecl2hiswing_p << 21) + (en2div_p << 20);
+    const data1 = (out2divrsel_p << 13) + (ph2adjc_p << 6);
+    const data0 = (dlyn_p << 3) + (dlym_p << 0);
+
+    const data = data3 + data2 + data1 + data0;
+
+    const addr = CDCE_ADDR['reg2'];
+    cdce_write_command(addr, data);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_CDCE_REG_VERBOSITY_MIN) {
+            const msg = "[cdce_set_config2]: Set the register value ";
+            display(msg, level0, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_ADDR_VERBOSITY_MIN) {
+            display_register(addr, c_CDCE_SPI_ADDR_WIDTH, data, c_CDCE_SPI_DATA_WIDTH, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_BIT_VERBOSITY_MIN) {
+            display_bit("outbufsel2yx_p", outbufsel2yx_p, 2, level2, mode_p);
+            display_bit("cmosmode2nyx_p", cmosmode2nyx_p, 2, level2, mode_p);
+            display_bit("cmosmode2pyx_p", cmosmode2pyx_p, 2, level2, mode_p);
+            display_bit("pecl2hiswing_p", pecl2hiswing_p, 1, level2, mode_p);
+            display_bit("en2div_p", en2div_p, 1, level2, mode_p);
+            display_bit("out2divrsel_p", out2divrsel_p, 7, level2, mode_p);
+            display_bit("ph2adjc_p", ph2adjc_p, 7, level2, mode_p);
+            display_bit("dlyn_p", dlyn_p, 3, level2, mode_p);
+            display_bit("dlym_p", dlym_p, 3, level2, mode_p);
+
+        }
+    }
+}
+
+/**
+ * Set the register3 of the spi device.
+ *
+ * @param {number} level_p - level of indentation at the beginning
+ * @param {number} mode_p - define the print output
+ * @param {number} verbosity_p - level of verbosity
+ *
+ * [27:26]: R/W: outbufsel3yx[1:0]
+ * [25:24]: R/W: cmosmode3nyx[1:0]
+ * [23:22]: R/W: cmosmode3pyx[1:0]
+ * [21]: R/W: pecl3hiswing[0]
+ * [20]: R/W: en3div[0]
+ * [19:13]: R/W: out3divrsel[6:0]
+ * [12:6]: R/W: ph3adjc[6:0]
+ * [5:4]: R/W: bias_div23[1:0]
+ * [3:2]: R/W: bias_div01[1:0]
+ * [1]: R/W: dis_fdet_fb[0]
+ * [0]: R/W: dis_fdet_ref[0]
+ */
+function cdce_set_config3(
+    outbufsel3yx_p, cmosmode3nyx_p,
+    cmosmode3pyx_p, pecl3hiswing_p, en3div_p,
+    out3divrsel_p, ph3adjc_p,
+    bias_div23_p,
+    bias_div01_p, dis_fdet_fb_p, dis_fdet_ref_p,
+    level_p, mode_p, verbosity_p
+) {
+
+    // default function parameter values
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    const reserved = 0;
+    const data4 = (outbufsel3yx_p << 26) + (cmosmode3nyx_p << 24);
+    const data3 = (cmosmode3pyx_p << 22) + (pecl3hiswing_p << 21) + (en3div_p << 20);
+    const data2 = (out3divrsel_p << 13) + (ph3adjc_p << 6);
+    const data1 = (bias_div23_p << 4);
+    const data0 = (bias_div01_p << 2) + (dis_fdet_fb_p << 1) + (dis_fdet_ref_p << 0);
+
+    const data = data4 + data3 + data2 + data1 + data0;
+
+    const addr = CDCE_ADDR['reg3'];
+    cdce_write_command(addr, data);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_CDCE_REG_VERBOSITY_MIN) {
+            const msg = "[cdce_set_config3]: Set the register data: ";
+            display(msg, level0, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_ADDR_VERBOSITY_MIN) {
+            display_register(addr, c_CDCE_SPI_ADDR_WIDTH, data, c_CDCE_SPI_DATA_WIDTH, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_BIT_VERBOSITY_MIN) {
+            display_bit("outbufsel3yx_p", outbufsel3yx_p, 2, level2, mode_p);
+            display_bit("cmosmode3nyx_p", cmosmode3nyx_p, 2, level2, mode_p);
+            display_bit("cmosmode3pyx_p", cmosmode3pyx_p, 2, level2, mode_p);
+            display_bit("pecl3hiswing_p", pecl3hiswing_p, 1, level2, mode_p);
+            display_bit("en3div_p", en3div_p, 1, level2, mode_p);
+            display_bit("out3divrsel_p", out3divrsel_p, 7, level2, mode_p);
+            display_bit("ph3adjc_p", ph3adjc_p, 7, level2, mode_p);
+            display_bit("bias_div23_p", bias_div23_p, 2, level2, mode_p);
+            display_bit("bias_div01_p", bias_div01_p, 2, level2, mode_p);
+            display_bit("dis_fdet_fb_p", dis_fdet_fb_p, 1, level2, mode_p);
+            display_bit("dis_fdet_ref_p", dis_fdet_ref_p, 1, level2, mode_p);
+
+        }
+    }
+}
+
+/**
+ * Set the register4 of the spi device.
+ *
+ * @param {number} level_p - level of indentation at the beginning
+ * @param {number} mode_p - define the print output
+ * @param {number} verbosity_p - level of verbosity
+ *
+ * [27:26]: R/W: outbufsel4yx[1:0]
+ * [25:24]: R/W: cmosmode4nyx[1:0]
+ * [23:22]: R/W: cmosmode4pyx[1:0]
+ * [21]: R/W: pecl4hiswing[0]
+ * [20]: R/W: en4div[0]
+ * [19:13]: R/W: out4divrsel[6:0]
+ * [12:6]: R/W: ph4adjc[6:0]
+ * [4]: R/W: holdonlor[0]
+ */
+function cdce_set_config4(
+    outbufsel4yx_p, cmosmode4nyx_p,
+    cmosmode4pyx_p, pecl4hiswing_p, en4div_p,
+    out4divrsel_p, ph4adjc_p,
+    holdonlor_p,
+    level_p, mode_p, verbosity_p
+) {
+    // default function parameter values
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    const reserved = 0;
+    const data3 = (outbufsel4yx_p << 26) + (cmosmode4nyx_p << 24);
+    const data2 = (cmosmode4pyx_p << 22) + (pecl4hiswing_p << 21) + (en4div_p << 20);
+    const data1 = (out4divrsel_p << 13) + (ph4adjc_p << 6);
+    const data0 = (holdonlor_p << 4);
+
+    const data = data3 + data2 + data1 + data0;
+
+    const addr = CDCE_ADDR['reg4'];
+    cdce_write_command(addr, data);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_CDCE_REG_VERBOSITY_MIN) {
+            const msg = "[cdce_set_config4]: Set the register data: ";
+            display(msg, level0, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_ADDR_VERBOSITY_MIN) {
+            display_register(addr, c_CDCE_SPI_ADDR_WIDTH, data, c_CDCE_SPI_DATA_WIDTH, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_BIT_VERBOSITY_MIN) {
+            display_bit("outbufsel4yx_p", outbufsel4yx_p, 2, level2, mode_p);
+            display_bit("cmosmode4nyx_p", cmosmode4nyx_p, 2, level2, mode_p);
+            display_bit("cmosmode4pyx_p", cmosmode4pyx_p, 2, level2, mode_p);
+            display_bit("pecl4hiswing_p", pecl4hiswing_p, 1, level2, mode_p);
+            display_bit("en4div_p", en4div_p, 1, level2, mode_p);
+            display_bit("out4divrsel_p", out4divrsel_p, 7, level2, mode_p);
+            display_bit("ph4adjc_p", ph4adjc_p, 7, level2, mode_p);
+            display_bit("holdonlor_p", holdonlor_p, 1, level2, mode_p);
+
+        }
+    }
+
+}
+
+/**
+ * Set the register5 of the spi device.
+ *
+ * @param {number} level_p - level of indentation at the beginning
+ * @param {number} mode_p - define the print output
+ * @param {number} verbosity_p - level of verbosity
+ *
+ * [27:26]: R/W: outbufsel5yx[1:0]
+ * [25:24]: R/W: cmosmode5nyx[1:0]
+ * [23:22]: R/W: cmosmode5pyx[1:0]
+ * [21]: R/W: pecl5hiswing[0]
+ * [20]: R/W: en5div[0]
+ * [19:13]: R/W: out5divrsel[6:0]
+ * [12:6]: R/W: ph5adjc[6:0]
+ * [3:2]: R/W: bias_div67[1:0]
+ * [1:0]: R/W: bias_div45[1:0]
+ */
+function cdce_set_config5(
+    outbufsel5yx_p, cmosmode5nyx_p,
+    cmosmode5pyx_p, pecl5hiswing_p, en5div_p,
+    out5divrsel_p, ph5adjc_p,
+    bias_div67_p, bias_div45_p,
+    level_p, mode_p, verbosity_p
+) {
+
+    // default function parameter values
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    const reserved = 0;
+    const data3 = (outbufsel5yx_p << 26) + (cmosmode5nyx_p << 24);
+    const data2 = (cmosmode5pyx_p << 22) + (pecl5hiswing_p << 21) + (en5div_p << 20);
+    const data1 = (out5divrsel_p << 13) + (ph5adjc_p << 6);
+    const data0 = (bias_div67_p << 2) + (bias_div45_p << 0);
+
+    const data = data3 + data2 + data1 + data0;
+
+    const addr = CDCE_ADDR['reg5'];
+    cdce_write_command(addr, data);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_CDCE_REG_VERBOSITY_MIN) {
+            const msg = "[cdce_set_config5]: Set the register value ";
+            display(msg, level0, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_ADDR_VERBOSITY_MIN) {
+            display_register(addr, c_CDCE_SPI_ADDR_WIDTH, data, c_CDCE_SPI_DATA_WIDTH, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_BIT_VERBOSITY_MIN) {
+            display_bit("outbufsel5yx_p", outbufsel5yx_p, 2, level2, mode_p);
+            display_bit("cmosmode5nyx_p", cmosmode5nyx_p, 2, level2, mode_p);
+            display_bit("cmosmode5pyx_p", cmosmode5pyx_p, 2, level2, mode_p);
+            display_bit("pecl5hiswing_p", pecl5hiswing_p, 1, level2, mode_p);
+            display_bit("en5div_p", en5div_p, 1, level2, mode_p);
+            display_bit("out5divrsel_p", out5divrsel_p, 7, level2, mode_p);
+            display_bit("ph5adjc_p", ph5adjc_p, 7, level2, mode_p);
+            display_bit("bias_div67_p", bias_div67_p, 2, level2, mode_p);
+            display_bit("bias_div45_p", bias_div45_p, 2, level2, mode_p);
+
+        }
+    }
+}
+
+/**
+ * Set the register6 of the spi device.
+ *
+ * @param {number} level_p - level of indentation at the beginning
+ * @param {number} mode_p - define the print output
+ * @param {number} verbosity_p - level of verbosity
+ *
+ * [27:26]: R/W: outbufsel6yx[1:0]
+ * [25:24]: R/W: cmosmode6nyx[1:0]
+ * [23:22]: R/W: cmosmode6pyx[1:0]
+ * [21]: R/W: pecl6hiswing[0]
+ * [20]: R/W: en6div[0]
+ * [19:13]: R/W: out6divrsel[6:0]
+ * [12:6]: R/W: ph6adjc[6:0]
+ * [5]: R/W: det_start_bypass[0]
+ * [4]: R/W: fb_start_bypass[0]
+ * [3]: R/W: fbdeterm_div2_dis[0]
+ * [2]: R/W: fbdeterm_div_sel[0]
+ * [0]: R/W: fb_fd_desel[0]
+ */
+function cdce_set_config6(
+    outbufsel6yx_p, cmosmode6nyx_p,
+    cmosmode6pyx_p, pecl6hiswing_p, en6div_p,
+    out6divrsel_p, ph6adjc_p,
+    det_start_bypass_p, fb_start_bypass_p,
+    fbdeterm_div2_dis_p, fbdeterm_div_sel_p, fb_fd_desel_p,
+    level_p, mode_p, verbosity_p
+) {
+
+    // default function parameter values
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    const reserved = 0;
+    const data4 = (outbufsel6yx_p << 26) + (cmosmode6nyx_p << 24);
+    const data3 = (cmosmode6pyx_p << 22) + (pecl6hiswing_p << 21) + (en6div_p << 20);
+    const data2 = (out6divrsel_p << 13) + (ph6adjc_p << 6);
+    const data1 = (det_start_bypass_p << 5) + (fb_start_bypass_p << 4);
+    const data0 = (fbdeterm_div2_dis_p << 3) + (fbdeterm_div_sel_p << 2) + (fb_fd_desel_p << 0);
+
+    const data = data4 + data3 + data2 + data1 + data0;
+
+    const addr = CDCE_ADDR['reg6'];
+    cdce_write_command(addr, data);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_CDCE_REG_VERBOSITY_MIN) {
+            const msg = "[cdce_set_config6]: Set the register value ";
+            display(msg, level0, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_ADDR_VERBOSITY_MIN) {
+            display_register(addr, c_CDCE_SPI_ADDR_WIDTH, data, c_CDCE_SPI_DATA_WIDTH, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_BIT_VERBOSITY_MIN) {
+            display_bit("outbufsel6yx_p", outbufsel6yx_p, 2, level2, mode_p);
+            display_bit("cmosmode6nyx_p", cmosmode6nyx_p, 2, level2, mode_p);
+            display_bit("cmosmode6pyx_p", cmosmode6pyx_p, 2, level2, mode_p);
+            display_bit("pecl6hiswing_p", pecl6hiswing_p, 1, level2, mode_p);
+            display_bit("en6div_p", en6div_p, 1, level2, mode_p);
+            display_bit("out6divrsel_p", out6divrsel_p, 7, level2, mode_p);
+            display_bit("ph6adjc_p", ph6adjc_p, 7, level2, mode_p);
+            display_bit("det_start_bypass", det_start_bypass_p, 2, level2, mode_p);
+            display_bit("fb_start_bypass_p", fb_start_bypass_p, 2, level2, mode_p);
+            display_bit("fbdeterm_div2_dis_p", fbdeterm_div2_dis_p, 2, level2, mode_p);
+            display_bit("fbdeterm_div_sel_p", fbdeterm_div_sel_p, 2, level2, mode_p);
+            display_bit("fb_fd_desel_p", fb_fd_desel_p, 2, level2, mode_p);
+
+        }
+    }
+
+}
+
+/**
+ * Set the register7 of the spi device.
+ *
+ * @param {number} level_p - level of indentation at the beginning
+ * @param {number} mode_p - define the print output
+ * @param {number} verbosity_p - level of verbosity
+ *
+ * [27:26]: R/W: outbufsel7yx[1:0]
+ * [25:24]: R/W: cmosmode7nyx[1:0]
+ * [23:22]: R/W: cmosmode7pyx[1:0]
+ * [21]: R/W: pecl7hiswing[0]
+ * [20]: R/W: en7div[0]
+ * [19:13]: R/W: out7divrsel[6:0]
+ * [12:6]: R/W: ph7adjc[6:0]
+ * [5]: R/W: adlock[0]
+ * [4:3]: R/W: lockc[1:0]
+ * [1:0]: R/W: lockw[1:0]
+ */
+function cdce_set_config7(
+    outbufsel7yx_p, cmosmode7nyx_p,
+    cmosmode7pyx_p, pecl7hiswing_p, en7div_p,
+    out7divrsel_p, ph7adjc_p,
+    adlock_p, lockc_p, lockw_p,
+    level_p, mode_p, verbosity_p
+) {
+    // default function parameter values
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    const reserved = 0;
+    const data3 = (outbufsel7yx_p << 26) + (cmosmode7nyx_p << 24);
+    const data2 = (cmosmode7pyx_p << 22) + (pecl7hiswing_p << 21) + (en7div_p << 20);
+    const data1 = (out7divrsel_p << 13) + (ph7adjc_p << 6);
+    const data0 = (adlock_p << 5) + (lockc_p << 3) + lockw_p;
+
+    const data = data3 + data2 + data1 + data0;
+
+    const addr = CDCE_ADDR['reg7'];
+    cdce_write_command(addr, data);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_CDCE_REG_VERBOSITY_MIN) {
+            const msg = "[cdce_set_config7]: Set the register value ";
+            display(msg, level0, mode_p);
+        }
+        if (verbosity_p >= c_CDCE_ADDR_VERBOSITY_MIN) {
+            display_register(addr, c_CDCE_SPI_ADDR_WIDTH, data, c_CDCE_SPI_DATA_WIDTH, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_BIT_VERBOSITY_MIN) {
+            display_bit("outbufsel7yx_p", outbufsel7yx_p, 2, level2, mode_p);
+            display_bit("cmosmode7nyx_p", cmosmode7nyx_p, 2, level2, mode_p);
+            display_bit("cmosmode7pyx_p", cmosmode7pyx_p, 2, level2, mode_p);
+            display_bit("pecl7hiswing_p", pecl7hiswing_p, 1, level2, mode_p);
+            display_bit("en7div_p", en7div_p, 1, level2, mode_p);
+            display_bit("out7divrsel_p", out7divrsel_p, 7, level2, mode_p);
+            display_bit("ph7adjc_p", ph7adjc_p, 7, level2, mode_p);
+            display_bit("adlock_p", adlock_p, 1, level2, mode_p);
+            display_bit("lockc_p", lockc_p, 2, level2, mode_p);
+            display_bit("lockw_p", lockw_p, 2, level2, mode_p);
+
+        }
+    }
+}
+
+/**
+ * Set the register8 of the spi device.
+ *
+ * @param {number} level_p - level of indentation at the beginning
+ * @param {number} mode_p - define the print output
+ * @param {number} verbosity_p - level of verbosity
+ *
+ * [27:26]: R/W: outbufsel8yx[1:0]
+ * [25:24]: R/W: cmosmode8nyx[1:0]
+ * [23:22]: R/W: cmosmode8pyx[1:0]
+ * [21]: R/W: pecl8hiswing[0]
+ * [20]: R/W: en8div[0]
+ * [19:13]: R/W: out8divrsel[6:0]
+ * [12:6]: R/W: ph8adjc[6:0]
+ * [5]: R/W: vcxoinvbb[0]
+ * [4]: R/W: vcxotermsel[0]
+ * [3]: R/W: vcxohysten[0]
+ * [2]: R/W: vcxoacdcsel[0]
+ * [1:0]: R/W: vcxobufselyx[1:0]
+ */
+function cdce_set_config8(
+    outbufsel8yx_p, cmosmode8nyx_p,
+    cmosmode8pyx_p, pecl8hiswing_p, en89div_p,
+    out8divrsel_p, ph8adjc_p,
+    vcxoinvbb_p, vcxotermsel_p,
+    vcxohysten_p, vcxoacdcsel_p, vcxobufselyx_p,
+    level_p, mode_p, verbosity_p
+) {
+
+
+    // default function parameter values
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    const reserved = 0;
+    const data4 = (outbufsel8yx_p << 26) + (cmosmode8nyx_p << 24);
+    const data3 = (cmosmode8pyx_p << 22) + (pecl8hiswing_p << 21) + (en89div_p << 20);
+    const data2 = (out8divrsel_p << 13) + (ph8adjc_p << 6);
+    const data1 = (vcxoinvbb_p << 5) + (vcxotermsel_p << 4);
+    const data0 = (vcxohysten_p << 3) + (vcxoacdcsel_p << 2) + (vcxobufselyx_p << 0);
+
+    const data = data4 + data3 + data2 + data1 + data0;
+
+    const addr = CDCE_ADDR['reg8'];
+    cdce_write_command(addr, data);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_CDCE_REG_VERBOSITY_MIN) {
+            const msg = "[cdce_set_config8]: Set the register value ";
+            display(msg, level0, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_ADDR_VERBOSITY_MIN) {
+            display_register(addr, c_CDCE_SPI_ADDR_WIDTH, data, c_CDCE_SPI_DATA_WIDTH, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_BIT_VERBOSITY_MIN) {
+            display_bit("outbufsel8yx_p", outbufsel8yx_p, 2, level2, mode_p);
+            display_bit("cmosmode8nyx_p", cmosmode8nyx_p, 2, level2, mode_p);
+            display_bit("cmosmode8pyx_p", cmosmode8pyx_p, 2, level2, mode_p);
+            display_bit("pecl8hiswing_p", pecl8hiswing_p, 1, level2, mode_p);
+            display_bit("en89div_p", en89div_p, 1, level2, mode_p);
+            display_bit("out8divrsel_p", out8divrsel_p, 7, level2, mode_p);
+            display_bit("ph8adjc_p", ph8adjc_p, 7, level2, mode_p);
+            display_bit("vcxoinvbb_p", vcxoinvbb_p, 1, level2, mode_p);
+            display_bit("vcxotermsel_p", vcxotermsel_p, 1, level2, mode_p);
+            display_bit("vcxohysten_p", vcxohysten_p, 1, level2, mode_p);
+            display_bit("vcxoacdcsel_p", vcxoacdcsel_p, 1, level2, mode_p);
+            display_bit("vcxobufselyx_p", vcxobufselyx_p, 2, level2, mode_p);
+
+        }
+    }
+
+}
+
+/**
+ * Set the register9 of the spi device.
+ *
+ * @param {number} level_p - level of indentation at the beginning
+ * @param {number} mode_p - define the print output
+ * @param {number} verbosity_p - level of verbosity
+ *
+ * [27:26]: R/W: outbufsel9yx[1:0]
+ * [25:24]: R/W: cmosmode9nyx[1:0]
+ * [23:22]: R/W: cmosmode9pyx[1:0]
+ * [21]: R/W: pecl9hiswing[0]
+ * [20]: R/W: dis_aux_y9[0]
+ * [19]: R/W: auxinvbb[0]
+ * [18:17]: R/W: bias_div89[1:0]
+ * [16:15]: R/W: bias_div_fb[1:0]
+ * [14]: R/W: npreset_mdiv[0]
+ * [13]: R/W: low_fd_fb_en[0]
+ * [12]: R/W: pll_lock_bp[0]
+ * [11]: R/W: indet_bp[0]
+ * [10]: R/W: start_bypass[0]
+ * [9]: R/W: divsync_dis[0]
+ * [8]: R/W: noinv_reshol_int[0]
+ * [7:6]: R/W: lockw32[1:0]
+ * [5:4]: R/W: hold_cnt[1:0]
+ * [3]: R/W: holdtr[0]
+ * [2]: R/W: hold_n[0]
+ * [0]: R/W: holdf[0]
+ */
+function cdce_set_config9(
+    outbufsel9yx_p, cmosmode9nyx_p,
+    cmosmode9pyx_p, pecl9hiswing_p, dis_aux_y9_p,
+    auxinvbb_p, bias_div89_p, bias_div_fb_p,
+    npreset_mdiv_p, low_fd_fb_en_p, pll_lock_bp_p,
+    indet_bp_p, start_bypass_p, divsync_dis_p, noinv_reshol_int_p,
+    lockw32_p, hold_cnt_p,
+    holdtr_p, hold_n_p, holdf_p,
+    level_p, mode_p, verbosity_p
+)
+
+{
+
+    // default function parameter values
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    const reserved = 0;
+    const data6 = (outbufsel9yx_p << 26) + (cmosmode9nyx_p << 24);
+    const data5 = (cmosmode9pyx_p << 22) + (pecl9hiswing_p << 21) + (dis_aux_y9_p << 20);
+    const data4 = (auxinvbb_p << 19) + (bias_div89_p << 17) + (bias_div_fb_p << 15);
+    const data3 = (npreset_mdiv_p << 14) + (low_fd_fb_en_p << 13) + (pll_lock_bp_p << 12);
+    const data2 = (indet_bp_p << 11) + (start_bypass_p << 10) + (divsync_dis_p << 9) + (noinv_reshol_int_p << 8);
+    const data1 = (lockw32_p << 6) + (hold_cnt_p << 4);
+    const data0 = (holdtr_p << 3) + (hold_n_p << 2) + holdf_p;
+    const data = data6 + data5 + data4 + data3 + data2 + data1 + data0;
+
+    const addr = CDCE_ADDR['reg9'];
+    cdce_write_command(addr, data);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_CDCE_REG_VERBOSITY_MIN) {
+            const msg = "[cdce_set_config9]: Set the register data: ";
+            display(msg, level0, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_ADDR_VERBOSITY_MIN) {
+            display_register(addr, c_CDCE_SPI_ADDR_WIDTH, data, c_CDCE_SPI_DATA_WIDTH, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_BIT_VERBOSITY_MIN) {
+            display_bit("outbufsel9yx_p", outbufsel9yx_p, 2, level2, mode_p);
+            display_bit("cmosmode9nyx_p", cmosmode9nyx_p, 2, level2, mode_p);
+            display_bit("cmosmode9pyx_p", cmosmode9pyx_p, 2, level2, mode_p);
+            display_bit("pecl9hiswing_p", pecl9hiswing_p, 1, level2, mode_p);
+            display_bit("dis_aux_y9_p", dis_aux_y9_p, 1, level2, mode_p);
+            display_bit("auxinvbb_p", auxinvbb_p, 1, level2, mode_p);
+            display_bit("bias_div89_p", bias_div89_p, 2, level2, mode_p);
+            display_bit("bias_div_fb_p", bias_div_fb_p, 2, level2, mode_p);
+            display_bit("npreset_mdiv_p", npreset_mdiv_p, 1, level2, mode_p);
+            display_bit("low_fd_fb_en_p", low_fd_fb_en_p, 1, level2, mode_p);
+            display_bit("pll_lock_bp_p", pll_lock_bp_p, 1, level2, mode_p);
+            display_bit("indet_bp_p", indet_bp_p, 1, level2, mode_p);
+            display_bit("start_bypass_p", start_bypass_p, 1, level2, mode_p);
+            display_bit("divsync_dis_p", divsync_dis_p, 1, level2, mode_p);
+            display_bit("noinv_reshol_int_p", noinv_reshol_int_p, 1, level2, mode_p);
+            display_bit("lockw32_p", lockw32_p, 2, level2, mode_p);
+            display_bit("hold_cnt_p", hold_cnt_p, 2, level2, mode_p);
+            display_bit("holdtr_p", holdtr_p, 1, level2, mode_p);
+            display_bit("hold_n_p", hold_n_p, 1, level2, mode_p);
+            display_bit("holdf_p", holdf_p, 1, level2, mode_p);
+
+        }
+    }
+
+
+}
+
+/**
+ * Set the register10 of the spi device.
+ *
+ * @param {number} level_p - level of indentation at the beginning
+ * @param {number} mode_p - define the print output
+ * @param {number} verbosity_p - level of verbosity
+ *
+ * [27:14]: R/W: div_m[13:0]
+ * [13:0]: R/W: div_n[13:0]
+ */
+function cdce_set_config10(
+    div_n_p, div_m_p,
+    level_p, mode_p, verbosity_p
+) {
+
+    // default function parameter values
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    const data1 = (div_n_p << 14);
+    const data0 = (div_m_p << 0);
+    const data = data1 + data0;
+
+    const addr = CDCE_ADDR['reg10'];
+    cdce_write_command(addr, data);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_CDCE_REG_VERBOSITY_MIN) {
+            const msg = "[cdce_set_config10]: Set the register value ";
+            display(msg, level0, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_ADDR_VERBOSITY_MIN) {
+            display_register(addr, c_CDCE_SPI_ADDR_WIDTH, data, c_CDCE_SPI_DATA_WIDTH, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_BIT_VERBOSITY_MIN) {
+            display_bit("div_n_p", div_n_p, 14, level2, mode_p);
+            display_bit("div_m_p", div_m_p, 14, level2, mode_p);
+
+        }
+    }
+}
+
+/**
+ * Set the register11 of the spi device.
+ *
+ * @param {number} level_p - level of indentation at the beginning
+ * @param {number} mode_p - define the print output
+ * @param {number} verbosity_p - level of verbosity
+ *
+ * [26]: R/W: eplock[0]
+ * [25]: R/W: reset_hold_mode[0]
+ * [24]: R/W: sel_del1[0]
+ * [23]: R/W: nreshape1[0]
+ * [22]: R/W: fb_sel[0]
+ * [21]: R/W: out_mux_sel[0]
+ * [20]: R/W: fb_mux_sel[0]
+ * [19]: R/W: pd_pll[0]
+ * [18:12]: R/W: fb_phase[6:0]
+ * [11:5]: R/W: fb_count32[6:0]
+ * [4]: R/W: fb_inclk_inv[0]
+ * [3]: R/W: fb_cml_sel[0]
+ * [2]: R/W: fb_dis[0]
+ * [1]: R/W: sec_div2[0]
+ * [0]: R/W: pri_div2[0]
+ */
+function cdce_set_config11(
+    eplock_p, reset_hold_mode_p, sel_del1_p,
+    nreshape1_p, fb_sel_p, out_mux_sel_p, fb_mux_sel_p,
+    pd_pll_p, fb_phase_p, fb_count32_p, fb_inclk_inv_p,
+    fb_cml_sel_p, fb_dis_p, sec_div2_p, pri_div2_p,
+    level_p, mode_p, verbosity_p
+
+) {
+
+
+    // default function parameter values
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    const reserved = 0;
+    const data3 = (eplock_p << 26) + (reset_hold_mode_p << 25) + (sel_del1_p << 24);
+    const data2 = (nreshape1_p << 23) + (fb_sel_p << 22) + (out_mux_sel_p << 21) + (fb_mux_sel_p << 20);
+    const data1 = (pd_pll_p << 19) + (fb_phase_p << 12) + (fb_count32_p << 5) + (fb_inclk_inv_p << 4);
+    const data0 = (fb_cml_sel_p << 3) + (fb_dis_p << 2) + (sec_div2_p << 1) + (pri_div2_p << 0);
+    const data = data3 + data2 + data1 + data0;
+
+    const addr = CDCE_ADDR['reg11'];
+    cdce_write_command(addr, data);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_CDCE_REG_VERBOSITY_MIN) {
+            const msg = "[cdce_set_config11]: Set the register value ";
+            display(msg, level0, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_ADDR_VERBOSITY_MIN) {
+            display_register(addr, c_CDCE_SPI_ADDR_WIDTH, data, c_CDCE_SPI_DATA_WIDTH, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_BIT_VERBOSITY_MIN) {
+            display_bit("eplock_p", eplock_p, 1, level2, mode_p);
+            display_bit("reset_hold_mode_p", reset_hold_mode_p, 1, level2, mode_p);
+            display_bit("sel_del1_p", sel_del1_p, 1, level2, mode_p);
+            display_bit("nreshape1_p", nreshape1_p, 1, level2, mode_p);
+            display_bit("fb_sel_p", fb_sel_p, 1, level2, mode_p);
+            display_bit("out_mux_sel_p", out_mux_sel_p, 1, level2, mode_p);
+            display_bit("fb_mux_sel_p", fb_mux_sel_p, 1, level2, mode_p);
+            display_bit("pd_pll_p", pd_pll_p, 1, level2, mode_p);
+            display_bit("fb_phase_p", fb_phase_p, 7, level2, mode_p);
+            display_bit("fb_count32_p", fb_count32_p, 7, level2, mode_p);
+            display_bit("fb_inclk_inv_p", fb_inclk_inv_p, 1, level2, mode_p);
+            display_bit("fb_cml_sel_p", fb_cml_sel_p, 1, level2, mode_p);
+            display_bit("fb_dis_p", fb_dis_p, 1, level2, mode_p);
+            display_bit("sec_div2_p", sec_div2_p, 1, level2, mode_p);
+            display_bit("pri_div2_p", pri_div2_p, 1, level2, mode_p);
+
+        }
+    }
+
+}
+
+/**
+ * Set the register12 of the spi device.
+ *
+ * @param {number} level_p - level of indentation at the beginning
+ * @param {number} mode_p - define the print output
+ * @param {number} verbosity_p - level of verbosity
+ *
+ * [26]: R/W: secactivity[0]
+ * [25]: R/W: priactivity[0]
+ * [24:21]: R/W: titstcfg[3:0]
+ * [20:17]: R/W: status[3:0]
+ * [15]: R/W: shold[0]
+ * [14]: R/W: sxoiref[0]
+ * [13]: R/W: pd_io[0]
+ * [12:10]: R/W: revision[2:0]
+ * [9]: R/W: gtme[0]
+ * [8]: R/W: reset_hold_n[0]
+ * [7]: R/W: sleep[0]
+ * [6]: R: pll_lock[0]
+ * [5]: R: indet_vcxo[0]
+ * [4]: R: indet_aux[0]
+ */
+function cdce_set_config12(
+    secactivity_p, priactivity_p, titstcfg_p,
+    status_p,
+    shold_p, sxoiref_p, pd_io_p,
+    revision_p, gtme_p, reset_hold_n_p,
+    sleep_n_p, pll_lock_p, indet_vcxo_p, indet_aux_p,
+    level_p, mode_p, verbosity_p
+)
+
+{
+
+    // default function parameter values
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    const reserved = 0;
+    const data4 = (secactivity_p << 26) + (priactivity_p << 25) + (titstcfg_p << 21);
+    const data3 = (status_p << 17);
+    const data2 = (shold_p << 15) + (sxoiref_p << 14) + (pd_io_p << 13);
+    const data1 = (revision_p << 10) + (gtme_p << 9) + (reset_hold_n_p << 8);
+    const data0 = (sleep_n_p << 7) + (pll_lock_p << 6) + (indet_vcxo_p << 5) + (indet_aux_p << 4);
+    const data = data4 + data3 + data2 + data1 + data0;
+
+    const addr = CDCE_ADDR['reg12'];
+    cdce_write_command(addr, data);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_CDCE_REG_VERBOSITY_MIN) {
+            const msg = "[cdce_set_config12]: Set the register value ";
+            display(msg, level0, mode_p);
+        }
+        if (verbosity_p >= c_CDCE_ADDR_VERBOSITY_MIN) {
+            display_register(addr, c_CDCE_SPI_ADDR_WIDTH, data, c_CDCE_SPI_DATA_WIDTH, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_BIT_VERBOSITY_MIN) {
+            display_bit("secactivity_p", secactivity_p, 1, level2, mode_p);
+            display_bit("priactivity_p", priactivity_p, 1, level2, mode_p);
+            display_bit("titstcfg_p", titstcfg_p, 4, level2, mode_p);
+            display_bit("status_p", status_p, 4, level2, mode_p);
+            display_bit("shold_p", shold_p, 1, level2, mode_p);
+            display_bit("sxoiref_p", sxoiref_p, 1, level2, mode_p);
+            display_bit("pd_io_p", pd_io_p, 1, level2, mode_p);
+            display_bit("revision_p", revision_p, 3, level2, mode_p);
+            display_bit("gtme_p", gtme_p, 1, level2, mode_p);
+            display_bit("reset_hold_n_p", reset_hold_n_p, 1, level2, mode_p);
+            display_bit("sleep_n_p", sleep_n_p, 1, level2, mode_p);
+            display_bit("pll_lock_p", pll_lock_p, 1, level2, mode_p);
+            display_bit("indet_vcxo_p", indet_vcxo_p, 1, level2, mode_p);
+            display_bit("indet_aux_p", indet_aux_p, 1, level2, mode_p);
+
+        }
+    }
+
+
+}
+
+/**
+ * Get the register0 from the spi device.
+ *
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} register value.
+ *
+ * [27:26]: R/W: outbufsel0yx[1:0]
+ * [25:24]: R/W: cmosmode0nyx[1:0]
+ * [23:22]: R/W: cmosmode0pyx[1:0]
+ * [21]: R/W: pecl0hiswing[0]
+ * [20]: R/W: irefres[0]
+ * [17:14]: R/W: icp[3:0]
+ * [13]: R/W: cp_pre[0]
+ * [12]: R/W: cp_opa[0]
+ * [11]: R/W: cp_snk[0]
+ * [10]: R/W: cp_src[0]
+ * [9]: R/W: cp_dir[0]
+ * [7:6]: R/W: delay_pfd[1:0]
+ * [5]: R/W: refselcntrl[0]
+ * [4]: R/W: vcxosel[0]
+ * [3]: R/W: secsel[0]
+ * [2]: R/W: prisel[0]
+ * [1:0]: R/W: inbufselyx[1:0]
+ */
+function cdce_get_config0(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    const addr = CDCE_ADDR['reg0'];
+    const data = cdce_read_command(addr);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_CDCE_REG_VERBOSITY_MIN) {
+            const msg = "[cdce_get_config0]: Get the register value";
+            display(msg, level0, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_ADDR_VERBOSITY_MIN) {
+            display_register(addr, c_CDCE_SPI_ADDR_WIDTH, data, c_CDCE_SPI_DATA_WIDTH, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_BIT_VERBOSITY_MIN) {
+            display_bit_from_data("outbufsel0yx_p", 26, 2, data, level2, mode_p);
+            display_bit_from_data("cmosmode0nyx_p", 24, 2, data, level2, mode_p);
+            display_bit_from_data("cmosmode0pyx_p", 22, 2, data, level2, mode_p);
+            display_bit_from_data("pecl0hiswing_p", 21, 1, data, level2, mode_p);
+            display_bit_from_data("irefres_p", 20, 1, data, level2, mode_p);
+            display_bit_from_data("icp_p", 14, 4, data, level2, mode_p);
+            display_bit_from_data("cp_pre_p", 13, 1, data, level2, mode_p);
+            display_bit_from_data("cp_opa_p", 12, 1, data, level2, mode_p);
+            display_bit_from_data("cp_snk_p", 11, 1, data, level2, mode_p);
+            display_bit_from_data("cp_src_p", 10, 1, data, level2, mode_p);
+            display_bit_from_data("cp_dir_p", 9, 1, data, level2, mode_p);
+            display_bit_from_data("delay_pfd_p", 6, 2, data, level2, mode_p);
+            display_bit_from_data("refselcntrl_p", 5, 1, data, level2, mode_p);
+            display_bit_from_data("vcxosel_p", 4, 1, data, level2, mode_p);
+            display_bit_from_data("secsel_p", 3, 1, data, level2, mode_p);
+            display_bit_from_data("prisel_p", 2, 1, data, level2, mode_p);
+            display_bit_from_data("inbufselyx_p", 0, 2, data, level2, mode_p);
+        }
+    }
+
+    return data;
+}
+
+/**
+ * Get the register1 from the spi device.
+ *
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} register value.
+ *
+ * [27:26]: R/W: outbufsel1yx_p[1:0]
+ * [25:24]: R/W: cmosmode1nyx_p[1:0]
+ * [23:22]: R/W: cmosmode1pyx_p[1:0]
+ * [21]: R/W: pecl1hiswing_p[0]
+ * [20]: R/W: en01div_p[0]
+ * [19:13]: R/W: out1divrsel_p[6:0]
+ * [12:6]: R/W: ph1adjc_p[6:0]
+ * [5]: R/W: failsafe[0]
+ * [4]: R/W: secinvbb[0]
+ * [3]: R/W: priinvbb[0]
+ * [2]: R/W: termsel[0]
+ * [1]: R/W: hysten[0]
+ * [0]: R/W: acdcsel[0]
+ */
+function cdce_get_config1(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    const addr = CDCE_ADDR['reg1'];
+    const data = cdce_read_command(addr);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_CDCE_REG_VERBOSITY_MIN) {
+            const msg = "[cdce_get_config1]: Get the register value";
+            display(msg, level0, mode_p);
+        }
+        if (verbosity_p >= c_CDCE_ADDR_VERBOSITY_MIN) {
+            display_register(addr, c_CDCE_SPI_ADDR_WIDTH, data, c_CDCE_SPI_DATA_WIDTH, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_BIT_VERBOSITY_MIN) {
+            display_bit_from_data("outbufsel1yx_p", 26, 2, data, level2, mode_p);
+            display_bit_from_data("cmosmode1nyx_p", 24, 2, data, level2, mode_p);
+            display_bit_from_data("cmosmode1pyx_p", 22, 2, data, level2, mode_p);
+            display_bit_from_data("pecl1hiswing_p", 21, 1, data, level2, mode_p);
+            display_bit_from_data("en01div_p", 20, 1, data, level2, mode_p);
+            display_bit_from_data("out1divrsel_p", 13, 7, data, level2, mode_p);
+            display_bit_from_data("ph1adjc_p", 6, 7, data, level2, mode_p);
+            display_bit_from_data("failsafe_p", 5, 1, data, level2, mode_p);
+            display_bit_from_data("secinvbb_p", 4, 1, data, level2, mode_p);
+            display_bit_from_data("priinvbb_p", 3, 1, data, level2, mode_p);
+            display_bit_from_data("termsel_p", 2, 1, data, level2, mode_p);
+            display_bit_from_data("hysten_p", 1, 1, data, level2, mode_p);
+            display_bit_from_data("acdcsel_p", 0, 1, data, level2, mode_p);
+        }
+    }
+
+
+    return data;
+}
+
+/**
+ * Get the register2 from the spi device.
+ *
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} register value.
+ *
+ * [27:26]: R/W: outbufsel2yx[1:0]
+ * [25:24]: R/W: cmosmode2nyx[1:0]
+ * [23:22]: R/W: cmosmode2pyx[1:0]
+ * [21]: R/W: pecl2hiswing[0]
+ * [20]: R/W: en2div[0]
+ * [19:13]: R/W: out2divrsel[6:0]
+ * [12:6]: R/W: ph2adjc[6:0]
+ * [5:3]: R/W: dlyn[2:0]
+ * [2:0]: R/W: dlym[2:0]
+ */
+function cdce_get_config2(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+
+    const addr = CDCE_ADDR['reg2'];
+    const data = cdce_read_command(addr);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_CDCE_REG_VERBOSITY_MIN) {
+            const msg = "[cdce_get_config2]: Get the register value";
+            display(msg, level0, mode_p);
+        }
+        if (verbosity_p >= c_CDCE_ADDR_VERBOSITY_MIN) {
+            display_register(addr, c_CDCE_SPI_ADDR_WIDTH, data, c_CDCE_SPI_DATA_WIDTH, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_BIT_VERBOSITY_MIN) {
+            display_bit_from_data("outbufsel2yx_p", 26, 2, data, level2, mode_p);
+            display_bit_from_data("cmosmode2nyx_p", 24, 2, data, level2, mode_p);
+            display_bit_from_data("cmosmode2pyx_p", 22, 2, data, level2, mode_p);
+            display_bit_from_data("pecl2hiswing_p", 21, 1, data, level2, mode_p);
+            display_bit_from_data("en2div_p", 20, 1, data, level2, mode_p);
+            display_bit_from_data("out2divrsel_p", 13, 7, data, level2, mode_p);
+            display_bit_from_data("ph2adjc_p", 6, 7, data, level2, mode_p);
+            display_bit_from_data("dlyn_p", 3, 3, data, level2, mode_p);
+            display_bit_from_data("dlym_p", 0, 3, data, level2, mode_p);
+
+        }
+    }
+
+
+    return data;
+}
+
+/**
+ * Get the register3 from the spi device.
+ *
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} register value.
+ *
+ * [27:26]: R/W: outbufsel3yx[1:0]
+ * [25:24]: R/W: cmosmode3nyx[1:0]
+ * [23:22]: R/W: cmosmode3pyx[1:0]
+ * [21]: R/W: pecl3hiswing[0]
+ * [20]: R/W: en3div[0]
+ * [19:13]: R/W: out3divrsel[6:0]
+ * [12:6]: R/W: ph3adjc[6:0]
+ * [5:4]: R/W: bias_div23[1:0]
+ * [3:2]: R/W: bias_div01[1:0]
+ * [1]: R/W: dis_fdet_fb[0]
+ * [0]: R/W: dis_fdet_ref[0]
+ */
+function cdce_get_config3(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+
+    const addr = CDCE_ADDR['reg3'];
+    const data = cdce_read_command(addr);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_CDCE_REG_VERBOSITY_MIN) {
+            const msg = "[cdce_get_config3]: Get the register value";
+            display(msg, level0, mode_p);
+        }
+        if (verbosity_p >= c_CDCE_ADDR_VERBOSITY_MIN) {
+            display_register(addr, c_CDCE_SPI_ADDR_WIDTH, data, c_CDCE_SPI_DATA_WIDTH, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_BIT_VERBOSITY_MIN) {
+            display_bit_from_data("outbufsel3yx_p", 26, 2, data, level2, mode_p);
+            display_bit_from_data("cmosmode3nyx_p", 24, 2, data, level2, mode_p);
+            display_bit_from_data("cmosmode3pyx_p", 22, 2, data, level2, mode_p);
+            display_bit_from_data("pecl3hiswing_p", 21, 1, data, level2, mode_p);
+            display_bit_from_data("en3div_p", 20, 1, data, level2, mode_p);
+            display_bit_from_data("out3divrsel_p", 13, 7, data, level2, mode_p);
+            display_bit_from_data("ph3adjc_p", 6, 7, data, level2, mode_p);
+            display_bit_from_data("bias_div23_p", 4, 2, data, level2, mode_p);
+            display_bit_from_data("bias_div01_p", 2, 2, data, level2, mode_p);
+            display_bit_from_data("dis_fdet_fb_p", 1, 1, data, level2, mode_p);
+            display_bit_from_data("dis_fdet_ref_p", 0, 1, data, level2, mode_p);
+
+        }
+    }
+
+
+    return data;
+}
+
+/**
+ * Get the register4 from the spi device.
+ *
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} register value.
+ *
+ * [27:26]: R/W: outbufsel4yx[1:0]
+ * [25:24]: R/W: cmosmode4nyx[1:0]
+ * [23:22]: R/W: cmosmode4pyx[1:0]
+ * [21]: R/W: pecl4hiswing[0]
+ * [20]: R/W: en4div[0]
+ * [19:13]: R/W: out4divrsel[6:0]
+ * [12:6]: R/W: ph4adjc[6:0]
+ * [4]: R/W: holdonlor[0]
+ */
+function cdce_get_config4(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+
+    const addr = CDCE_ADDR['reg4'];
+    const data = cdce_read_command(addr);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_CDCE_REG_VERBOSITY_MIN) {
+            const msg = "[cdce_get_config4]: Get the register value";
+            display(msg, level0, mode_p);
+        }
+        if (verbosity_p >= c_CDCE_ADDR_VERBOSITY_MIN) {
+            display_register(addr, c_CDCE_SPI_ADDR_WIDTH, data, c_CDCE_SPI_DATA_WIDTH, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_BIT_VERBOSITY_MIN) {
+            display_bit_from_data("outbufsel4yx_p", 26, 2, data, level2, mode_p);
+            display_bit_from_data("cmosmode4nyx_p", 24, 2, data, level2, mode_p);
+            display_bit_from_data("cmosmode4pyx_p", 22, 2, data, level2, mode_p);
+            display_bit_from_data("pecl4hiswing_p", 21, 1, data, level2, mode_p);
+            display_bit_from_data("en4div_p", 20, 1, data, level2, mode_p);
+            display_bit_from_data("out4divrsel_p", 13, 7, data, level2, mode_p);
+            display_bit_from_data("ph4adjc_p", 6, 7, data, level2, mode_p);
+            display_bit_from_data("holdonlor_p", 4, 1, data, level2, mode_p);
+
+        }
+    }
+
+    return data;
+}
+
+/**
+ * Get the register5 from the spi device.
+ *
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} register value.
+ *
+ * [27:26]: R/W: outbufsel5yx[1:0]
+ * [25:24]: R/W: cmosmode5nyx[1:0]
+ * [23:22]: R/W: cmosmode5pyx[1:0]
+ * [21]: R/W: pecl5hiswing[0]
+ * [20]: R/W: en5div[0]
+ * [19:13]: R/W: out5divrsel[6:0]
+ * [12:6]: R/W: ph5adjc[6:0]
+ * [3:2]: R/W: bias_div67[1:0]
+ * [1:0]: R/W: bias_div45[1:0]
+ */
+function cdce_get_config5(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    const addr = CDCE_ADDR['reg5'];
+    const data = cdce_read_command(addr);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_CDCE_REG_VERBOSITY_MIN) {
+            const msg = "[cdce_get_config5]: Get the register value";
+            display(msg, level0, mode_p);
+        }
+        if (verbosity_p >= c_CDCE_ADDR_VERBOSITY_MIN) {
+            display_register(addr, c_CDCE_SPI_ADDR_WIDTH, data, c_CDCE_SPI_DATA_WIDTH, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_BIT_VERBOSITY_MIN) {
+            display_bit_from_data("outbufsel5yx_p", 26, 2, data, level2, mode_p);
+            display_bit_from_data("cmosmode5nyx_p", 24, 2, data, level2, mode_p);
+            display_bit_from_data("cmosmode5pyx_p", 22, 2, data, level2, mode_p);
+            display_bit_from_data("pecl5hiswing_p", 21, 1, data, level2, mode_p);
+            display_bit_from_data("en5div_p", 20, 1, data, level2, mode_p);
+            display_bit_from_data("out5divrsel_p", 13, 7, data, level2, mode_p);
+            display_bit_from_data("ph5adjc_p", 6, 7, data, level2, mode_p);
+            display_bit_from_data("bias_div67_p", 2, 2, data, level2, mode_p);
+            display_bit_from_data("bias_div45_p", 2, 2, data, level2, mode_p);
+
+        }
+    }
+
+
+    return data;
+}
+
+/**
+ * Get the register6 from the spi device.
+ *
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} register value.
+ *
+ * [27:26]: R/W: outbufsel6yx[1:0]
+ * [25:24]: R/W: cmosmode6nyx[1:0]
+ * [23:22]: R/W: cmosmode6pyx[1:0]
+ * [21]: R/W: pecl6hiswing[0]
+ * [20]: R/W: en6div[0]
+ * [19:13]: R/W: out6divrsel[6:0]
+ * [12:6]: R/W: ph6adjc[6:0]
+ * [5]: R/W: det_start_bypass[0]
+ * [4]: R/W: fb_start_bypass[0]
+ * [3]: R/W: fbdeterm_div2_dis[0]
+ * [2]: R/W: fbdeterm_div_sel[0]
+ * [0]: R/W: fb_fd_desel[0]
+ */
+function cdce_get_config6(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+
+    const addr = CDCE_ADDR['reg6'];
+    const data = cdce_read_command(addr);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_CDCE_REG_VERBOSITY_MIN) {
+            const msg = "[cdce_get_config6]: Get the register value";
+            display(msg, level0, mode_p);
+        }
+        if (verbosity_p >= c_CDCE_ADDR_VERBOSITY_MIN) {
+            display_register(addr, c_CDCE_SPI_ADDR_WIDTH, data, c_CDCE_SPI_DATA_WIDTH, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_BIT_VERBOSITY_MIN) {
+            display_bit_from_data("outbufsel6yx_p", 26, 2, data, level2, mode_p);
+            display_bit_from_data("cmosmode6nyx_p", 24, 2, data, level2, mode_p);
+            display_bit_from_data("cmosmode6pyx_p", 22, 2, data, level2, mode_p);
+            display_bit_from_data("pecl6hiswing_p", 21, 1, data, level2, mode_p);
+            display_bit_from_data("en6div_p", 20, 1, data, level2, mode_p);
+            display_bit_from_data("out6divrsel_p", 13, 7, data, level2, mode_p);
+            display_bit_from_data("ph6adjc_p", 6, 7, data, level2, mode_p);
+            display_bit_from_data("det_start_bypass", 5, 2, data, level2, mode_p);
+            display_bit_from_data("fb_start_bypass_p", 4, 2, data, level2, mode_p);
+            display_bit_from_data("fbdeterm_div2_dis_p", 3, 2, data, level2, mode_p);
+            display_bit_from_data("fbdeterm_div_sel_p", 2, 2, data, level2, mode_p);
+            display_bit_from_data("fb_fd_desel_p", 0, 2, data, level2, mode_p);
+
+        }
+    }
+
+    return data;
+}
+
+/**
+ * Get the register7 from the spi device.
+ *
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} register value.
+ *
+ * [27:26]: R/W: outbufsel7yx[1:0]
+ * [25:24]: R/W: cmosmode7nyx[1:0]
+ * [23:22]: R/W: cmosmode7pyx[1:0]
+ * [21]: R/W: pecl7hiswing[0]
+ * [20]: R/W: en7div[0]
+ * [19:13]: R/W: out7divrsel[6:0]
+ * [12:6]: R/W: ph7adjc[6:0]
+ * [5]: R/W: adlock[0]
+ * [4:3]: R/W: lockc[1:0]
+ * [1:0]: R/W: lockw[1:0]
+ */
+function cdce_get_config7(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+
+    const addr = CDCE_ADDR['reg7'];
+    const data = cdce_read_command(addr);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_CDCE_REG_VERBOSITY_MIN) {
+            const msg = "[cdce_get_config7]: Get the register value";
+            display(msg, level0, mode_p);
+        }
+        if (verbosity_p >= c_CDCE_ADDR_VERBOSITY_MIN) {
+            display_register(addr, c_CDCE_SPI_ADDR_WIDTH, data, c_CDCE_SPI_DATA_WIDTH, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_BIT_VERBOSITY_MIN) {
+            display_bit_from_data("outbufsel7yx_p", 26, 2, data, level2, mode_p);
+            display_bit_from_data("cmosmode7nyx_p", 24, 2, data, level2, mode_p);
+            display_bit_from_data("cmosmode7pyx_p", 22, 2, data, level2, mode_p);
+            display_bit_from_data("pecl7hiswing_p", 21, 1, data, level2, mode_p);
+            display_bit_from_data("en7div_p", 20, 1, data, level2, mode_p);
+            display_bit_from_data("out7divrsel_p", 13, 7, data, level2, mode_p);
+            display_bit_from_data("ph7adjc_p", 6, 7, data, level2, mode_p);
+            display_bit_from_data("adlock_p", 5, 1, data, level2, mode_p);
+            display_bit_from_data("lockc_p", 3, 2, data, level2, mode_p);
+            display_bit_from_data("lockw_p", 0, 2, data, level2, mode_p);
+
+        }
+    }
+
+
+    return data;
+}
+
+/**
+ * Get the register8 from the spi device.
+ *
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} register value.
+ *
+ * [27:26]: R/W: outbufsel8yx[1:0]
+ * [25:24]: R/W: cmosmode8nyx[1:0]
+ * [23:22]: R/W: cmosmode8pyx[1:0]
+ * [21]: R/W: pecl8hiswing[0]
+ * [20]: R/W: en8div[0]
+ * [19:13]: R/W: out8divrsel[6:0]
+ * [12:6]: R/W: ph8adjc[6:0]
+ * [5]: R/W: vcxoinvbb[0]
+ * [4]: R/W: vcxotermsel[0]
+ * [3]: R/W: vcxohysten[0]
+ * [2]: R/W: vcxoacdcsel[0]
+ * [1:0]: R/W: vcxobufselyx[1:0]
+ */
+function cdce_get_config8(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+
+    const addr = CDCE_ADDR['reg8'];
+    const data = cdce_read_command(addr);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_CDCE_REG_VERBOSITY_MIN) {
+            const msg = "[cdce_get_config8]: Get the register value";
+            display(msg, level0, mode_p);
+        }
+        if (verbosity_p >= c_CDCE_ADDR_VERBOSITY_MIN) {
+            display_register(addr, c_CDCE_SPI_ADDR_WIDTH, data, c_CDCE_SPI_DATA_WIDTH, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_BIT_VERBOSITY_MIN) {
+            display_bit_from_data("outbufsel8yx_p", 26, 2, data, level2, mode_p);
+            display_bit_from_data("cmosmode8nyx_p", 24, 2, data, level2, mode_p);
+            display_bit_from_data("cmosmode8pyx_p", 22, 2, data, level2, mode_p);
+            display_bit_from_data("pecl8hiswing_p", 21, 1, data, level2, mode_p);
+            display_bit_from_data("en8div_p", 20, 1, data, level2, mode_p);
+            display_bit_from_data("out8divrsel_p", 13, 7, data, level2, mode_p);
+            display_bit_from_data("ph8adjc_p", 6, 7, data, level2, mode_p);
+            display_bit_from_data("vcxoinvbb_p", 5, 1, data, level2, mode_p);
+            display_bit_from_data("vcxotermsel_p", 4, 1, data, level2, mode_p);
+            display_bit_from_data("vcxohysten_p", 3, 1, data, level2, mode_p);
+            display_bit_from_data("vcxoacdcsel_p", 2, 1, data, level2, mode_p);
+            display_bit_from_data("vcxobufselyx_p", 0, 2, data, level2, mode_p);
+
+        }
+    }
+
+
+    return data;
+}
+
+/**
+ * Get the register9 from the spi device.
+ *
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} register value.
+ *
+ * [27:26]: R/W: outbufsel9yx[1:0]
+ * [25:24]: R/W: cmosmode9nyx[1:0]
+ * [23:22]: R/W: cmosmode9pyx[1:0]
+ * [21]: R/W: pecl9hiswing[0]
+ * [20]: R/W: dis_aux_y9[0]
+ * [19]: R/W: auxinvbb[0]
+ * [18:17]: R/W: bias_div89[1:0]
+ * [16:15]: R/W: bias_div_fb[1:0]
+ * [14]: R/W: npreset_mdiv[0]
+ * [13]: R/W: low_fd_fb_en[0]
+ * [12]: R/W: pll_lock_bp[0]
+ * [11]: R/W: indet_bp[0]
+ * [10]: R/W: start_bypass[0]
+ * [9]: R/W: divsync_dis[0]
+ * [8]: R/W: noinv_reshol_int[0]
+ * [7:6]: R/W: lockw32[1:0]
+ * [5:4]: R/W: hold_cnt[1:0]
+ * [3]: R/W: holdtr[0]
+ * [2]: R/W: hold_n[0]
+ * [0]: R/W: holdf[0]
+ */
+function cdce_get_config9(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    const addr = CDCE_ADDR['reg9'];
+    const data = cdce_read_command(addr);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_CDCE_REG_VERBOSITY_MIN) {
+            const msg = "[cdce_get_config9]: Get the register value";
+            display(msg, level0, mode_p);
+        }
+        if (verbosity_p >= c_CDCE_ADDR_VERBOSITY_MIN) {
+            display_register(addr, c_CDCE_SPI_ADDR_WIDTH, data, c_CDCE_SPI_DATA_WIDTH, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_BIT_VERBOSITY_MIN) {
+            display_bit_from_data("outbufsel9yx_p", 26, 2, data, level2, mode_p);
+            display_bit_from_data("cmosmode9nyx_p", 24, 2, data, level2, mode_p);
+            display_bit_from_data("cmosmode9pyx_p", 22, 2, data, level2, mode_p);
+            display_bit_from_data("pecl9hiswing_p", 21, 1, data, level2, mode_p);
+
+            display_bit_from_data("dis_aux_y9_p", 20, 1, data, level2, mode_p);
+            display_bit_from_data("auxinvbb_p", 19, 1, data, level2, mode_p);
+            display_bit_from_data("bias_div89_p", 17, 2, data, level2, mode_p);
+            display_bit_from_data("bias_div_fb_p", 15, 2, data, level2, mode_p);
+
+            display_bit_from_data("npreset_mdiv_p", 14, 1, data, level2, mode_p);
+            display_bit_from_data("low_fd_fb_en_p", 13, 1, data, level2, mode_p);
+            display_bit_from_data("pll_lock_bp_p", 12, 1, data, level2, mode_p);
+            display_bit_from_data("indet_bp_p", 11, 1, data, level2, mode_p);
+            display_bit_from_data("start_bypass_p", 10, 1, data, level2, mode_p);
+            display_bit_from_data("divsync_dis_p", 9, 1, data, level2, mode_p);
+            display_bit_from_data("noinv_reshol_int_p", 8, 1, data, level2, mode_p);
+            display_bit_from_data("lockw32_p", 6, 2, data, level2, mode_p);
+            display_bit_from_data("hold_cnt_p", 4, 2, data, level2, mode_p);
+            display_bit_from_data("holdtr_p", 3, 1, data, level2, mode_p);
+            display_bit_from_data("hold_n_p", 2, 1, data, level2, mode_p);
+            display_bit_from_data("holdf_p", 0, 1, data, level2, mode_p);
+
+        }
+    }
+
+
+    return data;
+}
+
+/**
+ * Get the register10 from the spi device.
+ *
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} register value.
+ *
+ * [27:14]: R/W: div_m[13:0]
+ * [13:0]: R/W: div_n[13:0]
+ */
+function cdce_get_config10(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+
+    const addr = CDCE_ADDR['reg10'];
+    const data = cdce_read_command(addr);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_CDCE_REG_VERBOSITY_MIN) {
+            const msg = "[cdce_get_config10]: Get the register value";
+            display(msg, level0, mode_p);
+        }
+        if (verbosity_p >= c_CDCE_ADDR_VERBOSITY_MIN) {
+            display_register(addr, c_CDCE_SPI_ADDR_WIDTH, data, c_CDCE_SPI_DATA_WIDTH, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_BIT_VERBOSITY_MIN) {
+            display_bit_from_data("div_n_p", 14, 14, data, level2, mode_p);
+            display_bit_from_data("div_m_p", 0, 14, data, level2, mode_p);
+
+        }
+    }
+
+
+    return data;
+}
+
+/**
+ * Get the register11 from the spi device.
+ *
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} register value.
+ *
+ * [26]: R/W: eplock[0]
+ * [25]: R/W: reset_hold_mode[0]
+ * [24]: R/W: sel_del1[0]
+ * [23]: R/W: nreshape1[0]
+ * [22]: R/W: fb_sel[0]
+ * [21]: R/W: out_mux_sel[0]
+ * [20]: R/W: fb_mux_sel[0]
+ * [19]: R/W: pd_pll[0]
+ * [18:12]: R/W: fb_phase[6:0]
+ * [11:5]: R/W: fb_count32[6:0]
+ * [4]: R/W: fb_inclk_inv[0]
+ * [3]: R/W: fb_cml_sel[0]
+ * [2]: R/W: fb_dis[0]
+ * [1]: R/W: sec_div2[0]
+ * [0]: R/W: pri_div2[0]
+ */
+function cdce_get_config11(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    const addr = CDCE_ADDR['reg11'];
+    const data = cdce_read_command(addr);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_CDCE_REG_VERBOSITY_MIN) {
+            const msg = "[cdce_get_config11]: Get the register value";
+            display(msg, level0, mode_p);
+        }
+        if (verbosity_p >= c_CDCE_ADDR_VERBOSITY_MIN) {
+            display_register(addr, c_CDCE_SPI_ADDR_WIDTH, data, c_CDCE_SPI_DATA_WIDTH, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_BIT_VERBOSITY_MIN) {
+            display_bit_from_data("eplock_p", 26, 1, data, level2, mode_p);
+            display_bit_from_data("reset_hold_mode_p", 25, 1, data, level2, mode_p);
+            display_bit_from_data("sel_del1_p", 24, 1, data, level2, mode_p);
+            display_bit_from_data("nreshape1_p", 23, 1, data, level2, mode_p);
+            display_bit_from_data("fb_sel_p", 22, 1, data, level2, mode_p);
+            display_bit_from_data("out_mux_sel_p", 21, 1, data, level2, mode_p);
+            display_bit_from_data("fb_mux_sel_p", 20, 1, data, level2, mode_p);
+            display_bit_from_data("pd_pll_p", 19, 1, data, level2, mode_p);
+            display_bit_from_data("fb_phase_p", 13, 7, data, level2, mode_p);
+            display_bit_from_data("fb_count32_p", 5, 7, data, level2, mode_p);
+            display_bit_from_data("fb_inclk_inv_p", 4, 1, data, level2, mode_p);
+            display_bit_from_data("fb_cml_sel_p", 3, 1, data, level2, mode_p);
+            display_bit_from_data("fb_dis_p", 2, 1, data, level2, mode_p);
+            display_bit_from_data("sec_div2_p", 1, 1, data, level2, mode_p);
+            display_bit_from_data("pri_div2_p", 1, 1, data, level2, mode_p);
+
+        }
+    }
+
+
+    return data;
+}
+
+/**
+ * Get the register12 from the spi device.
+ *
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @return {number} register value.
+ *
+ * [26]: R/W: secactivity[0]
+ * [25]: R/W: priactivity[0]
+ * [24:21]: R/W: titstcfg[3:0]
+ * [20:17]: R/W: status[3:0]
+ * [15]: R/W: shold[0]
+ * [14]: R/W: sxoiref[0]
+ * [13]: R/W: pd_io[0]
+ * [12:10]: R/W: revision[2:0]
+ * [9]: R/W: gtme[0]
+ * [8]: R/W: reset_hold_n[0]
+ * [7]: R/W: sleep[0]
+ * [6]: R: pll_lock[0]
+ * [5]: R: indet_vcxo[0]
+ * [4]: R: indet_aux[0]
+ */
+function cdce_get_config12(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+    const level2 = level_p + 2;
+
+    const addr = CDCE_ADDR['reg12'];
+    const data = cdce_read_command(addr);
+
+    if (verbosity_p < 0) {
+        // do nothing
+    } else {
+        if (verbosity_p >= c_CDCE_REG_VERBOSITY_MIN) {
+            const msg = "[cdce_get_config12]: Get the register value";
+            display(msg, level0, mode_p);
+        }
+        if (verbosity_p >= c_CDCE_ADDR_VERBOSITY_MIN) {
+            display_register(addr, c_CDCE_SPI_ADDR_WIDTH, data, c_CDCE_SPI_DATA_WIDTH, level1, mode_p);
+        }
+
+        if (verbosity_p >= c_CDCE_BIT_VERBOSITY_MIN) {
+            display_bit_from_data("secactivity_p", 26, 1, data, level2, mode_p);
+            display_bit_from_data("priactivity_p", 25, 1, data, level2, mode_p);
+            display_bit_from_data("titstcfg_p", 21, 4, data, level2, mode_p);
+            display_bit_from_data("status_p", 17, 4, data, level2, mode_p);
+            display_bit_from_data("shold_p", 15, 1, data, level2, mode_p);
+
+            display_bit_from_data("sxoiref_p", 14, 1, data, level2, mode_p);
+            display_bit_from_data("pd_io_p", 13, 1, data, level2, mode_p);
+            display_bit_from_data("revision_p", 10, 3, data, level2, mode_p);
+            display_bit_from_data("gtme_p", 9, 1, data, level2, mode_p);
+            display_bit_from_data("reset_hold_n_p", 8, 1, data, level2, mode_p);
+            display_bit_from_data("sleep_n_p", 7, 1, data, level2, mode_p);
+            display_bit_from_data("pll_lock_p", 6, 1, data, level2, mode_p);
+            display_bit_from_data("indet_vcxo_p", 5, 1, data, level2, mode_p);
+            display_bit_from_data("indet_aux_p", 4, 1, data, level2, mode_p);
+
+        }
+    }
+
+
+    return data;
+}
+
+
+
+/**
+ * Get register value by name.
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ * @param {string} reg_name_p - register name.
+ * @return {number} selected register value.
+ *
+ */
+function CDCE72010_get_config_by_name(reg_name_p, level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+
+    data = 0;
+    error = 0;
+
+    switch (reg_name_p) {
+        case 'reg0':
+            data = cdce_get_config0(level0, mode_p, verbosity_p);
+            break;
+        case 'reg1':
+            data = cdce_get_config1(level0, mode_p, verbosity_p);
+            break;
+        case 'reg2':
+            data = cdce_get_config2(level0, mode_p, verbosity_p);
+            break;
+        case 'reg3':
+            data = cdce_get_config3(level0, mode_p, verbosity_p);
+            break;
+        case 'reg4':
+            data = cdce_get_config4(level0, mode_p, verbosity_p);
+            break;
+        case 'reg5':
+            data = cdce_get_config5(level0, mode_p, verbosity_p);
+            break;
+        case 'reg6':
+            data = cdce_get_config6(level0, mode_p, verbosity_p);
+            break;
+        case 'reg7':
+            data = cdce_get_config7(level0, mode_p, verbosity_p);
+            break;
+        case 'reg8':
+            data = cdce_get_config8(level0, mode_p, verbosity_p);
+            break;
+        case 'reg9':
+            data = cdce_get_config9(level0, mode_p, verbosity_p);
+            break;
+        case 'reg10':
+            data = cdce_get_config10(level0, mode_p, verbosity_p);
+            break;
+        case 'reg11':
+            data = cdce_get_config11(level0, mode_p, verbosity_p);
+            break;
+        case 'reg12':
+            data = cdce_get_config12(level0, mode_p, verbosity_p);
+            break;
+        default:
+            msg = "[CDCE72010_get_config_by_name]: Error" + reg_name_p + " doesn't exist."
+            display_error(msg, level0, mode_p);
+            error = 1;
+            break;
+    }
+
+
+    return data;
+
+
+}
+
+/**
+ * Read and Display the configuration of all spi device registers.
+ *
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ *
+ */
+function cdce_display_all_config(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+
+    cdce_get_config0(level0, mode_p, verbosity_p);
+    cdce_get_config1(level0, mode_p, verbosity_p);
+    cdce_get_config2(level0, mode_p, verbosity_p);
+    cdce_get_config3(level0, mode_p, verbosity_p);
+    cdce_get_config4(level0, mode_p, verbosity_p);
+    cdce_get_config5(level0, mode_p, verbosity_p);
+    cdce_get_config6(level0, mode_p, verbosity_p);
+    cdce_get_config7(level0, mode_p, verbosity_p);
+    cdce_get_config8(level0, mode_p, verbosity_p);
+    cdce_get_config9(level0, mode_p, verbosity_p);
+    cdce_get_config10(level0, mode_p, verbosity_p);
+    cdce_get_config11(level0, mode_p, verbosity_p);
+    cdce_get_config12(level0, mode_p, verbosity_p);
+
+}
+
+
+
+/**
+ * Default Configuration of the cdcd72010 spi device (FMC150 board).
+ *   To compute the output frequency, use the following formula (python code)
+ *     def compute_frequency(M,N,P,R):
+ *        # P : 1 to 80: fb_count32 (feedbock counter reg11)
+ *        # M: div_m (reg10)
+ *        # N: div_n (reg10)
+ *        # R: out(i)divrsel (reg0 to reg9) (output i)
+ *        # fin = 100*10**6 Hz for the FMC150
+ *        fin = 100*10**6
+ *        fout = fin*P*N/(R*M)
+ *        return fout
+ * @param {number} level_p - level of indentation at the beginning.
+ * @param {number} mode_p - define the print output.
+ * @param {number} verbosity_p - level of verbosity.
+ *
+ */
+function CDCE72010_configure(level_p, mode_p, verbosity_p) {
+    // default function parameter values
+    if (typeof(level_p) === 'undefined') level_p = 0;
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+    const level0 = level_p;
+    const level1 = level_p + 1;
+
+
+    const msg = "Configuring CDCE72010...";
+    //display_title(msg, level0, mode_p);
+    print(TAB3+msg);
+
+    // Enable the SPI on the FPGA board
+    cdce_spi_enable(level1, mode_p, verbosity_p);
+
+    const msg = "";
+    display(msg, level1, mode_p);
+
+    //###############################################################
+    // config0
+    //###############################################################
+    // [27:26]: R/W: outbufsel0yx[1:0]
+    // [25:24]: R/W: cmosmode0nyx[1:0]
+    // [23:22]: R/W: cmosmode0pyx[1:0]
+    // [21]: R/W: pecl0hiswing[0]
+    // [20]: R/W: irefres[0]
+    // [17:14]: R/W: icp[3:0]
+    // [13]: R/W: cp_pre[0]
+    // [12]: R/W: cp_opa[0]
+    // [11]: R/W: cp_snk[0]
+    // [10]: R/W: cp_src[0]
+    // [9]: R/W: cp_dir[0]
+    // [7:6]: R/W: delay_pfd[1:0]
+    // [5]: R/W: refselcntrl[0]
+    // [4]: R/W: vcxosel[0]
+    // [3]: R/W: secsel[0]
+    // [2]: R/W: prisel[0]
+    // [1:0]: R/W: inbufselyx[1:0]
+
+    const outbufsel0yx = parseInt('01', 2); // disable output0
+    const cmosmode0nyx = parseInt('10', 2); // disable output0
+    const cmosmode0pyx = parseInt('10', 2); // disable output0
+    const pecl0hiswing = 0; //0: no High output voltage swing in LVPECL/LVDS mode, 1: otherwise
+    const irefres = 0;
+    const icp = parseInt('1111', 2);
+    const cp_pre = 0; // Preset charge pump output voltage to VCC_CP/2, on [1], off [0]
+    const cp_opa = 0;
+    const cp_snk = 0;
+    const cp_src = 0;
+    const cp_dir = 0;
+    const delay_pfd = parseInt('00', 2); // delay on the reset path: 1.5 ns (default)
+    const refselcntrl = 1; // 1: use register0 to select ref_clk
+    const vcxosel = 1; // 0; use register0 to select ref_clk, 1: use VCXO/AUX-clock
+    const secsel = 0; // use prim_ref
+    const prisel = 1;
+    const inbufselyx = parseInt('01', 2); //LVDS PRI_Ref/SEC_Ref
+
+    cdce_set_config0(
+        outbufsel0yx, cmosmode0nyx,
+        cmosmode0pyx, pecl0hiswing, irefres,
+        icp, cp_pre, cp_opa,
+        cp_snk, cp_src, cp_dir,
+        delay_pfd, refselcntrl, vcxosel,
+        secsel, prisel, inbufselyx,
+        level1, mode_p, verbosity_p
+    );
+
+    const msg = "";
+    display(msg, level1, mode_p);
+
+    //###############################################################
+    // config1
+    //###############################################################
+    // [27:26]: R/W: outbufsel1yx[1:0]
+    // [25:24]: R/W: cmosmode1nyx[1:0]
+    // [23:22]: R/W: cmosmode1pyx[1:0]
+    // [21]: R/W: pecl1hiswing[0]
+    // [20]: R/W: en01div[0]
+    // [19:13]: R/W: out1divrsel[6:0]
+    // [12:6]: R/W: ph1adjc[6:0]
+    // [5]: R/W: failsafe[0]
+    // [4]: R/W: secinvbb[0]
+    // [3]: R/W: priinvbb[0]
+    // [2]: R/W: termsel[0]
+    // [1]: R/W: hysten[0]
+    // [0]: R/W: acdcsel[0]
+
+    const outbufsel1yx = parseInt('01', 2); // disable output1
+    const cmosmode1nyx = parseInt('10', 2); // disable output1
+    const cmosmode1pyx = parseInt('10', 2); // disable output1
+    const pecl1hiswing = 0; //0: no High output voltage swing in LVPECL/LVDS mode, 1: otherwise
+    const en01div = 0; //0: divider is disabled on output0/output1
+    const out1divrsel = parseInt('000_0000', 2);
+    const ph1adjc = parseInt('000_0000', 2);
+    const failsafe = 0;
+    const secinvbb = 0;
+    const priinvbb = 0;
+    const termsel = 0;
+    const hysten = 1;
+    const acdcsel = 0;
+
+    cdce_set_config1(
+        outbufsel1yx, cmosmode1nyx,
+        cmosmode1pyx, pecl1hiswing, en01div,
+        out1divrsel, ph1adjc,
+        failsafe, secinvbb,
+        priinvbb, termsel, hysten, acdcsel,
+        level1, mode_p, verbosity_p
+    );
+
+    const msg = "";
+    display(msg, level1, mode_p);
+
+    //###############################################################
+    // config2
+    // requirement: FPASIM-FW-REQ-0050
+    //###############################################################
+    // [27:26]: R/W: outbufsel2yx[1:0]
+    // [25:24]: R/W: cmosmode2nyx[1:0]
+    // [23:22]: R/W: cmosmode2pyx[1:0]
+    // [21]: R/W: pecl2hiswing[0]
+    // [20]: R/W: en2div[0]
+    // [19:13]: R/W: out2divrsel[6:0]
+    // [12:6]: R/W: ph2adjc[6:0]
+    // [5:3]: R/W: dlyn[2:0]
+    // [2:0]: R/W: dlym[2:0]
+    const outbufsel2yx = parseInt('10', 2); // LVPECL output2
+    const cmosmode2nyx = parseInt('00', 2); // LVPECL output2
+    const cmosmode2pyx = parseInt('00', 2); // LVPECL output2
+    const pecl2hiswing = 1; //0: no High output voltage swing in LVPECL/LVDS mode, 1: otherwise
+    const en2div = 1; //0: divider is disabled on output2, 1: otherwise
+    const out2divrsel = parseInt('1000000', 2); // Output Divider 2 ratio select: divided by 2
+    const ph2adjc = parseInt('0000000', 2);
+    const dlyn = parseInt('00', 2); // Feedback phase delay. (default:'00' <=> 0ps (page 55)).If Progr Delay N is set, all Yx outputs are leading to the Reference Clock according to the value set
+    const dlym = parseInt('00', 2); // Reference phase delay. (default:'00' <=> 0ps (page 55)). If Progr Delay M is set, all Yx outputs are lagging to the Reference Clock according to the value set
+
+    cdce_set_config2(
+        outbufsel2yx, cmosmode2nyx,
+        cmosmode2pyx, pecl2hiswing, en2div,
+        out2divrsel, ph2adjc,
+        dlyn, dlym,
+        level1, mode_p, verbosity_p
+    );
+
+    const msg = "";
+    display(msg, level1, mode_p);
+
+    //###############################################################
+    // config3
+    //###############################################################
+    // [27:26]: R/W: outbufsel3yx[1:0]
+    // [25:24]: R/W: cmosmode3nyx[1:0]
+    // [23:22]: R/W: cmosmode3pyx[1:0]
+    // [21]: R/W: pecl3hiswing[0]
+    // [20]: R/W: en3div[0]
+    // [19:13]: R/W: out3divrsel[6:0]
+    // [12:6]: R/W: ph3adjc[6:0]
+    // [5:4]: R/W: bias_div23[1:0]
+    // [3:2]: R/W: bias_div01[1:0]
+    // [1]: R/W: dis_fdet_fb[0]
+    // [0]: R/W: dis_fdet_ref[0]
+
+    const outbufsel3yx = parseInt('01', 2); // disable output3
+    const cmosmode3nyx = parseInt('10', 2); // disable output3
+    const cmosmode3pyx = parseInt('10', 2); // disable output3
+    const pecl3hiswing = 0; //0: no High output voltage swing in LVPECL/LVDS mode, 1: otherwise
+    const en3div = 0; //0: divider is disabled on output3, 1: otherwise
+    const out3divrsel = parseInt('0000000', 2);
+    const ph3adjc = parseInt('0000000', 2);
+    const bias_div23 = parseInt('00', 2);
+    const bias_div01 = parseInt('00', 2);
+    const dis_fdet_fb = 0;
+    const dis_fdet_ref = 0; // 0: ref clock frequency detector is ON, 1: otherwise
+
+    cdce_set_config3(
+        outbufsel3yx, cmosmode3nyx,
+        cmosmode3pyx, pecl3hiswing, en3div,
+        out3divrsel, ph3adjc,
+        bias_div23,
+        bias_div01, dis_fdet_fb, dis_fdet_ref,
+        level1, mode_p, verbosity_p
+    );
+
+    const msg = "";
+    display(msg, level1, mode_p);
+
+    //###############################################################
+    // config4
+    //###############################################################
+    // [27:26]: R/W: outbufsel4yx[1:0]
+    // [25:24]: R/W: cmosmode4nyx[1:0]
+    // [23:22]: R/W: cmosmode4pyx[1:0]
+    // [21]: R/W: pecl4hiswing[0]
+    // [20]: R/W: en4div[0]
+    // [19:13]: R/W: out4divrsel[6:0]
+    // [12:6]: R/W: ph4adjc[6:0]
+    // [4]: R/W: holdonlor[0]
+
+    const outbufsel4yx = parseInt('11', 2); // LVDS output4
+    const cmosmode4nyx = parseInt('10', 2); // LVDS output4
+    const cmosmode4pyx = parseInt('10', 2); // LVDS output4
+    const pecl4hiswing = 0; //0: no High output voltage swing in LVPECL/LVDS mode, 1: otherwise
+    const en4div = 1; //0: divider is disabled on output4, 1: otherwise
+    const out4divrsel = parseInt('1000000', 2); // Output Divider 4 ratio select: divided by 2
+    const ph4adjc = parseInt('000_0000', 2);
+    const holdonlor = 0; //If set to 0, CP remains active and will discharge loop filter if input reference clock is lost
+
+    cdce_set_config4(
+        outbufsel4yx, cmosmode4nyx,
+        cmosmode4pyx, pecl4hiswing, en4div,
+        out4divrsel, ph4adjc,
+        holdonlor,
+        level1, mode_p, verbosity_p
+    );
+
+    const msg = "";
+    display(msg, level1, mode_p);
+
+    //###############################################################
+    // config5
+    //###############################################################
+    // [27:26]: R/W: outbufsel5yx[1:0]
+    // [25:24]: R/W: cmosmode5nyx[1:0]
+    // [23:22]: R/W: cmosmode5pyx[1:0]
+    // [21]: R/W: pecl5hiswing[0]
+    // [20]: R/W: en5div[0]
+    // [19:13]: R/W: out5divrsel[6:0]
+    // [12:6]: R/W: ph5adjc[6:0]
+    // [3:2]: R/W: bias_div67[1:0]
+    // [1:0]: R/W: bias_div45[1:0]
+    const outbufsel5yx = parseInt('01', 2); // disable output5
+    const cmosmode5nyx = parseInt('10', 2); // disable output5
+    const cmosmode5pyx = parseInt('10', 2); // disable output5
+    const pecl5hiswing = 0; //0: no High output voltage swing in LVPECL/LVDS mode, 1: otherwise
+    const en5div = 0; //0: divider is disabled on output5, 1: otherwise
+    const out5divrsel = parseInt('0000000', 2);
+    const ph5adjc = parseInt('0000000', 2);
+    const bias_div67 = parseInt('00', 2); //00, No current reduction for all output-divider
+    const bias_div45 = parseInt('00', 2); //00, No current reduction for all output-divider
+
+    cdce_set_config5(
+        outbufsel5yx, cmosmode5nyx,
+        cmosmode5pyx, pecl5hiswing, en5div,
+        out5divrsel, ph5adjc,
+        bias_div67, bias_div45,
+        level1, mode_p, verbosity_p
+    );
+
+    const msg = "";
+    display(msg, level1, mode_p);
+
+    //###############################################################
+    // config6
+    //###############################################################
+    // [27:26]: R/W: outbufsel6yx[1:0]
+    // [25:24]: R/W: cmosmode6nyx[1:0]
+    // [23:22]: R/W: cmosmode6pyx[1:0]
+    // [21]: R/W: pecl6hiswing[0]
+    // [20]: R/W: en6div[0]
+    // [19:13]: R/W: out6divrsel[6:0]
+    // [12:6]: R/W: ph6adjc[6:0]
+    // [5]: R/W: det_start_bypass[0]
+    // [4]: R/W: fb_start_bypass[0]
+    // [3]: R/W: fbdeterm_div2_dis[0]
+    // [2]: R/W: fbdeterm_div_sel[0]
+    // [0]: R/W: fb_fd_desel[0]
+    const outbufsel6yx = parseInt('01', 2); // disable output6
+    const cmosmode6nyx = parseInt('10', 2); // disable output6
+    const cmosmode6pyx = parseInt('10', 2); // disable output6
+    const pecl6hiswing = 0; //0: no High output voltage swing in LVPECL/LVDS mode, 1: otherwise
+    const en6div = 0; //0: divider is disabled on output6, 1: otherwise
+    const out6divrsel = parseInt('0000000', 2);
+    const ph6adjc = parseInt('0000000', 2);
+    const det_start_bypass = 0; // 0: Output-Dividers started with delay block (RC), normal operation, 1:Output-Dividers can be started with external NRESET-signal (pin)
+    const fb_start_bypass = 0;
+    const fbdeterm_div2_dis = 0;
+    const fbdeterm_div_sel = 0;
+    const fb_fd_desel = 0;
+
+    cdce_set_config6(
+        outbufsel6yx, cmosmode6nyx,
+        cmosmode6pyx, pecl6hiswing, en6div,
+        out6divrsel, ph6adjc,
+        det_start_bypass, fb_start_bypass,
+        fbdeterm_div2_dis, fbdeterm_div_sel, fb_fd_desel,
+        level1, mode_p, verbosity_p
+    );
+
+    const msg = "";
+    display(msg, level1, mode_p);
+
+    //###############################################################
+    // config7
+    //###############################################################
+    // [27:26]: R/W: outbufsel7yx[1:0]
+    // [25:24]: R/W: cmosmode7nyx[1:0]
+    // [23:22]: R/W: cmosmode7pyx[1:0]
+    // [21]: R/W: pecl7hiswing[0]
+    // [20]: R/W: en7div[0]
+    // [19:13]: R/W: out7divrsel[6:0]
+    // [12:6]: R/W: ph7adjc[6:0]
+    // [5]: R/W: adlock[0]
+    // [4:3]: R/W: lockc[1:0]
+    // [1:0]: R/W: lockw[1:0]
+    const outbufsel7yx = parseInt('10', 2); // LVPECL output7
+    const cmosmode7nyx = parseInt('00', 2); // LVPECL output7
+    const cmosmode7pyx = parseInt('00', 2); // LVPECL output7
+    const pecl7hiswing = 1; //0: no High output voltage swing in LVPECL/LVDS mode, 1: otherwise
+    const en7div = 1; //0: divider is disabled on output7, 1: otherwise
+    const out7divrsel = parseInt('1000000', 2); // Output Divider 7 ratio select: divided by 2
+    // const out7divrsel = parseInt('0100000', 2); // Output Divider 7 ratio select: divided by 1
+    const ph7adjc = parseInt('0000000', 2);
+    const adlock = 0;
+    const lockc = parseInt('00', 2); // Number of coherent lock events (page 59) ("00": default : 1 successive lock event)
+    const lockw = parseInt('01', 2); // Lock-detect window (default : 01)
+
+    cdce_set_config7(
+        outbufsel7yx, cmosmode7nyx,
+        cmosmode7pyx, pecl7hiswing, en7div,
+        out7divrsel, ph7adjc,
+        adlock, lockc, lockw,
+        level1, mode_p, verbosity_p
+    );
+
+    const msg = "";
+    display(msg, level1, mode_p);
+
+    //###############################################################
+    // config8
+    //###############################################################
+    // [27:26]: R/W: outbufsel8yx[1:0]
+    // [25:24]: R/W: cmosmode8nyx[1:0]
+    // [23:22]: R/W: cmosmode8pyx[1:0]
+    // [21]: R/W: pecl8hiswing[0]
+    // [20]: R/W: en8div[0]
+    // [19:13]: R/W: out8divrsel[6:0]
+    // [12:6]: R/W: ph8adjc[6:0]
+    // [5]: R/W: vcxoinvbb[0]
+    // [4]: R/W: vcxotermsel[0]
+    // [3]: R/W: vcxohysten[0]
+    // [2]: R/W: vcxoacdcsel[0]
+    // [1:0]: R/W: vcxobufselyx[1:0]
+    const outbufsel8yx = parseInt('01', 2); // disable output8
+    const cmosmode8nyx = parseInt('10', 2); // disable output8
+    const cmosmode8pyx = parseInt('10', 2); // disable output8
+    const pecl8hiswing = 0; //0: no High output voltage swing in LVPECL/LVDS mode, 1: otherwise
+    const en89div = 0; //0: divider is disabled on output8/9, 1: otherwise
+    const out8divrsel = parseInt('0000000', 2);
+    const ph8adjc = parseInt('0000000', 2);
+    const vcxoinvbb = 0;
+    const vcxotermsel = 0;
+    const vcxohysten = 1;
+    const vcxoacdcsel = 0;
+    const vcxobufselyx = parseInt('01', 2); // VCXO and AUX Input Buffer Type Select (LVPECL,LVDS or LVCMOS): 01: LVPECL, 11: LVDS, 00: CMOS
+
+    cdce_set_config8(
+        outbufsel8yx, cmosmode8nyx,
+        cmosmode8pyx, pecl8hiswing, en89div,
+        out8divrsel, ph8adjc,
+        vcxoinvbb, vcxotermsel,
+        vcxohysten, vcxoacdcsel, vcxobufselyx,
+        level1, mode_p, verbosity_p
+    );
+
+    const msg = "";
+    display(msg, level1, mode_p);
+
+    //###############################################################
+    // config9
+    //###############################################################
+    // [27:26]: R/W: outbufsel9yx[1:0]
+    // [25:24]: R/W: cmosmode9nyx[1:0]
+    // [23:22]: R/W: cmosmode9pyx[1:0]
+    // [21]: R/W: pecl9hiswing[0]
+    // [20]: R/W: dis_aux_y9[0]
+    // [19]: R/W: auxinvbb[0]
+    // [18:17]: R/W: bias_div89[1:0]
+    // [16:15]: R/W: bias_div_fb[1:0]
+    // [14]: R/W: npreset_mdiv[0]
+    // [13]: R/W: low_fd_fb_en[0]
+    // [12]: R/W: pll_lock_bp[0]
+    // [11]: R/W: indet_bp[0]
+    // [10]: R/W: start_bypass[0]
+    // [9]: R/W: divsync_dis[0]
+    // [8]: R/W: noinv_reshol_int[0]
+    // [7:6]: R/W: lockw32[1:0]
+    // [5:4]: R/W: hold_cnt[1:0]
+    // [3]: R/W: holdtr[0]
+    // [2]: R/W: hold_n[0]
+    // [0]: R/W: holdf[0]
+    const outbufsel9yx = parseInt('01', 2); // disable output9
+    const cmosmode9nyx = parseInt('10', 2); // disable output9
+    const cmosmode9pyx = parseInt('10', 2); // disable output9
+    const pecl9hiswing = 0; //0: no High output voltage swing in LVPECL/LVDS mode, 1: otherwise
+    const dis_aux_y9 = 0;
+    const auxinvbb = 0;
+    const bias_div89 = parseInt('00', 2);
+    const bias_div_fb = parseInt('00', 2);
+    const npreset_mdiv = 1; // 1: M-Divider NOT preseted by NHOLD, 0:M-Divider uses NHOLD as NPRESET
+    const low_fd_fb_en = 0;
+    const pll_lock_bp = 1;
+    const indet_bp = 0;
+    const start_bypass = 0; // When set to 0, START-Signal is synchronized to VCXO-Clock,  When set to 1, START-Sync Block is bypassed
+    const divsync_dis = 0;
+    const noinv_reshol_int = 0;
+    const lockw32 = parseInt('11', 2); // Extended Lock-detect window => 19.3 ns
+    const hold_cnt = parseInt('00', 2);
+    const holdtr = 1;
+    const hold_n = 1;
+    const holdf = 0;
+    cdce_set_config9(
+        outbufsel9yx, cmosmode9nyx,
+        cmosmode9pyx, pecl9hiswing, dis_aux_y9,
+        auxinvbb, bias_div89, bias_div_fb,
+        npreset_mdiv, low_fd_fb_en, pll_lock_bp,
+        indet_bp, start_bypass, divsync_dis, noinv_reshol_int,
+        lockw32, hold_cnt,
+        holdtr, hold_n, holdf,
+        level1, mode_p, verbosity_p
+    );
+
+    const msg = "";
+    display(msg, level1, mode_p);
+
+    //###############################################################
+    // config10
+    // requirement: FPASIM-FW-REQ-0050
+    //###############################################################
+    // [27:14]: R/W: div_m[13:0]
+    // [13:0]: R/W: div_n[13:0]
+    const div_n = parseInt('00000101111111', 2); // VCXO Divider N (382)
+    const div_m = parseInt('00001001110000', 2); // Reference Divider M (624)
+
+    cdce_set_config10(
+        div_n,
+        div_m,
+        level1, mode_p, verbosity_p
+    );
+
+    const msg = "";
+    display(msg, level1, mode_p);
+
+    //###############################################################
+    // config11
+    //###############################################################
+    // [26]: R/W: eplock[0]
+    // [25]: R/W: reset_hold_mode[0]
+    // [24]: R/W: sel_del1[0]
+    // [23]: R/W: nreshape1[0]
+    // [22]: R/W: fb_sel[0]
+    // [21]: R/W: out_mux_sel[0]
+    // [20]: R/W: fb_mux_sel[0]
+    // [19]: R/W: pd_pll[0]
+    // [18:12]: R/W: fb_phase[6:0]
+    // [11:5]: R/W: fb_count32[6:0]
+    // [4]: R/W: fb_inclk_inv[0]
+    // [3]: R/W: fb_cml_sel[0]
+    // [2]: R/W: fb_dis[0]
+    // [1]: R/W: sec_div2[0]
+    // [0]: R/W: pri_div2[0]
+    const eplock = 0;
+    const reset_hold_mode = 0; // f set to 1 the RESET or HOLD pin acts as HOLD, set to 0 it acts as RESET
+    const sel_del1 = 0; // If set to 0 it enables short delay for fast operation, If Set to 1 Long Delay recommended for Input References below 150Mhz
+    const nreshape1 = 0;
+    const fb_sel = 0; // Feed Back Path Selects FB/VCXO-Path when set to 0 (TI Test-GTME), The econdary Reference clock input is selected when set to 1 (TI Test-GTME)
+    const out_mux_sel = 0; // if Set to 0 it selects the VCXO Clock and if Set to 1 it selects the AUX Clock
+    const fb_mux_sel = 0; //0: VCXO clock is selected from (clock tree, FB-DIV and Det), 1: AUX clock is selected
+    const pd_pll = 0; //0: PLL in normal mode, 1: PLL is powered down
+    const fb_phase = parseInt('0000000', 2); // Feedback Phase Adjust Bit0
+    const fb_count32 = parseInt('0000010', 2); // Feedback Counter: divided by 8
+    const fb_inclk_inv = 0;
+    const fb_cml_sel = 0;
+    const fb_dis = 0;
+    const sec_div2 = 0; // of set to 1 enables Secondary Reference Divide by 2, 0: otherwise divided by 1 => PRI_REF: 100 MHz -> 100 MHz.
+    const pri_div2 = 0; // if set to 1 enables Primary Reference Divide by 2,  0: otherwise divided by 1
+
+    cdce_set_config11(
+        eplock, reset_hold_mode, sel_del1,
+        nreshape1, fb_sel, out_mux_sel, fb_mux_sel,
+        pd_pll, fb_phase, fb_count32, fb_inclk_inv,
+        fb_cml_sel, fb_dis, sec_div2, pri_div2,
+        level1, mode_p, verbosity_p
+    );
+
+    const msg = "";
+    display(msg, level1, mode_p);
+
+    //###############################################################
+    // config12
+    //###############################################################
+    // [26]: R/W: secactivity[0]
+    // [25]: R/W: priactivity[0]
+    // [24:21]: R/W: titstcfg[3:0]
+    // [20:17]: R/W: status[3:0]
+    // [15]: R/W: shold[0]
+    // [14]: R/W: sxoiref[0]
+    // [13]: R/W: pd_io[0]
+    // [12:10]: R/W: revision[2:0]
+    // [9]: R/W: gtme[0]
+    // [8]: R/W: reset_hold_n[0]
+    // [7]: R/W: sleep_n[0]
+    // [6]: R: pll_lock[0]
+    // [5]: R: indet_vcxo[0]
+    // [4]: R: indet_aux[0]
+    const secactivity = 0;
+    const priactivity = 0;
+    const titstcfg = parseInt('0000', 2);
+    const v_status = parseInt('0000', 2);
+    const shold = 0;
+    const sxoiref = 0;
+    const pd_io = 0;
+    const revision = parseInt('000', 2);
+    const gtme = 0;
+    const reset_hold_n = 1;
+    const sleep_n = 1;
+    const pll_lock = 0;
+    const indet_vcxo = 0;
+    const indet_aux = 0;
+
+    cdce_set_config12(
+        secactivity, priactivity, titstcfg,
+        v_status,
+        shold, sxoiref, pd_io,
+        revision, gtme, reset_hold_n,
+        sleep_n, pll_lock, indet_vcxo, indet_aux,
+        level1, mode_p, verbosity_p
+    );
+    const msg = "";
+    display(msg, level1, mode_p);
+
+}

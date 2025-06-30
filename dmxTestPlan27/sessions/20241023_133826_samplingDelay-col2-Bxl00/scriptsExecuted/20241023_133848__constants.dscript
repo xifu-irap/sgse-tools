@@ -1,0 +1,39 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                    constants.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file defines the constants which are common for the different scripts.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+
+const NB_SAMPLES_PER_PIX = 20;
+const DMX_NB_COL = 4;
+const DMX_NB_PIX_PER_COL = 34;
+const DMX_PULSESHAPING_NBVALUES = 20;
+const DMX_TEST_PATTERN_NBPARAMS = 4;
+const DMX_TEST_PATTERN_NBREGIONS = 5;
+const ON = 1;
+const OFF = 0;
+const TABUL = "   ";
+
+// -------------------------------------------------------------------------------------------------------------
