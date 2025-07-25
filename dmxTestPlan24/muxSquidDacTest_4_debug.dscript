@@ -17,7 +17,7 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     muxSquidDacTest.dscript
+//    @file                     muxSquidDacTest_4_debug.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
@@ -39,7 +39,10 @@ include("../common/constants.dscript");
 function testSequence(fbMode) {
 
     // Switching ON the columns
+	// ====== MODIF 1  LR 16/07/2025
     setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
+    //setDMX_safeFeedbackOnOff([OFF, OFF, OFF, ON]);
+	// ====== Fin MODIF 1
 
     // Setting the feedback FB0 values
     const minVal = -1*Math.pow(2, 13);
@@ -82,8 +85,9 @@ function testSequence(fbMode) {
     ];
     for (col=0; col<DMX_NB_COL; col++) setDMX_fb0(col, tabFb0_1);
 
-	const v1 = 800;
-	const v2 = 1256;
+	const offset2 = 64+30;
+	const v1 = offset2 + 10;
+	const v2 = offset2 + 110;
     const tabFb0_3 = [
         v1, v2, v1, v2, v1, v2, v1, v2,
         v1, v2, v1, v2, v1, v2, v1, v2,
@@ -159,12 +163,17 @@ function testSequence(fbMode) {
         setDMX_testPatternEnable(enable, infinitely, nbTime);
 		
     }
-	
-	print("Saving some data in error acquisition mode");
+		
+	print("Saving some data");
     sendToDMXGoToErrorSignalMode();
+	sendToDMXGoToDumpMode();
     const durationMs = 300;
     sendToDMXSaveScienceRaw("feedbackInErrorSignal", durationMs, 0xF, 0);
 	waitMs(durationMs + 100);
+
+	// ====== MODIF 2  LR 16/07/2025
+    //sendToDMXGoToIdleMode();
+	// ====== Fin MODIF 2
 
 	var answer=getText("Type enter to finish the test", "");
 }
@@ -197,8 +206,8 @@ function onAbortScript() {
 startSession("test_dmx_feedback");
 
 // You should uncomment a single of the following lines
-testSequence(FEEDBACK_MODE_OPEN_LOOP);
-//testSequence(FEEDBACK_MODE_TESTPATTERN);
+//testSequence(FEEDBACK_MODE_OPEN_LOOP);
+testSequence(FEEDBACK_MODE_TESTPATTERN);
 
 onAbortScript();
 

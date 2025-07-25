@@ -82,7 +82,7 @@ const N = 511;
 const a2 = Math.pow(2, 15)-1;
 const shortSawPattern = [
 	[a1, b, c, N],  // Slope upward
-	[a2, b, -c, N],  // Slope upward
+	[a2, b, -c, N],  // Slope downward
 	[0, 0, 0, 0],  // Nothing
 	[0, 0, 0, 0],  // Nothing
 	[0, 0, 0, 0]  // Nothing
