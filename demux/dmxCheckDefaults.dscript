@@ -92,7 +92,7 @@ function dmxCheckDefaults() {
     for (var col = 0; col < DMX_NB_COL; col++) print(TAB2 + "Column " + col + ": --> " + to_hexaString(feedbackOnOff[col]));
 
     MESSAGE = MESSAGE_ERROR;
-    if (arraysAreEquals([0,0,0,0], feedbackOnOff)) MESSAGE = MESSAGE_OK;
+    if (oneDimensionArraysAreEquals([0,0,0,0], feedbackOnOff)) MESSAGE = MESSAGE_OK;
     print(TAB1 + MESSAGE);
     if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
 
@@ -104,7 +104,7 @@ function dmxCheckDefaults() {
     print(TAB1 + "Expected values are: " + expected_values);
     var offsetMode = readDMX_offsetMode();
     print(TAB1 + "Current values are: " + offsetMode);
-    if (arraysAreEquals(expected_values, offsetMode)) print(TAB1 + MESSAGE_OK);
+    if (oneDimensionArraysAreEquals(expected_values, offsetMode)) print(TAB1 + MESSAGE_OK);
     else {
         print(TAB1 + MESSAGE_ERROR);
         ERROR_COUNTER++;
@@ -130,7 +130,7 @@ function dmxCheckDefaults() {
     for (region=0; region<DMX_TEST_PATTERN_NBREGIONS; region++) {
         print(TAB2 + "Region " + region + ": " + testPattern[region]);
     }
-    if (twoDArraysAreEquals(testPattern, expTestPattern)) print(TAB1 + MESSAGE_OK);
+    if (arraysAreEquals(testPattern, expTestPattern)) print(TAB1 + MESSAGE_OK);
     else {
         print(TAB1 + MESSAGE_ERROR);
         ERROR_COUNTER++;
@@ -149,7 +149,7 @@ function dmxCheckDefaults() {
     print(TAB2 + "Enable           = " + testPatternEnable[0]);
     print(TAB2 + "Infinitely         = " + testPatternEnable[1]);
     print(TAB2 + "Number times = " + testPatternEnable[2]);
-    if (arraysAreEquals(testPatternEnable, [false, false, 0])) print(TAB1 + MESSAGE_OK);
+    if (oneDimensionArraysAreEquals(testPatternEnable, [false, false, 0])) print(TAB1 + MESSAGE_OK);
     else {
         print(TAB1 + MESSAGE_ERROR);
         ERROR_COUNTER++;
@@ -162,7 +162,7 @@ function dmxCheckDefaults() {
     print(TAB1 + "Expected value are 0, 0, 0, 0");
     const boxcarLength = readDMX_boxcarLength();
     print(TAB1 + "Current value are " + boxcarLength);
-    if (arraysAreEquals(boxcarLength, [0, 0, 0, 0])) print(TAB1 + MESSAGE_OK);
+    if (oneDimensionArraysAreEquals(boxcarLength, [0, 0, 0, 0])) print(TAB1 + MESSAGE_OK);
     else {
         print(TAB1 + MESSAGE_ERROR);
         ERROR_COUNTER++;
@@ -183,7 +183,7 @@ function dmxCheckDefaults() {
         print(TAB1 + "Checking current values for column " + col + ":")
 
 		if (verbose) print(a);
-        if (arraysAreEquals(a, expA)) print(TAB1 + MESSAGE_OK);
+        if (oneDimensionArraysAreEquals(a, expA)) print(TAB1 + MESSAGE_OK);
         else {
             print(TAB1 + MESSAGE_ERROR);
             A_OK = false;
@@ -205,7 +205,7 @@ function dmxCheckDefaults() {
 		kiknorm = readDMX_sqm_kiknorm(col);
         print(TAB1 + "Checking current values for column " + col + ":");
 		if (verbose) print(kiknorm);
-        if (arraysAreEquals(kiknorm, expKiknormCol)) print(TAB1 + MESSAGE_OK);
+        if (oneDimensionArraysAreEquals(kiknorm, expKiknormCol)) print(TAB1 + MESSAGE_OK);
         else {
             print(TAB1 + MESSAGE_ERROR);
             kiknorm_OK = false;
@@ -226,7 +226,7 @@ function dmxCheckDefaults() {
         print(TAB1 + "Checking current values for column " + col + ":");
         if (verbose) print(knorm);
 
-		if (arraysAreEquals(knorm, expKnormCol)) print(TAB1 + MESSAGE_OK);
+		if (oneDimensionArraysAreEquals(knorm, expKnormCol)) print(TAB1 + MESSAGE_OK);
         else {
             print(TAB1 + MESSAGE_ERROR);
             knorm_OK = false;
@@ -247,7 +247,7 @@ function dmxCheckDefaults() {
         print(TAB1 + "Checking current values for column " + col + ":");
         if (verbose) print(fb0);
 
-        if (arraysAreEquals(fb0, expFb0Col)) print(TAB1 + MESSAGE_OK);
+        if (oneDimensionArraysAreEquals(fb0, expFb0Col)) print(TAB1 + MESSAGE_OK);
         else {
             print(TAB1 + MESSAGE_ERROR);
             fb0_OK = false;
@@ -270,7 +270,7 @@ function dmxCheckDefaults() {
 
         if (verbose) print(lp);
 
-        if (arraysAreEquals(lp, expLpCol)) print(TAB1 + MESSAGE_OK);
+        if (oneDimensionArraysAreEquals(lp, expLpCol)) print(TAB1 + MESSAGE_OK);
         else {
             print(TAB1 + MESSAGE_ERROR);
             lp_OK = false;
@@ -292,7 +292,7 @@ function dmxCheckDefaults() {
         print(TAB1 + "Checking current values for column " + col + ":");
         if (verbose) print(fbMode);
 
-        if (arraysAreEquals(fbMode, expFbModeCol)) print(TAB1 + MESSAGE_OK);
+        if (oneDimensionArraysAreEquals(fbMode, expFbModeCol)) print(TAB1 + MESSAGE_OK);
         else {
             print(TAB1 + MESSAGE_ERROR);
             fbMode_OK = false;
@@ -310,7 +310,7 @@ function dmxCheckDefaults() {
     for (col = 0; col < DMX_NB_COL; col++) sqa_OffsetLSB[col] = readDMX_sqa_OffsetLSB(col);
     print(TAB1 + "Current values are " + sqa_OffsetLSB);
 	
-    if (arraysAreEquals(sqa_OffsetLSB, expectedValues)) print(TAB1 + MESSAGE_OK);
+    if (oneDimensionArraysAreEquals(sqa_OffsetLSB, expectedValues)) print(TAB1 + MESSAGE_OK);
     else {
         print(TAB1 + MESSAGE_ERROR);
         ERROR_COUNTER++;
@@ -325,7 +325,7 @@ function dmxCheckDefaults() {
     var sqa_OffsetCoarse = [4];
     for (col = 0; col < DMX_NB_COL; col++) sqa_OffsetCoarse[col] = readDMX_sqa_OffsetCoarse(col);
     print(TAB1 + "Current values are " + sqa_OffsetCoarse);
-    if (arraysAreEquals(sqa_OffsetCoarse, expectedValues)) print(TAB1 + MESSAGE_OK);
+    if (oneDimensionArraysAreEquals(sqa_OffsetCoarse, expectedValues)) print(TAB1 + MESSAGE_OK);
     else {
         print(TAB1 + MESSAGE_ERROR);
         ERROR_COUNTER++;
@@ -338,7 +338,7 @@ function dmxCheckDefaults() {
     var feedback_delay = [];
     for (col = 0; col < DMX_NB_COL; col++) feedback_delay[col] = readDMX_feedback_delay(col);
     print(TAB1 + "Current values are " + feedback_delay);
-    if (arraysAreEquals(feedback_delay, [0, 0, 0, 0])) print(TAB1 + MESSAGE_OK);
+    if (oneDimensionArraysAreEquals(feedback_delay, [0, 0, 0, 0])) print(TAB1 + MESSAGE_OK);
     else {
         print(TAB1 + MESSAGE_ERROR);
         ERROR_COUNTER++;
@@ -351,7 +351,7 @@ function dmxCheckDefaults() {
     var offsetDAC_delay = [];
     for (col = 0; col < DMX_NB_COL; col++) offsetDAC_delay[col] = readDMX_offsetDAC_delay(col);
     print(TAB1 + "Current values are " + offsetDAC_delay);
-    if (arraysAreEquals(offsetDAC_delay, [0, 0, 0, 0])) print(TAB1 + MESSAGE_OK);
+    if (oneDimensionArraysAreEquals(offsetDAC_delay, [0, 0, 0, 0])) print(TAB1 + MESSAGE_OK);
     else {
         print(TAB1 + MESSAGE_ERROR);
         ERROR_COUNTER++;
@@ -364,7 +364,7 @@ function dmxCheckDefaults() {
     var offsetMUX_delay = [];
     for (col = 0; col < DMX_NB_COL; col++) offsetMUX_delay[col] = readDMX_offsetMUX_delay(col);
     print(TAB1 + "Current values are " + offsetMUX_delay);
-    if (arraysAreEquals(offsetMUX_delay, [0, 0, 0, 0])) print(TAB1 + MESSAGE_OK);
+    if (oneDimensionArraysAreEquals(offsetMUX_delay, [0, 0, 0, 0])) print(TAB1 + MESSAGE_OK);
     else {
         print(TAB1 + MESSAGE_ERROR);
         ERROR_COUNTER++;
@@ -377,7 +377,7 @@ function dmxCheckDefaults() {
     var sampling_delay = [];
     for (col = 0; col < DMX_NB_COL; col++) sampling_delay[col] = readDMX_sampling_delay(col);
     print(TAB1 + "Current values are " + sampling_delay);
-    if (arraysAreEquals(sampling_delay, [0, 0, 0, 0])) print(TAB1 + MESSAGE_OK);
+    if (oneDimensionArraysAreEquals(sampling_delay, [0, 0, 0, 0])) print(TAB1 + MESSAGE_OK);
     else {
         print(TAB1 + MESSAGE_ERROR);
         ERROR_COUNTER++;
@@ -401,7 +401,7 @@ function dmxCheckDefaults() {
         print(TAB1 + "Checking current values for column " + col + ":")
 
 		if (verbose) printArrayInSlices(pulseShaping, TAB2, 1);
-        if (twoDArraysAreEquals(pulseShaping, expPulseShaping)) print(TAB1 + MESSAGE_OK);
+        if (arraysAreEquals(pulseShaping, expPulseShaping)) print(TAB1 + MESSAGE_OK);
         else {
             print(TAB1 + MESSAGE_ERROR);
             pulseShaping_OK = false;
@@ -416,7 +416,7 @@ function dmxCheckDefaults() {
     var pulseShapingSelection = [];
     for (col = 0; col < DMX_NB_COL; col++) pulseShapingSelection[col] = readDMX_pulseShapingSelection(col);
     print(TAB1 + "Current values are " + pulseShapingSelection);
-    if (arraysAreEquals(pulseShapingSelection, [1, 1, 1, 1])) print(TAB1 + MESSAGE_OK);
+    if (oneDimensionArraysAreEquals(pulseShapingSelection, [1, 1, 1, 1])) print(TAB1 + MESSAGE_OK);
     else {
         print(TAB1 + MESSAGE_ERROR);
         ERROR_COUNTER++;
@@ -429,7 +429,7 @@ function dmxCheckDefaults() {
     var relock_delay = [];
     for (col = 0; col < DMX_NB_COL; col++) relock_delay[col] = readDMX_relock_delay(col);
     print(TAB1 + "Current values are " + relock_delay);
-    if (arraysAreEquals(relock_delay, [0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF])) print(TAB1 + MESSAGE_OK);
+    if (oneDimensionArraysAreEquals(relock_delay, [0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF])) print(TAB1 + MESSAGE_OK);
     else {
         print(TAB1 + MESSAGE_ERROR);
         ERROR_COUNTER++;
@@ -442,7 +442,7 @@ function dmxCheckDefaults() {
     var relock_threshold = [];
     for (col = 0; col < DMX_NB_COL; col++) relock_threshold[col] = readDMX_relock_threshold(col);
     print(TAB1 + "Current values are " + relock_threshold);
-    if (arraysAreEquals(relock_threshold, [0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF])) print(TAB1 + MESSAGE_OK);
+    if (oneDimensionArraysAreEquals(relock_threshold, [0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF])) print(TAB1 + MESSAGE_OK);
     else {
         print(TAB1 + MESSAGE_ERROR);
         ERROR_COUNTER++;
@@ -459,7 +459,7 @@ function dmxCheckDefaults() {
         relock_counters[col] = readDMX_delockCounters(col);
         print(TAB2 + "Col " + col + relock_counters[col]);
     }
-    if (twoDArraysAreEquals(relock_counters, expected_counters)) print(TAB1 + MESSAGE_OK);
+    if (arraysAreEquals(relock_counters, expected_counters)) print(TAB1 + MESSAGE_OK);
     else {
         print(TAB1 + MESSAGE_ERROR);
         ERROR_COUNTER++;
@@ -470,13 +470,14 @@ function dmxCheckDefaults() {
 	
         /******************************************************************************************************************/
         plotLongLine();
-        print("Testing the setting of the input gain:");
+        print("Testing the setting of the input gain:");
+
 		expectedValues = [1, 1, 1, 1];
         print(TAB1 + "Expected values are: ", expectedValues);
         var sqm_inputGain = [];
         for (col = 0; col < DMX_NB_COL; col++) sqm_inputGain[col] = readDMX_sqm_inputGain(col);
         print(TAB1 + "Current values are " + sqm_inputGain);
-        if (arraysAreEquals(sqm_inputGain, expectedValues)) print(TAB1 + MESSAGE_OK);
+        if (oneDimensionArraysAreEquals(sqm_inputGain, expectedValues)) print(TAB1 + MESSAGE_OK);
         else {
             print(TAB1 + MESSAGE_ERROR);
             ERROR_COUNTER++;
@@ -486,12 +487,14 @@ function dmxCheckDefaults() {
         /******************************************************************************************************************/
         plotLongLine();
         print("Testing the setting of the input gain for AMP SQUID loop:");
- 		expectedValues = [1, 1, 1, 1];
-        print(TAB1 + "Expected values are: ", expectedValues);
+ 		expectedValues = [1, 1, 1, 1];
+
+        print(TAB1 + "Expected values are: ", expectedValues);
+
         var sqa_inputGain = [];
         for (col = 0; col < DMX_NB_COL; col++) sqa_inputGain[col] = readDMX_sqa_inputGain(col);
         print(TAB1 + "Current values are " + sqa_inputGain);
-        if (arraysAreEquals(sqa_inputGain, expectedValues)) print(TAB1 + MESSAGE_OK);
+        if (oneDimensionArraysAreEquals(sqa_inputGain, expectedValues)) print(TAB1 + MESSAGE_OK);
         else {
             print(TAB1 + MESSAGE_ERROR);
             ERROR_COUNTER++;
@@ -508,7 +511,7 @@ function dmxCheckDefaults() {
         var sqa_kiknorm = [];
         for (col = 0; col < DMX_NB_COL; col++) sqa_kiknorm[col] = readDMX_sqa_kiknorm(col);
         print(TAB1 + "Current values are " + sqa_kiknorm);
-        if (arraysAreEquals(sqa_kiknorm, expectation)) print(TAB1 + MESSAGE_OK);
+        if (oneDimensionArraysAreEquals(sqa_kiknorm, expectation)) print(TAB1 + MESSAGE_OK);
         else {
             print(TAB1 + MESSAGE_ERROR);
             ERROR_COUNTER++;
@@ -523,7 +526,7 @@ function dmxCheckDefaults() {
         var sqa_knorm = [];
         for (col = 0; col < DMX_NB_COL; col++) sqa_knorm[col] = readDMX_sqa_knorm(col);
         print(TAB1 + "Current values are " + sqa_knorm);
-        if (arraysAreEquals(sqa_knorm, expectation)) print(TAB1 + MESSAGE_OK);
+        if (oneDimensionArraysAreEquals(sqa_knorm, expectation)) print(TAB1 + MESSAGE_OK);
         else {
             print(TAB1 + MESSAGE_ERROR);
             ERROR_COUNTER++;
@@ -538,7 +541,7 @@ function dmxCheckDefaults() {
 			checked_values = readDMX_sqa_OffsetFine(colId);
 			print(TAB2 + "STD: " + checked_values[0]);
 			print(TAB2 + "PTR: " + checked_values[1]);
-			if (arraysAreEquals(checked_values[0], NB_PIX_EMPTY_ARRAY) && arraysAreEquals(checked_values[1], NB_PIX_EMPTY_ARRAY)) print(TAB1 + MESSAGE_OK);
+			if (oneDimensionArraysAreEquals(checked_values[0], NB_PIX_EMPTY_ARRAY) && oneDimensionArraysAreEquals(checked_values[1], NB_PIX_EMPTY_ARRAY)) print(TAB1 + MESSAGE_OK);
 			else {
 				print(TAB1 + MESSAGE_ERROR);
 				ERROR_COUNTER++;
@@ -555,7 +558,7 @@ function dmxCheckDefaults() {
 		checked_values = [4];
         for (col = 0; col < DMX_NB_COL; col++) checked_values[col] = readDMX_sqa_OffsetLSBptr(col);
 		print(TAB1 + "Current values are: " + checked_values);
-        if (arraysAreEquals(checked_values, expectedValues)) print(TAB1 + MESSAGE_OK);
+        if (oneDimensionArraysAreEquals(checked_values, expectedValues)) print(TAB1 + MESSAGE_OK);
         else {
             print(TAB1 + MESSAGE_ERROR);
             ERROR_COUNTER++;
@@ -579,4 +582,5 @@ function dmxCheckDefaults() {
 
 // for (col=0; col<DMX_NB_COL; col++) readDMX_sqa_OffsetLSBptr(col);
 
-dmxCheckDefaults();
+dmxCheckDefaults();
+

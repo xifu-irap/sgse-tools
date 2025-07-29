@@ -61,12 +61,20 @@ function makeArray(nValues, value) {
 }
 
 /**
- * Compares the content of two arrays.
+ * Compares the content of two 1D arrays.
  * @param {array} tabA_p - First array
  * @param {array} tabB_p - Second array
  * @return {boolean} areEqual - True if the two arrays are equal, False if not
  */
-function arraysAreEquals(tabA_p, tabB_p) {
+function oneDimensionArraysAreEquals(tabA_p, tabB_p) {
+
+	// If both parameters are numbers
+	if (tabA_p === tabB_p) return true;
+
+	// If only one parameter is a number
+	if (typeof(tabA_p) === 'number' || typeof(tabB_p) === 'number') return false;
+
+	// If the two parameters are arrays
     var areEqual = true;
 	if (tabA_p.length !== tabB_p.length) {
         areEqual = false;
@@ -79,18 +87,18 @@ function arraysAreEquals(tabA_p, tabB_p) {
 }
 
 /**
- * Compares the content of two 2Darrays.
+ * Compares the content of two arrays.
  * @param {array} tabA_p - First array
  * @param {array} tabB_p - Second array
  * @return {boolean} areEqual - True if the two arrays are equal, False if not
  */
-function twoDArraysAreEquals(tabA_p, tabB_p) {
+function arraysAreEquals(tabA_p, tabB_p) {
     var areEqual = true;
 	if (tabA_p.length !== tabB_p.length) {
         areEqual = false;
     } else {
         for (var i=0; i<tabA_p.length; i++) {
-            if (!arraysAreEquals(tabA_p[i], tabB_p[i])) areEqual = false;
+            if (!oneDimensionArraysAreEquals(tabA_p[i], tabB_p[i])) areEqual = false;
         }
     }
     return areEqual;

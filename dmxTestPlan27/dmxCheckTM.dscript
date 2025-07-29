@@ -54,7 +54,7 @@ function dmxTMCheck() {
     var checked_values = readDMX_testPattern();
 
     var checkIsOK = true;
-    if (!twoDArraysAreEquals(fakePulsePattern, checked_values)) checkIsOK = false;
+    if (!arraysAreEquals(fakePulsePattern, checked_values)) checkIsOK = false;
 
     if (checkIsOK) print(TAB1 + "The values in the firmware are as expected.");
     else print(TAB1 + "ERROR, the values in the firmware are not the expected ones.");
