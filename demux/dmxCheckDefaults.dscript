@@ -30,28 +30,67 @@ include("../demux/dmxTools.dscript");
 include("../demux/dmxRegAddresses.dscript");
 include("../demux/dmxHk.dscript");
 include("../common/utilTools.dscript");
-
 include("../common/constants.dscript");
 
 
-const NB_PIX_EMPTY_ARRAY = makeArray(DMX_NB_PIX_PER_COL, 0x0000);
+const ARROW = "-----------------------------------------------> "
+const MESSAGE_ERROR = ARROW + " [ ERROR ]";
+const MESSAGE_OK = ARROW + " [  OK  ]";
+
 
 /**
- * This function tests the demux commands
+ * This function checks if two values are equals. It displays a message accordingly and updates an error counter.
+ * @param {number} value1 - first value
+ * @param {number} value2 - second value
+ * @param {number} ERROR_COUNT - counter to be updated if the 2 values are different
+ * @param {string} TAB - Tabulation to be inserted before the message
+ * @return {number} ERROR_COUNT - the updated value of the error counter
+ */
+function error_number_manager(value1, value2, ERROR_COUNT, TAB) {
+
+    var MESSAGE = MESSAGE_OK;
+    if (value1 !== value2) {
+        MESSAGE = MESSAGE_ERROR;
+        ERROR_COUNT++;
+    }
+    print(TAB + MESSAGE);
+
+    return ERROR_COUNT;
+}
+
+
+/**
+ * This function checks if two arrays are equals. It displays a message accordingly and updates an error counter.
+ * @param {array} array1 - first value
+ * @param {array} array2 - second value
+ * @param {number} ERROR_COUNT - counter to be updated if the 2 arrays are different
+ * @param {string} TAB - Tabulation to be inserted before the message
+ * @return {number} ERROR_COUNT - the updated value of the error counter
+ */
+function error_array_manager(array1, array2, ERROR_COUNT, TAB) {
+
+    var MESSAGE = MESSAGE_OK;
+    if (!arraysAreEquals(array1, array2)) {
+        MESSAGE = MESSAGE_ERROR;
+        ERROR_COUNT++;
+    }
+    print(TAB + MESSAGE);
+
+    return ERROR_COUNT;
+}
+
+
+/**
+ * This function checks the default values of the demux registers
  */
 function dmxCheckDefaults() {
 
-	const verbose = true;
-    var expected_values, checked_value, checked_values;
-    const ARROW = "-----------------------------------------------> "
-    const MESSAGE_ERROR = ARROW + " [ ERROR ]";
-    const MESSAGE_OK = ARROW + " [  OK  ]";
     var ERROR_COUNTER = 0;
 
     /******************************************************************************************************************/
     plotLongLine();
-    print("Testing the functions of the dmxTools.dscript library to read the default values of the DEMUX registers...");
-    print(maDate());
+    print("| Testing the default values of the DEMUX registers...");
+    print("| " + maDate());
     plotLongLine();
     print("");
 
@@ -59,7 +98,8 @@ function dmxCheckDefaults() {
     /******************************************************************************************************************/
     plotLongLine();
     print("Reading the firmware version");
-    const fwVersion = readDMX_firmwareVersion(true);
+    readDMX_firmwareVersion(true);
+
 
     /******************************************************************************************************************/
     plotLongLine();
@@ -67,509 +107,456 @@ function dmxCheckDefaults() {
     readDMX_hardwareVersion(true);
 
 
-    /******************************************************************************************************************/
+    /* DATA_ACQ_MODE **************************************************************************************************/
     plotLongLine();
-    print("Testing the setting of the data acquisition mode (DATA_ACQ_MODE)");
-    print(TAB1 + "Expected value is 0");
-    var dataAcqMode = readDMX_dataAcqMode();
-    print(TAB1 + "Current value is: " + dataAcqMode);
-    if (dataAcqMode === 0) print(TAB1 + MESSAGE_OK);
-    else {
-        print(TAB1 + MESSAGE_ERROR);
-        ERROR_COUNTER++;
-    }
+    print("Testing the DATA_ACQ_MODE register:");
+
+    var initial_value = readDMX_dataAcqMode();
+    print(TAB1 + "Initial value is: " + initial_value);
+
+    var expected_value = ACQ_MODE_IDLE;
+    print(TAB1 + "Expected value is: " + expected_value);
+
+    ERROR_COUNTER = error_number_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
 
 
-    /******************************************************************************************************************/
+    /* MUX_SQ_FB_ON_OFF ***********************************************************************************************/
     plotLongLine();
-    print("Testing the setting of feedback on/off mode (MUX_SQ_FB_ON_OFF):");
-    print(TAB1 + "Expected values are: ");
-    for (var col = 0; col < DMX_NB_COL; col++) {
-        print(TAB2 + "Column " + col + ": --> " + 0);
-    }
-    var feedbackOnOff = readDMX_feedbackOnOff();
-    print(TAB1 + "Current values are: ");
-    for (var col = 0; col < DMX_NB_COL; col++) print(TAB2 + "Column " + col + ": --> " + to_hexaString(feedbackOnOff[col]));
+    print("Testing the MUX_SQ_FB_ON_OFF register:");
 
-    MESSAGE = MESSAGE_ERROR;
-    if (oneDimensionArraysAreEquals([0,0,0,0], feedbackOnOff)) MESSAGE = MESSAGE_OK;
-    print(TAB1 + MESSAGE);
-    if (MESSAGE === MESSAGE_ERROR) ERROR_COUNTER++;
+    initial_value = readDMX_feedbackOnOff();
+    print(TAB1 + "Initial value is: " + initial_value);
+
+    expected_value = readDMX_feedbackOnOff();
+    print(TAB1 + "Expected value is: " + expected_value);
+
+    ERROR_COUNTER = error_number_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
 
 
-    /******************************************************************************************************************/
+    /* AMP_SQ_OFFSET_MODE *********************************************************************************************/
     plotLongLine();
-    print("Testing the setting of offset mode (AMP_SQ_OFFSET_MODE):");
-    expected_values = [0, 0, 0, 0];
-    print(TAB1 + "Expected values are: " + expected_values);
-    var offsetMode = readDMX_offsetMode();
-    print(TAB1 + "Current values are: " + offsetMode);
-    if (oneDimensionArraysAreEquals(expected_values, offsetMode)) print(TAB1 + MESSAGE_OK);
-    else {
-        print(TAB1 + MESSAGE_ERROR);
-        ERROR_COUNTER++;
-    }
+    print("Testing the AMP_SQ_OFFSET_MODE register:");
+
+    initial_value = readDMX_offsetMode();
+    print(TAB1 + "Initial value is: " + initial_value);
+
+    expected_value = readDMX_offsetMode();
+    print(TAB1 + "Expected value is: " + expected_value);
+
+    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
 
 
-    /******************************************************************************************************************/
+    /* TEST_PATTERN ***************************************************************************************************/
     plotLongLine();
-    print("Testing the definition of the test pattern (TEST_PATTERN):");
-    print(TAB1 + "Expected values are: ");
-    const expTestPattern = [
+    print("Testing the TEST_PATTERN registers:");
+
+    initial_value = readDMX_testPattern();
+    print(TAB1 + "Initial value is: " + initial_value);
+
+    expected_value = [
         [0, 0, 0, 0],
         [0, 0, 0, 0],
         [0, 0, 0, 0],
         [0, 0, 0, 0],
         [0, 0, 0, 0]
     ]
-    for (region=0; region<DMX_TEST_PATTERN_NBREGIONS; region++) {
-        print(TAB2 + "Region " + region + ": " + expTestPattern[region]);
-    }
-    print(TAB1 + "Current values are: ");
-    var testPattern = readDMX_testPattern();
-    for (region=0; region<DMX_TEST_PATTERN_NBREGIONS; region++) {
-        print(TAB2 + "Region " + region + ": " + testPattern[region]);
-    }
-    if (arraysAreEquals(testPattern, expTestPattern)) print(TAB1 + MESSAGE_OK);
-    else {
-        print(TAB1 + MESSAGE_ERROR);
-        ERROR_COUNTER++;
-    }
+    print(TAB1 + "Expected value is: " + expected_value);
+
+    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
 
 
-    /******************************************************************************************************************/
+    /* TEST_PATTERN_ENABLE ********************************************************************************************/
     plotLongLine();
-    print("Testing the status of the test patterns (TEST_PATTERN_ENABLE):");
+    print("Testing the TEST_PATTERN_ENABLE register:");
+
+    initial_value = readDMX_testPatternEnable();
+    print(TAB1 + "Initial value is: " + initial_value);
+
     print(TAB1 + "Expected values are: ");
     print(TAB2 + "Enable           = " + false);
     print(TAB2 + "Infinitely         = " + false);
     print(TAB2 + "Number times = " + 0);
-    print(TAB1 + "Current values are: ");
-    var testPatternEnable = readDMX_testPatternEnable();
-    print(TAB2 + "Enable           = " + testPatternEnable[0]);
-    print(TAB2 + "Infinitely         = " + testPatternEnable[1]);
-    print(TAB2 + "Number times = " + testPatternEnable[2]);
-    if (oneDimensionArraysAreEquals(testPatternEnable, [false, false, 0])) print(TAB1 + MESSAGE_OK);
-    else {
-        print(TAB1 + MESSAGE_ERROR);
-        ERROR_COUNTER++;
+
+    ERROR_COUNTER = error_array_manager(initial_value, [false, false, 0], ERROR_COUNTER, TAB1);
+
+
+    /* BOXCAR_LENGTH **************************************************************************************************/
+    plotLongLine();
+    print("Testing the BOXCAR_LENGTH register:");
+
+    initial_value = readDMX_boxcarLength();
+    print(TAB1 + "Initial value is: " + initial_value);
+
+    expected_value = [0, 0, 0, 0];
+    print(TAB1 + "Expected value is: " + expected_value);
+
+    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+
+
+    /* A **************************************************************************************************************/
+    plotLongLine();
+    print("Testing the A register:");
+
+    for (var col=0; col<DMX_NB_COL; col++) {
+
+        print(TAB1 + "Testing column " + col);
+
+        initial_value = readDMX_a(col);
+        print(TAB2 + "Initial value is: " + initial_value);
+
+        expected_value = makeArray(DMX_NB_PIX_PER_COL, 0x3333 / Math.pow(2,16));
+        print(TAB2 + "Expected value is: " + expected_value);
+
+        ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB2);
     }
 
 
-    /******************************************************************************************************************/
+    /* MUX_SQ_INPUT_GAIN **********************************************************************************************/
     plotLongLine();
-    print("Testing the setting of the boxcar length (BOXCAR_LENGTH)");
-    print(TAB1 + "Expected value are 0, 0, 0, 0");
-    const boxcarLength = readDMX_boxcarLength();
-    print(TAB1 + "Current value are " + boxcarLength);
-    if (oneDimensionArraysAreEquals(boxcarLength, [0, 0, 0, 0])) print(TAB1 + MESSAGE_OK);
-    else {
-        print(TAB1 + MESSAGE_ERROR);
-        ERROR_COUNTER++;
-    }
+    print("Testing the MUX_SQ_INPUT_GAIN register:");
+
+    initial_value = [DMX_NB_COL];
+    for (col=0; col<DMX_NB_COL; col++) initial_value[col] = readDMX_sqm_inputGain(col);
+    print(TAB1 + "Initial value is: " + initial_value);
+
+    expected_value = [1, 1, 1, 1];
+    print(TAB2 + "Expected value is: " + expected_value);
+
+    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB2);
 
 
-    /******************************************************************************************************************/
+    /* AMP_SQ_INPUT_GAIN **********************************************************************************************/
     plotLongLine();
-    print("Testing the setting of feedback algo parameter A (A)");
-    expA = [];
-    for (var i=0; i<DMX_NB_PIX_PER_COL; i++) expA[i] = 0x3333 / Math.pow(2,16);
-    print(TAB1 + "Expected values for all the columns are: ");
-    printArrayInSlices(expA, TAB2, 10);
-    var A_OK = true;
-    var a;
+    print("Testing the AMP_SQ_INPUT_GAIN register:");
+
+    initial_value = [DMX_NB_COL];
+    for (col=0; col<DMX_NB_COL; col++) initial_value[col] = readDMX_sqa_inputGain(col);
+    print(TAB1 + "Initial value is: " + initial_value);
+
+    expected_value = [1, 1, 1, 1];
+    print(TAB2 + "Expected value is: " + expected_value);
+
+    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB2);
+
+
+    /* MUX_SQ_KI_KNORM ************************************************************************************************/
+    plotLongLine();
+    print("Testing the MUX_SQ_KI_KNORM register:");
+
     for (col=0; col<DMX_NB_COL; col++) {
-        a = readDMX_a(col);
-        print(TAB1 + "Checking current values for column " + col + ":")
+        print(TAB1 + "Testing column " + col);
 
-		if (verbose) print(a);
-        if (oneDimensionArraysAreEquals(a, expA)) print(TAB1 + MESSAGE_OK);
-        else {
-            print(TAB1 + MESSAGE_ERROR);
-            A_OK = false;
-        }
+        initial_value = readDMX_sqm_kiknorm(col);
+        print(TAB2 + "Initial value is: " + initial_value);
+
+        expected_value = makeArray(DMX_NB_PIX_PER_COL, 0x1E60 / Math.pow(2,16));
+        print(TAB2 + "Expected value is: " + expected_value);
+
+        ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB2);
     }
-    if (!A_OK) ERROR_COUNTER++
-
-	/******************************************************************************************************************/
-
-	plotLongLine();
-	print("Testing the setting of ki.knorm for the MUX SQUID loop (MUX_SQ_KIKNORM):");
-	const expKiknormCol = makeArray(DMX_NB_PIX_PER_COL, 0x3CC0 / Math.pow(2,16));
-	print(TAB1 + "Expected values for all pixels, all columns is: " + expKiknormCol[0]);
-    //if (fwVersion < 6) val = 0x3CC0;
-    //else val = 0x1E60;
-    var kiknorm_OK = true;
-    var kiknorm;
-	for (col=0; col<DMX_NB_COL; col++) {
-		kiknorm = readDMX_sqm_kiknorm(col);
-        print(TAB1 + "Checking current values for column " + col + ":");
-		if (verbose) print(kiknorm);
-        if (oneDimensionArraysAreEquals(kiknorm, expKiknormCol)) print(TAB1 + MESSAGE_OK);
-        else {
-            print(TAB1 + MESSAGE_ERROR);
-            kiknorm_OK = false;
-        }
-    }
-    if (!kiknorm_OK) ERROR_COUNTER++;
 
 
-    /******************************************************************************************************************/
+    /* AMP_SQ_KI_KNORM ************************************************************************************************/
     plotLongLine();
-    print("Testing the setting of knorm for the MUX SQUID loop (MUX_SQ_KNORM):");
-	const expKnormCol = makeArray(DMX_NB_PIX_PER_COL, 0x6E74 / Math.pow(2,18));
-	print(TAB1 + "Expected values for all pixels, all columns is: " + expKnormCol[0]);
-    var knorm_OK = true;
-    var knorm;
-	for (col=0; col<DMX_NB_COL; col++) {
-		knorm = readDMX_sqm_knorm(col);
-        print(TAB1 + "Checking current values for column " + col + ":");
-        if (verbose) print(knorm);
+    print("Testing the AMP_SQ_KI_KNORM register:");
 
-		if (oneDimensionArraysAreEquals(knorm, expKnormCol)) print(TAB1 + MESSAGE_OK);
-        else {
-            print(TAB1 + MESSAGE_ERROR);
-            knorm_OK = false;
-        }
-    }
-    if (!knorm_OK) ERROR_COUNTER++;
+    initial_value = [DMX_NB_COL];
+    for (col=0; col<DMX_NB_COL; col++) initial_value[col] = readDMX_sqa_kiknorm(col);
+    print(TAB1 + "Initial value is: " + initial_value);
 
-    /******************************************************************************************************************/
+    expected_value = makeArray(DMX_NB_COL, 0x1E60 / Math.pow(2,16));
+    print(TAB1 + "Expected value is: " + expected_value);
+
+    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+
+
+    /* MUX_SQ_KNORM ***************************************************************************************************/
     plotLongLine();
-    print("Testing the setting of the default feedback (FB0):");
-	print(TAB1 + "Expected values for all pixels, all columns is 0");
-	var expFb0Col = [];
-	for (var pix=0; pix<DMX_NB_PIX_PER_COL; pix++) expFb0Col[pix] = 0;
-    var fb0_OK = true;
-    var fb0;
-	for (col=0; col<DMX_NB_COL; col++) {
-		fb0 = readDMX_fb0(col);
-        print(TAB1 + "Checking current values for column " + col + ":");
-        if (verbose) print(fb0);
+    print("Testing the MUX_SQ_KNORM register:");
 
-        if (oneDimensionArraysAreEquals(fb0, expFb0Col)) print(TAB1 + MESSAGE_OK);
-        else {
-            print(TAB1 + MESSAGE_ERROR);
-            fb0_OK = false;
-        }
-    }
-    if (!fb0_OK) ERROR_COUNTER++;
-
-
-    /******************************************************************************************************************/
-    plotLongLine();
-    print("Testing the setting of the feedback lockpoint (MUX_SQ_LOCKPOINT_V):");
-	print(TAB1 + "Expected values for all pixels, all columns is 0");
-	var expLpCol = [];
-	for (var pix=0; pix<DMX_NB_PIX_PER_COL; pix++) expLpCol[pix] = 0;
-    var lp_OK = true;
-    var lp;
-	for (col=0; col<DMX_NB_COL; col++) {
-		lp = readDMX_lockpointV(col);
-        print(TAB1 + "Checking current values for column " + col + ":");
-
-        if (verbose) print(lp);
-
-        if (oneDimensionArraysAreEquals(lp, expLpCol)) print(TAB1 + MESSAGE_OK);
-        else {
-            print(TAB1 + MESSAGE_ERROR);
-            lp_OK = false;
-        }
-    }
-    if (!lp_OK) ERROR_COUNTER++;
-
-
-    /******************************************************************************************************************/
-    plotLongLine();
-    print("Testing the setting of the feedback mode (MUX_SQ_FB_MODE):");
-	print(TAB1 + "Expected values for all pixels, all columns is 0");
-	var expFbModeCol = [];
-	for (var pix=0; pix<DMX_NB_PIX_PER_COL; pix++) expFbModeCol[pix] = 0;
-    var fbMode_OK = true;
-    var fbMode;
-	for (col=0; col<DMX_NB_COL; col++) {
-		fbMode = readDMX_sqm_FBMode(col);
-        print(TAB1 + "Checking current values for column " + col + ":");
-        if (verbose) print(fbMode);
-
-        if (oneDimensionArraysAreEquals(fbMode, expFbModeCol)) print(TAB1 + MESSAGE_OK);
-        else {
-            print(TAB1 + MESSAGE_ERROR);
-            fbMode_OK = false;
-        }
-    }
-    if (!fbMode_OK) ERROR_COUNTER++;
-
-    /******************************************************************************************************************/
-    plotLongLine();
-    print("Testing the setting of the weight of the LSB of the AMP SQUID offset (AMP_SQ_OFFSET_LSB):");
-	expectedValues = [0, 0, 0, 0];
-	if (fwVersion >0xA) expectedValues = [10, 10, 10, 10];
-    print(TAB1 + "Expected values are " + expectedValues);
-    var sqa_OffsetLSB = [];
-    for (col = 0; col < DMX_NB_COL; col++) sqa_OffsetLSB[col] = readDMX_sqa_OffsetLSB(col);
-    print(TAB1 + "Current values are " + sqa_OffsetLSB);
-	
-    if (oneDimensionArraysAreEquals(sqa_OffsetLSB, expectedValues)) print(TAB1 + MESSAGE_OK);
-    else {
-        print(TAB1 + MESSAGE_ERROR);
-        ERROR_COUNTER++;
-    }
-
-    /******************************************************************************************************************/
-    plotLongLine();
-    print("Testing the setting of the common coarse offset for the AMP SQUID (AMP_SQ_OFFSET_COARSE):");
-	expectedValues = [0, 0, 0, 0];
-	if (fwVersion >0xA) expectedValues = [10, 10, 10, 10];
-    print(TAB1 + "Expected values are " + expectedValues);
-    var sqa_OffsetCoarse = [4];
-    for (col = 0; col < DMX_NB_COL; col++) sqa_OffsetCoarse[col] = readDMX_sqa_OffsetCoarse(col);
-    print(TAB1 + "Current values are " + sqa_OffsetCoarse);
-    if (oneDimensionArraysAreEquals(sqa_OffsetCoarse, expectedValues)) print(TAB1 + MESSAGE_OK);
-    else {
-        print(TAB1 + MESSAGE_ERROR);
-        ERROR_COUNTER++;
-    }
-
-    /******************************************************************************************************************/
-    plotLongLine();
-    print("Testing the setting of the feedback delay (MUX_SQ_FB_DELAY):");
-    print(TAB1 + "Expected values are 0, 0, 0, 0");
-    var feedback_delay = [];
-    for (col = 0; col < DMX_NB_COL; col++) feedback_delay[col] = readDMX_feedback_delay(col);
-    print(TAB1 + "Current values are " + feedback_delay);
-    if (oneDimensionArraysAreEquals(feedback_delay, [0, 0, 0, 0])) print(TAB1 + MESSAGE_OK);
-    else {
-        print(TAB1 + MESSAGE_ERROR);
-        ERROR_COUNTER++;
-    }
-
-    /******************************************************************************************************************/
-    plotLongLine();
-    print("Testing the setting of the offset/DAC delay (AMP_SQ_OFFSET_DAC_DELAY):");
-    print(TAB1 + "Expected values are 0, 0, 0, 0");
-    var offsetDAC_delay = [];
-    for (col = 0; col < DMX_NB_COL; col++) offsetDAC_delay[col] = readDMX_offsetDAC_delay(col);
-    print(TAB1 + "Current values are " + offsetDAC_delay);
-    if (oneDimensionArraysAreEquals(offsetDAC_delay, [0, 0, 0, 0])) print(TAB1 + MESSAGE_OK);
-    else {
-        print(TAB1 + MESSAGE_ERROR);
-        ERROR_COUNTER++;
-    }
-
-    /******************************************************************************************************************/
-    plotLongLine();
-    print("Testing the setting of the offset/MUX delay (AMP_SQ_OFFSET_MUX_DELAY):");
-    print(TAB1 + "Expected values are 0, 0, 0, 0");
-    var offsetMUX_delay = [];
-    for (col = 0; col < DMX_NB_COL; col++) offsetMUX_delay[col] = readDMX_offsetMUX_delay(col);
-    print(TAB1 + "Current values are " + offsetMUX_delay);
-    if (oneDimensionArraysAreEquals(offsetMUX_delay, [0, 0, 0, 0])) print(TAB1 + MESSAGE_OK);
-    else {
-        print(TAB1 + MESSAGE_ERROR);
-        ERROR_COUNTER++;
-    }
-
-    /******************************************************************************************************************/
-    plotLongLine();
-    print("Testing the setting of the sampling delay (SAMPLING_DELAY):");
-    print(TAB1 + "Expected values are 0, 0, 0, 0");
-    var sampling_delay = [];
-    for (col = 0; col < DMX_NB_COL; col++) sampling_delay[col] = readDMX_sampling_delay(col);
-    print(TAB1 + "Current values are " + sampling_delay);
-    if (oneDimensionArraysAreEquals(sampling_delay, [0, 0, 0, 0])) print(TAB1 + MESSAGE_OK);
-    else {
-        print(TAB1 + MESSAGE_ERROR);
-        ERROR_COUNTER++;
-    }
-
-    /******************************************************************************************************************/
-    plotLongLine();
-    print("Testing the setting of the values of a pulse shaping set (PULSE_SHAPING):");
-    print(TAB1 + "Expected values for all the columns are:");
-    const expPulseShaping = [
-        [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [ 32681, 16297, 8127, 4053, 2021, 1008, 503, 251, 125, 62, 31, 15, 8, 4, 2, 1, 0, 0, 0, 0],
-        [29041, 12869, 5703, 2527, 1120, 496, 220, 97, 43, 19, 8, 4, 2, 1, 0, 0, 0, 0, 0, 0],
-        [26131, 10419, 4154, 1657, 661, 263, 105, 42, 17, 7, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0]
-    ]
-    printArrayInSlices(expPulseShaping, TAB2, 1);
-    var pulseShaping_OK = true;
-    var pulseShaping;
     for (col=0; col<DMX_NB_COL; col++) {
-        pulseShaping = readDMX_pulseShaping(col);
-        print(TAB1 + "Checking current values for column " + col + ":")
+        print(TAB1 + "Testing column " + col);
 
-		if (verbose) printArrayInSlices(pulseShaping, TAB2, 1);
-        if (arraysAreEquals(pulseShaping, expPulseShaping)) print(TAB1 + MESSAGE_OK);
-        else {
-            print(TAB1 + MESSAGE_ERROR);
-            pulseShaping_OK = false;
-        }
+        initial_value = readDMX_sqm_knorm(col);
+        print(TAB2 + "Initial value is: " + initial_value);
+
+        expected_value = makeArray(DMX_NB_PIX_PER_COL, 0x6E74 / Math.pow(2,16));
+        print(TAB2 + "Expected value is: " + expected_value);
+
+        ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB2);
     }
-    if (!pulseShaping_OK) ERROR_COUNTER++
+
+
+    /* AMP_SQ_KNORM ***************************************************************************************************/
+    plotLongLine();
+    print("Testing the AMP_SQ_KNORM register:");
+
+    initial_value = [DMX_NB_COL];
+    for (col=0; col<DMX_NB_COL; col++) initial_value[col] = readDMX_sqa_knorm(col);
+    print(TAB1 + "Initial value is: " + initial_value);
+
+    expected_value = makeArray(DMX_NB_COL, 0x6E74 / Math.pow(2,16));
+    print(TAB2 + "Expected value is: " + expected_value);
+
+    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+
+
+    /* MUX_SQ_FB0 *****************************************************************************************************/
+    plotLongLine();
+    print("Testing the MUX_SQ_FB0 register:");
+
+    for (col=0; col<DMX_NB_COL; col++) {
+        print(TAB1 + "Testing column " + col);
+
+        initial_value = readDMX_fb0(col);
+        print(TAB2 + "Initial value is: " + initial_value);
+
+        expected_value = makeArray(DMX_NB_PIX_PER_COL, 0);
+        print(TAB2 + "Expected value is: " + expected_value);
+
+        ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB2);
+    }
+
+
+    /* MUX_SQ_LOCKPOINT_V *********************************************************************************************/
+    plotLongLine();
+    print("Testing the MUX_SQ_LOCKPOINT_V register:");
+
+    for (col=0; col<DMX_NB_COL; col++) {
+        print(TAB1 + "Testing column " + col);
+
+        initial_value = readDMX_lockpointV(col);
+        print(TAB2 + "Initial value is: " + initial_value);
+
+        expected_value = makeArray(DMX_NB_PIX_PER_COL, 0);
+        print(TAB2 + "Expected value is: " + expected_value);
+
+        ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB2);
+    }
+
+
+    /* MUX_SQ_FB_MODE *************************************************************************************************/
+    plotLongLine();
+    print("Testing the MUX_SQ_FB_MODE register:");
+
+    for (col=0; col<DMX_NB_COL; col++) {
+        print(TAB1 + "Testing column " + col);
+
+        initial_value = readDMX_sqm_FBMode(col);
+        print(TAB2 + "Initial value is: " + initial_value);
+
+        expected_value = makeArray(DMX_NB_PIX_PER_COL, 0);
+        print(TAB2 + "Expected value is: " + expected_value);
+
+        ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB2);
+    }
+
+
+    /* AMP_SQ_OFFSET_FINE *************************************************************************************************/
+    plotLongLine();
+    print("Testing the AMP_SQ_OFFSET_FINE register:");
+
+    for (col=0; col<DMX_NB_COL; col++) {
+        print(TAB1 + "Testing column " + col);
+
+        initial_value = readDMX_sqa_OffsetFine(col);
+        print(TAB2 + "Initial value is: ");
+        print(TAB2 + "Nominal:");
+		print(initial_value[0]);
+        print(TAB2 + "Test pattern:");
+		print(initial_value[1]);
+
+        expected_value = makeArray(DMX_NB_PIX_PER_COL, 0);
+        print(TAB2 + "Expected value is: ");
+        print(TAB2 + "Nominal:");
+		print(expected_value);
+        ERROR_COUNTER = error_array_manager(initial_value[0], expected_value, ERROR_COUNTER, TAB2);
+        print(TAB2 + "Test pattern:");
+		print(expected_value);
+        ERROR_COUNTER = error_array_manager(initial_value[1], expected_value, ERROR_COUNTER, TAB2);
+    }
+
+
+    /* AMP_SQ_OFFSET_LSB_PTR ******************************************************************************************/
+    plotLongLine();
+    print("Testing AMP_SQ_OFFSET_LSB_PTR register:");
+
+    initial_value = [DMX_NB_COL];
+    for (col=0; col<DMX_NB_COL; col++) initial_value[col] = readDMX_sqa_OffsetLSBptr(col);
+    print(TAB1 + "Initial value is: " + initial_value);
+
+    expected_value = makeArray(DMX_NB_COL, OFFSET_LSB_ADU_MIN);
+    print(TAB2 + "Expected value is: " + expected_value);
+
+    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+
+
+    /* AMP_SQ_OFFSET_LSB **********************************************************************************************/
+    plotLongLine();
+    print("Testing the AMP_SQ_OFFSET_LSB register:");
+
+    initial_value = [DMX_NB_COL];
+    for (col=0; col<DMX_NB_COL; col++) initial_value[col] = readDMX_sqa_OffsetLSB(col);
+    print(TAB1 + "Initial value is: " + initial_value);
+
+    expected_value = makeArray(DMX_NB_COL, OFFSET_LSB_ADU_MIN);
+    print(TAB2 + "Expected value is: " + expected_value);
+
+    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+
+
+    /* AMP_SQ_OFFSET_COARSE *******************************************************************************************/
+    plotLongLine();
+    print("Testing the AMP_SQ_OFFSET_COARSE register:");
+
+    initial_value = [DMX_NB_COL];
+    for (col=0; col<DMX_NB_COL; col++) initial_value[col] = readDMX_sqa_OffsetCoarse(col);
+    print(TAB1 + "Initial value is: " + initial_value);
+
+    expected_value = makeArray(DMX_NB_COL, OFFSET_COARSE_ADU_MIN);
+    print(TAB2 + "Expected value is: " + expected_value);
+
+    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+
+
+    /* MUX_SQ_FB_DELAY ************************************************************************************************/
+    plotLongLine();
+    print("Testing the MUX_SQ_FB_DELAY register:");
+
+    initial_value = [DMX_NB_COL];
+    for (col=0; col<DMX_NB_COL; col++) initial_value[col] = readDMX_feedback_delay(col);
+    print(TAB1 + "Initial value is: " + initial_value);
+
+    expected_value = makeArray(DMX_NB_COL, 0);
+    print(TAB2 + "Expected value is: " + expected_value);
+
+    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+
+
+    /* AMP_SQ_OFFSET_DAC_DELAY ****************************************************************************************/
+    plotLongLine();
+    print("Testing the AMP_SQ_OFFSET_DAC_DELAY register:");
+
+    initial_value = [DMX_NB_COL];
+    for (col=0; col<DMX_NB_COL; col++) initial_value[col] = readDMX_offsetDAC_delay(col);
+    print(TAB1 + "Initial value is: " + initial_value);
+
+    expected_value = makeArray(DMX_NB_COL, 0);
+    print(TAB2 + "Expected value is: " + expected_value);
+
+    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+
+
+    /* AMP_SQ_OFFSET_MUX_DELAY ****************************************************************************************/
+    plotLongLine();
+    print("Testing the AMP_SQ_OFFSET_MUX_DELAY register:");
+
+    initial_value = [DMX_NB_COL];
+    for (col=0; col<DMX_NB_COL; col++) initial_value[col] = readDMX_offsetMUX_delay(col);
+    print(TAB1 + "Initial value is: " + initial_value);
+
+    expected_value = makeArray(DMX_NB_COL, 0);
+    print(TAB2 + "Expected value is: " + expected_value);
+
+    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+
+
+    /* SAMPLING_DELAY *************************************************************************************************/
+    plotLongLine();
+    print("Testing the SAMPLING_DELAY register:");
+
+    initial_value = [DMX_NB_COL];
+    for (col=0; col<DMX_NB_COL; col++) initial_value[col] = readDMX_sampling_delay(col);
+    print(TAB1 + "Initial value is: " + initial_value);
+
+    expected_value = makeArray(DMX_NB_COL, 0);
+    print(TAB2 + "Expected value is: " + expected_value);
+
+    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+
+
+     /* PULSE_SHAPING **************************************************************************************************/
+    plotLongLine();
+    print("Testing the PULSE_SHAPING register:");
+
+    for (col=0; col<DMX_NB_COL; col++) {
+        print(TAB1 + "Testing column " + col);
+
+        initial_value = readDMX_pulseShaping(col);
+        print(TAB2 + "Initial value is: " + initial_value);
+
+        expected_value = [
+            [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+            [ 32681, 16297, 8127, 4053, 2021, 1008, 503, 251, 125, 62, 31, 15, 8, 4, 2, 1, 0, 0, 0, 0],
+            [29041, 12869, 5703, 2527, 1120, 496, 220, 97, 43, 19, 8, 4, 2, 1, 0, 0, 0, 0, 0, 0],
+            [26131, 10419, 4154, 1657, 661, 263, 105, 42, 17, 7, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+        ];
+        print(TAB2 + "Expected value is: " + expected_value);
+
+        ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB2);
+    }
+
+
+    /* PULSE_SHAPING_SELECTION ****************************************************************************************/
+    plotLongLine();
+    print("Testing the PULSE_SHAPING_SELECTION register:");
+
+    initial_value = [DMX_NB_COL];
+    for (col=0; col<DMX_NB_COL; col++) initial_value[col] = readDMX_pulseShapingSelection(col);
+    print(TAB1 + "Initial value is: " + initial_value);
+
+    expected_value = makeArray(DMX_NB_COL, 1);
+    print(TAB2 + "Expected value is: " + expected_value);
+
+    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+
+
+    /* RELOCK_DELAY ***************************************************************************************************/
+    plotLongLine();
+    print("Testing the RELOCK_DELAY register:");
+
+    initial_value = [DMX_NB_COL];
+    for (col=0; col<DMX_NB_COL; col++) initial_value[col] = readDMX_relock_delay(col);
+    print(TAB1 + "Initial value is: " + initial_value);
+
+    expected_value = makeArray(DMX_NB_COL, 0xFFFF);
+    print(TAB2 + "Expected value is: " + expected_value);
+
+    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+
+
+    /* RELOCK_THRESHOLD ***********************************************************************************************/
+    plotLongLine();
+    print("Testing the RELOCK_THRESHOLD register:");
+
+    initial_value = [DMX_NB_COL];
+    for (col=0; col<DMX_NB_COL; col++) initial_value[col] = readDMX_relock_threshold(col);
+    print(TAB1 + "Initial value is: " + initial_value);
+
+    expected_value = makeArray(DMX_NB_COL, 0xFFFF);
+    print(TAB2 + "Expected value is: " + expected_value);
+
+    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+
+
+    /* DELOCK_COUNTERS ************************************************************************************************/
+    plotLongLine();
+    print("Testing the DELOCK_COUNTERS register:");
+
+    initial_value = [DMX_NB_COL];
+    for (col=0; col<DMX_NB_COL; col++) initial_value[col] = readDMX_delockCounters(col);
+    print(TAB1 + "Initial value is: " + initial_value);
+
+    const NB_PIX_EMPTY_ARRAY = makeArray(DMX_NB_PIX_PER_COL, 0);
+    expected_value = [NB_PIX_EMPTY_ARRAY, NB_PIX_EMPTY_ARRAY, NB_PIX_EMPTY_ARRAY, NB_PIX_EMPTY_ARRAY];
+    print(TAB1 + "Expected value is: " + expected_value);
+
+    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+
+
 
     /******************************************************************************************************************/
     plotLongLine();
-    print("Testing the selection of a pulse shaping set (PULSE_SHAPING_SELECTION):");
-    print(TAB1 + "Expected values are 1, 1, 1, 1");
-    var pulseShapingSelection = [];
-    for (col = 0; col < DMX_NB_COL; col++) pulseShapingSelection[col] = readDMX_pulseShapingSelection(col);
-    print(TAB1 + "Current values are " + pulseShapingSelection);
-    if (oneDimensionArraysAreEquals(pulseShapingSelection, [1, 1, 1, 1])) print(TAB1 + MESSAGE_OK);
-    else {
-        print(TAB1 + MESSAGE_ERROR);
-        ERROR_COUNTER++;
-    }
-
-    /******************************************************************************************************************/
-    plotLongLine();
-    print("Testing the setting of the relock delay (RELOCK_DELAY):");
-    print(TAB1 + "Expected values are 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF");
-    var relock_delay = [];
-    for (col = 0; col < DMX_NB_COL; col++) relock_delay[col] = readDMX_relock_delay(col);
-    print(TAB1 + "Current values are " + relock_delay);
-    if (oneDimensionArraysAreEquals(relock_delay, [0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF])) print(TAB1 + MESSAGE_OK);
-    else {
-        print(TAB1 + MESSAGE_ERROR);
-        ERROR_COUNTER++;
-    }
-
-    /******************************************************************************************************************/
-    plotLongLine();
-    print("Testing the setting of the relock threshold (RELOCK_THRESHOLD):");
-    print(TAB1 + "Expected values are 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF");
-    var relock_threshold = [];
-    for (col = 0; col < DMX_NB_COL; col++) relock_threshold[col] = readDMX_relock_threshold(col);
-    print(TAB1 + "Current values are " + relock_threshold);
-    if (oneDimensionArraysAreEquals(relock_threshold, [0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF])) print(TAB1 + MESSAGE_OK);
-    else {
-        print(TAB1 + MESSAGE_ERROR);
-        ERROR_COUNTER++;
-    }
-
-    /******************************************************************************************************************/
-    plotLongLine();
-    print("Testing the value of the delock counters (RELOCK_COUNTERS):");
-    print(TAB1 + "Expected values are 0x0000 for all pixels and all columns");
-    const expected_counters = [NB_PIX_EMPTY_ARRAY, NB_PIX_EMPTY_ARRAY, NB_PIX_EMPTY_ARRAY, NB_PIX_EMPTY_ARRAY]
-    var relock_counters = [NB_PIX_EMPTY_ARRAY, NB_PIX_EMPTY_ARRAY, NB_PIX_EMPTY_ARRAY, NB_PIX_EMPTY_ARRAY];
-    print(TAB1 + "Current values are: ");
-    for (col = 0; col < DMX_NB_COL; col++) {
-        relock_counters[col] = readDMX_delockCounters(col);
-        print(TAB2 + "Col " + col + relock_counters[col]);
-    }
-    if (arraysAreEquals(relock_counters, expected_counters)) print(TAB1 + MESSAGE_OK);
-    else {
-        print(TAB1 + MESSAGE_ERROR);
-        ERROR_COUNTER++;
-    }
-
-
-    if (fwVersion > 2) {
-	
-        /******************************************************************************************************************/
-        plotLongLine();
-        print("Testing the setting of the input gain:");
-
-		expectedValues = [1, 1, 1, 1];
-        print(TAB1 + "Expected values are: ", expectedValues);
-        var sqm_inputGain = [];
-        for (col = 0; col < DMX_NB_COL; col++) sqm_inputGain[col] = readDMX_sqm_inputGain(col);
-        print(TAB1 + "Current values are " + sqm_inputGain);
-        if (oneDimensionArraysAreEquals(sqm_inputGain, expectedValues)) print(TAB1 + MESSAGE_OK);
-        else {
-            print(TAB1 + MESSAGE_ERROR);
-            ERROR_COUNTER++;
-        }
-
-
-        /******************************************************************************************************************/
-        plotLongLine();
-        print("Testing the setting of the input gain for AMP SQUID loop:");
- 		expectedValues = [1, 1, 1, 1];
-
-        print(TAB1 + "Expected values are: ", expectedValues);
-
-        var sqa_inputGain = [];
-        for (col = 0; col < DMX_NB_COL; col++) sqa_inputGain[col] = readDMX_sqa_inputGain(col);
-        print(TAB1 + "Current values are " + sqa_inputGain);
-        if (oneDimensionArraysAreEquals(sqa_inputGain, expectedValues)) print(TAB1 + MESSAGE_OK);
-        else {
-            print(TAB1 + MESSAGE_ERROR);
-            ERROR_COUNTER++;
-        }
-
-
-        /******************************************************************************************************************/
-        plotLongLine();
-        print("Testing the setting of ki.knorm for the AMP SQUID loop (AMP_SQ_KIKNORM):");
-        expectation = makeArray(DMX_NB_COL, 0x3CC0 / Math.pow(2, 16));
-        //if (fwVersion < 6) expectation = [0x3CC0, 0x3CC0, 0x3CC0, 0x3CC0];
-        //else expectation = [0x1E60, 0x1E60, 0x1E60, 0x1E60];
-        print(TAB1 + "Expected values are " + expectation);
-        var sqa_kiknorm = [];
-        for (col = 0; col < DMX_NB_COL; col++) sqa_kiknorm[col] = readDMX_sqa_kiknorm(col);
-        print(TAB1 + "Current values are " + sqa_kiknorm);
-        if (oneDimensionArraysAreEquals(sqa_kiknorm, expectation)) print(TAB1 + MESSAGE_OK);
-        else {
-            print(TAB1 + MESSAGE_ERROR);
-            ERROR_COUNTER++;
-        }
-
-
-        /******************************************************************************************************************/
-        plotLongLine();
-        print("Testing the setting of knorm for the AMP SQUID loop (AMP_SQ_KNORM):");
-        expectation = makeArray(DMX_NB_COL, 0x6E74 / Math.pow(2, 18));
-        print(TAB1 + "Expected values are " + expectation);
-        var sqa_knorm = [];
-        for (col = 0; col < DMX_NB_COL; col++) sqa_knorm[col] = readDMX_sqa_knorm(col);
-        print(TAB1 + "Current values are " + sqa_knorm);
-        if (oneDimensionArraysAreEquals(sqa_knorm, expectation)) print(TAB1 + MESSAGE_OK);
-        else {
-            print(TAB1 + MESSAGE_ERROR);
-            ERROR_COUNTER++;
-        }
-
-
-        /******************************************************************************************************************/
-        plotLongLine();
-        print("Testing the setting of the LSB of the AMP SQUID offset (AMP_SQ_OFFSET_FINE):");
-		for (colId=0; colId<DMX_NB_COL; colId++) {
-			print(TAB1 + "Current values for column " + colId + " are: ");
-			checked_values = readDMX_sqa_OffsetFine(colId);
-			print(TAB2 + "STD: " + checked_values[0]);
-			print(TAB2 + "PTR: " + checked_values[1]);
-			if (oneDimensionArraysAreEquals(checked_values[0], NB_PIX_EMPTY_ARRAY) && oneDimensionArraysAreEquals(checked_values[1], NB_PIX_EMPTY_ARRAY)) print(TAB1 + MESSAGE_OK);
-			else {
-				print(TAB1 + MESSAGE_ERROR);
-				ERROR_COUNTER++;
-			}
-        }
-
-
-        /******************************************************************************************************************/
-        plotLongLine();
-        print("Testing the setting of the weight of the LSB of the AMP SQUID offset for test patterns (AMP_SQ_OFFSET_LSB_PTR):");
-		expectedValues = [0, 0, 0, 0];
-		if (fwVersion >0xA) expectedValues = [10, 10, 10, 10];
-		print(TAB1 + "Expected values are " + expectedValues);
-		checked_values = [4];
-        for (col = 0; col < DMX_NB_COL; col++) checked_values[col] = readDMX_sqa_OffsetLSBptr(col);
-		print(TAB1 + "Current values are: " + checked_values);
-        if (oneDimensionArraysAreEquals(checked_values, expectedValues)) print(TAB1 + MESSAGE_OK);
-        else {
-            print(TAB1 + MESSAGE_ERROR);
-            ERROR_COUNTER++;
-        }
-
-    }
-
-
-    /******************************************************************************************************************/
-    plotLongLine();
-
     if (ERROR_COUNTER === 1) print("Oups, " + ERROR_COUNTER + " error has been detected!");
     else    if (ERROR_COUNTER > 1) print("Oups, " + ERROR_COUNTER + " errors have been detected!");
         else print("Nice, no error detected");
@@ -579,8 +566,6 @@ function dmxCheckDefaults() {
     plotLongLine();
 
 }
-
-// for (col=0; col<DMX_NB_COL; col++) readDMX_sqa_OffsetLSBptr(col);
 
 dmxCheckDefaults();
 

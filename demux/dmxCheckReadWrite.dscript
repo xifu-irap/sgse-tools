@@ -61,8 +61,8 @@ function error_number_manager(value1, value2, ERROR_COUNT, TAB) {
 
 /**
  * This function checks if two arrays are equals. It displays a message accordingly and updates an error counter.
- * @param {number} array1 - first value
- * @param {number} array2 - second value
+ * @param {array} array1 - first value
+ * @param {array} array2 - second value
  * @param {number} ERROR_COUNT - counter to be updated if the 2 arrays are different
  * @param {string} TAB - Tabulation to be inserted before the message
  * @return {number} ERROR_COUNT - the updated value of the error counter
@@ -81,7 +81,7 @@ function error_array_manager(array1, array2, ERROR_COUNT, TAB) {
 
 
 /**
- * This function tests the demux commands
+ * This function tests the read and write to / from the demux registers
  */
 function dmxCheckReadWrite() {
 
@@ -98,7 +98,7 @@ function dmxCheckReadWrite() {
     /******************************************************************************************************************/
     plotLongLine();
     print("Reading the firmware version");
-    const fwVersion = readDMX_firmwareVersion(true);
+    readDMX_firmwareVersion(true);
 
 
     /******************************************************************************************************************/
@@ -257,7 +257,7 @@ function dmxCheckReadWrite() {
     plotLongLine();
     print("Testing the setting of feedback algo parameter A:");
 
-    for (var col=0; col<DMX_NB_COL; col++) {
+    for (col=0; col<DMX_NB_COL; col++) {
 
         print(TAB1 + "Testing column " + col);
 
@@ -420,7 +420,7 @@ function dmxCheckReadWrite() {
     for (col=0; col<DMX_NB_COL; col++) setDMX_sqa_knorm(col, new_value[col]);
 
     checked_value = [DMX_NB_COL];
-    for (var col=0; col<DMX_NB_COL; col++) checked_value[col] = readDMX_sqa_knorm(col);
+    for (col=0; col<DMX_NB_COL; col++) checked_value[col] = readDMX_sqa_knorm(col);
     print(TAB1 + "Reading the new value from the firmware: " + checked_value);
 
     ERROR_COUNTER = error_array_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
@@ -519,7 +519,9 @@ function dmxCheckReadWrite() {
 
         initial_value = readDMX_sqa_OffsetFine(col);
         print(TAB2 + "Initial value is: ");
+        print(TAB2 + "Nominal:");
 		print(initial_value[0]);
+        print(TAB2 + "Test pattern:");
 		print(initial_value[1]);
 
         new_value = [DMX_NB_PIX_PER_COL];
@@ -535,12 +537,11 @@ function dmxCheckReadWrite() {
 
         checked_value = readDMX_sqa_OffsetFine(col);
         print(TAB2 + "Reading the new value from the firmware: ");
+        print(TAB2 + "Nominal:");
 		print(checked_value[0]);
-		print(checked_value[1]);
-
-        print("LSB:");
 		ERROR_COUNTER = error_array_manager(new_value, checked_value[0], ERROR_COUNTER, TAB2);
-        print("LSB PTR:");
+        print(TAB2 + "Test pattern:");
+		print(checked_value[1]);
         ERROR_COUNTER = error_array_manager(new_value_PTR, checked_value[1], ERROR_COUNTER, TAB2);
 
         print(TAB2 + "Setting back the initial value");
