@@ -203,7 +203,8 @@ function dmxCheckDefaults() {
         initial_value = readDMX_sqm_kiknorm(col);
         print(TAB2 + "Initial value is: " + initial_value);
 
-        expected_value = makeArray(DMX_NB_PIX_PER_COL, 0x1E60 / Math.pow(2,16));
+        //expected_value = makeArray(DMX_NB_PIX_PER_COL, 0x1E60 / Math.pow(2,16));
+        expected_value = makeArray(DMX_NB_PIX_PER_COL, 0x3CC0 / Math.pow(2,16));
         print(TAB2 + "Expected value is: " + expected_value);
 
         ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB2);
@@ -218,7 +219,7 @@ function dmxCheckDefaults() {
     for (col=0; col<DMX_NB_COL; col++) initial_value[col] = readDMX_sqa_kiknorm(col);
     print(TAB1 + "Initial value is: " + initial_value);
 
-    expected_value = makeArray(DMX_NB_COL, 0x1E60 / Math.pow(2,16));
+    expected_value = makeArray(DMX_NB_COL, 0x3CC0 / Math.pow(2,16));
     print(TAB1 + "Expected value is: " + expected_value);
 
     ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
@@ -234,7 +235,7 @@ function dmxCheckDefaults() {
         initial_value = readDMX_sqm_knorm(col);
         print(TAB2 + "Initial value is: " + initial_value);
 
-        expected_value = makeArray(DMX_NB_PIX_PER_COL, 0x6E74 / Math.pow(2,16));
+        expected_value = makeArray(DMX_NB_PIX_PER_COL, 0x6E74 / Math.pow(2,18));
         print(TAB2 + "Expected value is: " + expected_value);
 
         ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB2);
@@ -249,7 +250,7 @@ function dmxCheckDefaults() {
     for (col=0; col<DMX_NB_COL; col++) initial_value[col] = readDMX_sqa_knorm(col);
     print(TAB1 + "Initial value is: " + initial_value);
 
-    expected_value = makeArray(DMX_NB_COL, 0x6E74 / Math.pow(2,16));
+    expected_value = makeArray(DMX_NB_COL, 0x6E74 / Math.pow(2,18));
     print(TAB2 + "Expected value is: " + expected_value);
 
     ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);

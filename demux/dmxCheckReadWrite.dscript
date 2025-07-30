@@ -43,7 +43,7 @@ include("../common/constants.dscript");
  */
 function error_manager(array1, array2, ERROR_COUNT, TAB) {
 
-    const ARROW = "-----------------------------------------------> "
+    const ARROW = "-----------------------------------------------> ";
     const MESSAGE_ERROR = ARROW + " [ ERROR ]";
     const MESSAGE_OK = ARROW + " [  OK  ]";
 
@@ -243,7 +243,7 @@ function dmxCheckReadWrite() {
         print(TAB2 + "Initial value is: " + initial_value);
 
         new_value = [DMX_NB_PIX_PER_COL];
-        for (pix = 0; pix < DMX_NB_PIX_PER_COL; pix++) {
+        for (var pix = 0; pix < DMX_NB_PIX_PER_COL; pix++) {
 			new_value[pix] = Math.round((pix / DMX_NB_PIX_PER_COL) * Math.pow(2,16))/ Math.pow(2,16);
 		}
         print(TAB1 + "Setting new value to: " + new_value);
