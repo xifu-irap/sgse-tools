@@ -29,55 +29,9 @@
 include("../demux/dmxTools.dscript");
 include("../demux/dmxRegAddresses.dscript");
 include("../demux/dmxHk.dscript");
+include("../demux/dmxCheckReadWrite.dscript");
 include("../common/utilTools.dscript");
 include("../common/constants.dscript");
-
-
-const ARROW = "-----------------------------------------------> "
-const MESSAGE_ERROR = ARROW + " [ ERROR ]";
-const MESSAGE_OK = ARROW + " [  OK  ]";
-
-
-/**
- * This function checks if two values are equals. It displays a message accordingly and updates an error counter.
- * @param {number} value1 - first value
- * @param {number} value2 - second value
- * @param {number} ERROR_COUNT - counter to be updated if the 2 values are different
- * @param {string} TAB - Tabulation to be inserted before the message
- * @return {number} ERROR_COUNT - the updated value of the error counter
- */
-function error_number_manager(value1, value2, ERROR_COUNT, TAB) {
-
-    var MESSAGE = MESSAGE_OK;
-    if (value1 !== value2) {
-        MESSAGE = MESSAGE_ERROR;
-        ERROR_COUNT++;
-    }
-    print(TAB + MESSAGE);
-
-    return ERROR_COUNT;
-}
-
-
-/**
- * This function checks if two arrays are equals. It displays a message accordingly and updates an error counter.
- * @param {array} array1 - first value
- * @param {array} array2 - second value
- * @param {number} ERROR_COUNT - counter to be updated if the 2 arrays are different
- * @param {string} TAB - Tabulation to be inserted before the message
- * @return {number} ERROR_COUNT - the updated value of the error counter
- */
-function error_array_manager(array1, array2, ERROR_COUNT, TAB) {
-
-    var MESSAGE = MESSAGE_OK;
-    if (!arraysAreEquals(array1, array2)) {
-        MESSAGE = MESSAGE_ERROR;
-        ERROR_COUNT++;
-    }
-    print(TAB + MESSAGE);
-
-    return ERROR_COUNT;
-}
 
 
 /**

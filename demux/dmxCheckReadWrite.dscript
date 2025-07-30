@@ -33,32 +33,6 @@ include("../common/utilTools.dscript");
 include("../common/constants.dscript");
 
 
-const ARROW = "-----------------------------------------------> "
-const MESSAGE_ERROR = ARROW + " [ ERROR ]";
-const MESSAGE_OK = ARROW + " [  OK  ]";
-
-
-/**
- * This function checks if two values are equals. It displays a message accordingly and updates an error counter.
- * @param {number} value1 - first value
- * @param {number} value2 - second value
- * @param {number} ERROR_COUNT - counter to be updated if the 2 values are different
- * @param {string} TAB - Tabulation to be inserted before the message
- * @return {number} ERROR_COUNT - the updated value of the error counter
- */
-function error_number_manager(value1, value2, ERROR_COUNT, TAB) {
-
-    var MESSAGE = MESSAGE_OK;
-    if (value1 !== value2) {
-        MESSAGE = MESSAGE_ERROR;
-        ERROR_COUNT++;
-    }
-    print(TAB + MESSAGE);
-
-    return ERROR_COUNT;
-}
-
-
 /**
  * This function checks if two arrays are equals. It displays a message accordingly and updates an error counter.
  * @param {array} array1 - first value
@@ -67,7 +41,11 @@ function error_number_manager(value1, value2, ERROR_COUNT, TAB) {
  * @param {string} TAB - Tabulation to be inserted before the message
  * @return {number} ERROR_COUNT - the updated value of the error counter
  */
-function error_array_manager(array1, array2, ERROR_COUNT, TAB) {
+function error_manager(array1, array2, ERROR_COUNT, TAB) {
+
+    const ARROW = "-----------------------------------------------> "
+    const MESSAGE_ERROR = ARROW + " [ ERROR ]";
+    const MESSAGE_OK = ARROW + " [  OK  ]";
 
     var MESSAGE = MESSAGE_OK;
     if (!arraysAreEquals(array1, array2)) {
@@ -143,7 +121,7 @@ function dmxCheckReadWrite() {
     var checked_value = readDMX_dataAcqMode();
     print(TAB1 + "Reading the new value from the firmware: " + checked_value);
 
-    ERROR_COUNTER = error_number_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
 
     print(TAB1 + "Setting back the initial value");
     setDMX_dataAcqMode(initial_value);
@@ -163,7 +141,7 @@ function dmxCheckReadWrite() {
     checked_value = readDMX_feedbackOnOff();
     print(TAB1 + "Reading the new value from the firmware: " + checked_value);
 
-    ERROR_COUNTER = error_array_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
 
     print(TAB1 + "Setting back the initial value");
     setDMX_safeFeedbackOnOff(initial_value);
@@ -183,7 +161,7 @@ function dmxCheckReadWrite() {
     checked_value = readDMX_offsetMode();
     print(TAB1 + "Reading the new value from the firmware: " + checked_value);
 
-    ERROR_COUNTER = error_array_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
 
     print(TAB1 + "Setting back the initial value");
     setDMX_offsetMode(initial_value);
@@ -207,7 +185,7 @@ function dmxCheckReadWrite() {
     checked_value = readDMX_testPattern();
     print(TAB1 + "Reading the new value from the firmware: " + checked_value);
 
-    ERROR_COUNTER = error_array_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
 
     print(TAB1 + "Setting back the initial value");
     setDMX_testPattern(initial_value);
@@ -227,7 +205,7 @@ function dmxCheckReadWrite() {
     checked_value = readDMX_testPatternEnable();
     print(TAB1 + "Reading the new value from the firmware: " + checked_value);
 
-    ERROR_COUNTER = error_array_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
 
     print(TAB1 + "Setting back the initial value");
     setDMX_testPatternEnable(initial_value[0], initial_value[1], initial_value[2]);
@@ -247,7 +225,7 @@ function dmxCheckReadWrite() {
     checked_value = readDMX_boxcarLength();
     print(TAB1 + "Reading the new value from the firmware: " + checked_value);
 
-    ERROR_COUNTER = error_array_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
 
     print(TAB1 + "Setting back the initial value");
     setDMX_boxcarLength(initial_value);
@@ -274,7 +252,7 @@ function dmxCheckReadWrite() {
         checked_value = readDMX_a(col);
         print(TAB2 + "Reading the new value from the firmware: " + checked_value);
 
-        ERROR_COUNTER = error_array_manager(new_value, checked_value, ERROR_COUNTER, TAB2);
+        ERROR_COUNTER = error_manager(new_value, checked_value, ERROR_COUNTER, TAB2);
 
         print(TAB2 + "Setting back the initial value");
         setDMX_a(col, initial_value);
@@ -297,7 +275,7 @@ function dmxCheckReadWrite() {
     for (col=0; col<DMX_NB_COL; col++) checked_value[col] = readDMX_sqm_inputGain(col);
     print(TAB1 + "Reading the new value from the firmware: " + checked_value);
 
-    ERROR_COUNTER = error_array_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
 
     print(TAB1 + "Setting back the initial value");
     for (col=0; col<DMX_NB_COL; col++) setDMX_sqm_inputGain(col, initial_value[col]);
@@ -319,7 +297,7 @@ function dmxCheckReadWrite() {
     for (col=0; col<DMX_NB_COL; col++) checked_value[col] = readDMX_sqa_inputGain(col);
     print(TAB1 + "Reading the new value from the firmware: " + checked_value);
 
-    ERROR_COUNTER = error_array_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
 
     print(TAB1 + "Setting back the initial value");
     for (col=0; col<DMX_NB_COL; col++) setDMX_sqa_inputGain(col, initial_value[col]);
@@ -345,7 +323,7 @@ function dmxCheckReadWrite() {
         checked_value = readDMX_sqm_kiknorm(col);
         print(TAB2 + "Reading the new value from the firmware: " + checked_value);
 
-        ERROR_COUNTER = error_array_manager(new_value, checked_value, ERROR_COUNTER, TAB2);
+        ERROR_COUNTER = error_manager(new_value, checked_value, ERROR_COUNTER, TAB2);
 
         print(TAB2 + "Setting back the initial value");
         setDMX_sqm_kiknorm(col, initial_value);
@@ -372,7 +350,7 @@ function dmxCheckReadWrite() {
     for (col=0; col<DMX_NB_COL; col++) checked_value[col] = readDMX_sqa_kiknorm(col);
     print(TAB1 + "Reading the new value from the firmware: " + checked_value);
 
-    ERROR_COUNTER = error_array_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
 
     print(TAB1 + "Setting back the initial value");
     for (col=0; col<DMX_NB_COL; col++) setDMX_sqa_kiknorm(col, initial_value[col]);
@@ -398,7 +376,7 @@ function dmxCheckReadWrite() {
         checked_value = readDMX_sqm_knorm(col);
         print(TAB2 + "Reading the new value from the firmware: " + checked_value);
 
-        ERROR_COUNTER = error_array_manager(new_value, checked_value, ERROR_COUNTER, TAB2);
+        ERROR_COUNTER = error_manager(new_value, checked_value, ERROR_COUNTER, TAB2);
 
         print(TAB2 + "Setting back the initial value");
         setDMX_sqm_knorm(col, initial_value);
@@ -423,7 +401,7 @@ function dmxCheckReadWrite() {
     for (col=0; col<DMX_NB_COL; col++) checked_value[col] = readDMX_sqa_knorm(col);
     print(TAB1 + "Reading the new value from the firmware: " + checked_value);
 
-    ERROR_COUNTER = error_array_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
 
     print(TAB1 + "Setting back the initial value");
     for (col=0; col<DMX_NB_COL; col++) setDMX_sqa_knorm(col, initial_value[col]);
@@ -449,7 +427,7 @@ function dmxCheckReadWrite() {
         checked_value = readDMX_fb0(col);
         print(TAB2 + "Reading the new value from the firmware: " + checked_value);
 
-        ERROR_COUNTER = error_array_manager(new_value, checked_value, ERROR_COUNTER, TAB2);
+        ERROR_COUNTER = error_manager(new_value, checked_value, ERROR_COUNTER, TAB2);
 
         print(TAB2 + "Setting back the initial value");
         setDMX_fb0(col, initial_value);
@@ -476,7 +454,7 @@ function dmxCheckReadWrite() {
         checked_value = readDMX_lockpointV(col);
         print(TAB2 + "Reading the new value from the firmware: " + checked_value);
 
-        ERROR_COUNTER = error_array_manager(new_value, checked_value, ERROR_COUNTER, TAB2);
+        ERROR_COUNTER = error_manager(new_value, checked_value, ERROR_COUNTER, TAB2);
 
         print(TAB2 + "Setting back the initial value");
         setDMX_lockpointV(col, initial_value);
@@ -503,7 +481,7 @@ function dmxCheckReadWrite() {
         checked_value = readDMX_sqm_FBMode(col);
         print(TAB2 + "Reading the new value from the firmware: " + checked_value);
 
-        ERROR_COUNTER = error_array_manager(new_value, checked_value, ERROR_COUNTER, TAB2);
+        ERROR_COUNTER = error_manager(new_value, checked_value, ERROR_COUNTER, TAB2);
 
         print(TAB2 + "Setting back the initial value");
         setDMX_sqm_FBMode(col, initial_value);
@@ -539,10 +517,10 @@ function dmxCheckReadWrite() {
         print(TAB2 + "Reading the new value from the firmware: ");
         print(TAB2 + "Nominal:");
 		print(checked_value[0]);
-		ERROR_COUNTER = error_array_manager(new_value, checked_value[0], ERROR_COUNTER, TAB2);
+		ERROR_COUNTER = error_manager(new_value, checked_value[0], ERROR_COUNTER, TAB2);
         print(TAB2 + "Test pattern:");
 		print(checked_value[1]);
-        ERROR_COUNTER = error_array_manager(new_value_PTR, checked_value[1], ERROR_COUNTER, TAB2);
+        ERROR_COUNTER = error_manager(new_value_PTR, checked_value[1], ERROR_COUNTER, TAB2);
 
         print(TAB2 + "Setting back the initial value");
         setDMX_sqa_OffsetFine(col, initial_value[0], initial_value[1]);
@@ -565,7 +543,7 @@ function dmxCheckReadWrite() {
     for (col=0; col<DMX_NB_COL; col++) checked_value[col] = readDMX_sqa_OffsetLSBptr(col);
     print(TAB1 + "Reading the new values: " + checked_value);
 
-    ERROR_COUNTER = error_array_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
 
     print(TAB1 + "Setting back the initial value");
     for (col=0; col<DMX_NB_COL; col++) setDMX_sqa_OffsetLSBptr(col, initial_value[col]);
@@ -587,7 +565,7 @@ function dmxCheckReadWrite() {
     for (col=0; col<DMX_NB_COL; col++) checked_value[col] = readDMX_sqa_OffsetLSB(col);
     print(TAB1 + "Reading the new values: " + checked_value);
 
-    ERROR_COUNTER = error_array_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
 
     print(TAB1 + "Setting back the initial value");
     for (col=0; col<DMX_NB_COL; col++) setDMX_sqa_OffsetLSB(col, initial_value[col]);
@@ -609,7 +587,7 @@ function dmxCheckReadWrite() {
     for (col=0; col<DMX_NB_COL; col++) checked_value[col] = readDMX_sqa_OffsetCoarse(col);
     print(TAB1 + "Reading the new values: " + checked_value);
 
-    ERROR_COUNTER = error_array_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
 
     print(TAB1 + "Setting back the initial value");
     for (col=0; col<DMX_NB_COL; col++) setDMX_sqa_OffsetCoarse(col, initial_value[col]);
@@ -631,7 +609,7 @@ function dmxCheckReadWrite() {
     for (col=0; col<DMX_NB_COL; col++) checked_value[col] = readDMX_feedback_delay(col);
     print(TAB1 + "Reading the new values: " + checked_value);
 
-    ERROR_COUNTER = error_array_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
 
     print(TAB1 + "Setting back the initial value");
     for (col=0; col<DMX_NB_COL; col++) setDMX_feedback_delay(col, initial_value[col]);
@@ -653,7 +631,7 @@ function dmxCheckReadWrite() {
     for (col=0; col<DMX_NB_COL; col++) checked_value[col] = readDMX_offsetDAC_delay(col);
     print(TAB1 + "Reading the new values: " + checked_value);
 
-    ERROR_COUNTER = error_array_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
 
     print(TAB1 + "Setting back the initial value");
     for (col=0; col<DMX_NB_COL; col++) setDMX_offsetDAC_delay(col, initial_value[col]);
@@ -675,7 +653,7 @@ function dmxCheckReadWrite() {
     for (col=0; col<DMX_NB_COL; col++) checked_value[col] = readDMX_offsetMUX_delay(col);
     print(TAB1 + "Reading the new values: " + checked_value);
 
-    ERROR_COUNTER = error_array_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
 
     print(TAB1 + "Setting back the initial value");
     for (col=0; col<DMX_NB_COL; col++) setDMX_offsetMUX_delay(col, initial_value[col]);
@@ -697,7 +675,7 @@ function dmxCheckReadWrite() {
     for (col=0; col<DMX_NB_COL; col++) checked_value[col] = readDMX_sampling_delay(col);
     print(TAB1 + "Reading the new values: " + checked_value);
 
-    ERROR_COUNTER = error_array_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
 
     print(TAB1 + "Setting back the initial value");
     for (col=0; col<DMX_NB_COL; col++) setDMX_sampling_delay(col, initial_value[col]);
@@ -725,7 +703,7 @@ function dmxCheckReadWrite() {
         checked_value = readDMX_pulseShaping(col);
         print(TAB1 + "Reading the new values: " + checked_value);
 
-        ERROR_COUNTER = error_array_manager(new_value, checked_value, ERROR_COUNTER, TAB2);
+        ERROR_COUNTER = error_manager(new_value, checked_value, ERROR_COUNTER, TAB2);
 
         print(TAB2 + "Setting back the initial value");
         setDMX_pulseShaping(col, initial_value);
@@ -747,7 +725,7 @@ function dmxCheckReadWrite() {
     for (col=0; col<DMX_NB_COL; col++) checked_value[col] = readDMX_pulseShapingSelection(col);
     print(TAB1 + "Reading the new values: " + checked_value);
 
-    ERROR_COUNTER = error_array_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
 
     print(TAB1 + "Setting back the initial value");
     for (col=0; col<DMX_NB_COL; col++) setDMX_pulseShapingSelection(col, initial_value[col]);
@@ -769,7 +747,7 @@ function dmxCheckReadWrite() {
     for (col=0; col<DMX_NB_COL; col++) checked_value[col] = readDMX_relock_delay(col);
     print(TAB1 + "Reading the new values: " + checked_value);
 
-    ERROR_COUNTER = error_array_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
 
     print(TAB1 + "Setting back the initial value");
     for (col=0; col<DMX_NB_COL; col++) setDMX_relock_delay(col, initial_value[col]);
@@ -791,7 +769,7 @@ function dmxCheckReadWrite() {
     for (col=0; col<DMX_NB_COL; col++) checked_value[col] = readDMX_relock_threshold(col);
     print(TAB1 + "Reading the new values: " + checked_value);
 
-    ERROR_COUNTER = error_array_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
 
     print(TAB1 + "Setting back the initial value");
     for (col=0; col<DMX_NB_COL; col++) setDMX_relock_threshold(col, initial_value[col]);
