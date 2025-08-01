@@ -29,7 +29,6 @@
 include("../demux/dmxTools.dscript");
 include("../demux/dmxRegAddresses.dscript");
 include("../demux/dmxHk.dscript");
-include("../demux/dmxCheckReadWrite.dscript");
 include("../common/utilTools.dscript");
 include("../common/constants.dscript");
 
@@ -71,7 +70,7 @@ function dmxCheckDefaults() {
     var expected_value = ACQ_MODE_IDLE;
     print(TAB1 + "Expected value is: " + expected_value);
 
-    ERROR_COUNTER = error_number_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
 
 
     /* MUX_SQ_FB_ON_OFF ***********************************************************************************************/
@@ -84,7 +83,7 @@ function dmxCheckDefaults() {
     expected_value = readDMX_feedbackOnOff();
     print(TAB1 + "Expected value is: " + expected_value);
 
-    ERROR_COUNTER = error_number_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
 
 
     /* AMP_SQ_OFFSET_MODE *********************************************************************************************/
@@ -97,7 +96,7 @@ function dmxCheckDefaults() {
     expected_value = readDMX_offsetMode();
     print(TAB1 + "Expected value is: " + expected_value);
 
-    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
 
 
     /* TEST_PATTERN ***************************************************************************************************/
@@ -116,7 +115,7 @@ function dmxCheckDefaults() {
     ]
     print(TAB1 + "Expected value is: " + expected_value);
 
-    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
 
 
     /* TEST_PATTERN_ENABLE ********************************************************************************************/
@@ -131,7 +130,7 @@ function dmxCheckDefaults() {
     print(TAB2 + "Infinitely         = " + false);
     print(TAB2 + "Number times = " + 0);
 
-    ERROR_COUNTER = error_array_manager(initial_value, [false, false, 0], ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(initial_value, [false, false, 0], ERROR_COUNTER, TAB1);
 
 
     /* BOXCAR_LENGTH **************************************************************************************************/
@@ -144,7 +143,7 @@ function dmxCheckDefaults() {
     expected_value = [0, 0, 0, 0];
     print(TAB1 + "Expected value is: " + expected_value);
 
-    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
 
 
     /* A **************************************************************************************************************/
@@ -161,7 +160,7 @@ function dmxCheckDefaults() {
         expected_value = makeArray(DMX_NB_PIX_PER_COL, 0x3333 / Math.pow(2,16));
         print(TAB2 + "Expected value is: " + expected_value);
 
-        ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB2);
+        ERROR_COUNTER = error_manager(initial_value, expected_value, ERROR_COUNTER, TAB2);
     }
 
 
@@ -176,7 +175,7 @@ function dmxCheckDefaults() {
     expected_value = [1, 1, 1, 1];
     print(TAB2 + "Expected value is: " + expected_value);
 
-    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB2);
+    ERROR_COUNTER = error_manager(initial_value, expected_value, ERROR_COUNTER, TAB2);
 
 
     /* AMP_SQ_INPUT_GAIN **********************************************************************************************/
@@ -190,7 +189,7 @@ function dmxCheckDefaults() {
     expected_value = [1, 1, 1, 1];
     print(TAB2 + "Expected value is: " + expected_value);
 
-    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB2);
+    ERROR_COUNTER = error_manager(initial_value, expected_value, ERROR_COUNTER, TAB2);
 
 
     /* MUX_SQ_KI_KNORM ************************************************************************************************/
@@ -207,7 +206,7 @@ function dmxCheckDefaults() {
         expected_value = makeArray(DMX_NB_PIX_PER_COL, 0x3CC0 / Math.pow(2,16));
         print(TAB2 + "Expected value is: " + expected_value);
 
-        ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB2);
+        ERROR_COUNTER = error_manager(initial_value, expected_value, ERROR_COUNTER, TAB2);
     }
 
 
@@ -222,7 +221,7 @@ function dmxCheckDefaults() {
     expected_value = makeArray(DMX_NB_COL, 0x3CC0 / Math.pow(2,16));
     print(TAB1 + "Expected value is: " + expected_value);
 
-    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
 
 
     /* MUX_SQ_KNORM ***************************************************************************************************/
@@ -238,7 +237,7 @@ function dmxCheckDefaults() {
         expected_value = makeArray(DMX_NB_PIX_PER_COL, 0x6E74 / Math.pow(2,18));
         print(TAB2 + "Expected value is: " + expected_value);
 
-        ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB2);
+        ERROR_COUNTER = error_manager(initial_value, expected_value, ERROR_COUNTER, TAB2);
     }
 
 
@@ -253,7 +252,7 @@ function dmxCheckDefaults() {
     expected_value = makeArray(DMX_NB_COL, 0x6E74 / Math.pow(2,18));
     print(TAB2 + "Expected value is: " + expected_value);
 
-    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
 
 
     /* MUX_SQ_FB0 *****************************************************************************************************/
@@ -269,7 +268,7 @@ function dmxCheckDefaults() {
         expected_value = makeArray(DMX_NB_PIX_PER_COL, 0);
         print(TAB2 + "Expected value is: " + expected_value);
 
-        ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB2);
+        ERROR_COUNTER = error_manager(initial_value, expected_value, ERROR_COUNTER, TAB2);
     }
 
 
@@ -286,7 +285,7 @@ function dmxCheckDefaults() {
         expected_value = makeArray(DMX_NB_PIX_PER_COL, 0);
         print(TAB2 + "Expected value is: " + expected_value);
 
-        ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB2);
+        ERROR_COUNTER = error_manager(initial_value, expected_value, ERROR_COUNTER, TAB2);
     }
 
 
@@ -303,7 +302,7 @@ function dmxCheckDefaults() {
         expected_value = makeArray(DMX_NB_PIX_PER_COL, 0);
         print(TAB2 + "Expected value is: " + expected_value);
 
-        ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB2);
+        ERROR_COUNTER = error_manager(initial_value, expected_value, ERROR_COUNTER, TAB2);
     }
 
 
@@ -325,10 +324,10 @@ function dmxCheckDefaults() {
         print(TAB2 + "Expected value is: ");
         print(TAB2 + "Nominal:");
 		print(expected_value);
-        ERROR_COUNTER = error_array_manager(initial_value[0], expected_value, ERROR_COUNTER, TAB2);
+        ERROR_COUNTER = error_manager(initial_value[0], expected_value, ERROR_COUNTER, TAB2);
         print(TAB2 + "Test pattern:");
 		print(expected_value);
-        ERROR_COUNTER = error_array_manager(initial_value[1], expected_value, ERROR_COUNTER, TAB2);
+        ERROR_COUNTER = error_manager(initial_value[1], expected_value, ERROR_COUNTER, TAB2);
     }
 
 
@@ -343,7 +342,7 @@ function dmxCheckDefaults() {
     expected_value = makeArray(DMX_NB_COL, OFFSET_LSB_ADU_MIN);
     print(TAB2 + "Expected value is: " + expected_value);
 
-    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
 
 
     /* AMP_SQ_OFFSET_LSB **********************************************************************************************/
@@ -357,7 +356,7 @@ function dmxCheckDefaults() {
     expected_value = makeArray(DMX_NB_COL, OFFSET_LSB_ADU_MIN);
     print(TAB2 + "Expected value is: " + expected_value);
 
-    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
 
 
     /* AMP_SQ_OFFSET_COARSE *******************************************************************************************/
@@ -371,7 +370,7 @@ function dmxCheckDefaults() {
     expected_value = makeArray(DMX_NB_COL, OFFSET_COARSE_ADU_MIN);
     print(TAB2 + "Expected value is: " + expected_value);
 
-    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
 
 
     /* MUX_SQ_FB_DELAY ************************************************************************************************/
@@ -385,7 +384,7 @@ function dmxCheckDefaults() {
     expected_value = makeArray(DMX_NB_COL, 0);
     print(TAB2 + "Expected value is: " + expected_value);
 
-    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
 
 
     /* AMP_SQ_OFFSET_DAC_DELAY ****************************************************************************************/
@@ -399,7 +398,7 @@ function dmxCheckDefaults() {
     expected_value = makeArray(DMX_NB_COL, 0);
     print(TAB2 + "Expected value is: " + expected_value);
 
-    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
 
 
     /* AMP_SQ_OFFSET_MUX_DELAY ****************************************************************************************/
@@ -413,7 +412,7 @@ function dmxCheckDefaults() {
     expected_value = makeArray(DMX_NB_COL, 0);
     print(TAB2 + "Expected value is: " + expected_value);
 
-    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
 
 
     /* SAMPLING_DELAY *************************************************************************************************/
@@ -427,7 +426,7 @@ function dmxCheckDefaults() {
     expected_value = makeArray(DMX_NB_COL, 0);
     print(TAB2 + "Expected value is: " + expected_value);
 
-    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
 
 
      /* PULSE_SHAPING **************************************************************************************************/
@@ -448,7 +447,7 @@ function dmxCheckDefaults() {
         ];
         print(TAB2 + "Expected value is: " + expected_value);
 
-        ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB2);
+        ERROR_COUNTER = error_manager(initial_value, expected_value, ERROR_COUNTER, TAB2);
     }
 
 
@@ -463,7 +462,7 @@ function dmxCheckDefaults() {
     expected_value = makeArray(DMX_NB_COL, 1);
     print(TAB2 + "Expected value is: " + expected_value);
 
-    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
 
 
     /* RELOCK_DELAY ***************************************************************************************************/
@@ -477,7 +476,7 @@ function dmxCheckDefaults() {
     expected_value = makeArray(DMX_NB_COL, 0xFFFF);
     print(TAB2 + "Expected value is: " + expected_value);
 
-    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
 
 
     /* RELOCK_THRESHOLD ***********************************************************************************************/
@@ -491,7 +490,7 @@ function dmxCheckDefaults() {
     expected_value = makeArray(DMX_NB_COL, 0xFFFF);
     print(TAB2 + "Expected value is: " + expected_value);
 
-    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
 
 
     /* DELOCK_COUNTERS ************************************************************************************************/
@@ -506,7 +505,7 @@ function dmxCheckDefaults() {
     expected_value = [NB_PIX_EMPTY_ARRAY, NB_PIX_EMPTY_ARRAY, NB_PIX_EMPTY_ARRAY, NB_PIX_EMPTY_ARRAY];
     print(TAB1 + "Expected value is: " + expected_value);
 
-    ERROR_COUNTER = error_array_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
+    ERROR_COUNTER = error_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
 
 
 

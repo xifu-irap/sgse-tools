@@ -104,7 +104,6 @@ function startSession(sessionName) {
  * This function is called when the script is aborted
  */
 function onAbortScript() {
-
     // de-activating data acquisition
     sendToDMXGoToIdleMode();
 

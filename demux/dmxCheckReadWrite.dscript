@@ -34,31 +34,6 @@ include("../common/constants.dscript");
 
 
 /**
- * This function checks if two arrays are equals. It displays a message accordingly and updates an error counter.
- * @param {array} array1 - first value
- * @param {array} array2 - second value
- * @param {number} ERROR_COUNT - counter to be updated if the 2 arrays are different
- * @param {string} TAB - Tabulation to be inserted before the message
- * @return {number} ERROR_COUNT - the updated value of the error counter
- */
-function error_manager(array1, array2, ERROR_COUNT, TAB) {
-
-    const ARROW = "-----------------------------------------------> ";
-    const MESSAGE_ERROR = ARROW + " [ ERROR ]";
-    const MESSAGE_OK = ARROW + " [  OK  ]";
-
-    var MESSAGE = MESSAGE_OK;
-    if (!arraysAreEquals(array1, array2)) {
-        MESSAGE = MESSAGE_ERROR;
-        ERROR_COUNT++;
-    }
-    print(TAB + MESSAGE);
-
-    return ERROR_COUNT;
-}
-
-
-/**
  * This function tests the read and write to / from the demux registers
  */
 function dmxCheckReadWrite() {
@@ -96,7 +71,6 @@ function dmxCheckReadWrite() {
     print("Reading the delock counters");
 
     for (var col=0; col<DMX_NB_COL; col++) {
-
         print(TAB1 + "Testing column " + col)
         readDMX_delockCounters(col, true);
 	}
@@ -198,7 +172,7 @@ function dmxCheckReadWrite() {
     initial_value = readDMX_testPatternEnable();
     print(TAB1 + "Initial value is: " + initial_value);
 
-    new_value = [true, false, 0x9];
+    new_value = [true, true, 0x0];
     print(TAB1 + "Setting new value to: " + new_value);
     setDMX_testPatternEnable(new_value[0], new_value[1], new_value[2]);
 
