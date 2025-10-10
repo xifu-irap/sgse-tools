@@ -91,13 +91,12 @@ function onAbortScript() {
 
 // -------------------------------------------------------------------------------------------------------------
 
-//const analysed_signal = "erro-100o";
-//const analysed_signal = "erro-only";
-//const analysed_signal = "erro-fdbk";
-const analysed_signal = "erro-ofco";
-//const analysed_signal = "conf-FPAs";
 const fb0_Volts = 0.4;
 
+var configId = -1;
+const configTab = ["", "erro-100o", "erro-open", "erro-fdbk", "erro-ofco"];
+while (configId === -1) configId = getItem("Please, select noise test configuration: ", configTab);
+const analysed_signal = configTab[configId];
 
 if (analysed_signal==="erro-fdbk") {
     noiseAnalysis(analysed_signal, -0.5);
@@ -107,7 +106,6 @@ if (analysed_signal==="erro-fdbk") {
 else noiseAnalysis(analysed_signal, 0);
 
 onAbortScript();
-
 
 
 // -------------------------------------------------------------------------------------------------------------
