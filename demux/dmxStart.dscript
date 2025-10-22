@@ -59,8 +59,9 @@ const ampInputGain = [-1, -1, -1, -1];
  *  Sets all the DMX offset to the same value (in open loop mode)
  *  Sets the RA_DELAY to the value provided by the parameter ra_delay_p
  *  Does a DMX dump
+ * @param {array} fbOnOff_p - feedback On / Off, 4 booleans [on/off, on/off, on/off, on/off].
  * @param {number} samp_delay_p - sampling delay [0, 19].
- * @param {number} bxLength_p - boxcar length 4 values U(4,0).
+ * @param {array} bxLength_p - boxcar length, 4 values U(4,0).
  * @param {number} fb_delay_p - feedback delay [-512, 40].
  * @param {number} fb0_p - Feedback at MUX SQUID operating point s(16,2).
  * @param {number} offsetLSB_p - offset LSB value at AMP SQUID operating point U(12,0).
@@ -73,7 +74,7 @@ const ampInputGain = [-1, -1, -1, -1];
  * @param {number} a_p - parameter a = 1/(1+Tau) (four values) U(16, 16).
  * @param {number} pattern_p - parameters of the test pattern. 
  */
-function demuxStart(samp_delay_p, bxLength_p, fb_delay_p, fb0_p, offsetLSB_p, offsetFine_p, offsetCoarse_p, pulseShapingSet_p, lockPointV_p, muxInputGain_p, ampInputGain_p, a_p, pattern_p) {
+function demuxStart(fbOnOff_p, samp_delay_p, bxLength_p, fb_delay_p, fb0_p, offsetLSB_p, offsetFine_p, offsetCoarse_p, pulseShapingSet_p, lockPointV_p, muxInputGain_p, ampInputGain_p, a_p, pattern_p) {
 
 	// Autorelock parameters
 	const relockThreshold = 0xFFFF;
@@ -191,8 +192,8 @@ function demuxStart(samp_delay_p, bxLength_p, fb_delay_p, fb0_p, offsetLSB_p, of
     var fb = makeArray(DMX_NB_PIX_PER_COL, fb0_p);
 	for (col=0; col<DMX_NB_COL; col++) setDMX_fb0(col, fb);
 
-	print(TAB1+"Switching ON the feedback OnOff for all the columns...");
-    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
+	print(TAB1+"Switching ON or OFF the feedback for all the columns: " + fbOnOff_p);
+    setDMX_safeFeedbackOnOff(fbOnOff_p);
 
 	print(TAB1+"Setting the DMX feedback mode to OPEN LOOP...");
 	fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);

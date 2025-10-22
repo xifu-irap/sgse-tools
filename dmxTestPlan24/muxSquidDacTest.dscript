@@ -34,15 +34,17 @@ include("../common/constants.dscript");
 
 /**
  * This function activates the Mux SQUID and outputs the FB0 set of values or the test pattern
+ * @param {array} fbOnOff_p - feedback on / off, 4 booleans
  * @param {number} fbMode - feedback mode (FEEDBACK_MODE_OPEN_LOOP or FEEDBACK_MODE_TESTPATTERN)
  * @param {string} TST_PATTERN - Name of the test pattern
  * @param {boolean} SAVE_DUMP - if true a dump is saved
  * @param {boolean} SAVE_ERROR - if true data are saved in error acquisition mode
  */
-function testSequence(fbMode, TST_PATTERN, SAVE_DUMP, SAVE_ERROR) {
+function testSequence(fbOnOff_p, fbMode, TST_PATTERN, SAVE_DUMP, SAVE_ERROR) {
 
     // Switching ON the columns
-    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
+    print(TAB1+"Switching ON or OFF the feedback for all the columns: " + fbOnOff_p);
+    setDMX_safeFeedbackOnOff(fbOnOff_p);
 
     // Setting the feedback FB0 values
     const minVal = -1*Math.pow(2, 13);
@@ -166,6 +168,9 @@ function onAbortScript() {
 startSession("test_dmx_feedback");
 
 // ----- Configuration of the test (comment / uncomment the lines accordingly)
+const FB_ONOFF = [OFF, OFF, ON, OFF]; // In order to use only column 2
+//const FB_ONOFF = [ON, ON, ON, ON]; // In order to use all the columns
+
 const FB_MODE = FEEDBACK_MODE_OPEN_LOOP;
 //const FB_MODE = FEEDBACK_MODE_TESTPATTERN;
 
@@ -177,7 +182,7 @@ SAVE_DUMP = false;
 SAVE_ERROR = false;
 
 // ----- Running the test
-testSequence(FB_MODE, TST_PATTERN, SAVE_DUMP, SAVE_ERROR);
+testSequence(FB_ONOFF, FB_MODE, TST_PATTERN, SAVE_DUMP, SAVE_ERROR);
 
 onAbortScript();
 

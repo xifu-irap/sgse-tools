@@ -46,6 +46,7 @@ include("../common/utilTools.dscript");
 include("../common/constants.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
+const FB_ONOFF = [OFF, OFF, ON, OFF]; // In order to use only column 2
 const nbDumpFiles = 128;
 const errorFileDurationInS = 20;
 const errorFilenames = "error_noise";
@@ -56,7 +57,7 @@ const pattern = "FULL";
 
 // -------------------------------------------------------------------------------------------------------------
 
-function noiseAnalysis(signal, fb_Volts) {
+function noiseAnalysis(fbOnOff_p, signal, fb_Volts) {
 
     const sessionName = "noise_" + signal + "_Fb" + fb_Volts + "V";
     startSession(sessionName);
@@ -65,7 +66,7 @@ function noiseAnalysis(signal, fb_Volts) {
     const fb_ADU = fb_Volts * Math.pow(2, 14) / 2;
     const offsetCoarse_Volts = 0.4;
     const offsetCoarse_ADU = offsetCoarse_Volts * Math.pow(2, 12) / 1;
-    demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb_ADU, offsetLSBOpt, offsetFineOpt, offsetCoarse_ADU, pulseShapingSet, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
+    demuxStart(fbOnOff_p, sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb_ADU, offsetLSBOpt, offsetFineOpt, offsetCoarse_ADU, pulseShapingSet, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
 
     // Measuring several dump files (will be averaged during data processing)
     print(TAB1 + "Measuring " + nbDumpFiles + " dump files...");
@@ -91,8 +92,6 @@ function onAbortScript() {
 
 // -------------------------------------------------------------------------------------------------------------
 
-const fb0_Volts = 0.4;
-
 var configId = -1;
 const configTab = ["", "erro-100o", "erro-open", "erro-fdbk", "erro-ofco"];
 while (configId === -1) configId = getItem("Please, select noise test configuration: ", configTab);
@@ -103,7 +102,7 @@ if (analysed_signal==="erro-fdbk") {
     noiseAnalysis(analysed_signal, 0);
     noiseAnalysis(analysed_signal, 0.5);
 }
-else noiseAnalysis(analysed_signal, 0);
+else noiseAnalysis(FB_ONOFF, analysed_signal, 0);
 
 onAbortScript();
 
