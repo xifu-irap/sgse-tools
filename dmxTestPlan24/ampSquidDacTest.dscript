@@ -135,7 +135,7 @@ function onAbortScript() {
 startSession("offcoTest");
 // Set this boolean to true to test the SPI communication with the slow DACs
 tstSlowDacSPI = false;
-const AMP_SQ_OFFSET_LSB = Math.pow(2, 11)-1;  // between 0 and 2^12-1
+const AMP_SQ_OFFSET_LSB = Math.pow(2, 12)-1;  // between 0 and 2^12-1
 //const AMP_SQ_OFFSET_LSB = 0x555; 
 
 const AMP_SQ_OFFSET_FINE_1 = [  // 34 3-bit values
@@ -168,9 +168,9 @@ const maxValCoarse = Math.pow(2, 12)-1;
 
 //======= You should uncomment a single of the following lines
 //testSequence(tstSlowDacSPI, OFFSET_MODE_OFFSET, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE_1, minValCoarse);
-//testSequence(tstSlowDacSPI, OFFSET_MODE_OFFSET, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE_2, minValCoarse);
+testSequence(tstSlowDacSPI, OFFSET_MODE_OFFSET, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE_2, minValCoarse);
 //testSequence(tstSlowDacSPI, OFFSET_MODE_OFFSET, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE_3, minValCoarse);
-testSequence(tstSlowDacSPI, OFFSET_MODE_TESTPATTERN, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE_2, midValCoarse);
+//testSequence(tstSlowDacSPI, OFFSET_MODE_TESTPATTERN, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE_2, midValCoarse);
 
 // -------------------------------------------------------------------------------------------------------------
 

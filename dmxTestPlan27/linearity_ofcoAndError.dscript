@@ -49,6 +49,7 @@ include("../common/utilTools.dscript");
 include("../common/constants.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
+const FB_ONOFF = [ON, ON, ON, ON]; // In order to use all the columns
 
 plotSmallLine();
 print("/ Ofco and Error linearity measurement");
@@ -65,7 +66,7 @@ print(TAB1 + "Starting the DEMUX with the default parameters");
 const boxcarL = 1;
 const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
 const pattern = "FULL";
-demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSetOpt, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
+demuxStart(FB_ONOFF, sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSetOpt, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
 
 
 print(TAB1 + "Configuring the offset compensation");

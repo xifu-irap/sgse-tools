@@ -26,7 +26,9 @@
 // -------------------------------------------------------------------------------------------------------------
 
 // imports
-include("../demux/dmxTools.dscript");
+include("../demux/dmxTools.dscript");
+include("../demux/dmxRegAddresses.dscript");
+include("../common/utilTools.dscript");
 include("../common/constants.dscript");
 
 
@@ -38,10 +40,10 @@ include("../common/constants.dscript");
  * @param {number} ERROR_CODE_p - expected error code related to the command.
  */
 function makeTCError(ERROR_NAME_p, ADDRESS_p, VALUE_p, ERROR_CODE_p) {
-    print(TAB1 + "Sending value " + VALUE + " to address " + ADDRESS);
-    print(TAB1 + "This should generate an " + ERROR_NAME + " error");
-    print(TAB1 + "The error code should be " + to_hexaString(ERROR_CODE));
-	sendToDMXWriteRegister(ADDRESS, VALUE);
+    print(TAB1 + "Sending value " + VALUE_p + " to address " + ADDRESS_p);
+    print(TAB1 + "This should generate an " + ERROR_NAME_p + " error");
+    print(TAB1 + "The error code should be " + to_hexaString(ERROR_CODE_p));
+	sendToDMXWriteRegister(ADDRESS_p, VALUE_p);
     var answer=getText("Type enter for the next step...", "");
 }
 

@@ -49,6 +49,7 @@ include("../common/utilTools.dscript");
 include("../common/constants.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
+const FB_ONOFF = [ON, ON, ON, ON]; // In order to use all the columns
 
 plotSmallLine();
 print("/ Feedback and Error linearity measurement");
@@ -66,7 +67,7 @@ const boxcarL = 1;
 const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
 const pattern = "FULL";
 const fdbkDelayBob = -3;
-demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayBob, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSetOpt, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
+demuxStart(FB_ONOFF, sampDelayOpt, boxcarLArray, fdbkDelayBob, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSetOpt, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
 
 print(TAB1 + "Setting the DMX feedback mode to TEST PATTERN for all columns and all pixels");
 fbMode_TPT = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_TESTPATTERN);
