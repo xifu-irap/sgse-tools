@@ -222,9 +222,6 @@ function readDMX_testPattern() {
     var parameters2D = [];  // parameters in a 2D array
     for (var region=0; region<DMX_TEST_PATTERN_NBREGIONS; region++) {
         parameters2D[region] = tp.slice(region*DMX_TEST_PATTERN_NBPARAMS, (region+1)*DMX_TEST_PATTERN_NBPARAMS);
-        // conversion of 2'complemented values to signed values
-        parameters2D[region][0] = convert_2compInt_to_sInt(parameters2D[region][0], 16);
-        parameters2D[region][2] = convert_2compInt_to_sInt(parameters2D[region][2], 16);
     }
 
     return parameters2D;
@@ -317,7 +314,7 @@ function setDMX_a(col_p, a_p) {
     }
 
     const valMin = 0;
-    const valMax = 1 - 1/Math.pow(2, 16);
+    const valMax = (Math.pow(2, 16) - 1) / Math.pow(2, 16);
     var values = [DMX_NB_PIX_PER_COL];
     for (var pix=0; pix<DMX_NB_PIX_PER_COL; pix++) {
         if ((a_p[pix] < valMin) || (a_p[pix] > valMax)) {
@@ -359,14 +356,13 @@ function setDMX_sqm_inputGain(col_p, input_gain_p) {
         return;
     }
 
-    const valMin = -Math.pow(2, 4);
-    const valMax = Math.pow(2, 4) - 1/Math.pow(2,12);
+    const valMin = -Math.pow(2, 15) / Math.pow(2, 12);
+    const valMax = (Math.pow(2,15) - 1) / Math.pow(2,12);
     if ((input_gain_p < valMin) || (input_gain_p > valMax)) {
         print("ERROR, gain value is incorrect!  --> " + input_gain_p);
         return;
     }
-    input_gain_p = Math.round(input_gain_p * Math.pow(2,12));
-	const value = convert_sInt_to_2compInt(input_gain_p, 16);
+    const value = Math.round(input_gain_p * Math.pow(2,12));
     const reg_address = ADD_DMX_MUX_SQ_INPUT_GAIN | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXWriteRegister(reg_address, value);
 }
@@ -385,7 +381,7 @@ function readDMX_sqm_inputGain(col_p) {
     const reg_address = ADD_DMX_MUX_SQ_INPUT_GAIN | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");
-	value = convert_2compInt_to_sInt(DMX_registers[reg_address], 16);
+	value = DMX_registers[reg_address];
     return value / Math.pow(2,12);
 }
 
@@ -401,15 +397,14 @@ function setDMX_sqa_inputGain(col_p, input_gain_p) {
         return;
     }
 
-    const valMin = -Math.pow(2, 4);
-    const valMax = Math.pow(2, 4) - 1/Math.pow(2,12);
+    const valMin = -Math.pow(2, 15) / Math.pow(2, 12);
+    const valMax = (Math.pow(2,15) - 1) / Math.pow(2,12);
     if ((input_gain_p < valMin) || (input_gain_p > valMax)) {
         print("ERROR, gain value is incorrect!  --> " + input_gain_p);
         return;
     }
 
-    input_gain_p = Math.round(input_gain_p * Math.pow(2,12));
-	const value = convert_sInt_to_2compInt(input_gain_p, 16);
+    const value = Math.round(input_gain_p * Math.pow(2,12));
     const reg_address = ADD_DMX_AMP_SQ_INPUT_GAIN | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXWriteRegister(reg_address, value);
 }
@@ -428,8 +423,7 @@ function readDMX_sqa_inputGain(col_p) {
     const reg_address = ADD_DMX_AMP_SQ_INPUT_GAIN | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");
-	value = convert_2compInt_to_sInt(DMX_registers[reg_address], 16);
-
+	value = DMX_registers[reg_address];
     return value / Math.pow(2,12);
 }
 
@@ -452,7 +446,7 @@ function setDMX_sqm_kiknorm(col_p, kiknorm_p) {
     }
 
     const valMin = 0;
-    const valMax = 1 - 1/Math.pow(2, 16);
+    const valMax = (Math.pow(2,16) - 1) / Math.pow(2, 16);
     var values = [DMX_NB_PIX_PER_COL];
     for (var pix=0; pix<DMX_NB_PIX_PER_COL; pix++) {
         if ((kiknorm_p[pix] < valMin) || (kiknorm_p[pix] > valMax)) {
@@ -502,7 +496,7 @@ function setDMX_sqa_kiknorm(col_p, kiknorm_p) {
     const reg_address = ADD_DMX_AMP_SQ_KIKNORM | (col_p << ADD_DMX_COL_BIT_SHIFT);
 
     const valMin = 0;
-    const valMax = 1 - 1/Math.pow(2,16);
+    const valMax = (Math.pow(2,16) - 1) / Math.pow(2, 16);
     if ((kiknorm_p < valMin) || (kiknorm_p > valMax)) {
         print("ERROR, value of AMP_SQ_KIKNORM for col " + col_p + " is incorrect!  --> " + kiknorm_p);
         return;
@@ -638,8 +632,8 @@ function setDMX_fb0(col_p, fb0_p) {
     }
     const reg_address = ADD_DMX_MUX_SQ_FB0 | (col_p << ADD_DMX_COL_BIT_SHIFT);
 
-    const valMin = -Math.pow(2,13);
-    const valMax = Math.pow(2,13) - 1/Math.pow(2, 2);
+    const valMin = -Math.pow(2,15) / Math.pow(2, 2);
+    const valMax = (Math.pow(2,15) - 1) / Math.pow(2, 2);
     var values = [DMX_NB_PIX_PER_COL];
     for (var pix=0; pix<DMX_NB_PIX_PER_COL; pix++) {
         if ((fb0_p[pix] < valMin) || (fb0_p[pix] > valMax)) {
@@ -647,7 +641,6 @@ function setDMX_fb0(col_p, fb0_p) {
             return;
         }
         values[pix] = Math.round(fb0_p[pix] * Math.pow(2, 2));
-		values[pix] = convert_sInt_to_2compInt(values[pix], 16);
 	}
 
     sendToDMXWriteMultiRegisters(reg_address, DMX_NB_PIX_PER_COL, values);
@@ -668,7 +661,7 @@ function readDMX_fb0(col_p) {
     getLatestValue("DMX_registers");
     var values = DMX_registers.slice(reg_address, reg_address+DMX_NB_PIX_PER_COL);
     for (var pix=0; pix<DMX_NB_PIX_PER_COL; pix++) {
-        values[pix] = convert_2compInt_to_sInt(values[pix], 16) / 4;
+        values[pix] = values[pix] / Math.pow(2, 2);
     }
     return values;
 }
@@ -691,16 +684,15 @@ function setDMX_lockpointV(col_p, lockpointV_p) {
         return;
     }
 
-    const valMin = -Math.pow(2, 14);
-    const valMax = Math.pow(2, 14) - 1/4;
+    const valMin = -Math.pow(2, 15) / Math.pow(2, 2);
+    const valMax = (Math.pow(2, 15) - 1) / Math.pow(2, 2);
     var values = [lockpointV_p.length];
     for (var pix=0; pix<DMX_NB_PIX_PER_COL; pix++) {
         if ((lockpointV_p[pix] < valMin) || (lockpointV_p[pix] > valMax)) {
             print("ERROR, LockpointV value for col " + col_p + " pixel " + pix + " is incorrect!  --> " + lockpointV_p[pix]);
             return;
         }
-        values[pix] = Math.round(lockpointV_p[pix] * 4);
-        values[pix] = convert_sInt_to_2compInt(values[pix], 16);
+        values[pix] = Math.round(lockpointV_p[pix] * Math.pow(2, 2));
     }
 
     sendToDMXWriteMultiRegisters(reg_address, DMX_NB_PIX_PER_COL, values);
@@ -721,7 +713,7 @@ function readDMX_lockpointV(col_p) {
     getLatestValue("DMX_registers");
     var values = DMX_registers.slice(reg_address, reg_address+DMX_NB_PIX_PER_COL);
     for (var pix=0; pix<DMX_NB_PIX_PER_COL; pix++) {
-        values[pix] = convert_2compInt_to_sInt(values[pix], 16) / 4;
+        values[pix] = values[pix] / Math.pow(2, 2);
     }
 
     return values;
