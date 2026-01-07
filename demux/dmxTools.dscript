@@ -222,6 +222,9 @@ function readDMX_testPattern() {
     var parameters2D = [];  // parameters in a 2D array
     for (var region=0; region<DMX_TEST_PATTERN_NBREGIONS; region++) {
         parameters2D[region] = tp.slice(region*DMX_TEST_PATTERN_NBPARAMS, (region+1)*DMX_TEST_PATTERN_NBPARAMS);
+        // conversion of 2'complemented values to signed values
+        parameters2D[region][0] = convert_2compInt_to_sInt(parameters2D[region][0], 16);
+        parameters2D[region][2] = convert_2compInt_to_sInt(parameters2D[region][2], 16);
     }
 
     return parameters2D;
@@ -381,7 +384,7 @@ function readDMX_sqm_inputGain(col_p) {
     const reg_address = ADD_DMX_MUX_SQ_INPUT_GAIN | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");
-	value = DMX_registers[reg_address];
+	value = convert_2compInt_to_sInt(DMX_registers[reg_address], 16);
     return value / Math.pow(2,12);
 }
 
@@ -423,7 +426,7 @@ function readDMX_sqa_inputGain(col_p) {
     const reg_address = ADD_DMX_AMP_SQ_INPUT_GAIN | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");
-	value = DMX_registers[reg_address];
+	value = convert_2compInt_to_sInt(DMX_registers[reg_address], 16);
     return value / Math.pow(2,12);
 }
 
@@ -661,7 +664,7 @@ function readDMX_fb0(col_p) {
     getLatestValue("DMX_registers");
     var values = DMX_registers.slice(reg_address, reg_address+DMX_NB_PIX_PER_COL);
     for (var pix=0; pix<DMX_NB_PIX_PER_COL; pix++) {
-        values[pix] = values[pix] / Math.pow(2, 2);
+        values[pix] = convert_2compInt_to_sInt(values[pix], 16) / Math.pow(2, 2);
     }
     return values;
 }
@@ -713,7 +716,7 @@ function readDMX_lockpointV(col_p) {
     getLatestValue("DMX_registers");
     var values = DMX_registers.slice(reg_address, reg_address+DMX_NB_PIX_PER_COL);
     for (var pix=0; pix<DMX_NB_PIX_PER_COL; pix++) {
-        values[pix] = values[pix] / Math.pow(2, 2);
+        values[pix] = convert_2compInt_to_sInt(values[pix], 16) / Math.pow(2, 2);
     }
 
     return values;
