@@ -17,54 +17,45 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     ras_address_sequence.dscript
+//    @file                     tc1_icu_selection.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
-//    This script tests the setting of address sequences.
+//    This script checks the ICU selection command for the RAS.
 //
 // -------------------------------------------------------------------------------------------------------------
 
 // imports
-include("../includes/common/utilTools.dscript");
-include("../includes/common/constants.dscript");
 include("../includes/ras/rasTools.dscript");
 include("../includes/ras/rasRegAddresses.dscript");
-include("../includes/ras/rasSequences.dscript");
+
+include("../includes/common/utilTools.dscript");
 
 
 /**
- * Checks the setting of the address sequences
+ * Tests the icu selection command
  */
-function ras_address_sequence() {
+function tc1_icu_select() {
 
     plotLongLine();
-    print("* Checking the setting of the address sequences...");
-    print(" ");
+    print("* Testing the ICU selection...");
 
-    answer = getText("Address sequence should be the default one (y/n)", " ");
-	print("  => " + answer);
+    print(TAB1 + "Selecting ICU redundant");
+    sendToTMTC_selectICU(ICURed);
+    waitMs(2000); // waiting so that the FPGA starts
+    print(TAB1 + "Reading the firmware Id");
+    readRAS_firmwareVersion(true);
+    print("");
+    print(TAB1 + "Selecting ICU main");
+    sendToTMTC_selectICU(ICUMain);
+    waitMs(2000); // waiting so that the FPGA starts
+    print(TAB1 + "Reading the firmware Id");
+    readRAS_firmwareVersion(true);
 
-    setRAS_seqMode(OFF);
-    setRAS_fullSequence(seqAllOnes);
-    setRAS_seqMode(ON);
-    answer = getText("All address lines should be set to 1 (y/n)", " ");
-	print("  => " + answer);
-
-
-    setRAS_seqMode(OFF);
-    setRAS_addressSequence(3, 0x555555555555);
-    setRAS_seqMode(ON);
-    answer = getText("PS3 address line should be 010101...  (y/n)", " ");
-	print("  => " + answer);
-
-
-    print(TAB1 + "Setting sequence OFF");
-    setRAS_seqMode(OFF);
 }
 
-rasInit();
-ras_address_sequence();
+
+tc1_icu_select();
 
 print("End of script");
 /**********************************************************************************************************************/

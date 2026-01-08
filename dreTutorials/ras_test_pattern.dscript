@@ -26,11 +26,11 @@
 // -------------------------------------------------------------------------------------------------------------
 
 // imports
-include("../common/utilTools.dscript");
-include("../common/constants.dscript");
-include("../ras/rasTools.dscript");
-include("../ras/rasRegAddresses.dscript");
-include("../ras/rasSequences.dscript");
+include("../includes/common/utilTools.dscript");
+include("../includes/common/constants.dscript");
+include("../includes/ras/rasTools.dscript");
+include("../includes/ras/rasRegAddresses.dscript");
+include("../includes/ras/rasSequences.dscript");
 
 
 /**

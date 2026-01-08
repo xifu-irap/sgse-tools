@@ -17,11 +17,13 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     dmx_testPatternAcqMode.dscript
+//    @file                     ampSquidDacTest_bis.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
-//    This file tests the test pattern acquisition mode of the DEMUX.
+//    This file tests the Amp SQUID DACs of the DMX boards.
+//    It does an infinite sequence over 2 settings on the DAC Offset.
+//    This allows to check the DAC's SPI signals along long durations with the oscilloscope or on Xifu Studio
 //
 // -------------------------------------------------------------------------------------------------------------
 
@@ -32,58 +34,66 @@ include("../includes/demux/dmxTools.dscript");
 include("../includes/demux/dmxRegAddresses.dscript");
 
 /**
- * This function activates the test pattern and the science link
+ * This function does an infinite sequence over 2 values with the ofco LSB DAC
  */
 function testSequence() {
 
-    // Setting the testPattern to a rising slope
-    const a = -1*Math.pow(2, 15);
-    const b = 0;
-    const c = Math.pow(2,6);
-    const N = Math.pow(2,10) - 1;
-    const sawPattern = [
-        [a, b, c, N],  // Slope upward
-        [a/2, b, c/2, N],  // Slope upward
-        [0, 0, 0, 0],  // Nothing
-        [0, 0, 0, 0],  // Nothing
-        [0, 0, 0, 0]  // Nothing
-    ];
-    setDMX_testPattern(sawPattern);
-	setDMX_dataAcqMode(ACQ_MODE_TSTPATTERN);
+	const offsetCoarse = OFFSET_COARSE_ADU_MIN;
 
-    const durationMs = 800;
-    sendToDMXSaveScienceRaw("tptAcqMode", durationMs, 0xF, 0);
-	waitMs(100);  // To not miss first data
+	const offsetFine = [  // 34 3-bit values
+	   0, 7, 7, 7, 7, 7, 7, 7,
+	   7, 7, 7, 7, 7, 7, 7, 7,
+	   7, 7, 7, 7, 7, 7, 7, 7,
+	   7, 7, 7, 7, 7, 7, 7, 7,
+	   7, 7
+	];
 
+
+	const offsetMUX_delay = -4;  // to be tunned by test with scripts
+
+	const sampling_delay = 17;
+
+    // Switching ON the columns one by one
+    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
 	
-	// Starting the test pattern
-	var enable = true;
-    var infinitely = true;
-    var nbTime = 0xF;
-    setDMX_testPatternEnable(enable, infinitely, nbTime);
+	// Setting the offset mode to OFFSET for all the columns
+	setDMX_offsetMode([OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET]);
 
-	waitMs(durationMs+100);
+	// Setting the Offset fine, the offset coarse and the delays
+	for (var col = 0; col < DMX_NB_COL; col++) {
+		setDMX_sqa_OffsetCoarse(col, offsetCoarse);
+		setDMX_sqa_OffsetFine(col, offsetFine, offsetFine);
+		setDMX_offsetMUX_delay(col, offsetMUX_delay);
+		setDMX_sampling_delay(col, sampling_delay);
+	}
+
+	// Activating data acquisition in Error mode
+	sendToDMXGoToErrorSignalMode();
+	
+	// Setting the offset LSB in an infinite sequence
+	print("Setting the offset LSB of some pixels to 2 values in an infinite sequence");
+	print("Press -Abort- to stop the script");
+	while(true) {
+		for (col = 0; col < DMX_NB_COL; col++) setDMX_sqa_OffsetLSB(col, Math.pow(2, 12)-1);
+		waitMs(1000);
+
+		for (col = 0; col < DMX_NB_COL; col++) setDMX_sqa_OffsetLSB(col, Math.pow(2, 10)-1);
+		waitMs(1000);
+	}
 }
 
-function startSession(sessionName) {
-    // Init CDIF IRAP
-    sendToTMTC_SetWireIn(0, 1);
-    sendToTMTC_SetWireIn(0, 0);
-    sendToTMTC_SetWireIn(0, 2);
-    sendStartNewSession(sessionName, "");
-}
-
+/**
+ * This function is called when the script is aborted
+ */
 function onAbortScript() {
-    setDMX_testPatternEnable(false, false, 0);
-	sendStopSession();
 	sendToDMXGoToIdleMode();
+	setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
+
 	print("End of script!");
 }
 
 // -------------------------------------------------------------------------------------------------------------
 
-startSession("check_tptAcqMode");
 testSequence();
-onAbortScript();
 
 // -------------------------------------------------------------------------------------------------------------

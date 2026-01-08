@@ -17,7 +17,7 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     dmx_muxSquidDacTest.dscript
+//    @file                     muxSquidDacTest_4_debug.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
@@ -26,50 +26,83 @@
 // -------------------------------------------------------------------------------------------------------------
 
 // imports
-include("../includes/common/utilTools.dscript");
-include("../includes/common/constants.dscript");
 include("../includes/demux/dmxTools.dscript");
 include("../includes/demux/dmxRegAddresses.dscript");
 include("../includes/demux/dmxHk.dscript");
+include("../includes/common/utilTools.dscript");
+include("../includes/common/constants.dscript");
 
 /**
  * This function activates the Mux SQUID and outputs the FB0 set of values or the test pattern
- * @param {number} fbMode - id of the pulse shaping set [0; 3]
- * @param {number} fb_delay_p - feedback delay [-512, +40]
- * @param {number} plsIndex - feedback mode (FEEDBACK_MODE_OPEN_LOOP or FEEDBACK_MODE_TESTPATTERN)
+ * @param {number} fbMode - feedback mode (FEEDBACK_MODE_OPEN_LOOP or FEEDBACK_MODE_TESTPATTERN)
  */
-function testSequence(fbMode,fb_delay_p,  plsIndex_p) {
+function testSequence(fbMode) {
 
     // Switching ON the columns
+	// ====== MODIF 1  LR 16/07/2025
     setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
+    //setDMX_safeFeedbackOnOff([OFF, OFF, OFF, ON]);
+	// ====== Fin MODIF 1
 
     // Setting the feedback FB0 values
-	const margin = 1800
-    const minVal = -1*Math.pow(2, 13) + margin;
+    const minVal = -1*Math.pow(2, 13);
     const midVal = 0;
-    const maxVal = Math.pow(2, 13) - (1/Math.pow(2, 2)) - margin;
+    const maxVal = Math.pow(2, 13) - (1/Math.pow(2, 2));
 	
-    const tabFb0_0 = [
+    const tabFb0 = [
         minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
         minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
         minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
         minVal, midVal, maxVal, minVal, midVal, maxVal, minVal
     ];
+    for (var col=0; col<DMX_NB_COL; col++) setDMX_fb0(col, tabFb0);
 
+    // Setting the feedback FB0 values to test problem on D9 (512) on col 1===============================
+	const base1 = 529; // seuil pour voir probleme a 512 sur col 1
+	//const base1 = 550; // seuil pas de probleme sur col 1
+    const minVal1 = base1 + 10;
+    const maxVal1 = base1 + 20;
+	const base1_2 = 529 + 512 + 38; // seuil pour voir probleme a 1024 sur col 1
+    const minVal1_2 = base1_2 + 10;
+    const maxVal1_2 = base1_2 + 20;
 	
-    const tabFb0_1 = [
-        maxVal, minVal, minVal, minVal, minVal, minVal, minVal, minVal, minVal,
-        minVal, minVal, minVal, minVal, minVal, minVal, minVal, minVal, minVal,
-        minVal, minVal, minVal, minVal, minVal, minVal, minVal, minVal, minVal,
-        minVal, minVal, minVal, minVal, minVal, minVal, minVal
-    ];
-    for (var col=0; col<DMX_NB_COL; col++) setDMX_fb0(col, tabFb0_1);
+    // Setting the feedback FB0 values to test problem on col 3===============================
+	//const base2 = 32; // seuil pour voir probleme a 16 sur col 3
+	const base2 = 150; // seuil pour voir probleme a 128 sur col 3
+	//const base2 = 550; // seuil pas de probleme sur col 1
+	//const base2 = 529 + 512 + 40; // seuil pour voir probleme a 1024 sur col 1
+    const minVal2 = base2 + 0;
+    const maxVal2 = base2 + 16;
 
-    // Setting the testPattern to 2 rising slopes
-    const a = -1*Math.pow(2, 15);
-    const b = 0;
-    const c = Math.pow(2,8);
-    const N = Math.pow(2,8) - 1;
+	const Offset = 50;
+    const tabFb0_1 = [
+        maxVal1, minVal1, maxVal1, minVal1, maxVal1, minVal1, maxVal1,
+        Offset,  Offset,  Offset,  Offset,  Offset,  
+		maxVal1_2, minVal1_2, maxVal1_2, minVal1_2, maxVal1_2, minVal1_2, maxVal1_2,
+		Offset, Offset, Offset, Offset,  
+        maxVal2, minVal2, maxVal2, minVal2, maxVal2, minVal2, maxVal2,
+        Offset, Offset, Offset, Offset,  
+    ];
+    for (col=0; col<DMX_NB_COL; col++) setDMX_fb0(col, tabFb0_1);
+
+	const offset2 = 64+30;
+	const v1 = offset2 + 10;
+	const v2 = offset2 + 110;
+    const tabFb0_3 = [
+        v1, v2, v1, v2, v1, v2, v1, v2,
+        v1, v2, v1, v2, v1, v2, v1, v2,
+        v1, v2, v1, v2, v1, v2, v1, v2,
+        v1, v2, v1, v2, v1, v2, v1, v2,
+        v1, v2
+    ];
+    for (col=0; col<DMX_NB_COL; col++) setDMX_fb0(col, tabFb0_3);
+
+
+    // Setting a testPattern to 2 rising slopes
+    var a = -1*Math.pow(2, 15);
+    var b = 0;
+    var c = Math.pow(2,8);
+    var N = Math.pow(2,8) - 1;
     const sawPattern = [
         [a, b, c, N],  // Slope upward
         [a/2, b, c/2, N],  // Slope upward
@@ -77,27 +110,40 @@ function testSequence(fbMode,fb_delay_p,  plsIndex_p) {
         [0, 0, 0, 0],  // Nothing
         [0, 0, 0, 0]  // Nothing
     ];
-
-    const c2 = Math.pow(2,4);
-    const N2 = Math.pow(2,12) - 1;
-	const rampPattern = [
-        [a, b, c2, N2],  // Slope upward
+	
+    // Setting a testPattern to 1 high-res rising slope
+    a = -1*Math.pow(2, 15);
+    b = 0;
+    c = 4;
+    N = Math.floor(Math.pow(2, 16) / c) - 1;
+    const HRRiseRampPattern = [
+        [a, b, c, N],  // Slope upward
         [0, 0, 0, 0],  // Nothing
         [0, 0, 0, 0],  // Nothing
         [0, 0, 0, 0],  // Nothing
         [0, 0, 0, 0]  // Nothing
     ];
-
-    setDMX_testPattern(sawPattern); 
-    //setDMX_testPattern(rampPattern); 
+	
+    // Setting a testPattern to 1 high-res falling slope
+    a = Math.pow(2, 15)-1;
+    b = 0;
+    c = -4;
+    N = Math.floor(Math.pow(2, 16) / -c) - 1;
+    const HRFallRampPattern = [
+        [a, b, c, N],  // Slope upward
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0]  // Nothing
+     ];
+	
+    //setDMX_testPattern(sawPattern); 
+    //setDMX_testPattern(HRRiseRampPattern); 
+    setDMX_testPattern(HRFallRampPattern); 
 
     // Selecting the pulse shaping type (0, 1, 2, 3)
-    print(TAB1 + "Setting the pulse shapping (PULSE_SHAPING_SELECTION) to " + plsIndex_p);
-    for (col=0; col<DMX_NB_COL; col++) setDMX_pulseShapingSelection(col, plsIndex_p);
-
-    // setting the feedback delay (register: MUX_SQ_FB_DELAY)
-    print(TAB1 + "Setting the feedback delay (MUX_SQ_FB_DELAY) to " + fb_delay_p);
-	for (col=0; col<DMX_NB_COL; col++) setDMX_feedback_delay(col, fb_delay_p);
+    var pulseShapingType = 0;
+    for (col=0; col<DMX_NB_COL; col++) setDMX_pulseShapingSelection(col, pulseShapingType);
 
     if (fbMode === FEEDBACK_MODE_OPEN_LOOP) {
         // Setting the feedback modes to "open loop" for all the pixels
@@ -115,63 +161,59 @@ function testSequence(fbMode,fb_delay_p,  plsIndex_p) {
         var infinitely = true;
         var nbTime = 0x9;
         setDMX_testPatternEnable(enable, infinitely, nbTime);
+		
     }
-
-
-    // Saving some data
-    // You need to loop the feedback to the error input to see the feedback in the TM data
-	var answer=getText("Start saving some data?", "");
-
-    // Saving some data in error acquisition mode
+		
+	print("Saving some data");
     sendToDMXGoToErrorSignalMode();
-    const durationMs = 500;
+	sendToDMXGoToDumpMode();
+    const durationMs = 300;
     sendToDMXSaveScienceRaw("feedbackInErrorSignal", durationMs, 0xF, 0);
 	waitMs(durationMs + 100);
 
-    // Saving some data in dump acquisition mode
-    sendToDMXGoToDumpMode();
-
+	// ====== MODIF 2  LR 16/07/2025
+    //sendToDMXGoToIdleMode();
+	// ====== Fin MODIF 2
 
 	var answer=getText("Type enter to finish the test", "");
 }
 
 
 function startSession(sessionName) {
-    // Init CDIF IRAP
-    sendToTMTC_SetWireIn(0, 1);
-    sendToTMTC_SetWireIn(0, 0);
-    sendToTMTC_SetWireIn(0, 2);
     sendStartNewSession(sessionName, "");
 }
+
 
 /**
  * This function is called when the script is aborted
  */
 function onAbortScript() {
 
-    // resetting the set of FB0 values
-    resetTabFB0 = makeArray(DMX_NB_PIX_PER_COL, 0);
-    for (var col=0; col<DMX_NB_COL; col++) setDMX_fb0(col, resetTabFB0);
-
     // de-activating the test pattern
     setDMX_testPatternEnable(false, false, 0);
 
-	sendToDMXGoToIdleMode();
+    // de-activating data acquisition
+    sendToDMXGoToIdleMode();
+
+    // Switching OFF the columns
+    setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
+
+	
+
+	// Resetting the FB0 values
+
+	for (col=0; col<DMX_NB_COL; col++) setDMX_fb0(col, makeArray(DMX_NB_PIX_PER_COL, 0));
+
 	print("End of script!");
 }
 
 // -------------------------------------------------------------------------------------------------------------
 
-startSession("fdbkTest");
+startSession("test_dmx_feedback");
 
-const FEEDBACK_MODE = FEEDBACK_MODE_OPEN_LOOP;
-//const FEEDBACK_MODE = FEEDBACK_MODE_TESTPATTERN;
-
-const PLS_INDEX = 0;  // PLS_INDEX in [0; 3]
-const FB_DELAY = -3;   // FB_DELAY in [-512, +40]
-
-
-testSequence(FEEDBACK_MODE, FB_DELAY, PLS_INDEX);
+// You should uncomment a single of the following lines
+//testSequence(FEEDBACK_MODE_OPEN_LOOP);
+testSequence(FEEDBACK_MODE_TESTPATTERN);
 
 onAbortScript();
 

@@ -17,55 +17,24 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     ras_address_sequence.dscript
+//    @file                     dmxCheckReadWrite.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
-//    This script tests the setting of address sequences.
+//    This file checks the low level commands of the dmx_tools to read/write the DEMUX registers.
 //
 // -------------------------------------------------------------------------------------------------------------
 
 // imports
+include("../includes/demux/dmxTools.dscript");
+include("../includes/demux/dmxRegAddresses.dscript");
+include("../includes/demux/dmxHk.dscript");
 include("../includes/common/utilTools.dscript");
 include("../includes/common/constants.dscript");
-include("../includes/ras/rasTools.dscript");
-include("../includes/ras/rasRegAddresses.dscript");
-include("../includes/ras/rasSequences.dscript");
 
 
 /**
- * Checks the setting of the address sequences
+ * This function tests the read and write to / from the demux registers
  */
-function ras_address_sequence() {
 
-    plotLongLine();
-    print("* Checking the setting of the address sequences...");
-    print(" ");
-
-    answer = getText("Address sequence should be the default one (y/n)", " ");
-	print("  => " + answer);
-
-    setRAS_seqMode(OFF);
-    setRAS_fullSequence(seqAllOnes);
-    setRAS_seqMode(ON);
-    answer = getText("All address lines should be set to 1 (y/n)", " ");
-	print("  => " + answer);
-
-
-    setRAS_seqMode(OFF);
-    setRAS_addressSequence(3, 0x555555555555);
-    setRAS_seqMode(ON);
-    answer = getText("PS3 address line should be 010101...  (y/n)", " ");
-	print("  => " + answer);
-
-
-    print(TAB1 + "Setting sequence OFF");
-    setRAS_seqMode(OFF);
-}
-
-rasInit();
-ras_address_sequence();
-
-print("End of script");
-/**********************************************************************************************************************/
-
+dmxCheckReadWriteRegValues();

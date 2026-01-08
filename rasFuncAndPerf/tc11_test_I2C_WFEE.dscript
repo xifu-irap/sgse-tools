@@ -17,73 +17,73 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     dmx_testPatternAcqMode.dscript
+//    @file                     tc11_test_I2C_WFEE.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
-//    This file tests the test pattern acquisition mode of the DEMUX.
+//    This file is used to debug the problems observed on the RAS SPI interface.
 //
 // -------------------------------------------------------------------------------------------------------------
 
 // imports
+include("../includes/wfee/wfeeTools.dscript");
+
+include("../includes/ras/rasTools.dscript");
+include("../includes/ras/rasRegAddresses.dscript");
+include("../includes/ras/rasSequences.dscript");
+
 include("../includes/common/utilTools.dscript");
 include("../includes/common/constants.dscript");
-include("../includes/demux/dmxTools.dscript");
-include("../includes/demux/dmxRegAddresses.dscript");
+
 
 /**
- * This function activates the test pattern and the science link
+ * This function tests the I2C interface between DRE-RAS and WFEE
+ * @param {number} tst_mode - test mode (either "Send_always", "Write", "Read" or "WriteRead")
  */
-function testSequence() {
+function tst_I2C(tst_mode) {
+	const addr = WFEEBuildAddress("asic0", "col0", "i_tes_bias");
+	const param = 0x55;  // 01010101 in binary
 
-    // Setting the testPattern to a rising slope
-    const a = -1*Math.pow(2, 15);
-    const b = 0;
-    const c = Math.pow(2,6);
-    const N = Math.pow(2,10) - 1;
-    const sawPattern = [
-        [a, b, c, N],  // Slope upward
-        [a/2, b, c/2, N],  // Slope upward
-        [0, 0, 0, 0],  // Nothing
-        [0, 0, 0, 0],  // Nothing
-        [0, 0, 0, 0]  // Nothing
-    ];
-    setDMX_testPattern(sawPattern);
-	setDMX_dataAcqMode(ACQ_MODE_TSTPATTERN);
+	if (tst_mode === "Send_always") {
+		print(TAB1 + "Sending always the same write command:");
+		print(TAB2 + "Address = " + addr.toString(16).toUpperCase());
+		print(TAB2 + "Parameter = " + param.toString(16).toUpperCase());
+		print(TAB1 + "Abort the script to stop...");
+		while(true) sendToWFEEWriteRegister(addr, param);
+	}
 
-    const durationMs = 800;
-    sendToDMXSaveScienceRaw("tptAcqMode", durationMs, 0xF, 0);
-	waitMs(100);  // To not miss first data
+	if (tst_mode === "Write") {
+		print(TAB1 + "Sending a write command:");
+		print(TAB2 + "Address = " + addr.toString(16).toUpperCase());
+		print(TAB2 + "Parameter = " + param.toString(16).toUpperCase());
+		sendToWFEEWriteRegister(addr, param);
+	}
 
-	
-	// Starting the test pattern
-	var enable = true;
-    var infinitely = true;
-    var nbTime = 0xF;
-    setDMX_testPatternEnable(enable, infinitely, nbTime);
+	if (tst_mode === "Read") {
+		print(TAB1 + "Sending a read command:");
+		print(TAB2 + "Address = " + addr.toString(16).toUpperCase());
+		sendToRASReadRegister(addr);
+	}
 
-	waitMs(durationMs+100);
-}
-
-function startSession(sessionName) {
-    // Init CDIF IRAP
-    sendToTMTC_SetWireIn(0, 1);
-    sendToTMTC_SetWireIn(0, 0);
-    sendToTMTC_SetWireIn(0, 2);
-    sendStartNewSession(sessionName, "");
-}
-
-function onAbortScript() {
-    setDMX_testPatternEnable(false, false, 0);
-	sendStopSession();
-	sendToDMXGoToIdleMode();
-	print("End of script!");
+	if (tst_mode === "WriteRead") {
+		print(TAB1 + "Sending a write command:");
+		print(TAB2 + "Address = " + addr.toString(16).toUpperCase());
+		print(TAB2 + "Parameter = " + param.toString(16).toUpperCase());
+		sendToWFEEWriteRegister(addr, param);
+		print(TAB1 + "Sending a read command to the same address");
+		var checked_param = sendToWFEEReadRegister(addr);
+		print(TAB2 + "The returned parameter value is " + checked_param.toString(16).toUpperCase());
+	}
 }
 
 // -------------------------------------------------------------------------------------------------------------
 
-startSession("check_tptAcqMode");
-testSequence();
-onAbortScript();
+//// Uncomment one of the following lines according to the test you want to do
+//const testMode = "Send_always";
+const testMode = "Write";
+//const testMode = "Read";
+//const testMode = "WriteRead";
+
+tst_I2C(testMode);
 
 // -------------------------------------------------------------------------------------------------------------

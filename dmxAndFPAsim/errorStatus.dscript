@@ -17,55 +17,56 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     ras_address_sequence.dscript
+//    @file                     errorStatus.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
-//    This script tests the setting of address sequences.
+//    This file tests handling of the errors on the SPI TMTC link.
 //
 // -------------------------------------------------------------------------------------------------------------
 
 // imports
+include("../includes/demux/dmxTools.dscript");
+include("../includes/demux/dmxRegAddresses.dscript");
+include("../includes/demux/dmxHk.dscript");
 include("../includes/common/utilTools.dscript");
 include("../includes/common/constants.dscript");
-include("../includes/ras/rasTools.dscript");
-include("../includes/ras/rasRegAddresses.dscript");
-include("../includes/ras/rasSequences.dscript");
 
 
-/**
- * Checks the setting of the address sequences
- */
-function ras_address_sequence() {
+// -------------------------------------------------------------------------------------------------------------
 
-    plotLongLine();
-    print("* Checking the setting of the address sequences...");
-    print(" ");
-
-    answer = getText("Address sequence should be the default one (y/n)", " ");
-	print("  => " + answer);
-
-    setRAS_seqMode(OFF);
-    setRAS_fullSequence(seqAllOnes);
-    setRAS_seqMode(ON);
-    answer = getText("All address lines should be set to 1 (y/n)", " ");
-	print("  => " + answer);
-
-
-    setRAS_seqMode(OFF);
-    setRAS_addressSequence(3, 0x555555555555);
-    setRAS_seqMode(ON);
-    answer = getText("PS3 address line should be 010101...  (y/n)", " ");
-	print("  => " + answer);
-
-
-    print(TAB1 + "Setting sequence OFF");
-    setRAS_seqMode(OFF);
+//Check of status error when an Invalid register address is read
+function checkInvalidRegisterAddress() {
+    print("Sending a command to an invalid address: ");
+	const Invalid_address = 0x4300;
+    sendToDMXWriteRegister(Invalid_address, 3);
 }
 
-rasInit();
-ras_address_sequence();
+//Check of status error when a writing command is sent to a read only register
+function checkWriteToReadOnly() {
+    print("Sending a command to a read only register: ");
+    sendToDMXWriteRegister(ADD_DMX_HK_P5V0_ANA, 0x0001);
+}
 
-print("End of script");
-/**********************************************************************************************************************/
+//Check of status error when a parameter is out of range
+function checkParameterOOR() {
+    print("Sending a command with an out-of-range parameter: ");
+    sendToDMXWriteRegister(ADD_DMX_MUX_SQ_FB_DELAY, 0XFFFF);
+}
+
+//----------------------------------------------
+
+//checkInvalidRegisterAddress();
+//checkWriteToReadOnly();
+//checkParameterOOR();
+
+sendToDMXReadRegister(0x460E);
+sendToDMXReadRegister(0x460D);
+
+// Print the DMX HK
+printDMX_HK(true);
+
+// -------------------------------------------------------------------------------------------------------------
+print("Done!");
+
 

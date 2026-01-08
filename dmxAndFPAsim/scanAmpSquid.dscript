@@ -1,0 +1,118 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     samplingDelayAnalysis.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file is used to characterise the timing parameters in the FPAsim + DMX0 configuration.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+include("../includes/demux/dmxTools.dscript");
+include("../includes/demux/dmxRegAddresses.dscript");
+include("../includes/demux/dmxHk.dscript");
+include("../includes/demux/dmxStart.dscript");
+
+include("../includes/fpasim/fpasim/fpasim.dscript");
+include("../includes/fpasim/fpasim_startup.dscript");
+include("../includes/fpasim/fpasim_config.dscript");
+
+include("../includes/fpasim/fpasim/fpasim_tools.dscript");
+include("../includes/fpasim/fpasim/utils_tools.dscript");
+include("../includes/fpasim/fpasim/cdce72010.dscript");
+include("../includes/fpasim/fpasim/ads62p49.dscript");
+include("../includes/fpasim/fpasim/dac3283.dscript");
+include("../includes/fpasim/fpasim/amc7823.dscript");
+
+include("../includes/common/utilTools.dscript");
+include("../includes/common/constants.dscript");
+
+// -------------------------------------------------------------------------------------------------------------
+
+
+// Init CDIF
+sendToTMTC_SetWireIn(0 , 1);
+sendToTMTC_SetWireIn(0 , 0);
+sendToTMTC_SetWireIn(0 , 2);
+
+/*
+  Starting and initializing the FPAsim
+  If the FPAsim function is already enabled nothing is done unless the "force_p" parameter is set to true.
+*/
+fpasimStartup();
+
+/*
+  Configuring the FPAsim
+*/
+fpasimConfig(raDelayOpt, SteadyMode90Fsr);
+//fpasimConfig(raDelayOpt, SteadyMode0);
+
+/*
+ Starting and configuring the DEMUX
+*/
+const pulseShapingSet  = 0;
+const boxcarL = 0;
+const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
+const pattern = "FULL";
+demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSet, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
+
+print(TAB1 + "Setting the test pattern to a SLOW ramp");
+const a1 = -1 * Math.pow(2, 15);
+const b = 3;
+const c = 128;
+const N = 511;
+const a2 = Math.pow(2, 15)-1;
+const shortSawPattern = [
+	[a1, b, c, N],  // Slope upward
+	[a2, b, -c, N],  // Slope downward
+	[0, 0, 0, 0],  // Nothing
+	[0, 0, 0, 0],  // Nothing
+	[0, 0, 0, 0]  // Nothing
+];
+setDMX_testPattern(shortSawPattern);
+	
+print(TAB1+"Setting the DMX offset mode to TEST PATTERN...");
+setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_TESTPATTERN));
+
+print(TAB1 + "Starting data acquisition in ERROR mode...");
+sendToDMXGoToErrorSignalMode();
+
+print(TAB1 + "Activating the test pattern...");
+var enable = true;
+var infinitely = true;
+var nbTime = 0x9;
+setDMX_testPatternEnable(enable, infinitely, nbTime);
+
+waitMs(6000000, true, true, "Acquisition en cours...");
+
+
+// -------------------------------------------------------------------------------------------------------------
+onAbortScript();
+
+function onAbortScript() {
+	sendToDMXGoToIdleMode();
+	print("End of script!");
+}
+
+
+
+
+
