@@ -2,39 +2,71 @@
 
 ---
 
-JavaScript scripts to manage the tests of the DRE DEMUX.
+JavaScript scripts to manage the tests of the DRE and WFEE.
 
-## 1. Directories and files description
+## Directories and files description
 
 ---
 
-  - (dir.) **common**: contains general purpose JavaScripts
-    + (file) **utilTools.dscript**: JavaScript with various utilities
-  - (dir.) **dcdc**: contains tools dedicated to the management of the DRE DCDC converter
-    + (dir.) **python**: contains Pythons scripts dedicated to the test of the DCDC driver
-  - (dir.) **demux**: contains JavaScripts dedicated to the management of the DRE DEMUX
-    + (file) **dmx_check_commands.dscript**: JavaScripts to test the low level commands defined in dmxTools.dscript
-    + (file) **dmxFake.dscript**: JavaScripts faking the DEMUX registers (can be used with dmx_check_commands.dscript)
-    + (file) **dmxHk.dscript**: JavaScripts dedicated to read and convert DMX housekeepings
-    + (file) **dmx_listOfFunctions.md**: list of low level functions available to manage the DEMUX
-    + (file) **dmxRegAddresses.dscript**: definition of the DEMUX register addresses
-    + (file) **dmxTools.dscript**: JavaScripts with low level commands for the DRE DEMUX
-    + (file) **SQA_offset_settings.xlsx**: Excel file to compute the settings of the DEMUX offset compensation signal
-  - (dir.) **dmxTestPlanXX**: contain JavaScripts dedicated to test plan-XX
-  - (dir.) **fpasim**: contains JavaScripts dedicated to the management of the FPAsim EGSE
-    + (dir.) **fpasim**: contains JavaScripts dedicated to the testing of the fpasim firmware
-    + (dir.) **fpasim_default_ram**: contains the default mem files of the fpasim (i.e. transfer functions)
-    + (dir.) **fpasim_specific_ram**: contains some specific mem files that can be used to replace the default ones
-  - (dir.) **main**: high level JavaScripts dedicated to the management of the tests
-    + (file) **launcher.dscript**: main JavaScript which starts the test
-  - (dir.) **ras**: contains JavaScripts dedicated to the management of the DRE RAS
-    + (file) **rasCheckReadWrite.dscript**: JavaScripts to test the low level commands defined in rasTools.dscript
-    + (file) **rasFake.dscript**: JavaScripts faking the RAS registers (can be used with rasCheckReadWrite.dscript)
-    + (file) **rasRegAddresses.dscript**: definition of the RAS register addresses
-    + (file) **rasTools.dscript**: JavaScripts with low commands for the DRE RAS
-  - (dir.) **ras-a75-fw**: JavaScripts dedicated to the management of the RAS proto firmware
-  - (dir.) **tmtc**: JavaScripts dedicated to the management of the tmtc EGSE firmware
-  - (dir.) **wfee**: contains JavaScripts dedicated to the management of the WFEE
-    + (file) **wfeeTools.dscript**: JavaScripts with low commands for the WFEE
+  - (dir.) **configurations**: xml DRE configuration files
+  - (dir.) **dmxAndFPAsim**: Javascripts for coupling tests DEMUX / FPAsim
+    + (file) **carac_knorm.dscript**: 
+    + (file) **compteursRelock.dscript**: 
+    + (file) **errorStatus.dscript**: 
+    + (file) **FPSsim_startup.dscript**: 
+    + (file) **lockAmpSquid.dscript**: 
+    + (file) **lockMuxSquid.dscript**: 
+    + (file) **scanAmpSquid.dscript**: 
+    + (file) **scanSquids.dscript**: 
+    + (file) **timingsSettings.dscript**:
+  - (dir.) **dmxElec**: Javascripts for electrical tests of the DEMUX
+    + (file) **ampSquidDacTest.dscript**: Javascript to test the OFCO output chain 
+    + (file) **muxSquidDacTest.dscript**: Javascript to test the FDBK output chain (+ ERROR chain)
+  - (dir.) **dmxFuncAndPerf**: JavaScripts for the functional and performance tests of the DRE DEMUX module
+    + (file) **bandShape_error**: Javascript to characterize the bandshape of the ERROR input
+    + (file) **bandShape_fdbk**: Javascript to characterize the bandshape of the FEEDBACK output
+    + (file) **dmxCheckDefaultRegValues.dscript**: JavaScripts to test default values of the TDM firmware registers
+    + (file) **dmxCheckReadWriteRegValues.dscript**: JavaScripts to test read/write of the TDM firmware registers
+    + (file) **dmxCheckTC**: Javascript to test the error handling on the SPI link
+    + (file) **dmxCheckTM**: Javascript to test the different DEMUX TM modes
+    + (file) **fdbkDelayAnalysis**: Javascript to characterize the feedback delay
+    + (file) **linearity_fdbkAndError.dscript**: Javascript to characterize the NL of feedback + Error signals
+    + (file) **linearity_ofcoAndError.dscript**: Javascript to characterize the NL of ofco + Error signals
+    + (file) **noiseAnalysis.dscript**: Javascript to characterize DEMUX noise
+    + (file) **samplingDelayAnalysis.dscript**: Javascript to characterize the sampling delay
+    + (file) **testTstPatternAcqMode.dscript**: Javascript to check the behaviour of the test pattern acquisition mode
+    + (file) **tstSquidSim**: Javascript to use the DEMUX module with the SQUIDsim EGSE
+    + (file) **XTalkAnalysis**: Javascript to characterize the crosstalk of the DEMUX module
+  - (dir.) **includes**: low-level tools to be included in high-level scripts
+    - (dir.) **common**: general purpose JavaScripts
+      + (file) **constants.dscript**: Javascripts defining constants 
+      + (file) **utilTools.dscript**: JavaScript with various utilities
+    - (dir.) **dcdc**: tools for the management of the DRE DCDC converter
+      + (dir.) **python**: Pythons scripts for the test of the DCDC driver
+    - (dir.) **demux**: JavaScripts to drive the DRE DEMUX module
+      + (file) **dmxCheckDefaults.dscript**: JavaScripts to test default values of the TDM firmware registers
+      + (file) **dmxCheckReadWrite.dscript**: JavaScripts to test read/write of the TDM firmware registers
+      + (file) **dmxHk.dscript**: JavaScripts to read and convert DMX housekeepings
+      + (file) **dmx_listOfFunctions.md**: list of low level functions available to manage the DEMUX
+      + (file) **dmxRegAddresses.dscript**: definition of the DEMUX register addresses
+      + (file) **dmxStart.dscript**: JavaScripts to start the DEMUX
+      + (file) **dmxTools.dscript**: JavaScripts with low level commands for the DRE DEMUX
+      + (file) **SQA_offset_settings.xlsx**: Excel file to compute the settings of the DEMUX offset compensation signal
+    - (dir.) **equipments**: JavaScripts to drive test equipements (oscilooscopes, ...)
+    - (dir.) **fpasim**: JavaScripts to drive the FPAsim EGSE
+      + (dir.) **fpasim**: contains JavaScripts dedicated to the testing of the fpasim firmware
+      + (dir.) **fpasim_default_ram**: contains the default mem files of the fpasim (i.e. transfer functions)
+      + (dir.) **fpasim_specific_ram**: contains some specific mem files that can be used to replace the default ones
+    - (dir.) **ras**: JavaScripts to drive the DRE RAS module
+      + (file) **rasCheckReadWrite.dscript**: JavaScripts to test the low level commands defined in rasTools.dscript
+      + (file) **rasRegAddresses.dscript**: definition of the RAS register addresses
+      + (file) **rasSequences.dscript**: JavaScripts to define some row address sequences
+      + (file) **rasTools.dscript**: JavaScripts with low commands for the DRE RAS
+    - (dir.) **ras-a75-fw**: JavaScripts to drive the DRE RAS PROTOTYPE module
+    - (dir.) **tmtc**: JavaScripts to drive the CDIF firmware
+    - (dir.) **wfee**: JavaScripts to drive the WFEE through the DRE RAS module
+      + (file) **wfeeTools.dscript**: JavaScripts with low commands for the WFEE
+  - (dir.) **rasFuncAndPerf**: JavaScripts for the functional and performance tests of the DRE RAS module
+  - (file) **README.md**: this file
 
 ---

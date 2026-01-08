@@ -27,6 +27,7 @@
 
 // imports
 include("../includes/demux/dmxTools.dscript");
+include("../includes/demux/dmxCheckReadWrite.dscript");
 include("../includes/demux/dmxRegAddresses.dscript");
 include("../includes/demux/dmxHk.dscript");
 include("../includes/common/utilTools.dscript");
@@ -37,4 +38,4 @@ include("../includes/common/constants.dscript");
  * This function tests the read and write to / from the demux registers
  */
 
-dmxCheckReadWriteRegValues();
+dmxCheckReadWrite();
