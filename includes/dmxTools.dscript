@@ -1308,8 +1308,8 @@ function readDMX_hardwareVersion(verbose_p) {
     const boardReference = hardwareVersion & 0x1F;
     if (verbose_p) {
         print("DEMUX hardware version is:");
-        print(TABUL + "Model reference: " + DMX_MODEL_VERSION[modelReference]);
-        print(TABUL + "Board reference: " + to_hexaString(boardReference));
+        print(TAB1 + "Model reference: " + DMX_MODEL_VERSION[modelReference]);
+        print(TAB1 + "Board reference: " + to_hexaString(boardReference));
     }
 	return [modelReference, boardReference];
 }
@@ -1324,7 +1324,7 @@ function readDMX_delockFlag(verbose_p) {
     sendToDMXReadRegister(ADD_DMX_DELOCK_FLAG);
     getLatestValue("DMX_registers");
     const delockFlag = DMX_registers[ADD_DMX_DELOCK_FLAG];
-    if (verbose_p) print("Delock flag is: " + to_hexaString(delockFlag));
+    if (verbose_p) print(TAB2 + "Delock flag is: " + to_hexaString(delockFlag));
     return delockFlag;
 }
 

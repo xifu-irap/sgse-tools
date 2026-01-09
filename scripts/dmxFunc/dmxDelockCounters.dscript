@@ -77,9 +77,10 @@ function delockCountersSaturation(colId_p) {
 	
 	print(TAB1 + "Setting feedback off  / should reset the delock counters and delock flag...");
 	setFeedbacksOff();
-	
 	readDMX_delockFlag(true);
 	print(TAB2 + "Delock counters: " + readDMX_delockCounters(colId_p));
+
+	plotSmallLine();
 
 	print(TAB1 + "Setting feedback on (new delocks should occur)");
 	setFeedbackOn(colId_p);
@@ -90,13 +91,15 @@ function delockCountersSaturation(colId_p) {
 	readDMX_delockFlag(true);
 	print(TAB2 + "Delock counters: " + readDMX_delockCounters(colId_p));
 
+	print(TAB1 + "Resetting delock_counters and delock flag of col " + colId_p + " to 0");
+	setDMX_delockCounters(colId_p, 0x0000);
+
+	plotSmallLine();
+
 	print(TAB1 + "Setting delock_delay and delock_threshold at highest values... (should stop the delocks)");
 	setDMX_relock_delay(colId_p, 0xFFFF);
 	setDMX_relock_threshold(colId_p, 0xFFFF);
 	
-	print(TAB1 + "Setting delock_counter registers to 0");
-	setDMX_delockCounters(colId_p, 0x0000);
-
 	print(TAB1 + "Waiting " + duration_ms/1000 + " seconds");
 	waitMs(duration_ms); // Delock counter should saturate
 

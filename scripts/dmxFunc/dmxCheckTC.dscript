@@ -79,6 +79,7 @@ function dmxTCCheck() {
     var ERROR_CODE = SPI_ERROR_PARAMETER_OUT_OF_RANGE;
     makeTCError(ERROR_NAME, ADDRESS, VALUE, ERROR_CODE);
 
+    print("End of test");
 }
 
 // ----- Running the test
