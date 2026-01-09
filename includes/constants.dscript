@@ -17,69 +17,37 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     testTstPatternAcqMode.dscript
+//    @file                    constants.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
-//    This file tests the test pattern acquisition mode.
+//    This file defines the constants which are common for the different scripts.
 //
 // -------------------------------------------------------------------------------------------------------------
 
-// imports
-include("../includes/demux/dmxTools.dscript");
-include("../includes/demux/dmxRegAddresses.dscript");
-include("../includes/demux/dmxHk.dscript");
-include("../includes/common/utilTools.dscript");
-include("../includes/common/constants.dscript");
+// Common for the project
+const ON = 1;
+const OFF = 0;
+const TABUL = "   ";
 
-/**
- * This function activates the test pattern and the science link
- */
-function testSequence() {
+// For DEMUX only
+const NB_SAMPLES_PER_PIX = 20;
+const DMX_NB_COL = 4;
+const DMX_NB_PIX_PER_COL = 34;
+const DMX_PULSESHAPING_NBVALUES = 20;
+const DMX_TEST_PATTERN_NBPARAMS = 4;
+const DMX_TEST_PATTERN_NBREGIONS = 5;
 
-    // Setting the testPattern to a rising slope
-    const a = -1*Math.pow(2, 15);
-    const b = 0;
-    const c = Math.pow(2,6);
-    const N = Math.pow(2,10) - 1;
-    const sawPattern = [
-        [a, b, c, N],  // Slope upward
-        [a/2, b, c/2, N],  // Slope upward
-        [0, 0, 0, 0],  // Nothing
-        [0, 0, 0, 0],  // Nothing
-        [0, 0, 0, 0]  // Nothing
-    ];
-    setDMX_testPattern(sawPattern);
-    sendToDMXGoToTestPatternMode();
-
-    const durationMs = 800;
-    sendToDMXSaveScienceRaw("tptAcqMode", durationMs, 0xF, 0);
-	waitMs(100);  // To not miss first data
-
-	// Starting the test pattern
-	var enable = true;
-    var infinitely = true;
-    var nbTime = 0xF;
-    setDMX_testPatternEnable(enable, infinitely, nbTime);
-
-	waitMs(durationMs+100);
-}
-
-function startSession(sessionName) {
-    sendStartNewSession(sessionName, "");
-}
-
-function onAbortScript() {
-    setDMX_testPatternEnable(false, false, 0);
-	sendStopSession();
-	sendToDMXGoToIdleMode();
-	print("End of script!");
-}
-
-// -------------------------------------------------------------------------------------------------------------
-
-startSession("check_tptAcqMode");
-testSequence();
-onAbortScript();
+// For DEMUX and RAS modules
+// SPI error codes
+const SPI_ERROR_NONE = 0xFFFF;
+const SPI_ERROR_INVALID_REGISTER_ADDRESS = 0x7FFF;
+const SPI_ERROR_DATA_NOT_COMPLETE = 0xBFFF;
+const SPI_ERROR_READ_ONLY_REGISTER = 0xDFFF;
+const SPI_ERROR_PARAMETER_OUT_OF_RANGE = 0xEFFF;
+const SPI_ERROR_PARAMETER_NOT_INITIALIZED = 0xF7FF;
+const SPI_ERROR_COMMAND_INCOMPATIBILITY = 0xFBFF;
+const SPI_ERROR_MODULE_IS_BUSY = 0xFDFF;
+const SPI_ERROR_MODULE_IS_OFF = 0x0000;
 
 // -------------------------------------------------------------------------------------------------------------

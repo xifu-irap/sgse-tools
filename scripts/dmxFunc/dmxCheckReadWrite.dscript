@@ -25,6 +25,10 @@
 //
 // -------------------------------------------------------------------------------------------------------------
 
+// imports
+include("../../includes/dmxTools.dscript");
+include("../../includes/utilTools.dscript");
+
 /**
  * This function tests the read and write to / from the demux registers
  */
@@ -752,3 +756,5 @@ function dmxCheckReadWrite() {
     plotLongLine();
 
 }
+
+dmxCheckReadWrite();

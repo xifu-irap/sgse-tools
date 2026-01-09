@@ -28,24 +28,11 @@
 
 
 // imports
-include("../includes/demux/dmxTools.dscript");
-include("../includes/demux/dmxRegAddresses.dscript");
-include("../includes/demux/dmxHk.dscript");
-include("../includes/demux/dmxStart.dscript");
+include("../../includes/dmxTools.dscript");
+include("../../includes/dmxStart.dscript");
 
-include("../includes/fpasim/fpasim/fpasim.dscript");
-include("../includes/fpasim/fpasim_startup.dscript");
-include("../includes/fpasim/fpasim_config.dscript");
-
-include("../includes/fpasim/fpasim/fpasim_tools.dscript");
-include("../includes/fpasim/fpasim/utils_tools.dscript");
-include("../includes/fpasim/fpasim/cdce72010.dscript");
-include("../includes/fpasim/fpasim/ads62p49.dscript");
-include("../includes/fpasim/fpasim/dac3283.dscript");
-include("../includes/fpasim/fpasim/amc7823.dscript");
-
-include("../includes/common/utilTools.dscript");
-include("../includes/common/constants.dscript");
+include("../../includes/common/utilTools.dscript");
+include("../../includes/common/constants.dscript");
 
 function tstSquidSim(col_A_p, fb0_A_p, col_B_p, fb0_B_p) {
 

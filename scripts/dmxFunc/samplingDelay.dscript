@@ -26,13 +26,9 @@
 // -------------------------------------------------------------------------------------------------------------
 
 // imports
-include("../includes/demux/dmxTools.dscript");
-include("../includes/demux/dmxRegAddresses.dscript");
-include("../includes/demux/dmxHk.dscript");
-include("../includes/demux/dmxStart.dscript");
-
-include("../includes/common/utilTools.dscript");
-include("../includes/common/constants.dscript");
+include("../../includes/dmxTools.dscript");
+include("../../includes/utilTools.dscript");
+include("../../includes/dmxStart.dscript");
 
 
 // -------------------------------------------------------------------------------------------------------------

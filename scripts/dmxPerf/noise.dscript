@@ -26,24 +26,22 @@
 // -------------------------------------------------------------------------------------------------------------
 
 // imports
-include("../includes/demux/dmxTools.dscript");
-include("../includes/demux/dmxRegAddresses.dscript");
-include("../includes/demux/dmxHk.dscript");
-include("../includes/demux/dmxStart.dscript");
+include("../../includes/dmxTools.dscript");
+include("../../includes/dmxStart.dscript");
 
-include("../includes/fpasim/fpasim/fpasim.dscript");
-include("../includes/fpasim/fpasim_startup.dscript");
-include("../includes/fpasim/fpasim_config.dscript");
+include("../../includes/fpasim/fpasim/fpasim.dscript");
+include("../../includes/fpasim/fpasim_startup.dscript");
+include("../../includes/fpasim/fpasim_config.dscript");
 
-include("../includes/fpasim/fpasim/fpasim_tools.dscript");
-include("../includes/fpasim/fpasim/utils_tools.dscript");
-include("../includes/fpasim/fpasim/cdce72010.dscript");
-include("../includes/fpasim/fpasim/ads62p49.dscript");
-include("../includes/fpasim/fpasim/dac3283.dscript");
-include("../includes/fpasim/fpasim/amc7823.dscript");
+include("../../includes/fpasim/fpasim/fpasim_tools.dscript");
+include("../../includes/fpasim/fpasim/utils_tools.dscript");
+include("../../includes/fpasim/fpasim/cdce72010.dscript");
+include("../../includes/fpasim/fpasim/ads62p49.dscript");
+include("../../includes/fpasim/fpasim/dac3283.dscript");
+include("../../includes/fpasim/fpasim/amc7823.dscript");
 
-include("../includes/common/utilTools.dscript");
-include("../includes/common/constants.dscript");
+include("../../includes/common/utilTools.dscript");
+include("../../includes/common/constants.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
 //const FB_ONOFF = [OFF, OFF, ON, OFF]; // In order to use only column 2
@@ -58,7 +56,7 @@ const pattern = "FULL";
 
 // -------------------------------------------------------------------------------------------------------------
 
-function noiseAnalysis(fbOnOff_p, signal, fb_Volts) {
+function noise(fbOnOff_p, signal, fb_Volts) {
 
     const sessionName = "noise_" + signal + "_Fb" + fb_Volts + "V";
     startSession(sessionName);
@@ -108,13 +106,13 @@ const analysed_signal = configTab[configId];
 
 if (analysed_signal==="erro-fdbk") {
 	print(TAB2 + "Measurement for Feedback at -0.5V");
-    noiseAnalysis(FB_ONOFF, analysed_signal, -0.5);
+    noise(FB_ONOFF, analysed_signal, -0.5);
 	print(TAB2 + "Measurement for Feedback at 0V");
-    noiseAnalysis(FB_ONOFF, analysed_signal, 0);
+    noise(FB_ONOFF, analysed_signal, 0);
 	print(TAB2 + "Measurement for Feedback at 0.5V");
-    noiseAnalysis(FB_ONOFF, analysed_signal, 0.5);
+    noise(FB_ONOFF, analysed_signal, 0.5);
 }
-else noiseAnalysis(FB_ONOFF, analysed_signal, 0);
+else noise(FB_ONOFF, analysed_signal, 0);
 
 onAbortScript();
 

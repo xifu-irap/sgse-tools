@@ -25,6 +25,10 @@
 //
 // -------------------------------------------------------------------------------------------------------------
 
+// imports
+include("./dmxRegAddresses.dscript");
+include("./constants.dscript");
+
 /**
  * Definition of constants
  */

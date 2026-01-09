@@ -25,6 +25,9 @@
 //
 // -------------------------------------------------------------------------------------------------------------
 
+// imports
+include("../../includes/dmxTools.dscript");
+include("../../includes/utilTools.dscript");
 
 /**
  * This function checks the default values of the demux registers
@@ -514,3 +517,4 @@ function dmxCheckDefaults() {
 
 }
 
+dmxCheckDefaults();

@@ -17,27 +17,25 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     bandShape_fdbk.dscript
+//    @file                     bandShape_error.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
-//    This script is used to characterise the spectral band shape of the feedback signal.
+//    This script is used to characterise the spectral band shape of the error signal.
 //
 // -------------------------------------------------------------------------------------------------------------
 
 // imports
-include("../includes/demux/dmxTools.dscript");
-include("../includes/demux/dmxRegAddresses.dscript");
-include("../includes/demux/dmxHk.dscript");
-include("../includes/demux/dmxStart.dscript");
+include("../../includes/dmxTools.dscript");
+include("../../includes/dmxStart.dscript");
 
-include("../includes/common/utilTools.dscript");
-include("../includes/common/constants.dscript");
+include("../../includes/common/utilTools.dscript");
+include("../../includes/common/constants.dscript");
 
 /**
  *
  */
-function caracFdbkBandShape(short_square_p) {
+function caracErrorBandShape() {
 
     print("");
     print("***");
@@ -56,38 +54,54 @@ function caracFdbkBandShape(short_square_p) {
 
     // DEMUX feedback
 	print(TAB1+"Setting the DMX feedback mode to OPEN_LOOP (FB0 -> FEEDBACK output)...");
-	print(TAB1+"Setting the DMX FB0 to -1V / 1V...");
-
-	const Fb0Max = Math.pow(2, 13)-1;
-	const Fb0Min = -1*Math.pow(2, 13);
-    const Fb01 = [Fb0Min, Fb0Max, Fb0Min, Fb0Max, Fb0Min, Fb0Max, Fb0Min, Fb0Max, Fb0Min, Fb0Max, Fb0Min, Fb0Max, Fb0Min, Fb0Max, Fb0Min, Fb0Max, Fb0Min,  
-						Fb0Max, Fb0Min, Fb0Max, Fb0Min, Fb0Max, Fb0Min, Fb0Max, Fb0Min, Fb0Max, Fb0Min, Fb0Max, Fb0Min, Fb0Max, Fb0Min, Fb0Max, Fb0Min, Fb0Max];
-						
-    const Fb02 = [Fb0Min, Fb0Min, Fb0Min, Fb0Min, Fb0Min, Fb0Min, Fb0Min, Fb0Min, Fb0Min, Fb0Min, Fb0Min, Fb0Min, Fb0Min, Fb0Min, Fb0Min, Fb0Min, Fb0Min,  
-						Fb0Max, Fb0Max, Fb0Max, Fb0Max, Fb0Max, Fb0Max, Fb0Max, Fb0Max, Fb0Max, Fb0Max, Fb0Max, Fb0Max, Fb0Max, Fb0Max, Fb0Max, Fb0Max, Fb0Max];
-
-	print(TAB1 + "Setting a square shape in the FB0 values");
-
-	print(TAB1 + "Setting the feedback to Open loop (FB0 => output)");
-
-	fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
-
+	print(TAB1+"Setting the DMX FB0 to -0.5V for pixels 0 to 16 and to 0.5V for the others...");
+    var fb = makeArray(DMX_NB_PIX_PER_COL, -1*Math.pow(2, 12));
+	for (var pix=17; pix<DMX_NB_PIX_PER_COL; pix++) fb[pix] = Math.pow(2, 12);
 	for (var col=0; col<DMX_NB_COL; col++) {
-		if (short_square_p) setDMX_fb0(col, Fb01);
-		else setDMX_fb0(col, Fb02)
-		setDMX_sqm_FBMode(col, fbMode);
+		setDMX_fb0(col, fb);
+		setDMX_sqm_FBMode(col, makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP));
 	}
+	print("");
+
+	// Doing several dump files (will be averaged during data processing
+	var answer=getText("Type enter to measure dump files and finish the test", "");
+
+	nbDumpFiles = 32;
+	print(TAB1+"Measuring " + nbDumpFiles + " dump files...");
+	for (var i = 0; i<nbDumpFiles; i++) sendToDMXGoToDumpMode();
 
 }
 
-const short_square = true;  // Square period is 2 pixels
-//const short_square = false; // Square period is 1 frame
 
-caracFdbkBandShape(short_square);
+function startSession(sessionName) {
+    sendStartNewSession(sessionName, "");
+}
+
+
+/**
+ * This function is called when the script is aborted
+ */
+function onAbortScript() {
+
+    // de-activating data acquisition
+    sendToDMXGoToIdleMode();
+
+    // Switching OFF the columns
+    setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
+
+	print("End of script!");
+}
 
 // -------------------------------------------------------------------------------------------------------------
 
-print("End of script!");
+sessionName = "caracErrorBandShape";
+startSession(sessionName);
+
+caracErrorBandShape();
+
+onAbortScript();
+
+// -------------------------------------------------------------------------------------------------------------
 
 
 

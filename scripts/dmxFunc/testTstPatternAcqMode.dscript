@@ -17,25 +17,66 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     dmxCheckReadWrite.dscript
+//    @file                     testTstPatternAcqMode.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
-//    This file checks the low level commands of the dmx_tools to read/write the DEMUX registers.
+//    This file tests the test pattern acquisition mode.
 //
 // -------------------------------------------------------------------------------------------------------------
 
 // imports
-include("../includes/demux/dmxTools.dscript");
-include("../includes/demux/dmxCheckReadWrite.dscript");
-include("../includes/demux/dmxRegAddresses.dscript");
-include("../includes/demux/dmxHk.dscript");
-include("../includes/common/utilTools.dscript");
-include("../includes/common/constants.dscript");
-
+include("../../includes/dmxTools.dscript");
+include("../../includes/utilTools.dscript");
 
 /**
- * This function tests the read and write to / from the demux registers
+ * This function activates the test pattern and the science link
  */
+function testSequence() {
 
-dmxCheckReadWrite();
+    // Setting the testPattern to a rising slope
+    const a = -1*Math.pow(2, 15);
+    const b = 0;
+    const c = Math.pow(2,6);
+    const N = Math.pow(2,10) - 1;
+    const sawPattern = [
+        [a, b, c, N],  // Slope upward
+        [a/2, b, c/2, N],  // Slope upward
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0]  // Nothing
+    ];
+    setDMX_testPattern(sawPattern);
+    sendToDMXGoToTestPatternMode();
+
+    const durationMs = 800;
+    sendToDMXSaveScienceRaw("tptAcqMode", durationMs, 0xF, 0);
+	waitMs(100);  // To not miss first data
+
+	// Starting the test pattern
+	var enable = true;
+    var infinitely = true;
+    var nbTime = 0xF;
+    setDMX_testPatternEnable(enable, infinitely, nbTime);
+
+	waitMs(durationMs+100);
+}
+
+function startSession(sessionName) {
+    sendStartNewSession(sessionName, "");
+}
+
+function onAbortScript() {
+    setDMX_testPatternEnable(false, false, 0);
+	sendStopSession();
+	sendToDMXGoToIdleMode();
+	print("End of script!");
+}
+
+// -------------------------------------------------------------------------------------------------------------
+
+startSession("check_tptAcqMode");
+testSequence();
+onAbortScript();
+
+// -------------------------------------------------------------------------------------------------------------
