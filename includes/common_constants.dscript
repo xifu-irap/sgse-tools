@@ -28,15 +28,6 @@
 // Common for the project
 const ON = 1;
 const OFF = 0;
-const TABUL = "   ";
-
-// For DEMUX only
-const NB_SAMPLES_PER_PIX = 20;
-const DMX_NB_COL = 4;
-const DMX_NB_PIX_PER_COL = 34;
-const DMX_PULSESHAPING_NBVALUES = 20;
-const DMX_TEST_PATTERN_NBPARAMS = 4;
-const DMX_TEST_PATTERN_NBREGIONS = 5;
 
 // For DEMUX and RAS modules
 // SPI error codes

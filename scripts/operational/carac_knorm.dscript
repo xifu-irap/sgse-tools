@@ -17,41 +17,32 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     samplingDelayAnalysis.dscript
+//    @file                     lockMuxSquid.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
-//    This file is used to characterise the timing parameters in the FPAsim + DMX0 configuration.
+//    This file is used to use the DEMUX and the MUX SQUID of the FPAsim in closed loop mode.
 //
 // -------------------------------------------------------------------------------------------------------------
 
 // imports
-include("../includes/demux/dmxTools.dscript");
-include("../includes/demux/dmxRegAddresses.dscript");
-include("../includes/demux/dmxHk.dscript");
-include("../includes/demux/dmxStart.dscript");
-
-include("../includes/fpasim/fpasim/fpasim.dscript");
-include("../includes/fpasim/fpasim_startup.dscript");
-include("../includes/fpasim/fpasim_config.dscript");
-
-include("../includes/fpasim/fpasim/fpasim_tools.dscript");
-include("../includes/fpasim/fpasim/utils_tools.dscript");
-include("../includes/fpasim/fpasim/cdce72010.dscript");
-include("../includes/fpasim/fpasim/ads62p49.dscript");
-include("../includes/fpasim/fpasim/dac3283.dscript");
-include("../includes/fpasim/fpasim/amc7823.dscript");
-
-include("../includes/common/utilTools.dscript");
-include("../includes/common/constants.dscript");
+const includes_path = "../../includes/";
+include(includes_path + "dmxTools.dscript");
+include(includes_path + "fpasim/fpasim.dscript");
+include(includes_path + "utilTools.dscript");
+include(includes_path + "common_constants.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
 
+const col = 3;
 
-// Init CDIF
-sendToTMTC_SetWireIn(0 , 1);
-sendToTMTC_SetWireIn(0 , 0);
-sendToTMTC_SetWireIn(0 , 2);
+//const knorm = 0.054;
+const knorm = 0.068;
+
+const kiknorm = knorm;
+
+sessionName = "carac-knorm-col"+col+"_knorm-"+knorm;
+sendStartNewSession(sessionName, "");
 
 /*
   Starting and initializing the FPAsim
@@ -63,56 +54,48 @@ fpasimStartup();
   Configuring the FPAsim
 */
 fpasimConfig(raDelayOpt, SteadyMode90Fsr);
-//fpasimConfig(raDelayOpt, SteadyMode0);
 
 /*
  Starting and configuring the DEMUX
 */
-const pulseShapingSet  = 0;
 const boxcarL = 0;
 const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
 const pattern = "FULL";
-demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSet, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
+const lockPointV = lockPointVOpt + 1500; // Shifting the lockpoint in order to have a greater step (less noise impact)
 
-print(TAB1 + "Setting the test pattern to a SLOW ramp");
-const a1 = -1 * Math.pow(2, 15);
-const b = 3;
-const c = 128;
-const N = 511;
-const a2 = Math.pow(2, 15)-1;
-const shortSawPattern = [
-	[a1, b, c, N],  // Slope upward
-	[a2, b, -c, N],  // Slope downward
-	[0, 0, 0, 0],  // Nothing
-	[0, 0, 0, 0],  // Nothing
-	[0, 0, 0, 0]  // Nothing
-];
-setDMX_testPattern(shortSawPattern);
-	
-print(TAB1+"Setting the DMX offset mode to TEST PATTERN...");
-setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_TESTPATTERN));
+demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSetOpt, lockPointV, muxInputGain, ampInputGain, aOpt, pattern);
+
+
+print(TAB1 + "Delock counters at the beggining: " + readDMX_delockCounters(col, false));
+
+print(TAB1 + "Setting knorm to " + knorm);
+print(TAB1 + "Setting kiknorm to " + kiknorm);
+for (var colId=0; colId<DMX_NB_COL; colId++) {
+	setDMX_sqm_knorm(colId, makeArray(DMX_NB_PIX_PER_COL, knorm));
+	setDMX_sqm_kiknorm(colId, makeArray(DMX_NB_PIX_PER_COL, kiknorm));
+}
 
 print(TAB1 + "Starting data acquisition in ERROR mode...");
 sendToDMXGoToErrorSignalMode();
 
-print(TAB1 + "Activating the test pattern...");
-var enable = true;
-var infinitely = true;
-var nbTime = 0x9;
-setDMX_testPatternEnable(enable, infinitely, nbTime);
+/*
+Closing the loop
+*/
+fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_CLOSED_LOOP);
+const durationMs = 3000;
 
-waitMs(6000000, true, true, "Acquisition en cours...");
-
+print(TAB1 + "Starting Error acquisition while the loop is still open, then closing the feedback loop ...");
+sendToDMXSaveScienceRaw("errorDataWhileClosingLoop.fits", durationMs, 1<<col, 0);
+waitMs(100);
+setDMX_sqm_FBMode(col, fbMode);
+waitMs(durationMs);
 
 // -------------------------------------------------------------------------------------------------------------
+sendStopSession();
 onAbortScript();
 
 function onAbortScript() {
 	sendToDMXGoToIdleMode();
+	print(TAB1 + "Delock counters at the end: " + readDMX_delockCounters(col, false));
 	print("End of script!");
 }
-
-
-
-
-

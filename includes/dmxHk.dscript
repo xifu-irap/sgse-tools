@@ -25,12 +25,6 @@
 //
 // -------------------------------------------------------------------------------------------------------------
 
-
-include("../demux/dmxRegAddresses.dscript");
-include("../common/constants.dscript");
-include("../common/utilTools.dscript");
-
-
 const DMX_NB_HK = 15;
 const DMX_HK_NAMES = ['P5V0_ANA', 'P3V3_ANA', 'P2V5_ANA', 'P1V8_ANA', 'M2V5_ANA', 'M5V0_ANA', 'P3V3_DIG',
     'P2V5_DIG', 'P1V2_DIG', 'TEMP_AVE', 'TEMP_MAX', 'P2V5_AUX', 'VREF_TEM', 'VREF_R2R', 'SPARE'];

@@ -26,24 +26,11 @@
 // -------------------------------------------------------------------------------------------------------------
 
 // imports
-include("../includes/demux/dmxTools.dscript");
-include("../includes/demux/dmxRegAddresses.dscript");
-include("../includes/demux/dmxHk.dscript");
-include("../includes/demux/dmxStart.dscript");
-
-include("../includes/fpasim/fpasim/fpasim.dscript");
-include("../includes/fpasim/fpasim_startup.dscript");
-include("../includes/fpasim/fpasim_config.dscript");
-
-include("../includes/fpasim/fpasim/fpasim_tools.dscript");
-include("../includes/fpasim/fpasim/utils_tools.dscript");
-include("../includes/fpasim/fpasim/cdce72010.dscript");
-include("../includes/fpasim/fpasim/ads62p49.dscript");
-include("../includes/fpasim/fpasim/dac3283.dscript");
-include("../includes/fpasim/fpasim/amc7823.dscript");
-
-include("../includes/common/utilTools.dscript");
-include("../includes/common/constants.dscript");
+const includes_path = "../../includes/";
+include(includes_path + "dmxTools.dscript");
+include(includes_path + "fpasim/fpasim.dscript");
+include(includes_path + "utilTools.dscript");
+include(includes_path + "common_constants.dscript");
 
 // relative path from the main script (the calling script path)
 const ram_base_path = "../fpasim/fpasim_default_ram/"

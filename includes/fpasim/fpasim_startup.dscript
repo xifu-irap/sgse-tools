@@ -34,9 +34,6 @@
 //
 // -------------------------------------------------------------------------------------------------------------
 
-// import javascript
-//include("./fpasim/fpasim_tools.dscript");
-
 
 /** * Starting and initializing the FPAsim
  *   If the FPAsim function is already enabled nothing is done unless the "force_p" parameter is set to true.

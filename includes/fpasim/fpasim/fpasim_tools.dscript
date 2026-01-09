@@ -27,6 +27,12 @@
 //    This script combines imported functions in order to build higher level functions.
 //
 // -------------------------------------------------------------------------------------------------------------
+
+include(includes_path + "./fpasim/fpasim/CDCE72010.dscript");
+include(includes_path + "./fpasim/fpasim/ADS62P49.dscript");
+include(includes_path + "./fpasim/fpasim/DAC3283.dscript");
+include(includes_path + "./fpasim/fpasim/AMC7823.dscript");
+
 //include("./fpasim/CDCE72010.dscript");
 //include("./fpasim/ADS62P49.dscript");
 //include("./fpasim/DAC3283.dscript");
@@ -219,31 +225,56 @@ function fpasim_script_info(level_p, mode_p, verbosity_p) {
 
     return [cnt_error_info,output_filename];
 }
-
-
-/**
- * Enable the fpasim function.
- * @param {number} level_p - level of indentation at the beginning.
- * @param {number} mode_p - define the print output.
- * @param {number} verbosity_p - level of verbosity.
- */
-function fpasim_enable(level_p, mode_p, verbosity_p) {
-    // default function parameter values
-    if (typeof(level_p) === 'undefined') level_p = 0;
-    if (typeof(mode_p) === 'undefined') mode_p = 0;
-    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
-
-    const level0 = level_p;
-    const level1 = level_p + 1;
-    const level2 = level_p + 2;
-
-	rst = 0;
-	en = 1;
-	data = fpasim_build_ctrl(rst, en);
-	sendToFPAsim_configureControl(data);
-	waitMs(500);
-}
-	
+
+
+
+
+/**
+
+ * Enable the fpasim function.
+
+ * @param {number} level_p - level of indentation at the beginning.
+
+ * @param {number} mode_p - define the print output.
+
+ * @param {number} verbosity_p - level of verbosity.
+
+ */
+
+function fpasim_enable(level_p, mode_p, verbosity_p) {
+
+    // default function parameter values
+
+    if (typeof(level_p) === 'undefined') level_p = 0;
+
+    if (typeof(mode_p) === 'undefined') mode_p = 0;
+
+    if (typeof(verbosity_p) === 'undefined') verbosity_p = 0;
+
+
+
+    const level0 = level_p;
+
+    const level1 = level_p + 1;
+
+    const level2 = level_p + 2;
+
+
+
+	rst = 0;
+
+	en = 1;
+
+	data = fpasim_build_ctrl(rst, en);
+
+	sendToFPAsim_configureControl(data);
+
+	waitMs(500);
+
+}
+
+	
+
 	
 /**
  * Reset the fpasim function.

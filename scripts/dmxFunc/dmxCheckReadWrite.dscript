@@ -26,8 +26,9 @@
 // -------------------------------------------------------------------------------------------------------------
 
 // imports
-include("../../includes/dmxTools.dscript");
-include("../../includes/utilTools.dscript");
+const includes_path = "../../includes/";
+include(includes_path + "dmxTools.dscript");
+include(includes_path + "utilTools.dscript");
 
 /**
  * This function tests the read and write to / from the demux registers

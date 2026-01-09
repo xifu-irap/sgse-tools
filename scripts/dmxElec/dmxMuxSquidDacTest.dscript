@@ -17,7 +17,7 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     muxSquidDacTest.dscript
+//    @file                     dmxMuxSquidDacTest.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
@@ -26,11 +26,10 @@
 // -------------------------------------------------------------------------------------------------------------
 
 // imports
-include("../includes/demux/dmxTools.dscript");
-include("../includes/demux/dmxRegAddresses.dscript");
-include("../includes/demux/dmxHk.dscript");
-include("../includes/common/utilTools.dscript");
-include("../includes/common/constants.dscript");
+const includes_path = "../../includes/";
+include(includes_path + "dmxTools.dscript");
+include(includes_path + "utilTools.dscript");
+include(includes_path + "common_constants.dscript");
 
 /**
  * This function activates the Mux SQUID and outputs the FB0 set of values or the test pattern

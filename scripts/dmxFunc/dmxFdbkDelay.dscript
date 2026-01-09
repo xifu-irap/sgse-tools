@@ -17,17 +17,18 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     fdbkDelayAnalysis.dscript
+//    @file                     dmxFdbkDelay.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
-//    This file is used to characterise the timing parameters in the FPAsim + DMX0 configuration.
+//    This file is used to characterise the timing parameters of the feedback signal.
 //
 // -------------------------------------------------------------------------------------------------------------
 
 // imports
-include("../../includes/dmxTools.dscript");
-include("../../includes/utilTools.dscript");
+const includes_path = "../../includes/";
+include(includes_path + "dmxTools.dscript");
+include(includes_path + "utilTools.dscript");
 
 
 /**
