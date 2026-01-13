@@ -33,26 +33,16 @@ include(includes_path + "utilTools.dscript");
 include(includes_path + "common_constants.dscript");
 
 
-// -------------------------------------------------------------------------------------------------------------
-
-function setFeedbackOn(colId) {
- // Switching ON the feedback for the selected column
-    var colOnOff = [OFF, OFF, OFF, OFF];
-    colOnOff[colId] = ON;
-    setDMX_safeFeedbackOnOff(colOnOff);
-}
-
-function setFeedbacksOff() {
-	// Switching the feedback Off for the all the columns
-    setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
-}
-	
+// -------------------------------------------------------------------------------------------------------------	
 // Tester la saturation des compteurs de relock
 function delockCountersSaturation(colId_p) {
-	
+
 	plotLongLine();
 	print("Processing col " + colId_p);
-	
+
+	tab_col = [OFF, OFF, OFF, OFF];
+	tab_col[colId_p] = ON;
+
 	print(TAB1 + "Initial values: ");
 	readDMX_delockFlag(true);
 	print(TAB2 + "Delock counters:" + readDMX_delockCounters(colId_p));
@@ -65,43 +55,27 @@ function delockCountersSaturation(colId_p) {
 	const tabFbModesClosedLoop = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_CLOSED_LOOP);
 	setDMX_sqm_FBMode(colId_p, tabFbModesClosedLoop);
 	
-	print(TAB1 + "Setting feedback on");
-	setFeedbackOn(colId_p);
+	print(TAB1 + "Setting feedback on, delocks should occur");
+	setDMX_safeFeedbackOnOff(tab_col);
+
+	print(TAB1 + "Checking delock counters, should not be saturated");
+	readDMX_delockFlag(true);
+	print(TAB2 + "Delock counters: " + readDMX_delockCounters(colId_p));
 
 	const duration_ms = 1000;
-	print(TAB1 + "Waiting " + duration_ms/1000 + " seconds");
-	waitMs(duration_ms); // Delock counter should saturate
+	print(TAB1 + "Waiting " + duration_ms/1000 + " seconds, delock counters should saturate");
+	waitMs(duration_ms);
 	
 	readDMX_delockFlag(true);
 	print(TAB2 + "Delock counters: " + readDMX_delockCounters(colId_p));
 	
 	print(TAB1 + "Setting feedback off  / should reset the delock counters and delock flag...");
-	setFeedbacksOff();
+	setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
 	readDMX_delockFlag(true);
 	print(TAB2 + "Delock counters: " + readDMX_delockCounters(colId_p));
 
 	plotSmallLine();
 
-	print(TAB1 + "Setting feedback on (new delocks should occur)");
-	setFeedbackOn(colId_p);
-
-	print(TAB1 + "Waiting " + duration_ms/1000 + " seconds");
-	waitMs(duration_ms); // Delock counter should saturate
-	
-	readDMX_delockFlag(true);
-	print(TAB2 + "Delock counters: " + readDMX_delockCounters(colId_p));
-
-	print(TAB1 + "Resetting delock_counters and delock flag of col " + colId_p + " to 0");
-	setDMX_delockCounters(colId_p, 0x0000);
-
-	plotSmallLine();
-
-	print(TAB1 + "Setting delock_delay and delock_threshold at highest values... (should stop the delocks)");
-	setDMX_relock_delay(colId_p, 0xFFFF);
-	setDMX_relock_threshold(colId_p, 0xFFFF);
-	
-	print(TAB1 + "Waiting " + duration_ms/1000 + " seconds");
-	waitMs(duration_ms); // Delock counter should saturate
 
 	readDMX_delockFlag(true);
 	print(TAB2 + "Delock counters: " + readDMX_delockCounters(colId_p));
@@ -112,6 +86,7 @@ function delockCountersSaturation(colId_p) {
 
 
 for (var col = 0; col < DMX_NB_COL; col+=1) {
+
 	delockCountersSaturation(col);
 }
 
