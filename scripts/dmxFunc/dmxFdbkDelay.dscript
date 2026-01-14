@@ -29,6 +29,7 @@
 const includes_path = "../../includes/";
 include(includes_path + "dmxTools.dscript");
 include(includes_path + "utilTools.dscript");
+include(includes_path + "common_constants.dscript");
 
 
 /**
@@ -52,12 +53,11 @@ function configure_test(fb0_p, pulseShapingSet_p) {
 
     // Switching ON the feedback for all the columns
 	print(TAB1+"Switching the feedback OnOff for all the columns:");
-    const colOnOff = [ON, ON, ON, ON];
-    setDMX_safeFeedbackOnOff(colOnOff);
+    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
 
     // DEMUX feedback
 	print(TAB1+"Setting the DMX feedback mode to OPEN_LOOP (FB0 -> FEEDBACK output)...");
-	print(TAB1+"Setting the DMX FB0 close to the MUX SQUID operating point except for pixel 0...");
+	print(TAB1+"Setting all the FB0 to " + fb0_p + " except for pixel 0...");
     var fb = makeArray(DMX_NB_PIX_PER_COL, fb0_p);
     fb[0] += 1000;
     print(TAB2 + fb);
@@ -66,16 +66,15 @@ function configure_test(fb0_p, pulseShapingSet_p) {
 		setDMX_sqm_FBMode(col, makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP));
 	}
 	print("");
-
 }
 
 /**
  * Sets the FB_DELAY to a value and does a dump file.
  *  Sets the FB_DELAY to the value provided by the parameter fb_delay_p
  *  Does a DMX dump
- * @param {number} fb_delay_p - feedback delay [-512, 40].
+ * @param {number} fb_delay_p - feedback delay s(16,0) [-512, 40].
  */
-function set_FB_DELAY(fb_delay_p) {
+function measure_FB_DELAY(fb_delay_p) {
 
     print("");
     print("***");
@@ -101,37 +100,27 @@ function startSession(sessionName) {
  * This function is called when the script is aborted
  */
 function onAbortScript() {
-    // de-activating data acquisition
     sendToDMXGoToIdleMode();
-
-    // Switching OFF the columns
     setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
-
 	print("End of script!");
+	sendStopSession();
 }
 
 
 // -------------------------------------------------------------------------------------------------------------
 
-const pulseShapingSet = 0;
-
-startSession("fdbkDelay_m3_p3");
+startSession("fdbkDelay_"+toStringWithNoSigns(start)+"_"+toStringWithNoSigns(end));
 
 // DEMUX configuration
 const fb0 = 0;
-const offsetLSB = 0x0FFF;
-const offsetFine = 0x7;
-const offsetCoarse = 0x37C;
+const pulseShapingSet = 0;
 
-/*
-  Configuring the setup
-*/
 configure_test(fb0, pulseShapingSet);
 
-/*
-Doing the scan on the feedback delay
-*/
-for (var i=-3; i<4; i++) set_FB_DELAY(i);
+// Doing a scan on the feedback delay
+start = -3;
+end = 4;
+for (var i=start; i<end+1; ++i) measure_FB_DELAY(i);
 
 onAbortScript();
 

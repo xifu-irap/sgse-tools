@@ -29,14 +29,23 @@
 const includes_path = "../../includes/";
 include(includes_path + "dmxTools.dscript");
 include(includes_path + "utilTools.dscript");
+include(includes_path + "common_constants.dscript");
+
+
+fdbkDelay = 13;
+sampDelay = 16;
+psSet = 0;
 
 
 /**
  * This function makes different kinds of TM files (TEST PATTERN, ERROR, DUMP)
+ * @param {number} fdbk_delay_p - feedback delay S(16,0) [-512, 40].
+ * @param {number} sampling_delay_p - sampling delay U(16,0) [0, 19].
+ * @param {number} psSet_p - Pulse shaping set U(16,0) [0, 3].
  */
-function dmxTMCheck() {
+function dmxTMCheck(fdbkDelay_p, sampDelay_p, psSet_p) {
 
-    const duration_ms = 1000;
+    const saveDataDurationMs = 4000;
 
     /******************************************************************************************************************/
     plotLongLine();
@@ -48,15 +57,23 @@ function dmxTMCheck() {
         [0x1000, 0x0020, 0x0000, 0x0001],   // Plateau a 4096
         [0x1000, 0x0000, 0x00C0, 0x0040],   // Pente montante
         [0x4000, 0x0000, 0x000C, 0x0400]];  // Pente montante douce
-
     setDMX_testPattern(test_pattern);
+
+	print(TAB1 + "Setting the feedback delay to " + fdbkDelay_p);
+	for (col_Id = 0; col_Id<DMX_NB_COL; col_Id++) setDMX_feedback_delay(col_Id, fdbkDelay_p);
+
+	print(TAB1 + "Setting the sampling delay to " + sampDelay_p);
+	for (col_Id = 0; col_Id<DMX_NB_COL; col_Id++) setDMX_sampling_delay(col_Id, sampDelay_p);
+
+	print(TAB1 + "Setting the pulse shaping set to " + psSet_p);
+	for (col_Id = 0; col_Id<DMX_NB_COL; col_Id++) setDMX_pulseShapingSelection(col_Id, psSet_p);
 
     /******************************************************************************************************************/
     plotLongLine();
     print("===> Testing the TEST PATTERN data acquisition mode...");
 
-    print(TAB1 + "Configuring the FB0 values (open loop values of feedback)...");
     tab_fb0 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33];
+    print(TAB1 + "Configuring the FB0 values (open loop values of feedback) to: \n" + TAB2 + tab_fb0);
     for (var col_id=0; col_id<DMX_NB_COL-1; col_id++) setDMX_fb0(col_id, tab_fb0);
 
     print(TAB1 + "Configuring the Feedback mode:");
@@ -77,36 +94,32 @@ function dmxTMCheck() {
     print(TAB1 + "Configuring the Acquisition mode to ACQ_MODE_TSTPATTERN...");
     sendToDMXGoToTestPatternMode();
 
-    //print("Configuring the Acquisition mode to ACQ_MODE_ERROR...");
-    //sendToDMXGoToErrorSignalMode();
-
     // Saving some data
-    print(TAB1 + "Saving data of the 4 columns for " + duration_ms/1000 + " seconds....");
-    sendToDMXSaveScienceRaw('TPT_acq_mode.fits', duration_ms, 0xF,0);
-    print(TAB1 + "Switching the test pattern ON");
+    print(TAB1 + "Saving data of the 4 columns for " + saveDataDurationMs/1000 + " seconds....");
+    sendToDMXSaveScienceRaw('TPT_acq_mode.fits', saveDataDurationMs, 0xF,0);
 
+    print(TAB1 + "Switching the test pattern ON");
     var enable = true;
     var infinitely = false;
-    var nbTime = 0xF;  // 15 iterations
+    var nbTime = 0x7;  // nb of iterations
     setDMX_testPatternEnable(enable, infinitely, nbTime);
 
     // Attente pendant l acquisition
-    waitMs(duration_ms);
+    waitMs(saveDataDurationMs);
 
-    print(TAB1 + "Checking the values of the Feedback mode after the test pattern (should be set back to ERROR_MODE (i.e. 0)):");
+    print(TAB1 + "Checking the values of the Feedback mode after the test pattern (should be set back to OPEN_LOOP (i.e. 0)):");
     print(TAB2 + "----->  ", readDMX_sqm_FBMode(0));
 
+    // Switching OFF the columns
+    setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
 
     /******************************************************************************************************************/
     plotLongLine();
     print("===> Testing the ERROR data acquisition mode...");
+    print(TAB1 + "Configuring the FB0 values (open loop values of feedback) to: \n" + TAB2 + tab_fb0);
+    for (var col_id=0; col_id<DMX_NB_COL-1; col_id++) setDMX_fb0(col_id, tab_fb0);
     print(TAB1 + "Sending the test pattern to the SQM feedback...");
     print(TAB2 + "The feedback loopback shall be plugged on the DEMUX!!");
-
-    print(TAB1 + "Configuring the data acquisition mode to: ERROR");
-    setDMX_dataAcqMode(ACQ_MODE_ERROR);
-    //      Des données de type ERROR commencent à être envoyées sur le lien science
-    // ==>> La sauvegarde dans un fichier ERROR doit commencer
 
     print(TAB1 + "Configuring the Feedback mode:");
     pix_list = [2, 3, 8, 10];
@@ -116,53 +129,49 @@ function dmxTMCheck() {
     print(TAB2 + "----->  ", tab_fbMode);
     for (col_id=0; col_id<DMX_NB_COL-1; col_id++) setDMX_sqm_FBMode(col_id, tab_fbMode);
 
+    print(TAB1 + "Configuring the data acquisition mode to: ERROR");
+	sendToDMXGoToErrorSignalMode();  // Des donnees de type ERROR commencent a etre envoyees sur le lien science
+
     print(TAB1 + "Activating the 4 columns");
     setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
 
     // Saving some data
-    print(TAB1 + "Saving data of the 4 columns for " + duration_ms/1000 + " seconds....");
+    print(TAB1 + "Saving data of the 4 columns for " + saveDataDurationMs/1000 + " seconds....");
     sendToDMXSaveScienceRaw("ERROR_acq_mode.fits", saveDataDurationMs, 0xF, 0);
-
-    print(TAB1 + "Saving some data while enabling the test pattern for 4 iterations");
-    setDMX_testPatternEnable(enable, infinite, numberIterations);
-
-    waitMs(1000); //      On attend que le test pattern soit passé
+    setDMX_testPatternEnable(enable, infinitely, nbTime);
+    waitMs(saveDataDurationMs); //      On attend que le test pattern soit passe
 
     print("  Configuring the data acquisition mode to: IDLE");
-    setDMX_dataAcqMode(ACQ_MODE_IDLE);
+	sendToDMXGoToIdleMode();
 
-    //      Le DEMUX ne produit plus de données
-    // ==>> La sauvegarde dans le fichier doit se terminer
-    //      On doit observer l'effet du pulse shaping qui est programmé à 20MHz par défaut
+    // Switching OFF the columns
+    setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
+
 
     /******************************************************************************************************************/
     plotLongLine();
     print("===> Testing the DUMP data acquisition mode...");
 
-    print(TAB1 + "Setting the feedback FB0 values");
     const minVal = -1*Math.pow(2, 13);
     const maxVal = Math.pow(2, 13) - (1/Math.pow(2, 2));
-
     const tabFb0 = [
         maxVal, minVal, maxVal, minVal, minVal, minVal, minVal, minVal, minVal,
         minVal, minVal, minVal, minVal, minVal, minVal, minVal, minVal, minVal,
         minVal, minVal, minVal, minVal, minVal, minVal, minVal, minVal, minVal,
         minVal, minVal, minVal, minVal, minVal, minVal, minVal
     ];
+    print(TAB1 + "Setting the feedback FB0 values to: \n" + TAB2 + tabFb0);
     for (col_id=0; col_id<DMX_NB_COL; col_id++) setDMX_fb0(col_id, tabFb0);
 
     print(TAB1 + "Configuring the feedback mode to: OPEN LOOP");
     var tabFbModesOpenLoop = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
     for (col_id=0; col_id<DMX_NB_COL; col_id++) setDMX_sqm_FBMode(col_id, tabFbModesOpenLoop);
 
-    print(TAB1 + "Measuring DUMP data");
-    setDMX_dataAcqMode(ACQ_MODE_DUMP);
+    print(TAB1 + "Activating the 4 columns");
+    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
 
-    //      Des données de type DUMP sont envoyées sur le lien science
-    // ==>> Un fichier doit être généré
-    //      Lorsque le DUMP est terminé (1360 valeurs) le mode d'acquisition repasse en IDLE
-    //      Le DEMUX ne produit plus de données
-    // ==>> La sauvegarde dans le fichier doit se terminer
+    print(TAB1 + "Measuring DUMP data");
+	sendToDMXGoToDumpMode();
 
     /******************************************************************************************************************/
     plotLongLine();
@@ -182,6 +191,8 @@ function onAbortScript() {
     // Switching OFF the columns
     setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
 
+	sendStopSession();
+
 	print("End of script!");
 }
 
@@ -191,7 +202,7 @@ function onAbortScript() {
 print("Starting the test session...");
 sendStartNewSession("dmxCheckTM", "");
 
-dmxTMCheck();
+dmxTMCheck(fdbkDelay, sampDelay, psSet);
 
 onAbortScript();
 

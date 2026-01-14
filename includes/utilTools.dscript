@@ -36,6 +36,19 @@ const TAB3 = repeat(TAB1, 3);
 // -- FUNCTIONS --------
 
 /**
+ * Converts a number into a string replacing the sign with a caracter
+ * "-" -> "M" and "+" -> "P"
+ * @param {number} value_p - value
+ */
+function toStringWithNoSigns(value_p) {
+    pref = "P";
+    if (value_p < 0) pref = "M";
+	print(pref + Math.abs(value_p));
+	return pref + Math.abs(value_p);
+}
+
+
+/**
  * Check if an array includes a value
  * @param {array} array_p - array
  * @param {number} value_p - value

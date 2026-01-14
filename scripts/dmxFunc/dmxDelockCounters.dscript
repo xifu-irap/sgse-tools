@@ -33,8 +33,10 @@ include(includes_path + "utilTools.dscript");
 include(includes_path + "common_constants.dscript");
 
 
-// -------------------------------------------------------------------------------------------------------------	
-// Tester la saturation des compteurs de relock
+/**
+ * This function checks that the delock counters are working
+ * @param {number} colId_p - Column number [0-3].
+ */
 function delockCountersSaturation(colId_p) {
 
 	plotLongLine();
@@ -58,7 +60,7 @@ function delockCountersSaturation(colId_p) {
 	print(TAB1 + "Setting feedback on, delocks should occur");
 	setDMX_safeFeedbackOnOff(tab_col);
 
-	print(TAB1 + "Checking delock counters, should not be saturated");
+	print(TAB1 + "Checking delock counters, should not be saturated (i.e. < 65535)");
 	readDMX_delockFlag(true);
 	print(TAB2 + "Delock counters: " + readDMX_delockCounters(colId_p));
 
@@ -74,19 +76,12 @@ function delockCountersSaturation(colId_p) {
 	readDMX_delockFlag(true);
 	print(TAB2 + "Delock counters: " + readDMX_delockCounters(colId_p));
 
-	plotSmallLine();
-
-
-	readDMX_delockFlag(true);
-	print(TAB2 + "Delock counters: " + readDMX_delockCounters(colId_p));
-
 }
 
 //----------------------------------------------
 
 
 for (var col = 0; col < DMX_NB_COL; col+=1) {
-
 	delockCountersSaturation(col);
 }
 
