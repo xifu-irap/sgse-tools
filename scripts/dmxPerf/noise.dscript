@@ -32,75 +32,77 @@ include(includes_path + "utilTools.dscript");
 include(includes_path + "common_constants.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
-//const FB_ONOFF = [OFF, OFF, ON, OFF]; // In order to use only column 2
-const FB_ONOFF = [ON, ON, ON, ON]; // In order to use all the columns
-const nbDumpFiles = 128;
-const errorFileDurationInS = 20;
+const errorFileDurationInS = 40;
 const errorFilenames = "error_noise";
-const pulseShapingSet = 3;
 const boxcarL = 0;
-const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
-const pattern = "FULL";
 
 // -------------------------------------------------------------------------------------------------------------
 
-function noise(fbOnOff_p, signal, fb_Volts) {
+function noise(signal_p, fb_Volts, boxcarL_p) {
 
-    const sessionName = "noise_" + signal + "_Fb" + fb_Volts + "V";
+    const sessionName = "noise_" + signal_p + "_Fb" + toStringWithNoSigns(fb_Volts) + "V";
     startSession(sessionName);
 
     print(TAB1 + "Configuring the DEMUX");
     const fb_ADU = fb_Volts * Math.pow(2, 14) / 2;
     const offsetCoarse_Volts = 0.4;
     const offsetCoarse_ADU = offsetCoarse_Volts * Math.pow(2, 12) / 1;
-    demuxStart(fbOnOff_p, sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb_ADU, offsetLSBOpt, offsetFineOpt, offsetCoarse_ADU, pulseShapingSet, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
+    const fbOnOff = [ON, ON, ON, ON]
+    const pulseShapingSet = 0;
+    const boxcarLArray = [boxcarL_p, boxcarL_p, boxcarL_p, boxcarL_p];
+    const pattern = "FULL";
+    demuxStart(fbOnOff, sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb_ADU, offsetLSBOpt, offsetFineOpt, offsetCoarse_ADU, pulseShapingSet, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
 
     // Setting the sampling delay
-	const samp_delay_p = 10;
-	print(TAB1+"Setting the 4 registers SAMPLING_DELAY to " + samp_delay_p);
-	for (var col=0; col<DMX_NB_COL; col++) setDMX_sampling_delay(col, samp_delay_p);
+	const samp_delay = 16;
+	print(TAB1+"Setting the 4 registers SAMPLING_DELAY to " + samp_delay);
+	for (var col=0; col<DMX_NB_COL; col++) setDMX_sampling_delay(col, samp_delay);
 
     // Measuring several dump files (will be averaged during data processing)
+    const nbDumpFiles = 32;
     print(TAB1 + "Measuring " + nbDumpFiles + " dump files...");
     for (var i = 0; i < nbDumpFiles; i++) sendToDMXGoToDumpMode();
 
     // Measuring error data
     sendToDMXGoToErrorSignalMode();
-	//setDMX_dataAcqMode(ACQ_MODE_ERROR);
-	
+
 	print(TAB1 + "Measuring an error file...");
     sendToDMXSaveScienceRaw(errorFilenames, errorFileDurationInS * 1000, 0xF, 0);
-    waitMs(errorFileDurationInS * 1000);
+    waitMs(errorFileDurationInS * 1000 + 1000);
 
-	sendStopSession();
+	onAbortScript();
 }
 
 function startSession(sessionName) {
     sendStartNewSession(sessionName, "");
 }
 
+/**
+ * This function is called when the script is aborted
+ */
 function onAbortScript() {
-	sendStopSession();
-	sendToDMXGoToIdleMode();
+    sendToDMXGoToIdleMode();
+    setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
 	print("End of script!");
+	sendStopSession();
 }
 
 // -------------------------------------------------------------------------------------------------------------
 
 var configId = -1;
-const configTab = ["", "erro-100o", "erro-open", "erro-fdbk", "erro-ofco"];
+const configTab = ["", "erro-100o", "erro-fdbk", "erro-ofco"];
 while (configId === -1) configId = getItem("Please, select noise test configuration: ", configTab);
-const analysed_signal = configTab[configId];
+const signal = configTab[configId];
 
-if (analysed_signal==="erro-fdbk") {
+if (signal==="erro-fdbk") {
 	print(TAB2 + "Measurement for Feedback at -0.5V");
-    noise(FB_ONOFF, analysed_signal, -0.5);
+    noise(signal, -0.5, boxcarL);
 	print(TAB2 + "Measurement for Feedback at 0V");
-    noise(FB_ONOFF, analysed_signal, 0);
+    noise(signal, 0, boxcarL);
 	print(TAB2 + "Measurement for Feedback at 0.5V");
-    noise(FB_ONOFF, analysed_signal, 0.5);
+    noise(signal, 0.5, boxcarL);
 }
-else noise(FB_ONOFF, analysed_signal, 0);
+else noise(signal, 0, boxcarL);
 
 onAbortScript();
 

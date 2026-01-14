@@ -148,3 +148,5 @@ const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
 carac_sampling_delay(fb0, pulseShapingSet, boxcarLArray);
 
 onAbortScript();
+
+// -------------------------------------------------------------------------------------------------------------
