@@ -34,11 +34,83 @@ include(includes_path + "common_constants.dscript");
 
 
 /**
+ * This function checks that the delock counters are equal to 0
+ * @param {boolean} flag -  [0-3].
+ * @param {Array} counters - delock counters [0-65535].
+ */
+function checkCountersAreAt0(flag, counters) {
+	var countersAreAt0 = true;
+	var nbCountersNotAt0 = 0;
+	if (flag === 1) {
+		countersAreAt0 = false;
+		print(TAB2 + "Error, the delock flag is not equal to 0");
+	}
+	for (var pix = 0; pix < DMX_NB_PIX_PER_COL; pix++) {
+		if (counters[pix] !== 0) {
+			countersAreAt0 = false;
+			nbCountersNotAt0++;
+		}
+	}
+	if (nbCountersNotAt0 > 0) print(TAB2 + "Error, " + nbCountersNotAt0 + " counters are not equal to 0");
+	return countersAreAt0;
+}
+	
+
+/**
+ * This function checks that the delock counters are not equal to 0 and not saturated
+ * @param {boolean} flag -  [0-3].
+ * @param {Array} counters - delock counters [0-65535].
+ */
+function checkCountersAreNotSaturated(flag, counters) {
+	var countersAreNotSaturated = true;
+	var nbCountersNotNotSaturated = 0;
+	if (flag === 0) {
+		countersAreAt0 = false;
+		print(TAB2 + "Error, the delock flag is equal to 0");
+	}
+	for (var pix = 0; pix < DMX_NB_PIX_PER_COL; pix++) {
+		if (counters[pix] === 0 || counters[pix] === 65535) {
+			countersAreNotSaturated = false;
+			nbCountersNotNotSaturated++;
+		}
+	}
+	if (nbCountersNotNotSaturated > 0) print(TAB2 + "Error, " + nbCountersNotNotSaturated + " counters are equal to 0 or 65535");
+	return countersAreNotSaturated;
+}
+	
+
+/**
+ * This function checks that the delock counters are saturated (i.e. = 65535)
+ * @param {boolean} flag -  [0-3].
+ * @param {Array} counters - delock counters [0-65535].
+ */
+function checkCountersAreSaturated(flag, counters) {
+	var countersAreSaturated = true;
+	var nbCountersNotSaturated = 0;
+	if (flag === 0) {
+		countersAreSaturated = false;
+		print(TAB2 + "Error, the delock flag is equal to 0");
+	}
+	for (var pix = 0; pix < DMX_NB_PIX_PER_COL; pix++) {
+		if (counters[pix] !== 65535) {
+			countersAreSaturated = false;
+			nbCountersNotSaturated++;
+		}
+	}
+	if (nbCountersNotSaturated > 0) print(TAB2 + "Error, " + nbCountersNotSaturated + " counters are not saturated");
+	return countersAreSaturated;
+}
+	
+/**
  * This function checks that the delock counters are working
  * @param {number} colId_p - Column number [0-3].
  */
 function delockCountersSaturation(colId_p) {
 
+	var THERE_IS_AN_ERROR = false;
+	const ERROR_TEXT = TAB1 + "--------------------->  [ ERROR ]";
+	const NO_ERROR_TEXT = TAB1 + "--------------------->  [  OK  ]";
+	
 	plotLongLine();
 	print("Processing col " + colId_p);
 
@@ -58,35 +130,67 @@ function delockCountersSaturation(colId_p) {
 	setDMX_sqm_FBMode(colId_p, tabFbModesClosedLoop);
 	
 	print(TAB1 + "Setting feedback on, delocks should occur");
-	setDMX_safeFeedbackOnOff(tab_col);
-
 	print(TAB1 + "Checking delock counters, should not be saturated (i.e. < 65535)");
-	readDMX_delockFlag(true);
-	print(TAB2 + "Delock counters: " + readDMX_delockCounters(colId_p));
+	//setDMX_safeFeedbackOnOff(tab_col);
+	setDMX_feedbackOnOff(tab_col); // The safeFeebackOnOff function is too slow for this test (the counters saturate)
+	delock_flag = readDMX_delockFlag(true);
+	delock_counters = readDMX_delockCounters(colId_p);
+	print(TAB2 + "Delock counters: " + delock_counters);
+	
+	if (checkCountersAreNotSaturated(delock_flag & (1<<colId_p), delock_counters)) print(NO_ERROR_TEXT);
+	else
+	{
+		print(ERROR_TEXT);
+		THERE_IS_AN_ERROR = true;
+	}
 
 	const duration_ms = 1000;
 	print(TAB1 + "Waiting " + duration_ms/1000 + " seconds, delock counters should saturate");
 	waitMs(duration_ms);
 	
-	readDMX_delockFlag(true);
-	print(TAB2 + "Delock counters: " + readDMX_delockCounters(colId_p));
+	delock_flag = readDMX_delockFlag(true);
+	delock_counters = readDMX_delockCounters(colId_p);
+	print(TAB2 + "Delock counters: " + delock_counters);
+
+	if (checkCountersAreSaturated(delock_flag & (1<<colId_p), delock_counters)) print(NO_ERROR_TEXT);
+	else
+	{
+		print(ERROR_TEXT);
+		THERE_IS_AN_ERROR = true;
+	}
 	
 	print(TAB1 + "Setting feedback off  / should reset the delock counters and delock flag...");
 	setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
-	readDMX_delockFlag(true);
-	print(TAB2 + "Delock counters: " + readDMX_delockCounters(colId_p));
+	
+	delock_flag = readDMX_delockFlag(true);
+	delock_counters = readDMX_delockCounters(colId_p);
+	print(TAB2 + "Delock counters: " + delock_counters);
 
+	if (checkCountersAreAt0(delock_flag & (1<<colId_p), delock_counters)) print(NO_ERROR_TEXT);
+	else
+	{
+		print(ERROR_TEXT);
+		THERE_IS_AN_ERROR = true;
+	}
+
+	return THERE_IS_AN_ERROR;
 }
 
 //----------------------------------------------
 
+errors = [false, false, false, false];
 
 for (var col = 0; col < DMX_NB_COL; col+=1) {
-	delockCountersSaturation(col);
+	errors[col] = delockCountersSaturation(col);
+}
+
+plotLongLine();
+print("Test summary:");
+for (col = 0; col<DMX_NB_COL; col++) {
+	if (errors[col]) print(TAB2 + "Col " + col + ": there are errors !!");
+	else print(TAB2 + "Col " + col + ": no errors");
 }
 
 // -------------------------------------------------------------------------------------------------------------
+plotLongLine();
 print("Done!");
-
-
-
