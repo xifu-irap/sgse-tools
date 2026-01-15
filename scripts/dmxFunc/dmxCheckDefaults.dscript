@@ -516,6 +516,8 @@ function dmxCheckDefaults() {
     /******************************************************************************************************************/
     plotLongLine();
 
+    return ERROR_COUNTER === 0;
+
 }
 
 dmxCheckDefaults();

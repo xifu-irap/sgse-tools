@@ -176,21 +176,28 @@ function delockCountersSaturation(colId_p) {
 	return THERE_IS_AN_ERROR;
 }
 
-//----------------------------------------------
+/**
+ * This function checks the delock counters
+ */
+function checkDelockCounters() {
 
-errors = [false, false, false, false];
+	errors = [false, false, false, false];
 
-for (var col = 0; col < DMX_NB_COL; col+=1) {
-	errors[col] = delockCountersSaturation(col);
+	for (var col = 0; col < DMX_NB_COL; col += 1) {
+		errors[col] = delockCountersSaturation(col);
+	}
+
+	plotLongLine();
+	print("Test summary:");
+	for (col = 0; col < DMX_NB_COL; col++) {
+		if (errors[col]) print(TAB2 + "Col " + col + ": there are errors !!");
+		else print(TAB2 + "Col " + col + ": no errors");
+	}
+
+	// -------------------------------------------------------------------------------------------------------------
+	plotLongLine();
+	return errors === [false, false, false, false];
+	print("Done!");
 }
 
-plotLongLine();
-print("Test summary:");
-for (col = 0; col<DMX_NB_COL; col++) {
-	if (errors[col]) print(TAB2 + "Col " + col + ": there are errors !!");
-	else print(TAB2 + "Col " + col + ": no errors");
-}
-
-// -------------------------------------------------------------------------------------------------------------
-plotLongLine();
-print("Done!");
+checkDelockCounters();

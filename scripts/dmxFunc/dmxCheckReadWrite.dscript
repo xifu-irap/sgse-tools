@@ -757,6 +757,8 @@ function dmxCheckReadWrite() {
     /******************************************************************************************************************/
     plotLongLine();
 
+    return ERROR_COUNTER === 0;
+
 }
 
 dmxCheckReadWrite();
