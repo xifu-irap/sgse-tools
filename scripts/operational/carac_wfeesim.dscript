@@ -1,0 +1,91 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     lockMuxSquid.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file is used to use the DEMUX and the MUX SQUID of the FPAsim in closed loop mode.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+const includes_path = "../../includes/";
+include(includes_path + "wfeeTools.dscript");
+include(includes_path + "utilTools.dscript");
+include(includes_path + "common_constants.dscript");
+
+// -------------------------------------------------------------------------------------------------------------
+
+/**
+ * This function tests the functionalities of the WFEEsim
+ * @param {boolean} verbose - If true, the commands are printed. Default is false.
+ */
+function caracWFEEsim(verbose) {
+
+    const valDacMin = 0;
+    const valDacMax = 255;
+    const nramps = 10;
+    const nsteps = 32;
+    const stepDurationMs = 500;
+
+    // Selecting the asic
+    const asicTab = ["", "ASIC 1", "ASIC 2", "ASIC 3", "ASIC 4"];
+    const asicDictTab = [asic1, asic2, asic3, asic4];
+    while (testAsic === -1) testAsic = getItem("Please, select the ASIC: ", asicTab);
+    const asic = asicDictTab[testAsic];
+
+    // Selecting the column
+    const colTab = ["", "col 0", "col 1"];
+    const colIndexTab = [0, 1];
+    while (testCol === -1) testCol = getItem("Please, select the column: ", colTab);
+    const col = colIndexTab[testCol];
+
+    // Selecting the type of signal
+    const signalTab = ["", "constant", "ramp"];
+    while (testSignal === -1) testSignal = getItem("Please, select the kind of signal: ", signalTab);
+    const signal = signalTab[testSignal];
+
+    if (signal === "constant") {
+        // Selecting the constant value
+        while (value < valDacMin || value > valDacMax) {
+            GetText(answer);
+            value = int(answer);
+        }
+    }
+
+    // Printing a summary of the test configuration
+    print("");
+    plotShortLine();
+    print(TAB1 + "Sending a " + signal + " on ASIC " + asic.name);
+    if (signal === "constant") print(TAB1 + "The constant value is " + value);
+    plotShortLine();
+
+    if (signal === "ramp") {
+        for (iramp=0; iramp<nramps; iramp++) {
+            WFEEScan(asic, col, dac, valDacMin, valDacMax, nsteps, stepDurationMs, verbose);
+        }
+    }
+
+    if (signal === "constant") {
+        setWFEEDAC(asic, col, dac, value, verbose);
+    }
+}
+
+caracWFEEsim(true);
