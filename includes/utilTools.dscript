@@ -42,8 +42,7 @@ const TAB3 = repeat(TAB1, 3);
  */
 function toStringWithNoSigns(value_p) {
     pref = "P";
-    if (value_p < 0) pref = "M";
-	print(pref + Math.abs(value_p));
+    if (value_p < 0) pref = "M";
 	return pref + Math.abs(value_p);
 }
 

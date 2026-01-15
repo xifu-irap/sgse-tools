@@ -17,11 +17,11 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     dmxFdbkDelay.dscript
+//    @file                     dmxSamplingDelay.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
-//    This file is used to characterise the timing parameters of the feedback signal.
+//    This file is used to characterise the sampling delay.
 //
 // -------------------------------------------------------------------------------------------------------------
 
@@ -38,9 +38,11 @@ include(includes_path + "common_constants.dscript");
  *  Sets all the DMX offset to the same value (in open loop mode)
  *  Does a DMX dump
  * @param {number} fb0_p - Feedback at MUX SQUID operating point s(16,2).
- * @param {number} pulseShapingSet_p - Pulse shaping set Id [0-3].
+ * @param {number} pulseShapingSet_p - Pulse shaping set Id [0-3].
+ * @param {number} fb_delay_p - feedback delay s(16,0) [-512, 40].
+ * @param {number} boxcarL_p - Boxcar length [0-3].
  */
-function configure_test(fb0_p, pulseShapingSet_p) {
+function configure_test(fb0_p, pulseShapingSet_p, fb_delay_p, boxcarL_p) {
 
     print("");
     print("***");
@@ -50,6 +52,10 @@ function configure_test(fb0_p, pulseShapingSet_p) {
     // Selecting the pulse shaping set
 	print(TAB1+"Selecting the pulse shaping set number " + pulseShapingSet_p + ":");
 	for (var col=0; col<DMX_NB_COL; col++)	setDMX_pulseShapingSelection(col, pulseShapingSet_p);
+
+    // setting the MUX_SQ_FB_DELAY
+    print(TAB1+"Setting the register MUX_SQ_FB_DELAY to " + fb_delay_p);
+	for (col=0; col<DMX_NB_COL; col++) setDMX_feedback_delay(col, fb_delay_p);
 
     // Switching ON the feedback for all the columns
 	print(TAB1+"Switching the feedback OnOff for all the columns:");
@@ -65,34 +71,42 @@ function configure_test(fb0_p, pulseShapingSet_p) {
 		setDMX_fb0(col, fb);
 		setDMX_sqm_FBMode(col, makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP));
 	}
+
+    // Setting the boxcar length
+	print(TAB1+"Setting the boxcar length to " + boxcarL_p);
+	setDMX_boxcarLength(boxcarL_p);
+
 	print("");
 }
 
+
 /**
- * Sets the FB_DELAY to a value and does a dump file.
- *  Sets the FB_DELAY to the value provided by the parameter fb_delay_p
- *  Does a DMX dump
- * @param {number} fb_delay_p - feedback delay s(16,0) [-512, 40].
+ * Scanning the sampling delay values and measuring error files.
  */
-function measure_FB_DELAY(fb_delay_p) {
+function scan_sampling_delay() {
+
+	const duration = 200;
+	const delta_duration=100;
 
     print("");
     print("***");
-    print("* Setting the FB_DELAY and doing a Dump");
+    print("* Scanning the SAMPLING_DELAY and doing ERROR files");
     print("***");
 
-    // set the register: MUX_SQ_FB_DELAY
-    print(TAB1 + "Setting the register MUX_SQ_FB_DELAY to " + fb_delay_p);
-	for (var col=0; col<DMX_NB_COL; col++) setDMX_feedback_delay(col, fb_delay_p);
+	for (var sampDelay=0; sampDelay<20; sampDelay++) {
 
-    // Data acquisition
-	print(TAB1+"Doing an acquisition in DUMP mode...");
-	sendToDMXGoToDumpMode();
-}
+		print(TAB2 + "Doing a measurement with a SAMPLING DELAY set to " + sampDelay + " ...");
 
+		for (colId = 0; colId < DMX_NB_COL; colId++) setDMX_sampling_delay(colId, sampDelay);
 
-function startSession(sessionName) {
-    sendStartNewSession(sessionName, "");
+		// Doing an error file
+		sendToDMXGoToErrorSignalMode();
+		filename = "SamplingDelay_" + ("00" + sampDelay).slice(-2);
+		sendToDMXSaveScienceRaw(filename, duration, 0xF, 0);
+		waitMs(duration + delta_duration);
+
+		sendToDMXGoToIdleMode();
+	}
 }
 
 
@@ -107,28 +121,43 @@ function onAbortScript() {
 }
 
 
+/**
+ * @param {number} fb0_p - Feedback at MUX SQUID operating point s(16,2).
+ * @param {number} pulseShapingSet_p - Pulse shaping set Id [0-3].
+ * @param {number} fb_delay_p - feedback delay s(16,0) [-512, 40].
+ * @param {number} boxcarL_p - Boxcar length [0-3].
+ */
+function carac_sampling_delay(fb0_p, pulseShapingSet_p, fb_delay_p, boxcarL_p) {
+
+	nbDumpFiles = 16;
+
+	sessionName = "samplingDelay-Bxl"+("00" + boxcarL).slice(-2)+"-pulseShapingSet"+pulseShapingSet;
+	sendStartNewSession(sessionName, "");
+
+	configure_test(fb0_p, pulseShapingSet_p, fb_delay_p, boxcarL_p)
+
+	print(TAB1+"Measuring input signal with dumps...");
+	for (var i = 0; i<nbDumpFiles; i++) sendToDMXGoToDumpMode();
+
+	scan_sampling_delay();
+
+}
+
+
 // -------------------------------------------------------------------------------------------------------------
 
-start = -8;
-end = 28;
-startSession("fdbkDelay_"+toStringWithNoSigns(start)+"_"+toStringWithNoSigns(end));
-
-// DEMUX configuration
 const fb0 = 0;
-const pulseShapingSet = 2;
+const pulseShapingSet  =  1;
+const fb_delay = 13;
+const boxcarL = 0;
+const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
 
-configure_test(fb0, pulseShapingSet);
-
-// Doing a scan on the feedback delay
-for (var i=start; i<end+1; i++) measure_FB_DELAY(i);
-
-print("Processing data ...")
-//output = copyDirToBackupDirAndExecuteBat("..\\analysis-tools",".\\SCRIPTS_ANALYSE\\analysis-tools","dmx-dm\\fdbkDelayAnalysis.bat")
-//addToFile(output)
+carac_sampling_delay(fb0, pulseShapingSet, fb_delay, boxcarLArray);
+
+print("Processing data ...")
+//output = copyDirToBackupDirAndExecuteBat("..\\analysis-tools",".\\SCRIPTS_ANALYSE\\analysis-tools","dmx-dm\\samplingDelayAnalysis.bat")
+//addToFile(output)
 
 onAbortScript();
 
 // -------------------------------------------------------------------------------------------------------------
-
-
-
