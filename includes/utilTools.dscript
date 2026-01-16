@@ -283,4 +283,44 @@ function tMs_2_string(tMs) {
     return(tMin+"m"+tSec+"s"+tMs2)
 }
 
+//---------------------------------------------------------------------------------------------------------------------------------------
+function saveLogToBackupDir(destFilename)
+{
+	getLatestValue("DISP_BackupsCurrentDirectory")
+	saveLogContent(DISP_BackupsCurrentDirectory + "\\" + destFilename)
+}
+
+//---------------------------------------------------------------------------------------------------------------------------------------
+function copyFileToBackupDir(filename,destFilename)
+{
+	var filename = (typeof filename !== 'undefined') ? filename : __FILE__;
+	getLatestValue("DISP_BackupsCurrentDirectory")
+	copyFile(filename,DISP_BackupsCurrentDirectory+"\\"+destFilename)
+}
+
+//---------------------------------------------------------------------------------------------------------------------------------------
+function copyDirToBackupDir(sourceDir,subdir)
+{
+	getLatestValue("DISP_BackupsCurrentDirectory")
+	cmdLine = "xcopy "+sourceDir.replace("/","\\")+ " "+DISP_BackupsCurrentDirectory+subdir+"\\ /E /Y"
+	exec(cmdLine)
+}
+
+//---------------------------------------------------------------------------------------------------------------------------------------
+function copyDirToBackupDirAndExecuteBat(sourceDir,subdir, batFile)
+{
+	getLatestValue("DISP_BackupsCurrentDirectory")
+	cmdLine = "xcopy "+sourceDir.replace("/","\\")+ " "+DISP_BackupsCurrentDirectory+subdir+"\\ /E /Y"
+	exec(cmdLine)
+	return execute(DISP_BackupsCurrentDirectory+subdir+"\\"+batFile,DISP_BackupsCurrentDirectory+subdir,500000)
+}
+
+//---------------------------------------------------------------------------------------------------------------------------------------
+function zipData()
+{
+	getLatestValue("DISP_BackupsCurrentDirectory")
+	exec(getEGSEDirectory()+"\\rar.exe m -ep "+DISP_BackupsCurrentDirectory+"\\DATA\\data.rar "+DISP_BackupsCurrentDirectory+"\\DATA\\*.*")
+}
+
+
 //---------------------------------------------------------------------------------------

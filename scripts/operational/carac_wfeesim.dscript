@@ -48,34 +48,39 @@ function caracWFEEsim(verbose) {
     // Selecting the asic
     const asicTab = ["", "ASIC 1", "ASIC 2", "ASIC 3", "ASIC 4"];
     const asicDictTab = [asic1, asic2, asic3, asic4];
+
+	var testAsic = -1;
     while (testAsic === -1) testAsic = getItem("Please, select the ASIC: ", asicTab);
     const asic = asicDictTab[testAsic];
 
     // Selecting the column
     const colTab = ["", "col 0", "col 1"];
     const colIndexTab = [0, 1];
+
+	var testCol = -1;
     while (testCol === -1) testCol = getItem("Please, select the column: ", colTab);
     const col = colIndexTab[testCol];
 
     // Selecting the type of signal
     const signalTab = ["", "constant", "ramp"];
+
+	var testSignal = -1;
     while (testSignal === -1) testSignal = getItem("Please, select the kind of signal: ", signalTab);
     const signal = signalTab[testSignal];
 
     if (signal === "constant") {
         // Selecting the constant value
-        while (value < valDacMin || value > valDacMax) {
-            GetText(answer);
-            value = int(answer);
-        }
+
+		var value=-1;
+        while (value < valDacMin || value > valDacMax) value = getInt("Wich value in ADU do you want to apply to tha DAC [0; 255]?");
     }
 
     // Printing a summary of the test configuration
     print("");
-    plotShortLine();
+    plotSmallLine();
     print(TAB1 + "Sending a " + signal + " on ASIC " + asic.name);
     if (signal === "constant") print(TAB1 + "The constant value is " + value);
-    plotShortLine();
+    plotSmallLine();
 
     if (signal === "ramp") {
         for (iramp=0; iramp<nramps; iramp++) {
@@ -87,5 +92,6 @@ function caracWFEEsim(verbose) {
         setWFEEDAC(asic, col, dac, value, verbose);
     }
 }
+
 
 caracWFEEsim(true);

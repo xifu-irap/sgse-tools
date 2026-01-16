@@ -27,16 +27,14 @@
 //
 // -------------------------------------------------------------------------------------------------------------
 
-include("../common/utilTools.dscript");
-include("../ras/rasTools.dscript");
-include("../ras/rasRegAddresses.dscript");
+include(includes_path + "rasTools.dscript");
+include(includes_path + "rasRegAddresses.dscript");
 
 
 // -------------------------------------------------------------------------------------------------------------
 // Definition of constants
 // -------------------------------------------------------------------------------------------------------------
 
-const testing = true;  // If true, the testing code is executed
 const WFEEThroughAthenaPIC = false; // If true the WFEE is driven through the AthenaPic else through the RAS
 const toWfeeRasReg = 0x0A00;
 const fromWfeeRasReg = 0x0B00;
@@ -208,34 +206,5 @@ function WFEEScan(asic, col, dac, param_i, param_f, n_step, t_holdMs, verbose) {
     print("Done!");
     print("");
 }
-
-//------------------------------------------------------------------------------------------------------------------
-// Testing
-//------------------------------------------------------------------------------------------------------------------
-
-if (testing)
-{
-
-	const verbose = true;
-	var asic = asic3;      // 0b100
-	var col = col1;        // 0b0100
-	var dac = i_sqm_bias;  // 0b1000
-    // decoder address => 0b1001100
-
-    plotLongLine();
-	print("Sending a single command...");
-	var parameter = 0xA3;  // 0b1010_0011
-	setWFEEDAC(asic, col, dac, parameter, verbose);
-
-    plotLongLine();
-	print("Doing a scan...");
-	var param_i = 0;
-	var param_f = 255;
-	var n_step = 8;
-	var t_holdMs = 1000;
-	WFEEScan(asic, col, dac, param_i, param_f, n_step, t_holdMs, verbose);
-
-    plotLongLine();
-}
-
+
 //------------------------------------------------------------------------------------------------------------------
