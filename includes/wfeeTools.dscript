@@ -35,7 +35,7 @@ include(includes_path + "rasRegAddresses.dscript");
 // Definition of constants
 // -------------------------------------------------------------------------------------------------------------
 
-const WFEEThroughAthenaPIC = false; // If true the WFEE is driven through the AthenaPic else through the RAS
+const WFEEThroughAthenaPIC = true; // If true the WFEE is driven through the AthenaPic else through the RAS
 const toWfeeRasReg = 0x0A00;
 const fromWfeeRasReg = 0x0B00;
 
@@ -206,5 +206,5 @@ function WFEEScan(asic, col, dac, param_i, param_f, n_step, t_holdMs, verbose) {
     print("Done!");
     print("");
 }
-
+
 //------------------------------------------------------------------------------------------------------------------

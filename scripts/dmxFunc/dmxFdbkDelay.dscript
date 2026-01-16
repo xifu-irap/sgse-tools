@@ -109,18 +109,28 @@ function onAbortScript() {
 
 // -------------------------------------------------------------------------------------------------------------
 
+// Definition of the feedback delay scan limits
+const delay_min = -512;
+const delay_max = 40;
+var start=delay_min-1;
+while (start < delay_min || start > delay_max) start = getInt("Fdbk delay min? [" + delay_min +"; " + delay_max + "]");
+var end = start-1;
+while (end < start || end > delay_max) end = getInt("Fdbk delay min? [" + start +"; " + delay_max + "]");
+
 startSession("fdbkDelay_"+toStringWithNoSigns(start)+"_"+toStringWithNoSigns(end));
 
 // DEMUX configuration
 const fb0 = 0;
-const pulseShapingSet = 0;
+const pulseShapingSet = 2;
 
 configure_test(fb0, pulseShapingSet);
 
 // Doing a scan on the feedback delay
-start = -3;
-end = 4;
-for (var i=start; i<end+1; ++i) measure_FB_DELAY(i);
+for (var i=start; i<end+1; i++) measure_FB_DELAY(i);
+
+print("Processing data ...")
+output = copyDirToBackupDirAndExecuteBat("c:\\analysis-tools\\dmx-dm",".\\SCRIPTS_ANALYSE\\dmx-dm","do_processing.bat")
+//addToFile(output)
 
 onAbortScript();
 

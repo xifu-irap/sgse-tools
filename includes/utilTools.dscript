@@ -312,7 +312,7 @@ function copyDirToBackupDirAndExecuteBat(sourceDir,subdir, batFile)
 	getLatestValue("DISP_BackupsCurrentDirectory")
 	cmdLine = "xcopy "+sourceDir.replace("/","\\")+ " "+DISP_BackupsCurrentDirectory+subdir+"\\ /E /Y"
 	exec(cmdLine)
-	return execute(DISP_BackupsCurrentDirectory+subdir+"\\"+batFile,DISP_BackupsCurrentDirectory+subdir,500000)
+	return execute(DISP_BackupsCurrentDirectory+subdir+"\\"+batFile,DISP_BackupsCurrentDirectory+subdir,30000)
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------------
