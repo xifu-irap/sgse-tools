@@ -37,38 +37,42 @@ include(includes_path + "common_constants.dscript");
  *  Sets all the DMX fb0 to the same value except for pixel 0 (in open loop mode)
  *  Sets all the DMX offset to the same value (in open loop mode)
  *  Does a DMX dump
- * @param {number} fb0_p - Feedback at MUX SQUID operating point s(16,2).
- * @param {number} pulseShapingSet_p - Pulse shaping set Id [0-3].
- * @param {number} fb_delay_p - feedback delay s(16,0) [-512, 40].
- * @param {number} boxcarL_p - Boxcar length [0-3].
  */
-function configure_test(fb0_p, pulseShapingSet_p, fb_delay_p, boxcarL_p) {
+function configure_test() {
+
+	const fb0 = 0;
 
     print("");
     print("***");
     print("* Configuring setup");
     print("***");
 
-    // Selecting the pulse shaping set
-	print(TAB1+"Selecting the pulse shaping set number " + pulseShapingSet_p + ":");
-	for (var col=0; col<DMX_NB_COL; col++)	setDMX_pulseShapingSelection(col, pulseShapingSet_p);
-
-
     // setting the MUX_SQ_FB_DELAY
+	const delay_min = -512;
+	const delay_max = 40;
+	var fb_delay=delay_min-1;
+	while (fb_delay < delay_min || fb_delay > delay_max) {
+		fb_delay = getInt("Fdbk delay? [" + delay_min +"; " + delay_max + "]");
+	}
+	for (col=0; col<DMX_NB_COL; col++) setDMX_feedback_delay(col, fb_delay);
 
-    print(TAB1+"Setting the register MUX_SQ_FB_DELAY to " + fb_delay_p);
+    // Setting the pulse shaping set
+	const pulseShapingSet_min = 0;
+	const pulseShapingSet_max = 3;
+	var pulseShapingSet = pulseShapingSet_min - 1;
+	while (pulseShapingSet < pulseShapingSet_min || pulseShapingSet > pulseShapingSet_max) {
+		pulseShapingSet = getInt("Pulse shaping set? [" + pulseShapingSet_min +"; " + pulseShapingSet_max + "]");
+	}
+	for (var col=0; col<DMX_NB_COL; col++)	setDMX_pulseShapingSelection(col, pulseShapingSet);
 
-	for (col=0; col<DMX_NB_COL; col++) setDMX_feedback_delay(col, fb_delay_p);
-
-
-    // Switching ON the feedback for all the columns
+	// Switching ON the feedback for all the columns
 	print(TAB1+"Switching the feedback OnOff for all the columns:");
     setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
 
     // DEMUX feedback
 	print(TAB1+"Setting the DMX feedback mode to OPEN_LOOP (FB0 -> FEEDBACK output)...");
-	print(TAB1+"Setting all the FB0 to " + fb0_p + " except for pixel 0...");
-    var fb = makeArray(DMX_NB_PIX_PER_COL, fb0_p);
+	print(TAB1+"Setting all the FB0 to " + fb0 + " except for pixel 0...");
+    var fb = makeArray(DMX_NB_PIX_PER_COL, fb0);
     fb[0] += 1000;
     print(TAB2 + fb);
 	for (var col=0; col<DMX_NB_COL; col++) {
@@ -76,11 +80,16 @@ function configure_test(fb0_p, pulseShapingSet_p, fb_delay_p, boxcarL_p) {
 		setDMX_sqm_FBMode(col, makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP));
 	}
 
-    // Setting the boxcar length
-	print(TAB1+"Setting the boxcar length to " + boxcarL_p);
-	setDMX_boxcarLength(boxcarL_p);
+	// Setting the boxcar length
+	const boxcarL_min = 0;
+	const boxcarL_max = 3;
+	var boxcarL = boxcarL_min - 1;
+	while (boxcarL < boxcarL_min || boxcarL > boxcarL_max) {
+		boxcarL = getInt("Boxcar length? [" + boxcarL_min + "; " + boxcarL_max + "]");
+	}
+	for (colId = 0; colId < DMX_NB_COL; colId++) setDMX_pulseShapingSelection(colId, pulseShapingSet);
+	setDMX_boxcarLength([boxcarL, boxcarL, boxcarL, boxcarL]);
 
-	print("");
 }
 
 
@@ -93,14 +102,11 @@ function scan_sampling_delay() {
 	const delta_duration=100;
 
     print("");
-    print("***");
-    print("* Scanning the SAMPLING_DELAY and doing ERROR files");
-    print("***");
+    print(TAB1 + "Scanning the SAMPLING_DELAY and doing ERROR files");
 
 	for (var sampDelay=0; sampDelay<20; sampDelay++) {
 
 		print(TAB2 + "Doing a measurement with a SAMPLING DELAY set to " + sampDelay + " ...");
-
 		for (colId = 0; colId < DMX_NB_COL; colId++) setDMX_sampling_delay(colId, sampDelay);
 
 		// Doing an error file
@@ -126,54 +132,37 @@ function onAbortScript() {
 
 
 /**
- * @param {number} fb0_p - Feedback at MUX SQUID operating point s(16,2).
- * @param {number} pulseShapingSet_p - Pulse shaping set Id [0-3].
- * @param {number} fb_delay_p - feedback delay s(16,0) [-512, 40].
-
- * @param {number} boxcarL_p - Boxcar length [0-3].
+ * This function drives the test
  */
-function carac_sampling_delay(fb0_p, pulseShapingSet_p, fb_delay_p, boxcarL_p) {
+function carac_sampling_delay() {
 
-	nbDumpFiles = 16;
+	plotSmallLine();
+	print("/ Sampling delay measurement");
+	plotSmallLine();
+	print("");
 
-	sessionName = "sampDelay-Bxl"+("00" + boxcarL).slice(-2)+"-pulseShapingSet"+pulseShapingSet;
+	const nbDumpFiles = 16;
+
+	const sessionName = "SAMP_DELAY____BXL"+("00" + boxcarL).slice(-2)+"-PLS"+pulseShapingSet;
 	sendStartNewSession(sessionName, "");
 
-	configure_test(fb0_p, pulseShapingSet_p, fb_delay_p, boxcarL_p)
+	configure_test();
 
 	print(TAB1+"Measuring input signal with dumps...");
 	for (var i = 0; i<nbDumpFiles; i++) sendToDMXGoToDumpMode();
 
 	scan_sampling_delay();
 
+	print("Processing data ...")
+	output = copyDirToBackupDirAndExecuteBat("c:\\analysis-tools\\dmx-dm",".\\SCRIPTS_ANALYSE\\dmx-dm","do_processing.bat")
+	//addToFile(output)
+
 }
 
 
 // -------------------------------------------------------------------------------------------------------------
 
-const fb0 = 0;
-const boxcarL = 0;
-const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
-
-// Reading the pulseshaping set
-const pulseShapingSet_min = 0;
-const pulseShapingSet_max = 3;
-var pulseShapingSet = pulseShapingSet_min - 1;
-while (pulseShapingSet < pulseShapingSet_min || pulseShapingSet > pulseShapingSet_max) {
-	pulseShapingSet = getInt("Pulse shaping set? [" + pulseShapingSet_min +"; " + pulseShapingSet_max + "]");
-}
-
-// Reading the feedback delay
-const delay_min = -512;
-const delay_max = 40;
-var fb_delay=delay_min-1;
-while (fb_delay < delay_min || fb_delay > delay_max) fb_delay = getInt("Fdbk delay? [" + delay_min +"; " + delay_max + "]");
-
-carac_sampling_delay(fb0, pulseShapingSet, fb_delay, boxcarLArray);
-
-print("Processing data ...")
-output = copyDirToBackupDirAndExecuteBat("c:\\analysis-tools\\dmx-dm",".\\SCRIPTS_ANALYSE\\dmx-dm","do_processing.bat")
-//addToFile(output)
+carac_sampling_delay();
 
 onAbortScript();
 

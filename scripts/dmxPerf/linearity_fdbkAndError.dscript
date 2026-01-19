@@ -35,77 +35,45 @@ include(includes_path + "utilTools.dscript");
 include(includes_path + "common_constants.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
-const FB_ONOFF = [ON, ON, ON, ON]; // In order to use all the columns
 
+function configure_test() {
 
-plotSmallLine();
-print("/ Feedback and Error linearity measurement");
-plotSmallLine();
-print("");
-
-sessionName = "fdbkAndErrorLinearity";
-sendStartNewSession(sessionName, "");
-
-/*
- Starting and configuring the DEMUX
-*/
-print(TAB1 + "Starting the DEMUX with the default parameters");
-const boxcarL = 1;
-const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
-const pattern = "FULL";
-const fdbkDelayBob = -3;
-demuxStart(FB_ONOFF, sampDelayOpt, boxcarLArray, fdbkDelayBob, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSetOpt, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
-
-print(TAB1 + "Setting the DMX feedback mode to TEST PATTERN for all columns and all pixels");
-fbMode_TPT = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_TESTPATTERN);
-for (var colId=0; colId<DMX_NB_COL; colId++) setDMX_sqm_FBMode(colId, fbMode_TPT);
-
-print(TAB1 + "Setting data acquisition mode to ERROR mode...");
-sendToDMXGoToErrorSignalMode();
-
-// Defining the test pattern for the scan of the feedback DAC values
-const infinitely = true;
-const nbTime = 0x9;
-const increment = Math.pow(2, DMX_NB_BITS_TPT) / Math.pow(2, DMX_NB_BITS_DAC_FDBK);
-const nbStepsPerScanBits = 11;
-const nbStepsPerScan = Math.pow(2, nbStepsPerScanBits);
-const nbStepsTotal = Math.pow(2, DMX_NB_BITS_DAC_FDBK);
-const nbScans = nbStepsTotal / nbStepsPerScan;
-print(TAB1 + nbScans + " scans will be measured:");
-
-for (var scan=0; scan<nbScans; scan++) {
-
-	print(TAB3 + "Setting test pattern number " + scan + " / " + nbScans);
-	const a = -1 * Math.pow(2, DMX_NB_BITS_TPT - 1) + scan*increment;
-	const b = 0;
-	const c = Math.pow(2, DMX_NB_BITS_TPT) / nbStepsPerScan;
-	const N = nbStepsPerScan;
-	const rampPattern = [
-		[a, b, c, N],  // Slope upward
-		[0, 0, 0, 0],  // Nothing
-		[0, 0, 0, 0],  // Nothing
-		[0, 0, 0, 0],  // Nothing
-		[0, 0, 0, 0]  // Nothing
-	];
-	setDMX_testPattern(rampPattern);
-
-	print(TAB3 + "Activating the test pattern...");
-	setDMX_testPatternEnable(true, infinitely, nbTime);
-
-	waitMs(1000);
-
-	if (scan === 0) getText("OK to save the scan files for all the columns?", "OK");	
-	for (var colId=0; colId<DMX_NB_COL; colId++) {
-		sendSaveDMXScan(colId, "scan_"+maDate()+"_col"+colId+".fits");
+	// setting the MUX_SQ_FB_DELAY
+	const delay_min = -512;
+	const delay_max = 40;
+	var fb_delay = delay_min - 1;
+	while (fb_delay < delay_min || fb_delay > delay_max) {
+		fb_delay = getInt("Fdbk delay? [" + delay_min + "; " + delay_max + "]");
 	}
+	for (var colId = 0; colId < DMX_NB_COL; colId++) setDMX_feedback_delay(colId, fb_delay);
 
-	print(TAB1 + "Stopping the test pattern...");
-	setDMX_testPatternEnable(false, infinitely, nbTime);
-	print("");
+	// setting the SAMPLING_DELAY
+	const samp_delay_min = 0;
+	const samp_delay_max = 19;
+	var samp_delay = delay_min - 1;
+	while (samp_delay < samp_delay_min || samp_delay > samp_delay_max) {
+		samp_delay = getInt("Fdbk delay? [" + samp_delay_min + "; " + samp_delay_max + "]");
+	}
+	for (colId = 0; colId < DMX_NB_COL; colId++) setDMX_sampling_delay(colId, samp_delay);
 
+	// Setting the boxcar length
+	const boxcarL_min = 0;
+	const boxcarL_max = 3;
+	var boxcarL = boxcarL_min - 1;
+	while (boxcarL < boxcarL_min || boxcarL > boxcarL_max) {
+		boxcarL = getInt("Boxcar length? [" + boxcarL_min + "; " + boxcarL_max + "]");
+	}
+	for (colId = 0; colId < DMX_NB_COL; colId++) setDMX_pulseShapingSelection(colId, pulseShapingSet);
+	setDMX_boxcarLength([boxcarL, boxcarL, boxcarL, boxcarL]);
+
+	print(TAB1 + "Switching the feedback OnOff to ON for all the columns:");
+	setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
+
+	print(TAB1 + "Setting the feedback mode to TEST PATTERN for all columns and all pixels");
+	fbMode_TPT = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_TESTPATTERN);
+	for (colId = 0; colId < DMX_NB_COL; colId++) setDMX_sqm_FBMode(colId, fbMode_TPT);
 }
 
-onAbortScript();
 
 function onAbortScript() {
 	sendToDMXGoToIdleMode();
@@ -114,4 +82,78 @@ function onAbortScript() {
 }
 
 
+/**
+ * This function drives the test
+ */
+function linearity_fdbkAndError() {
 
+	plotSmallLine();
+	print("/ Feedback and Error linearity measurement");
+	plotSmallLine();
+	print("");
+
+	const sessionName = "FDBK_ERROR_LIN-Bxl"+("00" + boxcarL).slice(-2);
+	sendStartNewSession(sessionName, "");
+
+	configure_test();
+
+	// Defining the test pattern for the scan of the feedback DAC values
+	const infinitely = true;
+	const nbTime = 0x9;
+	const increment = Math.pow(2, DMX_NB_BITS_TPT) / Math.pow(2, DMX_NB_BITS_DAC_FDBK);
+	const nbStepsPerScanBits = 11;
+	const nbStepsPerScan = Math.pow(2, nbStepsPerScanBits);
+	const nbStepsTotal = Math.pow(2, DMX_NB_BITS_DAC_FDBK);
+	const nbScans = nbStepsTotal / nbStepsPerScan;
+
+	print(TAB1 + "Setting data acquisition mode to ERROR mode...");
+	sendToDMXGoToErrorSignalMode();
+
+	// Several scans are measured because Xifu Studio can't acquire long scans
+	print(TAB1 + nbScans + " scans will be measured:");
+	const b = 0;
+	const c = Math.pow(2, DMX_NB_BITS_TPT) / nbStepsPerScan;
+	const N = nbStepsPerScan;
+	for (var scan = 0; scan < nbScans; scan++) {
+
+		print(TAB3 + "Setting test pattern number " + scan + " / " + nbScans);
+		a = -1 * Math.pow(2, DMX_NB_BITS_TPT - 1) + scan * increment;
+		const rampPattern = [
+			[a, b, c, N],  // Slope upward
+			[0, 0, 0, 0],  // Nothing
+			[0, 0, 0, 0],  // Nothing
+			[0, 0, 0, 0],  // Nothing
+			[0, 0, 0, 0]   // Nothing
+		];
+		setDMX_testPattern(rampPattern);
+
+		print(TAB3 + "Activating the test pattern...");
+		setDMX_testPatternEnable(true, infinitely, nbTime);
+
+		waitMs(1000);
+
+		if (scan === 0) getText("OK to save the scan files for all the columns?", "OK");
+		for (var colId = 0; colId < DMX_NB_COL; colId++) {
+			sendSaveDMXScan(colId, "scan_" + maDate() + "_col" + colId + ".fits");
+		}
+
+		// Stopping the current test pattern
+		setDMX_testPatternEnable(false, infinitely, nbTime);
+		print("");
+
+	}
+
+	print("Processing data ...")
+	output = copyDirToBackupDirAndExecuteBat("c:\\analysis-tools\\dmx-dm",".\\SCRIPTS_ANALYSE\\dmx-dm","do_processing.bat")
+	//addToFile(output)
+
+}
+
+
+// -------------------------------------------------------------------------------------------------------------
+
+linearity_fdbkAndError();
+
+onAbortScript();
+
+// -------------------------------------------------------------------------------------------------------------

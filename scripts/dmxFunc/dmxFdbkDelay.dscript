@@ -38,18 +38,22 @@ include(includes_path + "common_constants.dscript");
  *  Sets all the DMX offset to the same value (in open loop mode)
  *  Does a DMX dump
  * @param {number} fb0_p - Feedback at MUX SQUID operating point s(16,2).
- * @param {number} pulseShapingSet_p - Pulse shaping set Id [0-3].
  */
-function configure_test(fb0_p, pulseShapingSet_p) {
+function configure_test(fb0_p) {
 
     print("");
     print("***");
     print("* Configuring setup");
     print("***");
 
-    // Selecting the pulse shaping set
-	print(TAB1+"Selecting the pulse shaping set number " + pulseShapingSet_p + ":");
-	for (var col=0; col<DMX_NB_COL; col++)	setDMX_pulseShapingSelection(col, pulseShapingSet_p);
+    // Setting the pulse shaping set
+	const pulseShapingSet_min = 0;
+	const pulseShapingSet_max = 3;
+	var pulseShapingSet = pulseShapingSet_min - 1;
+	while (pulseShapingSet < pulseShapingSet_min || pulseShapingSet > pulseShapingSet_max) {
+		pulseShapingSet = getInt("Pulse shaping set? [" + pulseShapingSet_min +"; " + pulseShapingSet_max + "]");
+	}
+	for (var col=0; col<DMX_NB_COL; col++)	setDMX_pulseShapingSelection(col, pulseShapingSet);
 
     // Switching ON the feedback for all the columns
 	print(TAB1+"Switching the feedback OnOff for all the columns:");
@@ -91,11 +95,6 @@ function measure_FB_DELAY(fb_delay_p) {
 }
 
 
-function startSession(sessionName) {
-    sendStartNewSession(sessionName, "");
-}
-
-
 /**
  * This function is called when the script is aborted
  */
@@ -107,34 +106,43 @@ function onAbortScript() {
 }
 
 
+/**
+ * This function drives the test
+ */
+function carac_feedback_delay() {
+
+    plotSmallLine();
+	print("/ Feedback delay measurement");
+	plotSmallLine();
+	print("");
+
+    // Definition of the feedback delay scan limits
+    const delay_min = -512;
+    const delay_max = 40;
+    var start = delay_min - 1;
+    while (start < delay_min || start > delay_max) start = getInt("Fdbk delay min? [" + delay_min + "; " + delay_max + "]");
+    var end = start - 1;
+    while (end < start || end > delay_max) end = getInt("Fdbk delay max? [" + start + "; " + delay_max + "]");
+
+    const sessionName = "FDBK_DELAY____" + toStringWithNoSigns(start) + "_" + toStringWithNoSigns(end);
+    sendStartNewSession(sessionName, "");
+
+    // DEMUX configuration
+    const fb0 = 0;
+    configure_test(fb0);
+
+    // Doing a scan on the feedback delay
+    for (var i = start; i < end + 1; i++) measure_FB_DELAY(i);
+
+    print("Processing data ...")
+    output = copyDirToBackupDirAndExecuteBat("c:\\analysis-tools\\dmx-dm", ".\\SCRIPTS_ANALYSE\\dmx-dm", "do_processing.bat")
+    //addToFile(output)
+}
+
 // -------------------------------------------------------------------------------------------------------------
 
-// Definition of the feedback delay scan limits
-const delay_min = -512;
-const delay_max = 40;
-var start=delay_min-1;
-while (start < delay_min || start > delay_max) start = getInt("Fdbk delay min? [" + delay_min +"; " + delay_max + "]");
-var end = start-1;
-while (end < start || end > delay_max) end = getInt("Fdbk delay min? [" + start +"; " + delay_max + "]");
-
-startSession("fdbkDelay_"+toStringWithNoSigns(start)+"_"+toStringWithNoSigns(end));
-
-// DEMUX configuration
-const fb0 = 0;
-const pulseShapingSet = 2;
-
-configure_test(fb0, pulseShapingSet);
-
-// Doing a scan on the feedback delay
-for (var i=start; i<end+1; i++) measure_FB_DELAY(i);
-
-print("Processing data ...")
-output = copyDirToBackupDirAndExecuteBat("c:\\analysis-tools\\dmx-dm",".\\SCRIPTS_ANALYSE\\dmx-dm","do_processing.bat")
-//addToFile(output)
+carac_feedback_delay();
 
 onAbortScript();
 
 // -------------------------------------------------------------------------------------------------------------
-
-
-
