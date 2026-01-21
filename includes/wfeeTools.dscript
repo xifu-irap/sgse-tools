@@ -27,6 +27,8 @@
 //
 // -------------------------------------------------------------------------------------------------------------
 
+
+
 include(includes_path + "rasTools.dscript");
 include(includes_path + "rasRegAddresses.dscript");
 
@@ -144,7 +146,7 @@ function setWFEEDAC(asic, col, dac, param, verbose)
         print(TAB1 + "Sending command: [addr] " + address.toString(2) + " [param] " + param.toString(2))
         }
 
-    if (WFEEThroughAthenaPIC) sendToAPICWriteRegister(address, param);
+    if (WFEEThroughAthenaPIC) sendToAthenapic_WFEE_writeRegister(address, param);
     else sendToWFEEWriteRegister(address, param);
 }
 

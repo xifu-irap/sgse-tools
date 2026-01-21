@@ -40,10 +40,10 @@ include(includes_path + "common_constants.dscript");
 function caracWFEEsim(verbose) {
 
     const valDacMin = 0;
-    const valDacMax = 255;
-    const nramps = 10;
-    const nsteps = 32;
-    const stepDurationMs = 500;
+    const valDacMax = 255;  // 255 is a reserved value for some DAC (--> heater command)
+    const nramps = 100;
+    const nsteps = 128;
+    const stepDurationMs = 4;
 
     // Selecting the asic
     const asicTab = [asic1.name, asic2.name, asic3.name, asic4.name];
@@ -52,16 +52,16 @@ function caracWFEEsim(verbose) {
     const asic = asicDictTab[testAsic];
 
     // Selecting the column
-    const colTab = [col0.name, col1.name];
-	const colDictTab = [col0, col1];
+    const colTab = [col0.name, col1.name];
+	const colDictTab = [col0, col1];
 	testCol = getItem("Please, select the column: ", colTab);
     const col = colDictTab[testCol];
-
-    // Selecting the DAC
-    const dacTab = [i_tes_bias.name, i_sqm_bias.name, i_sqm_fdbk.name, i_sqa_bias.name, i_sqa_ofcm.name];
-    const dacDictTab = [i_tes_bias, i_sqm_bias, i_sqm_fdbk, i_sqa_bias, i_sqa_ofcm];
-    testDac = getItem("Please, select the DAC: ", dacTab);
-    const dac = dacDictTab[testDac];
+
+    // Selecting the DAC
+    const dacTab = [i_tes_bias.name, i_sqm_bias.name, i_sqm_fdbk.name, i_sqa_bias.name, i_sqa_ofcm.name];
+    const dacDictTab = [i_tes_bias, i_sqm_bias, i_sqm_fdbk, i_sqa_bias, i_sqa_ofcm];
+    testDac = getItem("Please, select the DAC: ", dacTab);
+    const dac = dacDictTab[testDac];
 
     // Selecting the type of signal
     const signalTab = ["constant", "ramp"];
@@ -74,16 +74,35 @@ function caracWFEEsim(verbose) {
         while (value < valDacMin || value > valDacMax) value = getInt("Wich value in ADU? [0; 255]");
     }
 
+    // Avoiding or using the 255 code? (heater)
+	aduMax = "No";
+	if (signal === "ramp") {
+        // Asking if the 255 ADU shall be used
+		const aduMaxTab = ["No", "Yes"];
+		aduMax = getItem("Do you want to apply the 255 setting?: ", aduMaxTab);
+    }
+
+
     // Printing a summary of the test configuration
     print("");
-    plotSmallLine();
-	if (signal === "constant") print(TAB1 + "Sending " + value + " ADU on DAC \"" + dac.name + "\" of " + asic.name + " and " + col.name);
-	else print(TAB1 + "Sending a FSR ramp on DAC \"" + dac.name + "\" of " + asic.name + " and " + col.name);
     plotSmallLine();
+	if (signal === "constant") print(TAB1 + "Sending " + value + " ADU on DAC \"" + dac.name + "\" of " + asic.name + " and " + col.name);
+	else print(TAB1 + "Sending a FSR ramp on DAC \"" + dac.name + "\" of " + asic.name + " and " + col.name);
+	if (signal === "ramp" && aduMax === 1) print(TAB1 + "The setting 255 will be used");
+    plotSmallLine();
+
 
     if (signal === "ramp") {
         for (iramp=0; iramp<nramps; iramp++) {
-            WFEEScan(asic, col, dac, valDacMin, valDacMax, nsteps, stepDurationMs, verbose);
+
+			// Doing the scan except the max value (255 ADU)
+            WFEEScan(asic, col, dac, valDacMin, valDacMax-1, nsteps, stepDurationMs, verbose);
+
+            // Using the max value (255 ADU) if requested
+			if (aduMax === 1) {
+				setWFEEDAC(asic, col, dac, valDacMax, verbose);
+				waitMs(500);
+			}
         }
     }
 
