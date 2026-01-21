@@ -46,10 +46,10 @@ const col0 = {name: "Col 0", address: 0x0};  // address = 0b0000
 const col1 = {name: "Col 1", address: 0x4};  // address = 0b0100
 
 //---- ASIC addresses and names
-const asic1 = {name: "ASIC 1", address: 0x1};
-const asic2 = {name: "ASIC 2", address: 0x2};
-const asic3 = {name: "ASIC 3", address: 0x3};
-const asic4 = {name: "ASIC 4", address: 0x4};
+const asic0 = {name: "ASIC 0", address: 0x1};
+const asic1 = {name: "ASIC 1", address: 0x2};
+const asic2 = {name: "ASIC 2", address: 0x3};
+const asic3 = {name: "ASIC 3", address: 0x4};
 
 //---- DAC/Functions addresses and names
 const adr_function_shift = 3;
@@ -61,7 +61,7 @@ const i_sqa_ofcm = {name: "I SQA offset compensation", address: 0xA};  // addres
 
 //---- HK
 const WFEE_NB_HK = 0x8;
-const WFEE_HK_NAMES = ['TEMP ASIC1', 'TEMP ASIC2', 'TEMP ASIC3', 'TEMP ASIC4', 'TEMP ASIC5', 'TEMP ASIC6', 'MEANV', 'SEU Flag'];
+const WFEE_HK_NAMES = ['TEMP ASIC0', 'TEMP ASIC1', 'TEMP ASIC2', 'TEMP ASIC3', 'TEMP ASIC4', 'TEMP ASIC5', 'MEANV', 'SEU Flag'];
 
 
 // -------------------------------------------------------------------------------------------------------------
@@ -115,7 +115,7 @@ function sendToWFEEReadRegister(address) {
 
 /**
  * This function builds the command decoder field from the asic id, column id and function id
- * @param {object} asic - asic dictionary (asic1, asic2, asic3 or asic4)
+ * @param {object} asic - asic dictionary (asic0, asic1, asic2 or asic3)
  * @param {object} col - column dictionary (col0 or col1)
  * @param {object} dac - dac dictionary (i_tes_bias, i_sqm_bias, i_sqm_fdbk, i_sqa_bias or i_sqa_ofcm)
  * @return {number} address - value of the address
@@ -129,7 +129,7 @@ function WFEEBuildAddress(asic, col, dac) {
 
 /**
  * This function sets a value to a WFEE DAC through the DRE RAS or through the Athena PIC module
- * @param {object} asic - asic dictionary (asic1, asic2, asic3 or asic4)
+ * @param {object} asic - asic dictionary (asic0, asic1, asic2 or asic3)
  * @param {object} col - colum dictionary (col0 or col1)
  * @param {object} dac - dac dictionary (i_tes_bias, i_sqm_bias, i_sqm_fdbk, i_sqa_bias or i_sqa_ofcm)
  * @param {number} param - Parameter of the command
@@ -175,7 +175,7 @@ function readWFEE_HK(verbose_p) {
 
 /**
  * This function makes a scan on a WFEE DAC
- * @param {object} asic - asic dictionary (asic1, asic2, asic3 or asic4)
+ * @param {object} asic - asic dictionary (asic0, asic1, asic2 or asic3)
  * @param {object} col - column dictionary (col0 or col1)
  * @param {object} dac - dac dictionary (i_tes_bias, i_sqm_bias, i_sqm_fdbk, i_sqa_bias or i_sqa_ofcm)
  * @param {number} param_i - initial value of the parameter scan
