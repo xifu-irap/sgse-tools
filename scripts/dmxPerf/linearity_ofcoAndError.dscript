@@ -1,0 +1,166 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     linearity_fdbkAndError.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This script is used to characterize the linearity of the feedback + error signals linearity.
+//    This is a global characterization. The linearity of the error and feedback signals are not characterized
+//    Individualy.
+//    The scan is done in several ietrations to reduce the number of measurements per scan
+//
+// -------------------------------------------------------------------------------------------------------------
+
+
+// imports
+const includes_path = "../../includes/";
+include(includes_path + "dmxTools.dscript");
+include(includes_path + "utilTools.dscript");
+include(includes_path + "common_constants.dscript");
+
+// -------------------------------------------------------------------------------------------------------------
+
+function configure_test() {
+
+	print(TAB1 + "Switching the feedback OnOff to ON for all the columns:");
+	setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
+
+	// DEMUX feedback
+	print(TAB1 + "Setting the DMX feedback mode to OPEN_LOOP (FB0 -> FEEDBACK output)...");
+	print(TAB1 + "Setting all the FB0 to 0...");
+	for (var col=0; col<DMX_NB_COL; col++) {
+		setDMX_fb0(col, makeArray(DMX_NB_PIX_PER_COL, 0));
+		setDMX_sqm_FBMode(col, makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP));
+	}
+
+	print(TAB2 + "Nulling the offset Fine");
+	const offsetLSB = 0;
+	const offsetFineArray = makeArray(DMX_NB_PIX_PER_COL, 0);
+	for (var colId=0; colId<DMX_NB_COL; colId++) {
+		setDMX_sqa_OffsetLSB(colId, offsetLSB);
+		setDMX_sqa_OffsetLSBptr(colId, offsetLSB);
+		setDMX_sqa_OffsetFine(colId, offsetFineArray, offsetFineArray);
+	}
+
+	print(TAB2 + "Setting the DMX offset mode to TEST PATTERN for all columns");
+	setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_TESTPATTERN));
+
+	const samp_delay = 16;
+	print(TAB2 + "Setting the SAMPLING DELAY to " + samp_delay);
+	for (colId = 0; colId < DMX_NB_COL; colId++) setDMX_sampling_delay(colId, samp_delay);
+
+	// Setting the boxcar length
+	const boxcarL_min = 0;
+	const boxcarL_max = 3;
+	var boxcarL = boxcarL_min - 1;
+	while (boxcarL < boxcarL_min || boxcarL > boxcarL_max) {
+		boxcarL = getInt("Boxcar length? [" + boxcarL_min + "; " + boxcarL_max + "]");
+	}
+	setDMX_boxcarLength([boxcarL, boxcarL, boxcarL, boxcarL]);
+
+}
+
+
+function onAbortScript() {
+	sendToDMXGoToIdleMode();
+	sendStopSession();
+	print("End of script!");
+}
+
+
+/**
+ * This function drives the test
+ */
+function linearity_fdbkAndError() {
+
+	plotSmallLine();
+	print("/ Ofco and Error linearity measurement");
+	plotSmallLine();
+	print("");
+
+	const sessionName = "OFCO_ERROR_LIN-Bxl"+("00" + boxcarL).slice(-2);
+	sendStartNewSession(sessionName, "");
+
+	configure_test();
+
+	// Defining the test pattern for the scan of the ofco DAC coarse values
+	const infinitely = true;
+	const nbTime = 0x9;
+	const increment = Math.pow(2, DMX_NB_BITS_TPT) / Math.pow(2, DMX_NB_BITS_DAC_OFCO);
+	const nbStepsPerScanBits = 9;
+	const nbStepsPerScan = Math.pow(2, nbStepsPerScanBits);
+	const nbStepsTotal = Math.pow(2, DMX_NB_BITS_DAC_OFCO);
+	const nbScans = nbStepsTotal / nbStepsPerScan;
+
+	print(TAB1 + "Setting data acquisition mode to ERROR mode...");
+	sendToDMXGoToErrorSignalMode();
+
+	// Several scans are measured because Xifu Studio can't acquire long scans
+	print(TAB1 + nbScans + " scans will be measured:");
+	const b = 3;
+	const c = Math.pow(2, DMX_NB_BITS_TPT) / nbStepsPerScan;
+	const N = Math.round(nbStepsPerScan * 0.91);
+
+	for (var scan=0; scan<nbScans; scan++) {
+
+		print(TAB3 + "Setting test pattern number " + scan);
+		const a = -1 * Math.pow(2, DMX_NB_BITS_TPT - 1) + scan*increment;
+		const a2 = a + N*c;
+		const rampPattern = [
+			[a, b, c, N],  // Slope upward
+			[a2, b, -c, N],  // Slope downward
+			[0, 0, 0, 0],  // Nothing
+			[0, 0, 0, 0],  // Nothing
+			[0, 0, 0, 0]  // Nothing
+		];
+		setDMX_testPattern(rampPattern);
+
+		print(TAB3 + "Activating the test pattern...");
+		setDMX_testPatternEnable(true, infinitely, nbTime);
+
+		waitMs(500);
+
+		if (scan === 0) getText("OK to save the scan files for all the columns?", "OK");
+		for (var colId=0; colId<DMX_NB_COL; colId++) {
+			sendSaveDMXScan(colId, "scan_"+maDate()+"_col"+colId+".fits");
+		}
+
+		// Stopping the current test pattern
+		setDMX_testPatternEnable(false, infinitely, nbTime);
+		print("");
+
+	}
+
+	print("Processing data ...")
+	output = copyDirToBackupDirAndExecuteBat("c:\\analysis-tools\\dmx-dm",".\\SCRIPTS_ANALYSE\\dmx-dm","do_processing.bat")
+	//addToFile(output)
+
+}
+
+
+// -------------------------------------------------------------------------------------------------------------
+
+linearity_fdbkAndError();
+
+onAbortScript();
+
+// -------------------------------------------------------------------------------------------------------------
+
+
