@@ -52,7 +52,7 @@ function configure_test() {
 	const samp_delay_max = 19;
 	var samp_delay = delay_min - 1;
 	while (samp_delay < samp_delay_min || samp_delay > samp_delay_max) {
-		samp_delay = getInt("Fdbk delay? [" + samp_delay_min + "; " + samp_delay_max + "]");
+		samp_delay = getInt("Sampling delay? [" + samp_delay_min + "; " + samp_delay_max + "]");
 	}
 	for (colId = 0; colId < DMX_NB_COL; colId++) setDMX_sampling_delay(colId, samp_delay);
 
@@ -63,8 +63,16 @@ function configure_test() {
 	while (boxcarL < boxcarL_min || boxcarL > boxcarL_max) {
 		boxcarL = getInt("Boxcar length? [" + boxcarL_min + "; " + boxcarL_max + "]");
 	}
-	for (colId = 0; colId < DMX_NB_COL; colId++) setDMX_pulseShapingSelection(colId, pulseShapingSet);
 	setDMX_boxcarLength([boxcarL, boxcarL, boxcarL, boxcarL]);
+
+	// Setting the pulse shaping set
+	const pulseShapingSet_min = 0;
+	const pulseShapingSet_max = 3;
+	var pulseShapingSet = pulseShapingSet_min - 1;
+	while (pulseShapingSet < pulseShapingSet_min || pulseShapingSet > pulseShapingSet_max) {
+		pulseShapingSet = getInt("Pulse shaping set? [" + pulseShapingSet_min +"; " + pulseShapingSet_max + "]");
+	}
+	for (colId=0; colId<DMX_NB_COL; colId++) setDMX_pulseShapingSelection(colId, pulseShapingSet);
 
 	print(TAB1 + "Switching the feedback OnOff to ON for all the columns:");
 	setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
@@ -130,7 +138,7 @@ function linearity_fdbkAndError() {
 		print(TAB3 + "Activating the test pattern...");
 		setDMX_testPatternEnable(true, infinitely, nbTime);
 
-		waitMs(1000);
+		waitMs(500);
 
 		if (scan === 0) getText("OK to save the scan files for all the columns?", "OK");
 		for (var colId = 0; colId < DMX_NB_COL; colId++) {

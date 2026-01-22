@@ -4,9 +4,12 @@
 
 JavaScript scripts to manage the tests of the DRE and WFEE.
 
-## Directories and files description
+The analysis of the performance tests is done automatically after the data acquisition.
+The analysis-tools shall be installed in C:/
 
 ---
+
+### Directories and files description
 
   - (dir.) **configurations**: xml DRE configuration files
   - (dir.) **includes**: low-level tools to be included in high-level scripts
