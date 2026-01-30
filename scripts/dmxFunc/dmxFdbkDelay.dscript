@@ -124,7 +124,7 @@ function carac_feedback_delay() {
     var end = start - 1;
     while (end < start || end > delay_max) end = getInt("Fdbk delay max? [" + start + "; " + delay_max + "]");
 
-    const sessionName = "FDBK_DELAY____" + toStringWithNoSigns(start) + "_" + toStringWithNoSigns(end);
+    const sessionName = "FDBK_DELAY_____" + toStringWithNoSigns(start) + "_" + toStringWithNoSigns(end);
     sendStartNewSession(sessionName, "");
 
     // DEMUX configuration

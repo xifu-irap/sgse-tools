@@ -33,78 +33,139 @@ include(includes_path + "common_constants.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
 const errorFileDurationInS = 40;
+const nbDumpFiles = 32;
 const errorFilenames = "error_noise";
-const boxcarL = 0;
+
+const conf0 = {text: "100Ohms --> ERROR", flag: "NOISE_ERRO_ONLY"};
+const conf1 = {text: "FDBK --> ERROR", flag: "NOISE_ERRO_FDBK"};
+const conf2 = {text: "OFCO --> ERROR", flag: "NOISE_ERRO_OFCO"};
 
 // -------------------------------------------------------------------------------------------------------------
 
-function noise(signal_p, fb_Volts, boxcarL_p) {
+function configure_test() {
 
-    const sessionName = "noise_" + signal_p + "_Fb" + toStringWithNoSigns(fb_Volts) + "V";
-    startSession(sessionName);
+    // Asking for the configuration setup
+    const confTextTab = [conf0.text, conf1.text, conf2.text];
+    const confFlagTab = [conf0.flag, conf1.flag, conf2.flag];
+    var confId = getItem("Please, indicates the test configuration: ", confTextTab);
+    var conf = confFlagTab[confId];
 
-    print(TAB1 + "Configuring the DEMUX");
-    const fb_ADU = fb_Volts * Math.pow(2, 14) / 2;
-    const offsetCoarse_Volts = 0.4;
-    const offsetCoarse_ADU = offsetCoarse_Volts * Math.pow(2, 12) / 1;
-    const fbOnOff = [ON, ON, ON, ON]
-    const pulseShapingSet = 0;
-    const boxcarLArray = [boxcarL_p, boxcarL_p, boxcarL_p, boxcarL_p];
-    const pattern = "FULL";
-    demuxStart(fbOnOff, sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb_ADU, offsetLSBOpt, offsetFineOpt, offsetCoarse_ADU, pulseShapingSet, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
+    // Setting the boxcar length
+    const boxcarL_min = 0;
+    const boxcarL_max = 3;
+    var boxcarL = boxcarL_min - 1;
+    while (boxcarL < boxcarL_min || boxcarL > boxcarL_max) {
+        boxcarL = getInt("Boxcar length? [" + boxcarL_min + "; " + boxcarL_max + "]");
+    }
+    setDMX_boxcarLength([boxcarL, boxcarL, boxcarL, boxcarL]);
 
-    // Setting the sampling delay
-	const samp_delay = 16;
-	print(TAB1+"Setting the 4 registers SAMPLING_DELAY to " + samp_delay);
-	for (var col=0; col<DMX_NB_COL; col++) setDMX_sampling_delay(col, samp_delay);
+    // Setting the feedback
+	print(TAB1 + "Switching the feedback OnOff to ON for all the columns:");
+	setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
+
+	print(TAB1 + "Setting the feedback mode to OPEN LOOP for all columns and all pixels");
+	fbMode_OPEN_LOOP = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
+	for (var colId = 0; colId < DMX_NB_COL; colId++) setDMX_sqm_FBMode(colId, fbMode_OPEN_LOOP);
+
+    // Setting the offset fine to 0
+    colOffsetMode = [OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET];
+    setDMX_offsetMode(colOffsetMode);
+    for (colId = 0; col < DMX_NB_COL; col++) {
+        setDMX_sqa_OffsetLSB(col, 0);
+        setDMX_sqa_OffsetFine(col, 0, 0);
+    }
+
+}
+
+
+function measure_data(fdbk_V, ofco_coarse_V) {
+
+    print(TAB2 + "Measurement for Feedback at " + fdbk_V + " V and Ofco coarse at " + ofco_coarse_V + " V");
+
+    // Setting the feedback
+    var fdbk_ADU = fdbk_V * Math.pow(2, 14) / 2;
+    var fb = makeArray(DMX_NB_PIX_PER_COL, fdbk_ADU);
+	for (var col=0; col<DMX_NB_COL; col++) setDMX_fb0(col, fb);
+
+    // Setting the offset coarse
+    var ofco_coarse_ADU = ofco_coarse_V * Math.pow(2, 12) / 1;
+    for (col = 0; col < DMX_NB_COL; col++) setDMX_sqa_OffsetCoarse(col, ofco_coarse_ADU);
+
+    // Opening a new session
+    sendStartNewSession(sessionName, "");
 
     // Measuring several dump files (will be averaged during data processing)
-    const nbDumpFiles = 32;
-    print(TAB1 + "Measuring " + nbDumpFiles + " dump files...");
+    print(TAB2+TAB1 + "Measuring " + nbDumpFiles + " dump files...");
     for (var i = 0; i < nbDumpFiles; i++) sendToDMXGoToDumpMode();
 
     // Measuring error data
     sendToDMXGoToErrorSignalMode();
-
-	print(TAB1 + "Measuring an error file...");
+	print(TAB2+TAB1 + "Measuring error data during " + errorFileDurationInS + " seconds...");
     sendToDMXSaveScienceRaw(errorFilenames, errorFileDurationInS * 1000, 0xF, 0);
     waitMs(errorFileDurationInS * 1000 + 1000);
 
-	onAbortScript();
+    // Closing the session
+	output = copyDirToBackupDirAndExecuteBat("c:\\analysis-tools\\dmx-dm",".\\SCRIPTS_ANALYSE\\dmx-dm","do_processing.bat")
+    sendStopSession();
+
 }
 
-function startSession(sessionName) {
-    sendStartNewSession(sessionName, "");
-}
 
-/**
- * This function is called when the script is aborted
- */
 function onAbortScript() {
-    sendToDMXGoToIdleMode();
-    setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
-	print("End of script!");
+	sendToDMXGoToIdleMode();
 	sendStopSession();
+	print("End of script!");
 }
+
+
+function noise() {
+
+    plotSmallLine();
+    print("/ Noise measurement");
+    plotSmallLine();
+    print("");
+
+    config = configure_test();
+    boxcarL = config[0];
+    confName = config[1];
+
+    const sessionName = confName + "_BXL" + ("00" + boxcarL).slice(-2) + "_FDBK" + toStringWithNoSigns(fdbk_Volts) + "V" + "_OFCO" + toStringWithNoSigns(ofco_Volts) + "V";
+
+    if (confName==="NOISE_ERRO_FDBK") {
+        ofco_coarse_V = 0;
+        fdbk_V = -0.5;
+        measure_data(fdbk_V, ofco_coarse_V, sessionName);
+
+        ofco_coarse_V = 0;
+        fdbk_V = 0;
+        measure_data(fdbk_V, ofco_coarse_V, sessionName);
+
+        ofco_coarse_V = 0;
+        fdbk_V = 0.5;
+        measure_data(fdbk_V, ofco_coarse_V, sessionName);
+    }
+    else if (confName==="NOISE_ERRO_OFCO") {
+        ofco_coarse_V = -0.25;
+        fdbk_V = 0;
+        measure_data(fdbk_V, ofco_coarse_V, sessionName);
+
+        ofco_coarse_V = 0;
+        fdbk_V = 0;
+        measure_data(fdbk_V, ofco_coarse_V, sessionName);
+
+        ofco_coarse_V = 0.25;
+        fdbk_V = 0;
+        measure_data(fdbk_V, ofco_coarse_V, sessionName);
+    }
+    else measure_data(0, 0, sessionName);
+
+}
+
 
 // -------------------------------------------------------------------------------------------------------------
 
-var configId = -1;
-const configTab = ["", "erro-100o", "erro-fdbk", "erro-ofco"];
-while (configId === -1) configId = getItem("Please, select noise test configuration: ", configTab);
-const signal = configTab[configId];
-
-if (signal==="erro-fdbk") {
-	print(TAB2 + "Measurement for Feedback at -0.5V");
-    noise(signal, -0.5, boxcarL);
-	print(TAB2 + "Measurement for Feedback at 0V");
-    noise(signal, 0, boxcarL);
-	print(TAB2 + "Measurement for Feedback at 0.5V");
-    noise(signal, 0.5, boxcarL);
-}
-else noise(signal, 0, boxcarL);
+noise();
 
 onAbortScript();
-
 
 // -------------------------------------------------------------------------------------------------------------

@@ -100,7 +100,7 @@ function linearity_fdbkAndError() {
 	plotSmallLine();
 	print("");
 
-	const sessionName = "FDBK_ERROR_LIN-Bxl"+("00" + boxcarL).slice(-2);
+	const sessionName = "FDBK_ERROR_LIN__BXL"+("00" + boxcarL).slice(-2);
 	sendStartNewSession(sessionName, "");
 
 	configure_test();
