@@ -104,6 +104,9 @@ function measure_data(fdbk_V, ofco_coarse_V) {
     sendToDMXSaveScienceRaw(errorFilenames, errorFileDurationInS * 1000, 0xF, 0);
     waitMs(errorFileDurationInS * 1000 + 1000);
 
+    print(TAB2 + "compressing the error files");
+    zipErrorData();
+
     // Closing the session
 	output = copyDirToBackupDirAndExecuteBat("c:\\analysis-tools\\dmx-dm",".\\SCRIPTS_ANALYSE\\dmx-dm","do_processing.bat")
     sendStopSession();

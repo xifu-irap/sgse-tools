@@ -316,10 +316,10 @@ function copyDirToBackupDirAndExecuteBat(sourceDir,subdir, batFile)
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------------
-function zipData()
+function zipErrorData()
 {
 	getLatestValue("DISP_BackupsCurrentDirectory")
-	exec(getEGSEDirectory()+"\\rar.exe m -ep "+DISP_BackupsCurrentDirectory+"\\DATA\\data.rar "+DISP_BackupsCurrentDirectory+"\\DATA\\*.*")
+	exec(getEGSEDirectory()+"\\rar.exe m -ep "+DISP_BackupsCurrentDirectory+"\\dmx_data\\error_data.rar "+DISP_BackupsCurrentDirectory+"\\dmx_data\\error_*.*")
 }
 
 
