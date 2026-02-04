@@ -143,7 +143,7 @@ function carac_sampling_delay() {
 
 	const nbDumpFiles = 16;
 
-	const sessionName = "SAMP_DELAY_____BXL"+("00" + boxcarL).slice(-2)+"-PLS"+pulseShapingSet;
+	const sessionName = "SAMP-DELAY-----BXL"+("0" + boxcarL).slice(-1)+"-PLS"+pulseShapingSet;
 	sendStartNewSession(sessionName, "");
 
 	configure_test();
@@ -154,7 +154,7 @@ function carac_sampling_delay() {
 	scan_sampling_delay();
 
 	print("Processing data ...")
-	output = copyDirToBackupDirAndExecuteBat("c:\\analysis-tools\\dmx-dm",".\\SCRIPTS_ANALYSE\\dmx-dm","do_processing.bat")
+	output = copyDirToBackupDirAndExecuteBat(analysis_tools_path,".\\SCRIPTS_ANALYSE\\dmx-dm","do_processing.bat")
 	//addToFile(output)
 
 }

@@ -100,7 +100,7 @@ function linearity_fdbkAndError() {
 	plotSmallLine();
 	print("");
 
-	const sessionName = "FDBK_ERROR_LIN__BXL"+("00" + boxcarL).slice(-2);
+	const sessionName = "FDBK-ERROR-LIN--BXL"+("0" + boxcarL).slice(-1);
 	sendStartNewSession(sessionName, "");
 
 	configure_test();
@@ -152,7 +152,7 @@ function linearity_fdbkAndError() {
 	}
 
 	print("Processing data ...")
-	output = copyDirToBackupDirAndExecuteBat("c:\\analysis-tools\\dmx-dm",".\\SCRIPTS_ANALYSE\\dmx-dm","do_processing.bat")
+	output = copyDirToBackupDirAndExecuteBat(analysis_tools_path,".\\SCRIPTS_ANALYSE\\dmx-dm","do_processing.bat")
 	//addToFile(output)
 
 }

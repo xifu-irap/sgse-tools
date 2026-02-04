@@ -41,4 +41,6 @@ const SPI_ERROR_COMMAND_INCOMPATIBILITY = 0xFBFF;
 const SPI_ERROR_MODULE_IS_BUSY = 0xFDFF;
 const SPI_ERROR_MODULE_IS_OFF = 0x0000;
 
+const analysis_tools_path = "c:\\AITV\\analysis-tools\\dmx-dm";
+
 // -------------------------------------------------------------------------------------------------------------

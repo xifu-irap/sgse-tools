@@ -124,7 +124,7 @@ function carac_feedback_delay() {
     var end = start - 1;
     while (end < start || end > delay_max) end = getInt("Fdbk delay max? [" + start + "; " + delay_max + "]");
 
-    const sessionName = "FDBK_DELAY_____" + toStringWithNoSigns(start) + "_" + toStringWithNoSigns(end);
+    const sessionName = "FDBK-DELAY-----" + toStringWithNoSigns(start) + "_" + toStringWithNoSigns(end);
     sendStartNewSession(sessionName, "");
 
     // DEMUX configuration
@@ -135,7 +135,7 @@ function carac_feedback_delay() {
     for (var i = start; i < end + 1; i++) measure_FB_DELAY(i);
 
     print("Processing data ...")
-    output = copyDirToBackupDirAndExecuteBat("c:\\analysis-tools\\dmx-dm", ".\\SCRIPTS_ANALYSE\\dmx-dm", "do_processing.bat")
+    output = copyDirToBackupDirAndExecuteBat(analysis_tools_path, ".\\SCRIPTS_ANALYSE\\dmx-dm", "do_processing.bat")
     //addToFile(output)
 }
 

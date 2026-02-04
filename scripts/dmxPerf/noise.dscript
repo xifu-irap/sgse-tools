@@ -36,9 +36,9 @@ const errorFileDurationInS = 40;
 const nbDumpFiles = 32;
 const errorFilenames = "error_noise";
 
-const conf0 = {text: "100Ohms --> ERROR", flag: "NOISE_ERRO_ONLY"};
-const conf1 = {text: "FDBK --> ERROR", flag: "NOISE_ERRO_FDBK"};
-const conf2 = {text: "OFCO --> ERROR", flag: "NOISE_ERRO_OFCO"};
+const conf0 = {text: "100Ohms --> ERROR", flag: "NOISE-ERRO-ONLY"};
+const conf1 = {text: "FDBK --> ERROR", flag: "NOISE-ERRO-FDBK"};
+const conf2 = {text: "OFCO --> ERROR", flag: "NOISE-ERRO-OFCO"};
 
 // -------------------------------------------------------------------------------------------------------------
 
@@ -108,7 +108,7 @@ function measure_data(fdbk_V, ofco_coarse_V) {
     zipErrorData();
 
     // Closing the session
-	output = copyDirToBackupDirAndExecuteBat("c:\\analysis-tools\\dmx-dm",".\\SCRIPTS_ANALYSE\\dmx-dm","do_processing.bat")
+	output = copyDirToBackupDirAndExecuteBat(analysis_tools_path,".\\SCRIPTS_ANALYSE\\dmx-dm","do_processing.bat")
     sendStopSession();
 
 }
@@ -132,9 +132,9 @@ function noise() {
     boxcarL = config[0];
     confName = config[1];
 
-    const sessionName = confName + "_BXL" + ("00" + boxcarL).slice(-2) + "_FDBK" + toStringWithNoSigns(fdbk_Volts) + "V" + "_OFCO" + toStringWithNoSigns(ofco_Volts) + "V";
+    const sessionName = confName + "-BXL" + ("0" + boxcarL).slice(-1) + "_FDBK" + toStringWithNoSigns(fdbk_Volts) + "V" + "_OFCO" + toStringWithNoSigns(ofco_Volts) + "V";
 
-    if (confName==="NOISE_ERRO_FDBK") {
+    if (confName==="NOISE-ERRO-FDBK") {
         ofco_coarse_V = 0;
         fdbk_V = -0.5;
         measure_data(fdbk_V, ofco_coarse_V, sessionName);
@@ -147,7 +147,7 @@ function noise() {
         fdbk_V = 0.5;
         measure_data(fdbk_V, ofco_coarse_V, sessionName);
     }
-    else if (confName==="NOISE_ERRO_OFCO") {
+    else if (confName==="NOISE-ERRO-OFCO") {
         ofco_coarse_V = -0.25;
         fdbk_V = 0;
         measure_data(fdbk_V, ofco_coarse_V, sessionName);
