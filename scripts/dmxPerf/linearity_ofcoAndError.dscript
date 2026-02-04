@@ -34,6 +34,8 @@ const includes_path = "../../includes/";
 include(includes_path + "dmxTools.dscript");
 include(includes_path + "utilTools.dscript");
 include(includes_path + "common_constants.dscript");
+
+const boxcarL = 3;
 
 // -------------------------------------------------------------------------------------------------------------
 
@@ -66,14 +68,10 @@ function configure_test() {
 	print(TAB2 + "Setting the SAMPLING DELAY to " + samp_delay);
 	for (colId = 0; colId < DMX_NB_COL; colId++) setDMX_sampling_delay(colId, samp_delay);
 
-	// Setting the boxcar length
-	const boxcarL_min = 0;
-	const boxcarL_max = 3;
-	var boxcarL = boxcarL_min - 1;
-	while (boxcarL < boxcarL_min || boxcarL > boxcarL_max) {
-		boxcarL = getInt("Boxcar length? [" + boxcarL_min + "; " + boxcarL_max + "]");
-	}
-	setDMX_boxcarLength([boxcarL, boxcarL, boxcarL, boxcarL]);
+	// Setting the boxcar length
+	print(TAB1 + "Setting the Boxcar length to 4 samples");
+	const boxcarL = 3;
+	setDMX_boxcarLength([boxcarL, boxcarL, boxcarL, boxcarL]);
 
 }
 

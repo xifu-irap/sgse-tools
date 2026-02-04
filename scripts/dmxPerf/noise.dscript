@@ -75,10 +75,11 @@ function configure_test() {
         setDMX_sqa_OffsetFine(col, 0, 0);
     }
 
+    return boxcarL, conf;
 }
 
 
-function measure_data(fdbk_V, ofco_coarse_V) {
+function measure_data(fdbk_V, ofco_coarse_V, confName) {
 
     print(TAB2 + "Measurement for Feedback at " + fdbk_V + " V and Ofco coarse at " + ofco_coarse_V + " V");
 
@@ -92,6 +93,7 @@ function measure_data(fdbk_V, ofco_coarse_V) {
     for (col = 0; col < DMX_NB_COL; col++) setDMX_sqa_OffsetCoarse(col, ofco_coarse_ADU);
 
     // Opening a new session
+    const sessionName = confName + "-BXL" + ("0" + boxcarL).slice(-1) + "_FDBK" + toStringWithNoSigns(fdbk_V) + "V" + "_OFCO" + toStringWithNoSigns(ofco_coarse_V) + "V";
     sendStartNewSession(sessionName, "");
 
     // Measuring several dump files (will be averaged during data processing)
@@ -132,35 +134,33 @@ function noise() {
     boxcarL = config[0];
     confName = config[1];
 
-    const sessionName = confName + "-BXL" + ("0" + boxcarL).slice(-1) + "_FDBK" + toStringWithNoSigns(fdbk_Volts) + "V" + "_OFCO" + toStringWithNoSigns(ofco_Volts) + "V";
-
     if (confName==="NOISE-ERRO-FDBK") {
         ofco_coarse_V = 0;
         fdbk_V = -0.5;
-        measure_data(fdbk_V, ofco_coarse_V, sessionName);
+        measure_data(fdbk_V, ofco_coarse_V, confName);
 
         ofco_coarse_V = 0;
         fdbk_V = 0;
-        measure_data(fdbk_V, ofco_coarse_V, sessionName);
+        measure_data(fdbk_V, ofco_coarse_V, confName);
 
         ofco_coarse_V = 0;
         fdbk_V = 0.5;
-        measure_data(fdbk_V, ofco_coarse_V, sessionName);
+        measure_data(fdbk_V, ofco_coarse_V, confName);
     }
     else if (confName==="NOISE-ERRO-OFCO") {
         ofco_coarse_V = -0.25;
         fdbk_V = 0;
-        measure_data(fdbk_V, ofco_coarse_V, sessionName);
+        measure_data(fdbk_V, ofco_coarse_V, confName);
 
         ofco_coarse_V = 0;
         fdbk_V = 0;
-        measure_data(fdbk_V, ofco_coarse_V, sessionName);
+        measure_data(fdbk_V, ofco_coarse_V, confName);
 
         ofco_coarse_V = 0.25;
         fdbk_V = 0;
-        measure_data(fdbk_V, ofco_coarse_V, sessionName);
+        measure_data(fdbk_V, ofco_coarse_V, confName);
     }
-    else measure_data(0, 0, sessionName);
+    else measure_data(0, 0, confName);
 
 }
 

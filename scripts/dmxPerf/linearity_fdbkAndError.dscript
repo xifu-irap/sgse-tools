@@ -33,6 +33,8 @@ const includes_path = "../../includes/";
 include(includes_path + "dmxTools.dscript");
 include(includes_path + "utilTools.dscript");
 include(includes_path + "common_constants.dscript");
+
+const boxcarL = 3;
 
 // -------------------------------------------------------------------------------------------------------------
 
@@ -48,30 +50,17 @@ function configure_test() {
 	for (var colId = 0; colId < DMX_NB_COL; colId++) setDMX_feedback_delay(colId, fb_delay);
 
 	// setting the SAMPLING_DELAY
-	const samp_delay_min = 0;
-	const samp_delay_max = 19;
-	var samp_delay = delay_min - 1;
-	while (samp_delay < samp_delay_min || samp_delay > samp_delay_max) {
-		samp_delay = getInt("Sampling delay? [" + samp_delay_min + "; " + samp_delay_max + "]");
-	}
+	const samp_delay = 16;
+	print(TAB1 + "Setting the sampling to 16");
 	for (colId = 0; colId < DMX_NB_COL; colId++) setDMX_sampling_delay(colId, samp_delay);
 
 	// Setting the boxcar length
-	const boxcarL_min = 0;
-	const boxcarL_max = 3;
-	var boxcarL = boxcarL_min - 1;
-	while (boxcarL < boxcarL_min || boxcarL > boxcarL_max) {
-		boxcarL = getInt("Boxcar length? [" + boxcarL_min + "; " + boxcarL_max + "]");
-	}
+	print(TAB1 + "Setting the Boxcar length to 4 samples");
 	setDMX_boxcarLength([boxcarL, boxcarL, boxcarL, boxcarL]);
 
 	// Setting the pulse shaping set
-	const pulseShapingSet_min = 0;
-	const pulseShapingSet_max = 3;
-	var pulseShapingSet = pulseShapingSet_min - 1;
-	while (pulseShapingSet < pulseShapingSet_min || pulseShapingSet > pulseShapingSet_max) {
-		pulseShapingSet = getInt("Pulse shaping set? [" + pulseShapingSet_min +"; " + pulseShapingSet_max + "]");
-	}
+	print(TAB1 + "Setting the pulse shaping set to 0 (no pulse shaping)");
+	const pulseShapingSet = 0;
 	for (colId=0; colId<DMX_NB_COL; colId++) setDMX_pulseShapingSelection(colId, pulseShapingSet);
 
 	print(TAB1 + "Switching the feedback OnOff to ON for all the columns:");
