@@ -46,8 +46,8 @@ function caracWFEEsim(verbose) {
     const stepDurationMs = 4;
 
     // Selecting the asic
-    const asicTab = [asic1.name, asic2.name, asic3.name, asic4.name];
-    const asicDictTab = [asic1, asic2, asic3, asic4];
+    const asicTab = [asic0.name, asic1.name, asic2.name, asic3.name];
+    const asicDictTab = [asic0, asic1, asic2, asic3];
     testAsic = getItem("Please, select the ASIC: ", asicTab);
     const asic = asicDictTab[testAsic];
 
