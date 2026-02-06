@@ -46,10 +46,10 @@ const col0 = {name: "Col 0", address: 0x0};  // address = 0b0000
 const col1 = {name: "Col 1", address: 0x4};  // address = 0b0100
 
 //---- ASIC addresses and names
-const asic0 = {name: "ASIC 0", address: 0x1};
-const asic1 = {name: "ASIC 1", address: 0x2};
-const asic2 = {name: "ASIC 2", address: 0x3};
-const asic3 = {name: "ASIC 3", address: 0x4};
+const asic0 = {name: "ASIC 0", address: 0x0};
+const asic1 = {name: "ASIC 1", address: 0x1};
+const asic2 = {name: "ASIC 2", address: 0x2};
+const asic3 = {name: "ASIC 3", address: 0x3};
 
 //---- DAC/Functions addresses and names
 const adr_function_shift = 3;

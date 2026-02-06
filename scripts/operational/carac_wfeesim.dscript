@@ -17,11 +17,11 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     lockMuxSquid.dscript
+//    @file                     carac_wfeesim.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
-//    This file is used to use the DEMUX and the MUX SQUID of the FPAsim in closed loop mode.
+//    This file is used to characterise the WFEEsim (EGSE simulation the WFEE).
 //
 // -------------------------------------------------------------------------------------------------------------
 
@@ -108,6 +108,15 @@ function caracWFEEsim(verbose) {
 
     if (signal === "constant") {
         setWFEEDAC(asic, col, dac, value, verbose);
+
+		// relecture du paramËtre
+        const possible_answers = ["Yes", "No"];
+		const answer_id = getItem("Read the parameter back from the ASIC?: ", possible_answers);
+        const answer = possible_answers[answer_id];
+        if (answer === "Yes") {
+            address = WFEEBuildAddress(asic, col, dac);
+            print(Tab2 + "Returned parameter is:" + sendToAthenapic_WFEE_readRegister(address));
+        }
     }
 }
 
