@@ -115,7 +115,7 @@ function caracWFEEsim(verbose) {
         const answer = possible_answers[answer_id];
         if (answer === "Yes") {
             address = WFEEBuildAddress(asic, col, dac);
-            print(Tab2 + "Returned parameter is:" + sendToAthenapic_WFEE_readRegister(address));
+            print(TAB2 + "Returned parameter is:" + sendToAthenapic_WFEE_readRegister(address));
         }
     }
 }
