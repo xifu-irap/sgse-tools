@@ -39,12 +39,30 @@ const TAB3 = repeat(TAB1, 3);
  * Converts a number into a string replacing the sign with a caracter
  * "-" -> "M" and "+" -> "P"
  * @param {number} value_p - value
+ * @param {character} unit_p - defines the parameter unit V or A
  */
-function toStringWithNoSigns(value_p) {
+function toStringWithNoSigns(value_p, unit_p) {
     pref = "P";
     if (value_p < 0) pref = "M";
-	return pref + Math.abs(value_p);
+	var text =  pref + Math.abs(value_p);
+	var dot = false;
+	var text_copie = '',
+	for (var i=0; i<text.length; i++) {
+
+		if (text[i] === '.') {
+			text_copie = text_copie + unit_p;
+			dot = true; // The unit has been written instead of the dot
+		}
+		else text_copie =  text_copie + text[i];
+	}
+
+	if (! dot) {
+		text_copie = text_copie + unit_p; // there is no dot, the unit is written at the end of the value
+	}
+
+	return text_copie;
 }
+
 
 
 /**
@@ -316,10 +334,10 @@ function copyDirToBackupDirAndExecuteBat(sourceDir,subdir, batFile)
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------------
-function zipErrorData()
+function zipFitsErrorData()
 {
 	getLatestValue("DISP_BackupsCurrentDirectory")
-	exec(getEGSEDirectory()+"\\rar.exe m -ep "+DISP_BackupsCurrentDirectory+"\\dmx_data\\error_data.rar "+DISP_BackupsCurrentDirectory+"\\dmx_data\\error_*.*")
+	exec(getEGSEDirectory()+"\\rar.exe m -ep "+DISP_BackupsCurrentDirectory+"\\dmx_data\\error_data.rar "+DISP_BackupsCurrentDirectory+"\\dmx_data\\error_*.fits")
 }
 
 
