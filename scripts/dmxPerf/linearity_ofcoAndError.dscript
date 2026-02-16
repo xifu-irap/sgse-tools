@@ -36,6 +36,7 @@ include(includes_path + "utilTools.dscript");
 include(includes_path + "common_constants.dscript");
 
 const boxcarL = 3;
+const file_conversion_delay = 1000;
 
 // -------------------------------------------------------------------------------------------------------------
 
@@ -146,6 +147,7 @@ function linearity_fdbkAndError() {
 
 	}
 
+	waitMs(file_conversion_delay); // delay for file format conversion
 	print("Processing data ...")
 	output = copyDirToBackupDirAndExecuteBat(analysis_tools_path,".\\SCRIPTS_ANALYSE\\dmx-dm","do_processing.bat")
 	//addToFile(output)

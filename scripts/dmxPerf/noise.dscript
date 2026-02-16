@@ -32,9 +32,11 @@ include(includes_path + "utilTools.dscript");
 include(includes_path + "common_constants.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
-const errorFileDurationInS = 40;
-const nbDumpFiles = 64;
+const errorFileDurationInS = 40;
+const nbDumpFiles = 64;
 const errorFilenames = "error_noise";
+
+const fileConversionDurationInS = 50;
 
 const conf0 = {text: "100Ohms --> ERROR", flag: "NOISE-ERRO-ONLY"};
 const conf1 = {text: "FDBK --> ERROR", flag: "NOISE-FDBK-ERRO"};
@@ -49,15 +51,6 @@ function configure_test() {
     const confFlagTab = [conf0.flag, conf1.flag, conf2.flag];
     var confId = getItem("Please, indicates the test configuration: ", confTextTab);
     var conf = confFlagTab[confId];
-
-    // Setting the boxcar length
-    const boxcarL_min = 0;
-    const boxcarL_max = 3;
-    var boxcarL = boxcarL_min - 1;
-    while (boxcarL < boxcarL_min || boxcarL > boxcarL_max) {
-        boxcarL = getInt("Boxcar length? [" + boxcarL_min + "; " + boxcarL_max + "]");
-    }
-    setDMX_boxcarLength([boxcarL, boxcarL, boxcarL, boxcarL]);
 
     // Setting the feedback
 	print(TAB1 + "Switching the feedback OnOff to ON for all the columns:");
@@ -75,13 +68,13 @@ function configure_test() {
         setDMX_sqa_OffsetFine(colId, 0, 0);
     }
 
-    return [boxcarL, conf];
+    return conf;
 }
 
 
-function measure_data(fdbk_V, ofco_coarse_V, confName) {
+function measure_data(fdbk_V, ofco_coarse_V, confName, boxcarL) {
 
-    print(TAB2 + "Measurement for Feedback at " + fdbk_V + " V and Ofco coarse at " + ofco_coarse_V + " V");
+    print(TAB2 + "Measurement for Feedback at " + fdbk_V + " V and Ofco coarse at " + ofco_coarse_V + " V and Boxcar length = " + boxcarL);
 
     // Setting the feedback
     var fdbk_ADU = fdbk_V * Math.pow(2, 14) / 2;
@@ -91,6 +84,9 @@ function measure_data(fdbk_V, ofco_coarse_V, confName) {
     // Setting the offset coarse
     var ofco_coarse_ADU = ofco_coarse_V * Math.pow(2, 12) / 1;
     for (col = 0; col < DMX_NB_COL; col++) setDMX_sqa_OffsetCoarse(col, ofco_coarse_ADU);
+
+    // Setting the boxcar length
+    setDMX_boxcarLength([boxcarL, boxcarL, boxcarL, boxcarL]);
 
     // Opening a new session
     const sessionName = confName + "-BXL" + ("0" + boxcarL).slice(-1) + "_FDBK" + toStringWithNoSigns(fdbk_V, "V") + "_OFCO" + toStringWithNoSigns(ofco_coarse_V, "V");
@@ -106,7 +102,10 @@ function measure_data(fdbk_V, ofco_coarse_V, confName) {
     sendToDMXSaveScienceRaw(errorFilenames, errorFileDurationInS * 1000, 0xF, 0);
     waitMs(errorFileDurationInS * 1000 + 1000);
 
-    // Closing the session
+	print(TAB2+"Waiting for file conversion...");
+	waitMs(fileConversionDurationInS*1000);
+	
+	print("Processing data ...")
 	output = copyDirToBackupDirAndExecuteBat(analysis_tools_path,".\\SCRIPTS_ANALYSE\\dmx-dm","do_processing.bat")
     sendStopSession();
 
@@ -127,38 +126,47 @@ function noise() {
     plotSmallLine();
     print("");
 
-    config = configure_test();
-    boxcarL = config[0];
-    confName = config[1];
-
-	print(confName);
+    confName = configure_test();
+
     if (confName==="NOISE-FDBK-ERRO") {
         ofco_coarse_V = 0;
         fdbk_V = -0.5;
+        boxcarL = 0;
         measure_data(fdbk_V, ofco_coarse_V, confName, boxcarL);
 
         ofco_coarse_V = 0;
         fdbk_V = 0;
+        boxcarL = 0;
         measure_data(fdbk_V, ofco_coarse_V, confName, boxcarL);
 
         ofco_coarse_V = 0;
         fdbk_V = 0.5;
+        boxcarL = 0;
         measure_data(fdbk_V, ofco_coarse_V, confName, boxcarL);
     }
     else if (confName==="NOISE-OFCO-ERRO") {
         ofco_coarse_V = -0.25;
         fdbk_V = 0;
+        boxcarL = 0;
         measure_data(fdbk_V, ofco_coarse_V, confName, boxcarL);
 
         ofco_coarse_V = 0;
         fdbk_V = 0;
+        boxcarL = 0;
         measure_data(fdbk_V, ofco_coarse_V, confName, boxcarL);
 
         ofco_coarse_V = 0.25;
         fdbk_V = 0;
+        boxcarL = 0;
         measure_data(fdbk_V, ofco_coarse_V, confName, boxcarL);
     }
-    else measure_data(0, 0, confName, boxcarL);
+    else {
+        boxcarL = 0;
+        measure_data(0, 0, confName, boxcarL);
+
+        boxcarL = 3;
+        measure_data(0, 0, confName, boxcarL);
+    }
 
 }
 

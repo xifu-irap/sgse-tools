@@ -168,9 +168,9 @@ const maxValCoarse = Math.pow(2, 12)-1;
 
 //======= You should uncomment a single of the following lines
 //testSequence(tstSlowDacSPI, OFFSET_MODE_OFFSET, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE_1, minValCoarse);
-testSequence(tstSlowDacSPI, OFFSET_MODE_OFFSET, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE_2, minValCoarse);
+//testSequence(tstSlowDacSPI, OFFSET_MODE_OFFSET, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE_2, minValCoarse);
 //testSequence(tstSlowDacSPI, OFFSET_MODE_OFFSET, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE_3, minValCoarse);
-//testSequence(tstSlowDacSPI, OFFSET_MODE_TESTPATTERN, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE_2, midValCoarse);
+testSequence(tstSlowDacSPI, OFFSET_MODE_TESTPATTERN, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE_2, midValCoarse);
 
 // -------------------------------------------------------------------------------------------------------------
 

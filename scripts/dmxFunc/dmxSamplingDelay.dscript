@@ -31,6 +31,7 @@ include(includes_path + "dmxTools.dscript");
 include(includes_path + "utilTools.dscript");
 include(includes_path + "common_constants.dscript");
 
+const file_conversion_delay = 1000;
 
 /**
  * Configuring the test setup
@@ -38,7 +39,7 @@ include(includes_path + "common_constants.dscript");
  *  Sets all the DMX offset to the same value (in open loop mode)
  *  Does a DMX dump
  */
-function configure_test() {
+function configure_test(bxl_p) {
 
 	const fb0 = 0;
 
@@ -57,13 +58,8 @@ function configure_test() {
 	for (col=0; col<DMX_NB_COL; col++) setDMX_feedback_delay(col, fb_delay);
 
     // Setting the pulse shaping set
-	const pulseShapingSet_min = 0;
-	const pulseShapingSet_max = 3;
-	var pulseShapingSet = pulseShapingSet_min - 1;
-	while (pulseShapingSet < pulseShapingSet_min || pulseShapingSet > pulseShapingSet_max) {
-		pulseShapingSet = getInt("Pulse shaping set? [" + pulseShapingSet_min +"; " + pulseShapingSet_max + "]");
-	}
-	for (var col=0; col<DMX_NB_COL; col++)	setDMX_pulseShapingSelection(col, pulseShapingSet);
+	const pulseShapingSet = 0;
+	for (var col=0; col<DMX_NB_COL; col++) setDMX_pulseShapingSelection(col, pulseShapingSet);
 
 	// Switching ON the feedback for all the columns
 	print(TAB1+"Switching the feedback OnOff for all the columns:");
@@ -80,15 +76,10 @@ function configure_test() {
 		setDMX_sqm_FBMode(col, makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP));
 	}
 
-	// Setting the boxcar length
-	const boxcarL_min = 0;
-	const boxcarL_max = 3;
-	var boxcarL = boxcarL_min - 1;
-	while (boxcarL < boxcarL_min || boxcarL > boxcarL_max) {
-		boxcarL = getInt("Boxcar length? [" + boxcarL_min + "; " + boxcarL_max + "]");
-	}
-	for (colId = 0; colId < DMX_NB_COL; colId++) setDMX_pulseShapingSelection(colId, pulseShapingSet);
-	setDMX_boxcarLength([boxcarL, boxcarL, boxcarL, boxcarL]);
+	// Switching OFF the OFCO
+	print(TAB1+"Setting the DMX offset mode to OFF...");
+	colOffsetMode = [OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF];
+	setDMX_offsetMode(colOffsetMode);
 
 }
 
@@ -132,27 +123,22 @@ function onAbortScript() {
 
 
 /**
- * This function drives the test
+ * This function drives the test for a given boxcar length value
  */
-function carac_sampling_delay() {
+function carac_sampling_delay(boxcarL) {
 
-	plotSmallLine();
-	print("/ Sampling delay measurement");
-	plotSmallLine();
-	print("");
+	setDMX_boxcarLength([boxcarL, boxcarL, boxcarL, boxcarL]);
 
 	const nbDumpFiles = 16;
-
-	const sessionName = "SAMP-DELAY-----BXL"+("0" + boxcarL).slice(-1)+"-PLS"+pulseShapingSet;
+	const sessionName = "SAMP-DELAY-----BXL"+ boxcarL;
 	sendStartNewSession(sessionName, "");
-
-	configure_test();
 
 	print(TAB1+"Measuring input signal with dumps...");
 	for (var i = 0; i<nbDumpFiles; i++) sendToDMXGoToDumpMode();
 
 	scan_sampling_delay();
 
+	waitMs(file_conversion_delay); // delay for file format conversion
 	print("Processing data ...")
 	output = copyDirToBackupDirAndExecuteBat(analysis_tools_path,".\\SCRIPTS_ANALYSE\\dmx-dm","do_processing.bat")
 	//addToFile(output)
@@ -160,9 +146,29 @@ function carac_sampling_delay() {
 }
 
 
+/**
+ * This function drives the test
+ */
+function carac_sampling_delay_and_bxl() {
+
+	plotSmallLine();
+	print("/ Sampling delay and boxcar length measurements");
+	plotSmallLine();
+	print("");
+
+	configure_test();
+
+	// Scanning the different values of boxcar length
+	for (var bxl=0; bxl<4; bxl+=1) {
+		print(TAB2 + "Characterising BOXCAR_LENGTH = " + bxl + "...");
+		carac_sampling_delay(bxl);
+	}
+
+}
+
 // -------------------------------------------------------------------------------------------------------------
 
-carac_sampling_delay();
+carac_sampling_delay_and_bxl();
 
 onAbortScript();
 

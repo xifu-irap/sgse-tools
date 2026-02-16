@@ -33,8 +33,9 @@ const includes_path = "../../includes/";
 include(includes_path + "dmxTools.dscript");
 include(includes_path + "utilTools.dscript");
 include(includes_path + "common_constants.dscript");
-
-const boxcarL = 3;
+
+const boxcarL = 3;
+const file_conversion_delay = 1000;
 
 // -------------------------------------------------------------------------------------------------------------
 
@@ -51,15 +52,15 @@ function configure_test() {
 
 	// setting the SAMPLING_DELAY
 	const samp_delay = 16;
-	print(TAB1 + "Setting the sampling to 16");
+	print(TAB1 + "Setting the sampling delay to 16");
 	for (colId = 0; colId < DMX_NB_COL; colId++) setDMX_sampling_delay(colId, samp_delay);
 
 	// Setting the boxcar length
-	print(TAB1 + "Setting the Boxcar length to 4 samples");
+	print(TAB1 + "Setting the Boxcar length to 4 samples");
 	setDMX_boxcarLength([boxcarL, boxcarL, boxcarL, boxcarL]);
 
 	// Setting the pulse shaping set
-	print(TAB1 + "Setting the pulse shaping set to 0 (no pulse shaping)");
+	print(TAB1 + "Setting the pulse shaping set to 0 (no pulse shaping)");
 	const pulseShapingSet = 0;
 	for (colId=0; colId<DMX_NB_COL; colId++) setDMX_pulseShapingSelection(colId, pulseShapingSet);
 
@@ -113,7 +114,7 @@ function linearity_fdbkAndError() {
 	const N = nbStepsPerScan;
 	for (var scan = 0; scan < nbScans; scan++) {
 
-		print(TAB3 + "Setting test pattern number " + scan + " / " + nbScans);
+		print(TAB3 + "Setting test pattern number " + (scan+1) + " / " + nbScans);
 		a = -1 * Math.pow(2, DMX_NB_BITS_TPT - 1) + scan * increment;
 		const rampPattern = [
 			[a, b, c, N],  // Slope upward
@@ -140,6 +141,7 @@ function linearity_fdbkAndError() {
 
 	}
 
+	waitMs(file_conversion_delay); // delay for file format conversion
 	print("Processing data ...")
 	output = copyDirToBackupDirAndExecuteBat(analysis_tools_path,".\\SCRIPTS_ANALYSE\\dmx-dm","do_processing.bat")
 	//addToFile(output)

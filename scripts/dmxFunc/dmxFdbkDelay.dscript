@@ -31,6 +31,7 @@ include(includes_path + "dmxTools.dscript");
 include(includes_path + "utilTools.dscript");
 include(includes_path + "common_constants.dscript");
 
+const file_conversion_delay = 1000;
 
 /**
  * Configuring the test setup
@@ -47,16 +48,11 @@ function configure_test(fb0_p) {
     print("***");
 
     // Setting the pulse shaping set
-	const pulseShapingSet_min = 0;
-	const pulseShapingSet_max = 3;
-	var pulseShapingSet = pulseShapingSet_min - 1;
-	while (pulseShapingSet < pulseShapingSet_min || pulseShapingSet > pulseShapingSet_max) {
-		pulseShapingSet = getInt("Pulse shaping set? [" + pulseShapingSet_min +"; " + pulseShapingSet_max + "]");
-	}
+	const pulseShapingSet = 0;
 	for (var col=0; col<DMX_NB_COL; col++)	setDMX_pulseShapingSelection(col, pulseShapingSet);
 
     // Switching ON the feedback for all the columns
-	print(TAB1+"Switching the feedback OnOff for all the columns:");
+	print(TAB1+"Switching the feedback ON for all the columns:");
     setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
 
     // DEMUX feedback
@@ -124,7 +120,7 @@ function carac_feedback_delay() {
     var end = start - 1;
     while (end < start || end > delay_max) end = getInt("Fdbk delay max? [" + start + "; " + delay_max + "]");
 
-    const sessionName = "FDBK-DELAY-----" + toStringWithNoSigns(start) + "_" + toStringWithNoSigns(end);
+    const sessionName = "FDBK-DELAY-----" + toStringWithNoSigns(start,'') + "_" + toStringWithNoSigns(end,'');
     sendStartNewSession(sessionName, "");
 
     // DEMUX configuration
@@ -134,7 +130,9 @@ function carac_feedback_delay() {
     // Doing a scan on the feedback delay
     for (var i = start; i < end + 1; i++) measure_FB_DELAY(i);
 
+	waitMs(file_conversion_delay); // delay for file format conversion
     print("Processing data ...")
+
     output = copyDirToBackupDirAndExecuteBat(analysis_tools_path, ".\\SCRIPTS_ANALYSE\\dmx-dm", "do_processing.bat")
     //addToFile(output)
 }
