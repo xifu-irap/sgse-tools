@@ -60,11 +60,14 @@ function configure_test() {
 	fbMode_OPEN_LOOP = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
 	for (var colId = 0; colId < DMX_NB_COL; colId++) setDMX_sqm_FBMode(colId, fbMode_OPEN_LOOP);
 
-    // Setting the offset fine to 0
+	print(TAB1 + "Setting the offset mode to OFFSET for all columns");
+
     colOffsetMode = [OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET];
     setDMX_offsetMode(colOffsetMode);
+	print(TAB1 + "Setting the Ofset fine to 0");
+
     for (colId = 0; colId < DMX_NB_COL; colId++) {
-        setDMX_sqa_OffsetLSB(colId, 0);
+        setDMX_sqa_OffsetLSB(colId, OFFSET_LSB_ADU_MIN);
         setDMX_sqa_OffsetFine(colId, 0, 0);
     }
 
@@ -96,6 +99,7 @@ function measure_data(fdbk_V, ofco_coarse_V, confName, boxcarL) {
     print(TAB2+TAB1 + "Measuring " + nbDumpFiles + " dump files...");
     for (var i = 0; i < nbDumpFiles; i++) sendToDMXGoToDumpMode();
 
+	
     // Measuring error data
     sendToDMXGoToErrorSignalMode();
 	print(TAB2+TAB1 + "Measuring error data during " + errorFileDurationInS + " seconds...");
@@ -107,15 +111,16 @@ function measure_data(fdbk_V, ofco_coarse_V, confName, boxcarL) {
 	
 	print("Processing data ...")
 	output = copyDirToBackupDirAndExecuteBat(analysis_tools_path,".\\SCRIPTS_ANALYSE\\dmx-dm","do_processing.bat")
-    sendStopSession();
 
+	onAbortScript();
+	
 }
 
 
 function onAbortScript() {
 	sendToDMXGoToIdleMode();
 	sendStopSession();
-	print("End of script!");
+	print("Stopping current session");
 }
 
 
@@ -174,7 +179,5 @@ function noise() {
 // -------------------------------------------------------------------------------------------------------------
 
 noise();
-
-onAbortScript();
 
 // -------------------------------------------------------------------------------------------------------------

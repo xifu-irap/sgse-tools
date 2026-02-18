@@ -56,8 +56,8 @@ function toStringWithNoSigns(value_p, unit_p) {
 		else text_copie =  text_copie + text[i];
 	}
 
-	if (! dot) {
-		text_copie = text_copie + unit_p; // there is no dot, the unit is written at the end of the value
+	if (! dot) {  // there is no dot, the unit is written at the end of the value
+		text_copie = text_copie + unit_p;
 	}
 
 	return text_copie;
