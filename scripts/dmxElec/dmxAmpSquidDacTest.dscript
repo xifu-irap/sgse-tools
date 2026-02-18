@@ -33,20 +33,72 @@ include(includes_path + "common_constants.dscript");
 
 /**
  * This function outputs a set of values or the test pattern on the offset compensation output
- * @param {boolean} tstSlowDacSPI - if true, a pattern is send on the SPI link of the slow DACs
- * @param {number} offsetMode - offset mode (OFFSET_MODE_OFF, OFFSET_MODE_OFFSET, OFFSET_MODE_TESTPATTERN)
- * @param {number} offsetLSB - [0, 2^12[
- * @param {array} offsetFine - 34 3-bit values
- * @param {array} offsetCoarse - [0, 2^12[
  */
-function testSequence(tstSlowDacSPI, offsetMode, offsetLSB, offsetFine, offsetCoarse) {
+function testSequence() {
+
+	// Defining the testPattern to 2 rising slopes
+	const a = -1*Math.pow(2, 15);
+	const b = 12;
+	const c = Math.pow(2,6);
+	const margin = 90; // to avoid saturation of ADC when ofco is looped back to the error
+	const N = Math.pow(2,10) - 1 - margin;
+	const rampPattern = [
+		[a, b, c, N],  // Slope upward
+		[0, 0, 0, 0],  // Nothing
+		[0, 0, 0, 0],  // Nothing
+		[0, 0, 0, 0],  // Nothing
+		[0, 0, 0, 0]  // Nothing
+	];
+
+	// Defining sets of offset fine values
+	const AMP_SQ_OFFSET_FINE = [
+		[  // 34 3-bit values
+			0, 1, 2, 3, 4, 5, 6, 7,
+			0, 1, 2, 3, 4, 5, 6, 7,
+			7, 6, 5, 4, 3, 2, 1, 0,
+			7, 6, 5, 4, 3, 2, 1, 0,
+			5, 2
+		],
+		[  // 34 3-bit values
+			7, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0
+		],
+		[  // 34 3-bit values
+			7, 0, 7, 0, 7, 0, 7, 0,
+			7, 0, 7, 0, 7, 0, 7, 0,
+			7, 0, 7, 0, 7, 0, 7, 0,
+			7, 0, 7, 0, 7, 0, 7, 0,
+			7, 0
+		]
+	];
+
+	const AMP_SQ_OFFSET_FINE_4 = [  // 34 3-bit values
+		0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0
+	];
+
 
     // Switching ON the columns
     setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
-	
-	if (tstSlowDacSPI) { // Doing infinite loop with commands to the slow DACs
+
+	// Asking for the configuration setup
+    const testTabText = [
+								"Test of slow DACs SPI",
+								"Test pattern on DAC coarse",
+								"Offset values on MUX fine",
+								"Offset switched off"];
+    var iTest = getItem("Please, indicates the type of test: ", testTabText);
+    var test = testTabText[iTest];
+
+	if (test === "Test of slow DACs SPI") { // Doing infinite loop with commands to the slow DACs
 		setDMX_offsetMode([OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET]);
-		while(true){
+		while(true){  // Changing values is mandatory. When sending the same value the FPGA does nothing
 			for(colid=0; colid<4; colid++) {				
 				setDMX_sqa_OffsetCoarse(colid, 0x555);				
 				setDMX_sqa_OffsetCoarse(colid, 0x554);				
@@ -54,52 +106,63 @@ function testSequence(tstSlowDacSPI, offsetMode, offsetLSB, offsetFine, offsetCo
 				setDMX_sqa_OffsetLSB(colid, 0x554);			
 				}		
 			}	
-		} else {
-		// Setting the Offset LSB, the offset fine and the offset coarse
-		for (var col = 0; col < DMX_NB_COL; col++) {
-			setDMX_sqa_OffsetLSB(col, offsetLSB);
-			setDMX_sqa_OffsetFine(col, offsetFine, offsetFine);
-			setDMX_sqa_OffsetCoarse(col, offsetCoarse);
-		}
+	} else {
 
-		// Setting the testPattern to 2 rising slopes
-		const a = -1*Math.pow(2, 15);
-		const b = 12;
-		const c = Math.pow(2,6);
-		const margin = 90; // to avoid saturation of ADC when ofco is looped back to the error
-		const N = Math.pow(2,10) - 1 - margin;
-		const rampPattern = [
-			[a, b, c, N],  // Slope upward
-			[0, 0, 0, 0],  // Nothing
-			[0, 0, 0, 0],  // Nothing
-			[0, 0, 0, 0],  // Nothing
-			[0, 0, 0, 0]  // Nothing
-		]; 
-		setDMX_testPattern(rampPattern);
-
-		if (offsetMode === OFFSET_MODE_OFF) {
+		if (test === "Offset switched off") {
 			// Setting the offset mode to OFF for all the columns
 			colOffsetMode = [OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF];
 			setDMX_offsetMode(colOffsetMode);
 		}
 
-		if (offsetMode === OFFSET_MODE_OFFSET) {
+		if (test === "Offset values on MUX fine") {
+
+			// Selecting the offset fine pattern
+			const offsetFineTabText = [	"8-step ramp",
+												"All pixels equals except pixel 0",
+												"Sequence of min / max values",
+												"All pixels set to 0"];
+			var iOffsetFine = getItem("Please, indicates the type of test: ", offsetFineTabText);
+
+			for (var col = 0; col < DMX_NB_COL; col++) {
+				setDMX_sqa_OffsetCoarse(col, OFFSET_COARSE_ADU_MIN);
+				setDMX_sqa_OffsetLSB(col, math.Pow(2, 12)-1);
+				setDMX_sqa_OffsetFine(col, AMP_SQ_OFFSET_FINE[iOffsetFine+1], AMP_SQ_OFFSET_FINE[iOffsetFine+1]);
+			}
+
 			// Setting the offset mode to OFFSET for all the columns
 			colOffsetMode = [OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET];
 			setDMX_offsetMode(colOffsetMode);
 		}
 
-		if (offsetMode === OFFSET_MODE_TESTPATTERN) {
+		if (test === "Test pattern on DAC coarse") {
+
+			const setOfValues = ["Min", "Max"];
+			var iAnswer = getItem("Which value do you want for Offset MUX?: ", setOfValues);
+			const answer = setOfValues[iAnswer];
+			if (answer === "Min") offset_lsb = OFFSET_LSB_ADU_MIN;
+			else offset_lsb = math.Pow(2, 12) -1;
+
+			// Switching off the MUX contribution
+			for (var col = 0; col < DMX_NB_COL; col++) {
+				setDMX_sqa_OffsetLSB(col, offset_lsb);
+				setDMX_sqa_OffsetFine(col, 7, 7);
+			}
+
+			// Setting the test pattern in the FPGA registers
+			setDMX_testPattern(rampPattern);
+
 			// Setting the offset mode to TEST_PATTERN
 			colOffsetMode = [OFFSET_MODE_TESTPATTERN, OFFSET_MODE_TESTPATTERN, OFFSET_MODE_TESTPATTERN, OFFSET_MODE_TESTPATTERN];
 			setDMX_offsetMode(colOffsetMode);
 
+			// Switching On the pattern
 			var enable = true;
 			var infinitely = true;
 			var nbTime = 0x9;
 			setDMX_testPatternEnable(enable, infinitely, nbTime);
 		}
 
+		// Activating the data acquisition in Error mode
 		sendToDMXGoToErrorSignalMode();
 
 		var answer=getText("Type enter to finish the test", "");	}
@@ -133,44 +196,8 @@ function onAbortScript() {
 // -------------------------------------------------------------------------------------------------------------
 
 startSession("offcoTest");
-// Set this boolean to true to test the SPI communication with the slow DACs
-tstSlowDacSPI = false;
-const AMP_SQ_OFFSET_LSB = Math.pow(2, 12)-1;  // between 0 and 2^12-1
-//const AMP_SQ_OFFSET_LSB = 0x555; 
 
-const AMP_SQ_OFFSET_FINE_1 = [  // 34 3-bit values
-    0, 1, 2, 3, 4, 5, 6, 7,
-    0, 1, 2, 3, 4, 5, 6, 7,
-    7, 6, 5, 4, 3, 2, 1, 0,
-    7, 6, 5, 4, 3, 2, 1, 0,
-    5, 2
-];
-
-const AMP_SQ_OFFSET_FINE_2 = [  // 34 3-bit values
-   7, 0, 0, 0, 0, 0, 0, 0,
-   0, 0, 0, 0, 0, 0, 0, 0,
-   0, 0, 0, 0, 0, 0, 0, 0,
-   0, 0, 0, 0, 0, 0, 0, 0,
-   0, 0
-];
-
-const AMP_SQ_OFFSET_FINE_3 = [  // 34 3-bit values
-	   7, 0, 7, 0, 7, 0, 7, 0,
-	   7, 0, 7, 0, 7, 0, 7, 0,
-	   7, 0, 7, 0, 7, 0, 7, 0,
-	   7, 0, 7, 0, 7, 0, 7, 0,
-	   7, 0
-	];
-
-const minValCoarse = OFFSET_COARSE_ADU_MIN;
-const midValCoarse = Math.pow(2, 11);
-const maxValCoarse = Math.pow(2, 12)-1;
-
-//======= You should uncomment a single of the following lines
-//testSequence(tstSlowDacSPI, OFFSET_MODE_OFFSET, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE_1, minValCoarse);
-//testSequence(tstSlowDacSPI, OFFSET_MODE_OFFSET, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE_2, minValCoarse);
-//testSequence(tstSlowDacSPI, OFFSET_MODE_OFFSET, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE_3, minValCoarse);
-testSequence(tstSlowDacSPI, OFFSET_MODE_TESTPATTERN, AMP_SQ_OFFSET_LSB, AMP_SQ_OFFSET_FINE_2, midValCoarse);
+testSequence();
 
 // -------------------------------------------------------------------------------------------------------------
 

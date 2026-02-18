@@ -37,16 +37,18 @@ include(includes_path + "common_constants.dscript");
  * @param {boolean} SAVE_ERROR - if true data are saved in error acquisition mode
  */
 function testSequence(SAVE_DUMP, SAVE_ERROR) {
-	
-    // Setting the sampling delay
-	const delay_min = 0;
-	const delay_max = 19;
-	var samp_delay = delay_min - 1;
-	while (samp_delay < delay_min || samp_delay > delay_max) {
-		samp_delay = getInt("Sampling delay? [" + delay_min + "; " + delay_max + "]");
-	}
-	print(TAB1+"Setting the 4 registers SAMPLING_DELAY to " + samp_delay);
-	for (var col=0; col<DMX_NB_COL; col++) setDMX_sampling_delay(col, samp_delay);
+	
+
+    // Setting the sampling delay
+	const delay_min = 0;
+	const delay_max = 19;
+	var samp_delay = delay_min - 1;
+	while (samp_delay < delay_min || samp_delay > delay_max) {
+		samp_delay = getInt("Sampling delay? [" + delay_min + "; " + delay_max + "]");
+	}
+
+	print(TAB1+"Setting the 4 registers SAMPLING_DELAY to " + samp_delay);
+	for (var col=0; col<DMX_NB_COL; col++) setDMX_sampling_delay(col, samp_delay);
 
     // Asking for the configuration setup
     const confTabText = ["FEEDBACK_MODE_TESTPATTERN", "FEEDBACK_MODE_OPEN_LOOP"];
@@ -93,90 +95,89 @@ function testSequence(SAVE_DUMP, SAVE_ERROR) {
         [0, 0, 0, 0]  // Nothing
     ];
 	
-	if (fbMode === FEEDBACK_MODE_TESTPATTERN) {
-	
-        var tabFbModesTstPattern = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_TESTPATTERN);
-        for (col=0; col<DMX_NB_COL; col++) setDMX_sqm_FBMode(col, tabFbModesTstPattern);
-	
-		// Asking for the test pattern type
-		const confTptTab = ["SAW_PATTERN", "HR_RISE_RAMP_PATTERN", "HR_FALL_RAMP_PATTERN"];
-		var iConfTpt = getItem("Please, indicates the test configuration: ", confTptTab);
-		const TST_PATTERN = confTptTab[iConfTpt];
-
+	if (fbMode === FEEDBACK_MODE_TESTPATTERN) {
+
+        var tabFbModesTstPattern = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_TESTPATTERN);
+        for (col=0; col<DMX_NB_COL; col++) setDMX_sqm_FBMode(col, tabFbModesTstPattern);
+
+		// Asking for the test pattern type
+		const confTptTab = ["SAW_PATTERN", "HR_RISE_RAMP_PATTERN", "HR_FALL_RAMP_PATTERN"];
+		var iConfTpt = getItem("Please, indicates the test configuration: ", confTptTab);
+		const TST_PATTERN = confTptTab[iConfTpt];
+
 		if (TST_PATTERN === "SAW_PATTERN") setDMX_testPattern(sawPattern);
 		if (TST_PATTERN === "HR_RISE_RAMP_PATTERN") setDMX_testPattern(HRRiseRampPattern);
 		if (TST_PATTERN === "HR_FALL_RAMP_PATTERN") setDMX_testPattern(HRFallRampPattern);
-
-        // Activation of the test pattern indefinitely
-        var enable = true;
-        var infinitely = true;
-        var nbTime = 0x9;
-        setDMX_testPatternEnable(enable, infinitely, nbTime);
-	}
-	
+
+        // Activation of the test pattern indefinitely
+        var enable = true;
+        var infinitely = true;
+        var nbTime = 0x9;
+        setDMX_testPatternEnable(enable, infinitely, nbTime);
+
+	}
+
     if (fbMode === FEEDBACK_MODE_OPEN_LOOP) {
         // Setting the feedback modes to "open loop" for all the pixels
         var tabFbModesOpenLoop = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
-        for (col=0; col<DMX_NB_COL; col++) setDMX_sqm_FBMode(col, tabFbModesOpenLoop);
-		
-		const yesNo = ["Yes", "No"];
-		var iAnswer = getItem("Do you want different values on the pixels?: ", yesNo);
-		const answer = yesNo[iAnswer];
-
-		if (answer === "Yes") {
-			// Setting the feedback FB0 values
-			const minVal = -1*Math.pow(2, 13);
-			const midVal = 0;
-			const maxVal = Math.pow(2, 13) - (1/Math.pow(2, 2));
-			
-			tabFb0 = [
-				minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
-				minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
-				minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
-				minVal, midVal, maxVal, minVal, midVal, maxVal, minVal
-			];
-		} else tabFb0 = makeArray(DMX_NB_PIX_PER_COL, midVal);
-		
-		for (colId=0; colId<DMX_NB_COL; colId+=1) setDMX_fb0(colId, tabFb0);
-
-    }
-
-    // Selecting the pulse shaping type (0, 1, 2, 3)
-    var pulseShapingType = 0;
-    for (col=0; col<DMX_NB_COL; col++) setDMX_pulseShapingSelection(col, pulseShapingType);
+        for (col=0; col<DMX_NB_COL; col++) setDMX_sqm_FBMode(col, tabFbModesOpenLoop);
 
-    // Switching ON the columns
-    print(TAB1+"Switching ON the feedback for all the columns: ");
-    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
-
-    if (SAVE_DUMP) {
+		const yesNo = ["Yes", "No"];
+		var iAnswer = getItem("Do you want different values on the pixels?: ", yesNo);
+		const answer = yesNo[iAnswer];
+
+		if (answer === "Yes") {
+			// Setting the feedback FB0 values
+			const minVal = -1*Math.pow(2, 13);
+			const midVal = 0;
+			const maxVal = Math.pow(2, 13) - (1/Math.pow(2, 2));
+
+			tabFb0 = [
+				minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
+				minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
+				minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
+				minVal, midVal, maxVal, minVal, midVal, maxVal, minVal
+			];
+		} else tabFb0 = makeArray(DMX_NB_PIX_PER_COL, midVal);
+
+		for (colId=0; colId<DMX_NB_COL; colId+=1) setDMX_fb0(colId, tabFb0);
+
+    }
+
+    // Selecting the pulse shaping type (0, 1, 2, 3)
+    var pulseShapingType = 0;
+    for (col=0; col<DMX_NB_COL; col++) setDMX_pulseShapingSelection(col, pulseShapingType);
+
+    // Switching ON the columns
+    print(TAB1+"Switching ON the feedback for all the columns: ");
+    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
+
+    if (SAVE_DUMP) {
 	    print("Saving some data in dump acquisition mode");
         sendToDMXGoToDumpMode();
     }
 
 	// Starting acquisition of TM
     sendToDMXGoToErrorSignalMode();
-
     if (SAVE_ERROR) {
         print("Saving some data in error acquisition mode");
         const durationMs = 300;
         sendToDMXSaveScienceRaw("feedbackInErrorSignal", durationMs, 0xF, 0);
         waitMs(durationMs + 100);
     }
-
-   // Asking for the data_acquisition_mode
-    const confAcqTab = ["DUMPS", "ERROR", "IDLE", "END OF TEST"];
-	AcqMode = "DUMPS";
-	while (AcqMode !== "END OF TEST") {
-		iAcq = getItem("Please, select the data acquisition mode for visualisation or stop the test: ", confAcqTab);
-		var AcqMode = confAcqTab[iAcq];
-		if (AcqMode === "ERROR") sendToDMXGoToErrorSignalMode();
-		if (AcqMode === "DUMPS") sendToDMXGoToDumpModeAndDontSaveIt();
-		if (AcqMode === "IDLE") sendToDMXGoToIdleMode();
-	}
-
-}
 
+   // Asking for the data_acquisition_mode
+    const confAcqTab = ["DUMPS", "ERROR", "IDLE", "END OF TEST"];
+	AcqMode = "DUMPS";
+	while (AcqMode !== "END OF TEST") {
+		iAcq = getItem("Please, select the data acquisition mode for visualisation or stop the test: ", confAcqTab);
+		var AcqMode = confAcqTab[iAcq];
+		if (AcqMode === "ERROR") sendToDMXGoToErrorSignalMode();
+		if (AcqMode === "DUMPS") sendToDMXGoToDumpModeAndDontSaveIt();
+		if (AcqMode === "IDLE") sendToDMXGoToIdleMode();
+	}
+
+}
 
 function startSession(sessionName) {
     sendStartNewSession(sessionName, "");
@@ -203,7 +204,7 @@ function onAbortScript() {
 // -------------------------------------------------------------------------------------------------------------
 
 startSession("test_dmx_feedback");
-
+
 SAVE_DUMP = true;
 SAVE_ERROR = true;
 
