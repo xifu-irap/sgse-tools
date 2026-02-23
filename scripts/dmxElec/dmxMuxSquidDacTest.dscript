@@ -38,7 +38,6 @@ include(includes_path + "common_constants.dscript");
  */
 function testSequence(SAVE_DUMP, SAVE_ERROR) {
 	
-
     // Setting the sampling delay
 	const delay_min = 0;
 	const delay_max = 19;
@@ -166,17 +165,7 @@ function testSequence(SAVE_DUMP, SAVE_ERROR) {
         waitMs(durationMs + 100);
     }
 
-   // Asking for the data_acquisition_mode
-    const confAcqTab = ["DUMPS", "ERROR", "IDLE", "END OF TEST"];
-	AcqMode = "DUMPS";
-	while (AcqMode !== "END OF TEST") {
-		iAcq = getItem("Please, select the data acquisition mode for visualisation or stop the test: ", confAcqTab);
-		var AcqMode = confAcqTab[iAcq];
-		if (AcqMode === "ERROR") sendToDMXGoToErrorSignalMode();
-		if (AcqMode === "DUMPS") sendToDMXGoToDumpModeAndDontSaveIt();
-		if (AcqMode === "IDLE") sendToDMXGoToIdleMode();
-	}
-
+	alert("Finish the test?");
 }
 
 function startSession(sessionName) {
