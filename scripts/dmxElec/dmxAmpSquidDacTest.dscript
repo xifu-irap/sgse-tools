@@ -82,7 +82,6 @@ function testSequence() {
 		]
 	];
 
-
     // Switching ON the columns
     setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
 
@@ -94,7 +93,7 @@ function testSequence() {
 								"Offset switched off"];
     var iTest = getItem("Please, indicates the type of test: ", testTabText);
     var test = testTabText[iTest];
-
+
 	switch(test) {
 		case "Test of slow DACs SPI": 	// Doing infinite loop with commands to the slow DACs
 			setDMX_offsetMode([OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET]);
@@ -105,23 +104,22 @@ function testSequence() {
 					setDMX_sqa_OffsetLSB(colid, 0x555);				
 					setDMX_sqa_OffsetLSB(colid, 0x554);			
 				}		
-			}	
+			}
 			break;
-		
+
 		case  "Offset switched off":
 			colOffsetMode = [OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF];
 			setDMX_offsetMode(colOffsetMode);
-			break;
+			break;
 
 		case "Offset values on MUX fine":
-
 			// Selecting the offset fine pattern
-			const offsetFineTabText = [	
+			const offsetFineTabText = [
 												"8-step ramp",
 												"All pixels equals except pixel 0",
 												"Sequence of min / max values",
 												"All pixels set to 0"];
-			var iOffsetFine = getItem("Please, indicates the type of test: ", offsetFineTabText);
+			var iOffsetFine = getItem("Please, indicates the type of test: ", offsetFineTabText);
 
 			for (var col = 0; col < DMX_NB_COL; col++) {
 				setDMX_sqa_OffsetCoarse(col, OFFSET_COARSE_ADU_MIN);
@@ -132,7 +130,7 @@ function testSequence() {
 			// Setting the offset mode to OFFSET for all the columns
 			colOffsetMode = [OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET];
 			setDMX_offsetMode(colOffsetMode);
-			break;
+			break;
 
 		case "Test pattern on DAC coarse":
 
@@ -154,13 +152,15 @@ function testSequence() {
 			var infinitely = true;
 			var nbTime = 0x9;
 			setDMX_testPatternEnable(enable, infinitely, nbTime);
-			break;
-	}
+			break;
+
+	}
 
 	// Activating the data acquisition in Error mode
 	sendToDMXGoToErrorSignalMode();
 
-	alert("Finish the test?");
+	alert("Finish the test?");
+
 }
 
 

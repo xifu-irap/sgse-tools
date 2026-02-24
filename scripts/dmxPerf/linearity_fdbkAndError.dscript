@@ -130,7 +130,7 @@ function linearity_fdbkAndError() {
 
 		waitMs(500);
 
-		if (scan === 0) getText("OK to save the scan files for all the columns?", "OK");
+		if (scan === 0) alert("OK to save the scan files for all the columns?");
 		for (var colId = 0; colId < DMX_NB_COL; colId++) {
 			sendSaveDMXScan(colId, "scan_" + maDate() + "_col" + colId + ".fits");
 		}

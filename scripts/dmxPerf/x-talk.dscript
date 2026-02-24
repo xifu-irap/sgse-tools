@@ -1,0 +1,174 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     XTalkAnalysis.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file is used to characterise the cross talk on the DEMUX module.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+const includes_path = "../../includes/";
+include(includes_path + "dmxTools.dscript");
+include(includes_path + "utilTools.dscript");
+include(includes_path + "common_constants.dscript");
+
+// -------------------------------------------------------------------------------------------------------------
+
+/*
+ Starting and configuring the DEMUX
+*/
+const nbDumpFiles = 16;
+
+
+function configure_test() {
+
+	// Getting the perpetrator
+	const perp_tab = ["Fdbk", "Ofco"];
+	var i_perp = getItem("Please, indicate the perpetrator: ", perp_tab);
+	const perp = perp_tab[i_perp];
+
+	// Defining the test configuration
+	const config_tab = ["-NOLOAD", "-BOB-LP", "-HRN-08"];
+	var i_config = getItem("Please, indicate the test configuration: ", config_tab);
+	const config = config_tab[i_config];
+
+	if (perp === "Fdbk") {
+		print(TAB1 + "Switching the feedback OnOff to ON for all the columns:");
+		setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
+
+		print(TAB1 + "Setting the feedback mode to OPEN_LOOP for all columns and all pixels");
+		fbMode_TPT = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
+		for (var colId = 0; colId < DMX_NB_COL; colId++) setDMX_sqm_FBMode(colId, fbMode_TPT);
+
+		print(TAB1 + "Switching the Ofco OFF");
+		setDMX_offsetMode([OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF]);
+	}
+	if (perp === "Ofco") {
+		print(TAB1 + "Switching the feedback OnOff to OFF for all the columns:");
+		setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
+
+		print(TAB1 + "Setting the Offset mode to OFFSET");
+		setDMX_offsetMode([OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET]);
+	}
+	return {"perp": perp, "config": config};
+}
+
+
+function fdbk_x_talk(infos) {
+
+	const margin = 1500; // To see positive and negative pulses
+	const min_val = -Math.pow(2, DMX_NB_BITS_DAC_FDBK - 1) + margin;
+	const max_val = Math.pow(2, DMX_NB_BITS_DAC_FDBK - 1) - margin;
+	const fb = makeArray(DMX_NB_PIX_PER_COL, min_val);
+	var fb_perp = makeArray(DMX_NB_PIX_PER_COL, min_val);
+	fb_perp[0] = max_val;
+
+	for (var c_perp = 0; c_perp < DMX_NB_COL; c_perp++) {
+
+		// Configuring DEMUX feedback
+		print(TAB1 + "Setting a different FB0 for pixel 0 on column " + c_perp + " ...");
+		for (var icol = 0; icol < DMX_NB_COL; icol++) {
+			if (icol === c_perp) setDMX_fb0(icol, fb_perp);
+			else setDMX_fb0(icol, fb);
+		}
+
+		const sessionName = "XT-P-" + infos["perp"] + "-C{0:}".format(c-perp) + info["config"];
+		print(TAB2 + "Doing a test session " + sessionName);
+
+		sendStartNewSession(sessionName, "");
+
+		// Doing several dump files (will be averaged during data processing)
+		print(TAB2 + "Measuring " + nbDumpFiles + " dump files...");
+		for (var i = 0; i < nbDumpFiles; i++) sendToDMXGoToDumpMode();
+
+		sendStopSession();
+	}
+}
+
+
+function ofco_x_talk(infos) {
+
+	// Applying a minimum offset with the offset coarse to be able to see positive and negative pulses
+	const margin = 100;
+	for (colId = 0; colId < DMX_NB_COL; colId++) setDMX_sqa_OffsetCoarse(colid, margin);
+
+	// Setting the offset LSB
+	for (colId = 0; colId < DMX_NB_COL; colId++) setDMX_sqa_OffsetLSB(colid, Math.pow(2, 12));
+
+	const ofco_fine = makeArray(DMX_NB_PIX_PER_COL, 0);
+	var ofco_fine_prp = makeArray(DMX_NB_PIX_PER_COL, 0);
+	ofco_fine_prp[0] = 7;
+
+	for (var c_perp = 0; c_perp < DMX_NB_COL; c_perp++) {
+
+		// Configuring Offset fine
+		print(TAB1 + "Setting a different OFFSET for pixel 0 on column " + c_perp + " ...");
+		for (colId = 0; colId < DMX_NB_COL; colId++) {
+			if (colId === c_perp) setDMX_sqa_OffsetCoarse(colId, ofco_fine_prp, ofco_fine_prp);
+			else setDMX_sqa_OffsetCoarse(colId, ofco_fine, ofco_fine);
+		}
+
+		const sessionName = "XTALK-PERP-" + infos["perp"] + "-C{0:}".format(c-perp) + info["config"];
+		print(TAB2 + "Doing a test session " + sessionName);
+
+		sendStartNewSession(sessionName, "");
+
+		// Doing several dump files (will be averaged during data processing)
+		print(TAB2 + "Measuring " + nbDumpFiles + " dump files...");
+		for (var i = 0; i < nbDumpFiles; i++) sendToDMXGoToDumpMode();
+
+		sendStopSession();
+	}
+}
+
+
+/**
+ * This function drives the test
+ */
+function x_talk() {
+
+	plotSmallLine();
+	print("/ X-talk measurement");
+	plotSmallLine();
+	print("");
+
+	infos = configure_test();
+
+	if (infos["perp"] === "Fdbk") fdbk_x_talk(infos);
+
+	if (infos["perp"] === "Ofco") ofco_x_talk(infos);
+
+}
+
+
+function onAbortScript() {
+	sendToDMXGoToIdleMode();
+	print("End of script!");
+}
+
+// -------------------------------------------------------------------------------------------------------------
+
+x_talk();
+
+onAbortScript();
+
+// -------------------------------------------------------------------------------------------------------------
