@@ -35,7 +35,7 @@ include(includes_path + "common_constants.dscript");
 /*
  Starting and configuring the DEMUX
 */
-const nbDumpFiles = 32;
+const nbDumpFiles = 16;
 
 
 function configure_test() {
@@ -45,9 +45,10 @@ function configure_test() {
 	var i_perp = getItem("Please, indicate the perpetrator: ", perp_tab);
 	const perp = perp_tab[i_perp];
 
+	print(TAB1 + "Switching the columns ON");
+	setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
+
 	if (perp === "Fdbk") {
-		print(TAB1 + "Switching the feedback OnOff to ON for all the columns:");
-		setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
 
 		print(TAB1 + "Setting the feedback mode to OPEN_LOOP for all columns and all pixels");
 		fbMode_TPT = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
@@ -57,9 +58,6 @@ function configure_test() {
 		setDMX_offsetMode([OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF]);
 	}
 	if (perp === "Ofco") {
-		print(TAB1 + "Switching the feedback OnOff to OFF for all the columns:");
-		setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
-
 		print(TAB1 + "Setting the Offset mode to OFFSET");
 		setDMX_offsetMode([OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET]);
 	}
@@ -103,10 +101,10 @@ function ofco_x_talk(config) {
 
 	// Applying a minimum offset with the offset coarse to be able to see positive and negative pulses
 	const margin = 100;
-	for (colId = 0; colId < DMX_NB_COL; colId++) setDMX_sqa_OffsetCoarse(colid, margin);
+	for (colId = 0; colId < DMX_NB_COL; colId++) setDMX_sqa_OffsetCoarse(colId, margin);
 
 	// Setting the offset LSB
-	for (colId = 0; colId < DMX_NB_COL; colId++) setDMX_sqa_OffsetLSB(colid, Math.pow(2, 12));
+	for (colId = 0; colId < DMX_NB_COL; colId++) setDMX_sqa_OffsetLSB(colId, Math.pow(2, 12)-1);
 
 	const ofco_fine = makeArray(DMX_NB_PIX_PER_COL, 0);
 	var ofco_fine_prp = makeArray(DMX_NB_PIX_PER_COL, 0);
@@ -122,7 +120,6 @@ function ofco_x_talk(config) {
 		}
 
 		const sessionName = "XTALK-PERP-OFCO-C" + c_perp + config;
-
 		print(TAB2 + "Doing a test session " + sessionName);
 
 		sendStartNewSession(sessionName, "");
