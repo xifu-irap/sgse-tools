@@ -35,7 +35,7 @@ include(includes_path + "common_constants.dscript");
 /*
  Starting and configuring the DEMUX
 */
-const nbDumpFiles = 16;
+const nbDumpFiles = 32;
 
 
 function configure_test() {
@@ -65,7 +65,7 @@ function configure_test() {
 }
 
 
-function fdbk_x_talk(config) {
+function fdbk_x_talk() {
 
 	const margin = 1500; // To see positive and negative pulses
 	const min_val = -Math.pow(2, DMX_NB_BITS_DAC_FDBK - 1) + margin;
@@ -83,21 +83,14 @@ function fdbk_x_talk(config) {
 			else setDMX_fb0(icol, fb);
 		}
 
-		const sessionName = "XTALK-PERP-FDBK-C" + c_perp + config;
-		print(TAB2 + "Doing a test session " + sessionName);
-
-		sendStartNewSession(sessionName, "");
-
 		// Doing several dump files (will be averaged during data processing)
 		print(TAB2 + "Measuring " + nbDumpFiles + " dump files...");
 		for (var i = 0; i < nbDumpFiles; i++) sendToDMXGoToDumpMode();
-
-		sendStopSession();
 	}
 }
 
 
-function ofco_x_talk(config) {
+function ofco_x_talk() {
 
 	// Applying a minimum offset with the offset coarse to be able to see positive and negative pulses
 	const margin = 100;
@@ -119,16 +112,9 @@ function ofco_x_talk(config) {
 			else setDMX_sqa_OffsetCoarse(colId, ofco_fine, ofco_fine);
 		}
 
-		const sessionName = "XTALK-PERP-OFCO-C" + c_perp + config;
-		print(TAB2 + "Doing a test session " + sessionName);
-
-		sendStartNewSession(sessionName, "");
-
 		// Doing several dump files (will be averaged during data processing)
 		print(TAB2 + "Measuring " + nbDumpFiles + " dump files...");
 		for (var i = 0; i < nbDumpFiles; i++) sendToDMXGoToDumpMode();
-
-		sendStopSession();
 	}
 }
 
@@ -147,22 +133,31 @@ function x_talk() {
 
 	if (perp === "Fdbk") {
 
+		const sessionName = "XTALK-PERP-FDBK";
+		sendStartNewSession(sessionName, "");
+
 		alert("Plug the Feedback loopback on J81/J82");
-		fdbk_x_talk("-BOB-LP");
+		fdbk_x_talk();
 
 		alert("Unplug J81/J82");
-		fdbk_x_talk("-NOLOAD");
+		fdbk_x_talk();
+
+		sendStopSession();
 	}
 
 	if (perp === "Ofco") {
 
+		const sessionName = "XTALK-PERP-OFCO";
+		sendStartNewSession(sessionName, "");
+
 		alert("Plug the Ofco loopback on J81/J82");
-		ofco_x_talk("-BOB-LP");
+		ofco_x_talk();
 
 		alert("Unplug J81/J82");
-		ofco_x_talk("-NOLOAD");
-	}
+		ofco_x_talk();
 
+		sendStopSession();
+	}
 }
 
 
