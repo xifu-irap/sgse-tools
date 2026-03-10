@@ -49,7 +49,7 @@ function dmxCheckReadWrite() {
     /******************************************************************************************************************/
     plotLongLine();
     print("Reading the firmware version");
-    readDMX_firmwareVersion(true);
+    fwVersion = readDMX_firmwareVersion(true);
 
 
     /******************************************************************************************************************/
@@ -413,7 +413,7 @@ function dmxCheckReadWrite() {
     for (col=0; col<DMX_NB_COL; col++) {
         print(TAB1 + "Testing column " + col);
 
-        initial_value = readDMX_lockpointV(col);
+        initial_value = readDMX_sqm_lockpointV(col);
         print(TAB2 + "Initial value is: " + initial_value);
 
         new_value = [DMX_NB_PIX_PER_COL];
@@ -421,15 +421,39 @@ function dmxCheckReadWrite() {
             new_value[pix] = pix*3+1;
         }
         print(TAB2 + "Setting new value to: " + new_value);
-        setDMX_lockpointV(col, new_value);
+        setDMX_sqm_lockpointV(col, new_value);
 
-        checked_value = readDMX_lockpointV(col);
+        checked_value = readDMX_sqm_lockpointV(col);
         print(TAB2 + "Reading the new value from the firmware: " + checked_value);
 
         ERROR_COUNTER = error_manager(new_value, checked_value, ERROR_COUNTER, TAB2);
 
         print(TAB2 + "Setting back the initial value");
-        setDMX_lockpointV(col, initial_value);
+        setDMX_sqm_lockpointV(col, initial_value);
+    }
+
+
+    /* AMP_SQ_LOCKPOINT_V *********************************************************************************************/
+    if (fwVersion >= 0x14) {
+        plotLongLine();
+        print("Testing the setting of the offset lockpoint (AMP_SQ_LOCKPOINT_V):");
+
+        initial_value = [DMX_NB_COL];
+        for (col=0; col<DMX_NB_COL; col++) initial_value[col] = readDMX_sqa_lockpointV(col);
+        print(TAB1 + "Initial value is: " + initial_value);
+
+        new_value = [0x0ABA, 0x000B, 0x0F2F, 0x0666];
+        print(TAB1 + "Setting new value to: " + new_value);
+        for (col=0; col<DMX_NB_COL; col++) setDMX_sqa_lockpointV(col, new_value[col]);
+
+        checked_value = [DMX_NB_COL];
+        for (col=0; col<DMX_NB_COL; col++) checked_value[col] = readDMX_sqa_lockpointV(col);
+        print(TAB1 + "Reading the new values: " + checked_value);
+
+        ERROR_COUNTER = error_manager(new_value, checked_value, ERROR_COUNTER, TAB1);
+
+        print(TAB1 + "Setting back the initial value");
+        for (col=0; col<DMX_NB_COL; col++) setDMX_sqa_lockpointV(col, initial_value[col]);
     }
 
 

@@ -687,7 +687,7 @@ function readDMX_fb0(col_p) {
  * @param {array} lockpointV_p - one value of lockpointV per pixel float
  * This function converts the float value into a S(16,2).
  */
-function setDMX_lockpointV(col_p, lockpointV_p) {
+function setDMX_sqm_lockpointV(col_p, lockpointV_p) {
     if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
         print("ERROR, column number is incorrect!  --> " + col_p);
         return;
@@ -718,7 +718,7 @@ function setDMX_lockpointV(col_p, lockpointV_p) {
  * @param {number} col_p - column number [0, 3].
  * @return {array} lockpointV - value of the lockpoint (one value per pixel).
  */
-function readDMX_lockpointV(col_p) {
+function readDMX_sqm_lockpointV(col_p) {
     if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
         print("ERROR, column number is incorrect!  --> " + col_p);
         return;
@@ -732,6 +732,46 @@ function readDMX_lockpointV(col_p) {
     }
 
     return values;
+}
+
+/**
+ * Sets the values of the feedbacks lockpoint voltage (AMP_SQ_LOCKPOINT_V).
+ * @param {number} col_p - column number [0, 3]
+ * @param {array} lockpointV_p - one value of lockpointV
+ * This function converts the float value into a S(16,2).
+ */
+function setDMX_sqa_lockpointV(col_p, lockpointV_p) {
+    if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
+        print("ERROR, column number is incorrect!  --> " + col_p);
+        return;
+    }
+    const reg_address = ADD_DMX_AMP_SQ_LOCKPOINT_V | (col_p << ADD_DMX_COL_BIT_SHIFT);
+
+    const valMin = -Math.pow(2, 15) / Math.pow(2, 2);
+    const valMax = (Math.pow(2, 15) - 1) / Math.pow(2, 2);
+    if ((lockpointV_p < valMin) || (lockpointV_p > valMax)) {
+        print("ERROR, LockpointV value for col " + col_p + " is incorrect!  --> " + lockpointV_p);
+        return;
+    }
+    value = Math.round(lockpointV_p[pix] * Math.pow(2, 2));
+
+    sendToDMXWriteRegister(reg_address, value);
+}
+
+/**
+ * Reads the value of the feedbacks lockpoint voltage (AMP_SQ_LOCKPOINT_V).
+ * @param {number} col_p - column number [0, 3].
+ * @return {array} lockpointV - value of the lockpoint (one value per column).
+ */
+function readDMX_sqa_lockpointV(col_p) {
+    if ((col_p < 0) || (col_p > DMX_NB_COL-1)) {
+        print("ERROR, column number is incorrect!  --> " + col_p);
+        return;
+    }
+    const reg_address = ADD_DMX_AMP_SQ_LOCKPOINT_V | (col_p << ADD_DMX_COL_BIT_SHIFT);
+    sendToDMXReadRegister(reg_address);
+    getLatestValue("DMX_registers");
+    return convert_2compInt_to_sInt(DMX_registers[reg_address], 16) / Math.pow(2, 2);
 }
 
 /**
