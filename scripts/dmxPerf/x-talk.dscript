@@ -108,8 +108,8 @@ function ofco_x_talk() {
 		// Configuring Offset fine
 		print(TAB1 + "Setting a different OFFSET for pixel 0 on column " + c_perp + " ...");
 		for (colId = 0; colId < DMX_NB_COL; colId++) {
-			if (colId === c_perp) setDMX_sqa_OffsetCoarse(colId, ofco_fine_prp, ofco_fine_prp);
-			else setDMX_sqa_OffsetCoarse(colId, ofco_fine, ofco_fine);
+			if (colId === c_perp) setDMX_sqa_OffsetFine(colId, ofco_fine_prp, ofco_fine_prp);
+			else setDMX_sqa_OffsetFine(colId, ofco_fine, ofco_fine);
 		}
 
 		// Doing several dump files (will be averaged during data processing)
@@ -139,10 +139,8 @@ function x_talk() {
 		alert("Plug the Feedback loopback on J81/J82");
 		fdbk_x_talk();
 
-		alert("Unplug J81/J82");
+		alert("Plug the 100 Ohms termination on J81/J82");
 		fdbk_x_talk();
-
-		sendStopSession();
 	}
 
 	if (perp === "Ofco") {
@@ -153,16 +151,19 @@ function x_talk() {
 		alert("Plug the Ofco loopback on J81/J82");
 		ofco_x_talk();
 
-		alert("Unplug J81/J82");
+		alert("Plug the 100 Ohms termination on J81/J82");
 		ofco_x_talk();
-
-		sendStopSession();
 	}
+
+	print("Processing data ...")
+	output = copyDirToBackupDirAndExecuteBat(analysis_tools_path,".\\SCRIPTS_ANALYSE\\dmx-dm","do_processing.bat")
+
 }
 
 
 function onAbortScript() {
 	sendToDMXGoToIdleMode();
+	sendStopSession();
 	print("End of script!");
 }
 
