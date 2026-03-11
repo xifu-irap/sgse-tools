@@ -1007,7 +1007,10 @@ function setDMX_feedback_delay(col_p, feedback_delay_p) {
         print("ERROR, the feedback delay is incorrect! --> " + feedback_delay_p);
         return;
     }
-    const val = convert_sInt_to_2compInt(feedback_delay_p, 10);
+
+    fwVersion = readDMX_firmwareVersion();
+    if (fwVersion < 0x14) const val = convert_sInt_to_2compInt(feedback_delay_p, 10);
+    else const val = feedback_delay_p;
     const reg_address = ADD_DMX_MUX_SQ_FB_DELAY | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXWriteRegister(reg_address, val);
 }
@@ -1025,7 +1028,9 @@ function readDMX_feedback_delay(col_p) {
     const reg_address = ADD_DMX_MUX_SQ_FB_DELAY | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");
-    return convert_2compInt_to_sInt(DMX_registers[reg_address],10);
+    fwVersion = readDMX_firmwareVersion();
+    if (fwVersion < 0x14) return convert_2compInt_to_sInt(DMX_registers[reg_address],10);
+    else return DMX_registers[reg_address];
 }
 
 /**
@@ -1080,7 +1085,9 @@ function setDMX_offsetMUX_delay(col_p, offsetMUX_delay_p) {
         print("ERROR, the offset MUX delay is incorrect! > " + offsetMUX_delay_p);
         return;
     }
-    const val = convert_sInt_to_2compInt(offsetMUX_delay_p, 10);
+    fwVersion = readDMX_firmwareVersion();
+    if (fwVersion < 0x14) const val = convert_sInt_to_2compInt(offsetMUX_delay_p, 10);
+    else const val = offsetMUX_delay_p;
     const reg_address = ADD_DMX_AMP_SQ_OFFSET_MUX_DELAY | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXWriteRegister(reg_address, val);
 }
@@ -1098,7 +1105,9 @@ function readDMX_offsetMUX_delay(col_p) {
     const reg_address = ADD_DMX_AMP_SQ_OFFSET_MUX_DELAY | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");
-    return convert_2compInt_to_sInt(DMX_registers[reg_address], 10);
+    fwVersion = readDMX_firmwareVersion();
+    if (fwVersion < 0x14) return convert_2compInt_to_sInt(DMX_registers[reg_address], 10);
+    else return DMX_registers[reg_address];
 }
 
 /**
