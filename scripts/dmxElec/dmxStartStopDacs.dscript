@@ -73,8 +73,13 @@ function testSequence() {
         else return;
         print("Columns have been switched ON");
 
+        // Asking to start the ADCs
+        alert("Start the ADCs / data acquisition?");
+        sendToDMXGoToErrorSignalMode();
+
         // Asking to stop the DACs
-        alert("Stop the feedback DACs one after the other?");
+        alert("Stop the ADC and then the feedback DACs one after the other?");
+        sendToDMXGoToIdleMode();
         setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
     }
 }
