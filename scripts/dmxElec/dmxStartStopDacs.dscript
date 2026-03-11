@@ -1,0 +1,106 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     dmxStartStopDacs.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file tests the Mux SQUID DACs of the DMX boards.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+const includes_path = "../../includes/";
+include(includes_path + "dmxTools.dscript");
+include(includes_path + "utilTools.dscript");
+include(includes_path + "common_constants.dscript");
+
+/**
+ * This function allows to start the 4 feedback DACs simultaneously or in sequence and to stop them in sequence
+ */
+function testSequence() {
+
+    // Defining a testPattern to 2 rising slopes
+    var a = -1*Math.pow(2, 15);
+    var b = 0;
+    var c = Math.pow(2,8);
+    var N = Math.pow(2,8) - 1;
+    const sawPattern = [
+        [a, b, c, N],  // Slope upward
+        [a/2, b, c/2, N],  // Slope upward
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0]  // Nothing
+    ];
+
+    // Configuring the DEMUX feedback in test pattern mode
+    var tabFbModesTstPattern = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_TESTPATTERN);
+    for (col=0; col<DMX_NB_COL; col++) setDMX_sqm_FBMode(col, tabFbModesTstPattern);
+
+    setDMX_testPattern(sawPattern);
+
+    // Activation of the test pattern indefinitely
+    var enable = true;
+    var infinitely = true;
+    var nbTime = 0x9;
+    setDMX_testPatternEnable(enable, infinitely, nbTime);
+
+    while (true) {
+        // Asking for the start mode
+        const methodTab = ["All at once", "One after the other", "Stop the test"];
+        var iMethod = getItem("Please, indicates the feedback DAC start method: ", methodTab);
+        var method = methodTab[iMethod];
+
+        // Switching ON the columns
+        if (method === "All at once") setDMX_feedbackOnOff([ON, ON, ON, ON]);
+        else if (method === "One after the other") setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
+        else return;
+        print("Columns have been switched ON");
+
+        // Asking to stop the DACs
+        alert("Stop the feedback DACs one after the other?");
+        setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
+    }
+}
+
+
+/**
+ * This function is called when the script is aborted
+ */
+function onAbortScript() {
+
+    // de-activating the test pattern
+    setDMX_testPatternEnable(false, false, 0);
+
+    // de-activating data acquisition
+    sendToDMXGoToIdleMode();
+
+    // Switching OFF the columns
+    setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
+
+	print("End of script!");
+}
+
+// -------------------------------------------------------------------------------------------------------------
+
+testSequence();
+
+onAbortScript();
+
+// -------------------------------------------------------------------------------------------------------------
