@@ -1011,6 +1011,7 @@ function setDMX_feedback_delay(col_p, feedback_delay_p) {
     fwVersion = readDMX_firmwareVersion();
     if (fwVersion < 0x14) const val = convert_sInt_to_2compInt(feedback_delay_p, 10);
     else const val = feedback_delay_p;
+    // TODO: After the DM campaign, remove this test and systematically consider that fwVersion > 0x14
     const reg_address = ADD_DMX_MUX_SQ_FB_DELAY | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXWriteRegister(reg_address, val);
 }
@@ -1031,6 +1032,7 @@ function readDMX_feedback_delay(col_p) {
     fwVersion = readDMX_firmwareVersion();
     if (fwVersion < 0x14) return convert_2compInt_to_sInt(DMX_registers[reg_address],10);
     else return DMX_registers[reg_address];
+    // TODO: After the DM campaign, remove this test and systematically consider that fwVersion > 0x14
 }
 
 /**
@@ -1088,6 +1090,7 @@ function setDMX_offsetMUX_delay(col_p, offsetMUX_delay_p) {
     fwVersion = readDMX_firmwareVersion();
     if (fwVersion < 0x14) const val = convert_sInt_to_2compInt(offsetMUX_delay_p, 10);
     else const val = offsetMUX_delay_p;
+    // TODO: After the DM campaign, remove this test and systematically consider that fwVersion > 0x14
     const reg_address = ADD_DMX_AMP_SQ_OFFSET_MUX_DELAY | (col_p << ADD_DMX_COL_BIT_SHIFT);
     sendToDMXWriteRegister(reg_address, val);
 }
@@ -1108,6 +1111,7 @@ function readDMX_offsetMUX_delay(col_p) {
     fwVersion = readDMX_firmwareVersion();
     if (fwVersion < 0x14) return convert_2compInt_to_sInt(DMX_registers[reg_address], 10);
     else return DMX_registers[reg_address];
+    // TODO: After the DM campaign, remove this test and systematically consider that fwVersion > 0x14
 }
 
 /**
