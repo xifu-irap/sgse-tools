@@ -28,9 +28,20 @@
 // imports
 const includes_path = "../../includes/";
 include(includes_path + "dmxTools.dscript");
-include(includes_path + "fpasim/fpasim.dscript");
 include(includes_path + "utilTools.dscript");
 include(includes_path + "common_constants.dscript");
+
+
+include(includes_path + "/fpasim/fpasim/fpasim.dscript");
+include(includes_path + "/fpasim/fpasim_startup.dscript");
+include(includes_path + "/fpasim/fpasim_config.dscript");
+
+include(includes_path + "/fpasim/fpasim/fpasim_tools.dscript");
+include(includes_path + "/fpasim/fpasim/utils_tools.dscript");
+include(includes_path + "/fpasim/fpasim/ads62p49.dscript");
+include(includes_path + "/fpasim/fpasim/amc7823.dscript");
+include(includes_path + "/fpasim/fpasim/cdce72010.dscript");
+include(includes_path + "/fpasim/fpasim/dac3283.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
 
@@ -54,11 +65,9 @@ fpasimConfig(raDelayOpt, SteadyMode90Fsr);
 /*
  Starting and configuring the DEMUX
 */
-const pulseShapingSet  = 0;
-const boxcarL = 0;
-const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
-const pattern = "FULL";
-demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSet, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
+var conf = conf_opti;
+conf["pattern"] = "MINI";
+demuxStart(conf);
 
 
 //pixels = [6, 27];
@@ -76,6 +85,44 @@ var enable = true;
 var infinitely = true;
 var nbTime = 0x9;
 setDMX_testPatternEnable(enable, infinitely, nbTime);
+
+
+alert("Close the AMP SQUID FLL?");
+
+const knorm = 1/5;
+
+const ki = 1.2;
+
+const kiknorm = ki*knorm; 
+
+col = 2;
+
+// Fine offset
+
+const offsetLSB = 0x0FFF;
+
+const offsetFine = 3;
+
+print(TAB1+"Setting the Offset close to the AMP SQUID operating point...");
+
+for (colid=0; colid<DMX_NB_COL; colid++) {
+
+	setDMX_sqa_OffsetLSB(colid, offsetLSB);
+
+	setDMX_sqa_OffsetFine(colid, makeArray(DMX_NB_PIX_PER_COL, offsetFine), makeArray(DMX_NB_PIX_PER_COL, offsetFine));
+
+}
+
+
+
+setDMX_sqa_kiknorm(col, kiknorm);
+
+setDMX_sqa_knorm(col, knorm);
+
+setDMX_sqa_lockpointV(col, 500);
+
+setDMX_offsetMode([OFFSET_MODE_CLOSED, OFFSET_MODE_CLOSED, OFFSET_MODE_CLOSED, OFFSET_MODE_CLOSED]);
+
 
 waitMs(6000000, true, true, "Acquisition en cours...");
 

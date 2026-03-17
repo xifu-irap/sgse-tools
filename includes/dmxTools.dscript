@@ -48,7 +48,7 @@ const FEEDBACK_MODE_TESTPATTERN = 2; // test pattern --> feedback output
 
 // AMP SQUID offset modes
 const OFFSET_MODE_OFF = 0; // 0V diff --> offset output
-const OFFSET_MODE_OFFSET = 1; // lockpoint value --> offset output
+const OFFSET_MODE_OFFSET = 1; // offset value --> offset output
 const OFFSET_MODE_CLOSED = 2; // feedback --> offset output
 const OFFSET_MODE_TESTPATTERN = 3; // test pattern --> offset output
 
@@ -753,7 +753,7 @@ function setDMX_sqa_lockpointV(col_p, lockpointV_p) {
         print("ERROR, LockpointV value for col " + col_p + " is incorrect!  --> " + lockpointV_p);
         return;
     }
-    value = Math.round(lockpointV_p[pix] * Math.pow(2, 2));
+    value = Math.round(lockpointV_p * Math.pow(2, 2));
 
     sendToDMXWriteRegister(reg_address, value);
 }
@@ -1030,8 +1030,8 @@ function readDMX_feedback_delay(col_p) {
     sendToDMXReadRegister(reg_address);
     getLatestValue("DMX_registers");
     fwVersion = readDMX_firmwareVersion();
-    if (fwVersion < 0x14) return convert_2compInt_to_sInt(DMX_registers[reg_address],10);
-    else return DMX_registers[reg_address];
+    if (fwVersion < 0x14) return convert_2compInt_to_sInt(DMX_registers[reg_address], 10);
+    else return convert_2compInt_to_sInt(DMX_registers[reg_address], 16);
     // TODO: After the DM campaign, remove this test and systematically consider that fwVersion > 0x14
 }
 
@@ -1110,7 +1110,7 @@ function readDMX_offsetMUX_delay(col_p) {
     getLatestValue("DMX_registers");
     fwVersion = readDMX_firmwareVersion();
     if (fwVersion < 0x14) return convert_2compInt_to_sInt(DMX_registers[reg_address], 10);
-    else return DMX_registers[reg_address];
+    else return convert_2compInt_to_sInt(DMX_registers[reg_address], 16);
     // TODO: After the DM campaign, remove this test and systematically consider that fwVersion > 0x14
 }
 

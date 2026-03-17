@@ -28,9 +28,19 @@
 // imports
 const includes_path = "../../includes/";
 include(includes_path + "dmxTools.dscript");
-include(includes_path + "fpasim/fpasim.dscript");
 include(includes_path + "utilTools.dscript");
 include(includes_path + "common_constants.dscript");
+
+include(includes_path + "/fpasim/fpasim/fpasim.dscript");
+include(includes_path + "/fpasim/fpasim_startup.dscript");
+include(includes_path + "/fpasim/fpasim_config.dscript");
+
+include(includes_path + "/fpasim/fpasim/fpasim_tools.dscript");
+include(includes_path + "/fpasim/fpasim/utils_tools.dscript");
+include(includes_path + "/fpasim/fpasim/ads62p49.dscript");
+include(includes_path + "/fpasim/fpasim/amc7823.dscript");
+include(includes_path + "/fpasim/fpasim/cdce72010.dscript");
+include(includes_path + "/fpasim/fpasim/dac3283.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
 
@@ -55,11 +65,7 @@ fpasimConfig(raDelayOpt, SteadyMode90Fsr);
 /*
  Starting and configuring the DEMUX
 */
-const pulseShapingSet  = 0;
-const boxcarL = 0;
-const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
-const pattern = "FULL";
-demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSet, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
+demuxStart(conf_opti);
 
 print(TAB1 + "Setting the test pattern to a SLOW ramp");
 const a1 = -1 * Math.pow(2, 15);

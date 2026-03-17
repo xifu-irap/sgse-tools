@@ -297,7 +297,7 @@ function dmxCheckDefaults() {
             initial_value = readDMX_sqa_lockpointV(col);
             print(TAB2 + "Initial value is: " + initial_value);
 
-            expected_value = makeArray(DMX_NB_PIX_PER_COL, 0);
+            expected_value = 0;
             print(TAB2 + "Expected value is: " + expected_value);
 
             ERROR_COUNTER = error_manager(initial_value, expected_value, ERROR_COUNTER, TAB2);

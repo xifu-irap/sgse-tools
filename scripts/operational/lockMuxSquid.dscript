@@ -64,10 +64,7 @@ const TesSteady =  Math.round(STEADY_FSR * 90 / 100); // TES steady state
 /*
  Starting and configuring the DEMUX
 */
-const boxcarL = 1;
-const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
-const pattern = "FULL";
-demuxStart(sampDelayOpt, boxcarLArray, fdbkDelayOpt, fb0Opt, offsetLSBOpt, offsetFineOpt, offsetCoarseOpt, pulseShapingSetOpt, lockPointVOpt, muxInputGain, ampInputGain, aOpt, pattern);
+demuxStart(conf_opti);
 
 print(TAB1 + "Delock counters at the beggining: " + readDMX_delockCounters(col, false));
 

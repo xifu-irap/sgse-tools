@@ -51,30 +51,48 @@ const lockPointVOpt = -3832;  // pour locker sur le MUX SQUID
 
 const aOpt = [0.2, 0.2, 0.2, 0.2];
 const muxInputGain = [-1, -1, -1, -1];
-const ampInputGain = [-1, -1, -1, -1];
+const ampInputGain = [1, 1, 1, 1];
 
 /**
- * Configuring the test setup
- *  Sets all the DMX fb0 to the same value (in open loop mode)
- *  Sets all the DMX offset to the same value (in open loop mode)
- *  Sets the RA_DELAY to the value provided by the parameter ra_delay_p
- *  Does a DMX dump
- * @param {array} fbOnOff_p - feedback On / Off, 4 booleans [on/off, on/off, on/off, on/off].
- * @param {number} samp_delay_p - sampling delay [0, 19].
- * @param {array} bxLength_p - boxcar length, 4 values U(4,0).
- * @param {number} fb_delay_p - feedback delay [-512, 40].
- * @param {number} fb0_p - Feedback at MUX SQUID operating point s(16,2).
- * @param {number} offsetLSB_p - offset LSB value at AMP SQUID operating point U(12,0).
- * @param {number} offsetFine_p - offset fine value at AMP SQUID operating point U(3,0).
- * @param {number} offsetCoarse_p - offset coarse value at AMP SQUID operating point U(12,0).
- * @param {number} pulseShapingSet_p - Pulse shaping set Id [0-3].
- * @param {number} lockPointV_p - Feedback lockpoints (four values) (S(12,0).
- * @param {number} muxInputGain_p - input gain for the MUX SQUID loop (four values) S(4,0).
- * @param {number} ampInputGain_p - input gain for the AMP SQUID loop (four values) S(4,0).
- * @param {number} a_p - parameter a = 1/(1+Tau) (four values) U(16, 16).
- * @param {number} pattern_p - parameters of the test pattern. 
+ * Configuring the demux
+ *  Applies a configuration to the demux
+ *  Configures the demux in open loop for the feedback and the ofco.
+ * @param {dictionnary} conf_p
+ *    conf_p["samp_delay"]          --> sampling delay [0, 19]
+ *    conf_p["fb_delay"]            --> feedback delay [-512, 40]
+ *    conf_p["ofco_mux_delay"]      --> ofco MUX delay [-512, 40]
+ *    conf_p["bxLength"]            --> boxcar length, 4 values U(4,0)
+ *    conf_p["fb0"]                 --> feedback at MUX SQUID operating point s(16,2)
+ *    conf_p["offsetLSB"]           --> offset LSB value at AMP SQUID operating point U(12,0)
+ *    conf_p["offsetFine"]          --> offset fine value at AMP SQUID operating point U(3,0)
+ *    conf_p["offsetCoarse"]        --> offset coarse value at AMP SQUID operating point U(12,0)
+ *    conf_p["pulseShapingSet"]     --> pulse shaping set Id [0-3]
+ *    conf_p["lockPointVMuxFll"]    --> lockpoint voltage for the Mux SQUID FLL (four values) (S(12,0)
+ *    conf_p["lockPointVAmpFll"]    --> lockpoint voltage for the Amp SQUID FLL (four values) (S(12,0)
+ *    conf_p["muxInputGain"]        --> input gain for the MUX SQUID loop (four values) S(4,0)
+ *    conf_p["ampInputGain"]        --> input gain for the AMP SQUID loop (four values) S(4,0)
+ *    conf_p["a"]                   --> "a" parameter of the FLL algorithm = 1/(1+Tau) (four values) U(16, 16)
+ *    conf_p["pattern"]             --> name of the pre-defined test pattern
  */
-function demuxStart(fbOnOff_p, samp_delay_p, bxLength_p, fb_delay_p, fb0_p, offsetLSB_p, offsetFine_p, offsetCoarse_p, pulseShapingSet_p, lockPointV_p, muxInputGain_p, ampInputGain_p, a_p, pattern_p) {
+
+var conf_opti = new Object();
+conf_opti["samp_delay"] = 16;           // sampling delay [0, 19]
+conf_opti["fb_delay"] = -91;            // feedback delay [-512, 40]
+conf_opti["ofco_mux_delay"] = -94;      // ofco MUX delay [-512, 40]
+conf_opti["bxLength"] = [1, 1, 1, 1];   // boxcar length, 4 values U(4,0)
+conf_opti["fb0"] = -528                 // feedback at MUX SQUID operating point s(16,2)
+conf_opti["offsetLSB"] = 10;            // offset LSB value at AMP SQUID operating point U(12,0)
+conf_opti["offsetFine"] = 0;            // offset fine value at AMP SQUID operating point U(3,0)
+conf_opti["offsetCoarse"] = 2500;       // offset coarse value at AMP SQUID operating point U(12,0)
+conf_opti["pulseShapingSet"] = 0;       // pulse shaping set Id [0-3]
+conf_opti["lockPointVMuxFll"] = [-3832, -3832, -3832, -3832];   // lockpoint voltage for the Mux SQUID FLL (four values) (S(12,0)
+conf_opti["lockPointVAmpFll"] = [800, 800, 800, 800];           // lockpoint voltage for the Amp SQUID FLL (four values) (S(12,0)
+conf_opti["muxInputGain"] = [-1, -1, -1, -1];   // input gain for the MUX SQUID loop (four values) S(4,0)
+conf_opti["ampInputGain"] = [1, 1, 1, 1];       // input gain for the AMP SQUID loop (four values) S(4,0)
+conf_opti["a"] = [0.2, 0.2, 0.2, 0.2];  // "a" parameter of the FLL algorithm = 1/(1+Tau) (four values) U(16, 16)
+conf_opti["pattern"] = "FULL";          // name of the pre-defined test pattern
+
+function demuxStart(conf_p) {
 
 	// Autorelock parameters
 	const relockThreshold = 0xFFFF;
@@ -93,7 +111,7 @@ function demuxStart(fbOnOff_p, samp_delay_p, bxLength_p, fb_delay_p, fb0_p, offs
 	print(TAB1 + "Switching off the test pattern (just in case...)");
 	setDMX_testPatternEnable(false, false, 0);
 
-    // Switching ON the feedback for all the columns
+    // Switching OFF the feedback for all the columns
 	print(TAB1+"Switching OFF the feedback OnOff for all the columns...");
     setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
 	
@@ -111,11 +129,11 @@ function demuxStart(fbOnOff_p, samp_delay_p, bxLength_p, fb_delay_p, fb0_p, offs
         [0, 0, 0, 0]  // Nothing
     ];
 	
-    const N2 = 1023;
+    const N2 = 1400;
 	const c2 = 4;
-	const a2 = fb0_p - Math.round(N2/2*c2);
-	const aa2 = fb0_p + Math.round(N2/2*c2);
-    const b2 = 0;
+	const a2 = conf_p["fb0"] - Math.round(N2/2*c2);
+	const aa2 = conf_p["fb0"] + Math.round(N2/2*c2);
+    const b2 = 3;
 	const miniPattern = [
         [a2, b2, c2, N2],  // Slope upward
         [aa2, b2, -c2, N2],  // Slope downward
@@ -124,12 +142,12 @@ function demuxStart(fbOnOff_p, samp_delay_p, bxLength_p, fb_delay_p, fb0_p, offs
         [0, 0, 0, 0]  // Nothing
     ];
 
-	if (pattern_p === "FULL") {
+	if (conf_p["pattern"] === "FULL") {
 		print(TAB2 + "Defining the pattern over a full range"); 
 		setDMX_testPattern(fullPattern);
 	}
 	else {
-		if (pattern_p === "MINI") {
+		if (conf_p["pattern"] === "MINI") {
 			print(TAB2 + "Defining the pattern over a reduced range"); 
 			setDMX_testPattern(miniPattern);
 		}
@@ -138,20 +156,24 @@ function demuxStart(fbOnOff_p, samp_delay_p, bxLength_p, fb_delay_p, fb0_p, offs
 	print("");
 
     // set the register: SAMPLING_DELAY
-    print(TAB1+"Setting the 4 registers SAMPLING_DELAY to " + samp_delay_p);
-	for (var col=0; col<DMX_NB_COL; col++) setDMX_sampling_delay(col, samp_delay_p);
+    print(TAB1+"Setting the 4 registers SAMPLING_DELAY to " + conf_p["samp_delay"]);
+	for (var col=0; col<DMX_NB_COL; col++) setDMX_sampling_delay(col, conf_p["samp_delay"]);
 
 	// Setting the BOXCAR LENGTH
-    print(TAB1+"Setting the boxcar length to " + bxLength_p);
-	setDMX_boxcarLength(bxLength_p);
+    print(TAB1+"Setting the boxcar length to " + conf_p["bxLength"]);
+	setDMX_boxcarLength(conf_p["bxLength"]);
 
     // set the register: MUX_SQ_FB_DELAY
-    print(TAB1 + "Setting the register MUX_SQ_FB_DELAY to " + fb_delay_p);
-	for (col=0; col<DMX_NB_COL; col++) setDMX_feedback_delay(col, fb_delay_p);
+    print(TAB1 + "Setting the register MUX_SQ_FB_DELAY to " + conf_p["fb_delay"]);
+	for (col=0; col<DMX_NB_COL; col++) setDMX_feedback_delay(col, conf_p["fb_delay"]);
+
+    // set the register: AMP_SQ_OFFSET_MUX_DELAY
+    print(TAB1 + "Setting the register AMP_SQ_OFFSET_MUX_DELAY to " + conf_p["ofco_mux_delay"]);
+	for (col=0; col<DMX_NB_COL; col++) setDMX_offsetMUX_delay(col, conf_p["ofco_mux_delay"]);
 
     // Selecting the pulse shaping set
-	print(TAB1+"Selecting the pulse shaping set number " + pulseShapingSet_p + ":");
-	for (col=0; col<DMX_NB_COL; col++)	setDMX_pulseShapingSelection(col, pulseShapingSet_p);
+	print(TAB1+"Selecting the pulse shaping set number " + conf_p["pulseShapingSet"] + ":");
+	for (col=0; col<DMX_NB_COL; col++)	setDMX_pulseShapingSelection(col, conf_p["pulseShapingSet"]);
 
 	// Autorelock
 	print(TAB1 + "Setting auto relock parameters");
@@ -165,35 +187,39 @@ function demuxStart(fbOnOff_p, samp_delay_p, bxLength_p, fb_delay_p, fb0_p, offs
     // DEMUX offset
 	print(TAB1+"Setting the Offset close to the AMP SQUID operating point...");
 	for (col=0; col<DMX_NB_COL; col++) {
-		setDMX_sqa_OffsetLSB(col, offsetLSB_p);
-		setDMX_sqa_OffsetLSBptr(col, offsetLSB_p);
-		setDMX_sqa_OffsetFine(col, makeArray(DMX_NB_PIX_PER_COL, offsetFine_p), makeArray(DMX_NB_PIX_PER_COL, offsetFine_p));
-		setDMX_sqa_OffsetCoarse(col, offsetCoarse_p);
+		setDMX_sqa_OffsetLSB(col, conf_p["offsetLSB"]);
+		setDMX_sqa_OffsetLSBptr(col, conf_p["offsetLSB"]);
+		setDMX_sqa_OffsetFine(col, makeArray(DMX_NB_PIX_PER_COL, conf_p["offsetFine"]), makeArray(DMX_NB_PIX_PER_COL, conf_p["offsetFine"]));
+		setDMX_sqa_OffsetCoarse(col, conf_p["offsetCoarse"]);
 	}
 
     // Setting parameter A
-	print(TAB1+"Setting the feedback parameter A: " + a_p);
-	for (col=0; col<DMX_NB_COL; col++)	setDMX_a(col, makeArray(DMX_NB_PIX_PER_COL, a_p));
+	print(TAB1+"Setting the feedback parameter A: " + conf_p["a"]);
+	for (col=0; col<DMX_NB_COL; col++)	setDMX_a(col, makeArray(DMX_NB_PIX_PER_COL, conf_p["a"]));
 	
-    // Setting the feedback LOCKPOINT_V
-	print(TAB1+"Setting the feedback lockpoints : " + lockPointV_p);
-	for (col=0; col<DMX_NB_COL; col++)	setDMX_sqm_lockpointV(col, makeArray(DMX_NB_PIX_PER_COL, lockPointV_p));
+    // Setting the Mux SQUID FLL LOCKPOINT_V
+	print(TAB1+"Setting the Mux SQUID FLL lockpoint voltage: " + conf_p["lockPointVMuxFll"]);
+	for (col=0; col<DMX_NB_COL; col++)	setDMX_sqm_lockpointV(col, makeArray(DMX_NB_PIX_PER_COL, conf_p["lockPointVMuxFll"][col]));
 
     // Setting the MUX INPUT GAIN
-	print(TAB1 + "Setting the MUX SQUID loop input gain to " + muxInputGain_p);
-	for (col=0; col<DMX_NB_COL; col++) setDMX_sqm_inputGain(col, muxInputGain_p[col]);
+	print(TAB1 + "Setting the MUX SQUID loop input gain to " + conf_p["muxInputGain"]);
+	for (col=0; col<DMX_NB_COL; col++) setDMX_sqm_inputGain(col, conf_p["muxInputGain"][col]);
+
+    // Setting the Amp SQUID FLL LOCKPOINT_V
+	print(TAB1+"Setting the Amp SQUID FLL lockpoint voltage: " + conf_p["lockPointVAmpFll"]);
+	for (col=0; col<DMX_NB_COL; col++)	setDMX_sqa_lockpointV(col, conf_p["lockPointVAmpFll"][col]);
 
     // Setting the AMP INPUT GAIN
-	print(TAB1 + "Setting the AMP SQUID loop input gain to " + ampInputGain_p);
-	for (col=0; col<DMX_NB_COL; col++) setDMX_sqa_inputGain(col, ampInputGain_p[col]);
+	print(TAB1 + "Setting the AMP SQUID loop input gain to " + conf_p["ampInputGain"]);
+	for (col=0; col<DMX_NB_COL; col++) setDMX_sqa_inputGain(col, conf_p["ampInputGain"][col]);
 
     // DEMUX feedback
-	print(TAB1+"Setting the DMX FB0 values: " + fb0_p);
-    var fb = makeArray(DMX_NB_PIX_PER_COL, fb0_p);
+	print(TAB1+"Setting the DMX FB0 values: " + conf_p["fb0"]);
+    var fb = makeArray(DMX_NB_PIX_PER_COL, conf_p["fb0"]);
 	for (col=0; col<DMX_NB_COL; col++) setDMX_fb0(col, fb);
 
-	print(TAB1+"Switching ON or OFF the feedback for all the columns: " + fbOnOff_p);
-    setDMX_safeFeedbackOnOff(fbOnOff_p);
+	print(TAB1+"Switching ON the feedback for all the columns");
+    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
 
 	print(TAB1+"Setting the DMX feedback mode to OPEN LOOP...");
 	fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
