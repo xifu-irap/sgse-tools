@@ -17,39 +17,24 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     fdbkDelayAnalysis.dscript
+//    @file                     fpasim_includes.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
-//    This file is used to characterise the timing parameters in the FPAsim + DMX0 configuration.
+//    This file gathers all the files needed to operate the FPAsim.
 //
 // -------------------------------------------------------------------------------------------------------------
 
 
-// imports
-const includes_path = "../../includes/";
-include(includes_path + "dmxTools.dscript");
-include(includes_path + "utilTools.dscript");
-include(includes_path + "common_constants.dscript");
+// relative path from the main script (the calling script path)
+const ram_base_path = includes_path + "/fpasim/fpasim_default_ram/"
 
-include(includes_path + "/fpasim/fpasim_includes.dscript");
+include(includes_path + "/fpasim/fpasim/fpasim.dscript");
+include(includes_path + "/fpasim/fpasim_startup.dscript");
 
-
-
-// -------------------------------------------------------------------------------------------------------------
-
-/*
-  Starting and initializing the FPAsim
-  If the FPAsim function is already enabled nothing is done unless the "force_p" parameter is set to true.
-*/
-fpasimStartup();
-
-// -------------------------------------------------------------------------------------------------------------
-
-print("End of FPAsim startup");
-
-
-
-
-
-
+include(includes_path + "/fpasim/fpasim/fpasim_tools.dscript");
+include(includes_path + "/fpasim/fpasim/utils_tools.dscript");
+include(includes_path + "/fpasim/fpasim/ads62p49.dscript");
+include(includes_path + "/fpasim/fpasim/amc7823.dscript");
+include(includes_path + "/fpasim/fpasim/cdce72010.dscript");
+include(includes_path + "/fpasim/fpasim/dac3283.dscript");

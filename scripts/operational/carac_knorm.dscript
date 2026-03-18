@@ -28,9 +28,9 @@
 // imports
 const includes_path = "../../includes/";
 include(includes_path + "dmxTools.dscript");
-include(includes_path + "fpasim/fpasim.dscript");
 include(includes_path + "utilTools.dscript");
 include(includes_path + "common_constants.dscript");
+include(includes_path + "/fpasim/fpasim_includes.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
 

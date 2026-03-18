@@ -28,19 +28,10 @@
 // imports
 const includes_path = "../../includes/";
 include(includes_path + "dmxTools.dscript");
+include(includes_path + "dmxConfigurations.dscript");
 include(includes_path + "utilTools.dscript");
 include(includes_path + "common_constants.dscript");
-
-include(includes_path + "/fpasim/fpasim/fpasim.dscript");
-include(includes_path + "/fpasim/fpasim_startup.dscript");
-include(includes_path + "/fpasim/fpasim_config.dscript");
-
-include(includes_path + "/fpasim/fpasim/fpasim_tools.dscript");
-include(includes_path + "/fpasim/fpasim/utils_tools.dscript");
-include(includes_path + "/fpasim/fpasim/ads62p49.dscript");
-include(includes_path + "/fpasim/fpasim/amc7823.dscript");
-include(includes_path + "/fpasim/fpasim/cdce72010.dscript");
-include(includes_path + "/fpasim/fpasim/dac3283.dscript");
+include(includes_path + "/fpasim/fpasim_includes.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
 
@@ -65,25 +56,13 @@ fpasimConfig(raDelayOpt, SteadyMode90Fsr);
 /*
  Starting and configuring the DEMUX
 */
-demuxStart(conf_opti);
+var conf = conf_default_fpasim;
+conf("PATTERN") = "FULL SLOW";
+conf("AMP_SQ_OFFSET_MODE") = makeArray(DMX_NB_COL, OFFSET_MODE_TESTPATTERN);
+demuxStart(conf);
 
-print(TAB1 + "Setting the test pattern to a SLOW ramp");
-const a1 = -1 * Math.pow(2, 15);
-const b = 3;
-const c = 128;
-const N = 511;
-const a2 = Math.pow(2, 15)-1;
-const shortSawPattern = [
-	[a1, b, c, N],  // Slope upward
-	[a2, b, -c, N],  // Slope downward
-	[0, 0, 0, 0],  // Nothing
-	[0, 0, 0, 0],  // Nothing
-	[0, 0, 0, 0]  // Nothing
-];
-setDMX_testPattern(shortSawPattern);
-	
-print(TAB1+"Setting the DMX offset mode to TEST PATTERN...");
-setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_TESTPATTERN));
+//print(TAB1+"Setting the DMX offset mode to TEST PATTERN...");
+//setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_TESTPATTERN));
 
 print(TAB1 + "Starting data acquisition in ERROR mode...");
 sendToDMXGoToErrorSignalMode();

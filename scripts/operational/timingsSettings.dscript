@@ -28,12 +28,9 @@
 // imports
 const includes_path = "../../includes/";
 include(includes_path + "dmxTools.dscript");
-include(includes_path + "fpasim/fpasim.dscript");
 include(includes_path + "utilTools.dscript");
 include(includes_path + "common_constants.dscript");
-
-// relative path from the main script (the calling script path)
-const ram_base_path = "../fpasim/fpasim_default_ram/"
+include(includes_path + "/fpasim/fpasim_includes.dscript");
 
 
 /**

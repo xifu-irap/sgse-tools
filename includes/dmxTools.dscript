@@ -28,7 +28,6 @@
 // imports
 include(includes_path + "dmxRegAddresses.dscript");
 include(includes_path + "dmxHK.dscript");
-include(includes_path + "dmxStart.dscript");
 
 /**
  * Definition of constants
@@ -461,7 +460,7 @@ function setDMX_sqm_kiknorm(col_p, kiknorm_p) {
     }
 
     const valMin = 0;
-    const valMax = (Math.pow(2,16) - 1) / Math.pow(2, 16);
+    const valMax = (Math.pow(2, 16) - 1) / Math.pow(2, 16);
     var values = [DMX_NB_PIX_PER_COL];
     for (var pix=0; pix<DMX_NB_PIX_PER_COL; pix++) {
         if ((kiknorm_p[pix] < valMin) || (kiknorm_p[pix] > valMax)) {

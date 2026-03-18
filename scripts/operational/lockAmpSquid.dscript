@@ -28,20 +28,10 @@
 // imports
 const includes_path = "../../includes/";
 include(includes_path + "dmxTools.dscript");
+include(includes_path + "dmxConfigurations.dscript");
 include(includes_path + "utilTools.dscript");
 include(includes_path + "common_constants.dscript");
-
-
-include(includes_path + "/fpasim/fpasim/fpasim.dscript");
-include(includes_path + "/fpasim/fpasim_startup.dscript");
-include(includes_path + "/fpasim/fpasim_config.dscript");
-
-include(includes_path + "/fpasim/fpasim/fpasim_tools.dscript");
-include(includes_path + "/fpasim/fpasim/utils_tools.dscript");
-include(includes_path + "/fpasim/fpasim/ads62p49.dscript");
-include(includes_path + "/fpasim/fpasim/amc7823.dscript");
-include(includes_path + "/fpasim/fpasim/cdce72010.dscript");
-include(includes_path + "/fpasim/fpasim/dac3283.dscript");
+include(includes_path + "/fpasim/fpasim_includes.dscript");
 
 
 // -------------------------------------------------------------------------------------------------------------
@@ -50,11 +40,6 @@ include(includes_path + "/fpasim/fpasim/dac3283.dscript");
 const col = 2;
 sessionName = "lockingAmpLoop-col"+col;
 sendStartNewSession(sessionName, "");
-
-const sqa_knorm = 1/110;
-const ki = 1.2;
-const sqa_kiknorm = ki*sqa_knorm;
-const ampInputGain = [-1, -1, -1, -1];
 
 const savingDataWhileClosingLoop = true;
 const fileDurationMs = 1000;
@@ -78,36 +63,8 @@ fpasimConfig(raDelayOpt, SteadyMode90Fsr);
 /*
  Starting and configuring the DEMUX
 */
-demuxStart(conf_opti);
+demuxStart(conf_default_fpasim);
 
-
-print(TAB1 + "Setting knorm to " + sqa_knorm);
-print(TAB1 + "Setting ki to " + ki);
-print(TAB1 + "Setting kiknorm to " + sqa_kiknorm);
-print(TAB1 + "Setting the AMP SQUID loop input gain to " + ampInputGain);
-
-for (var colId=0; colId<DMX_NB_COL; colId++) {
-	setDMX_sqa_knorm(colId, sqa_knorm);
-	setDMX_sqa_kiknorm(colId, sqa_kiknorm);
-
-	setDMX_sqa_inputGain(colId, ampInputGain[col]);
-}
-
-
-
-
-// Fine offset
-
-print(TAB1+"Setting the Offset in order to be close to the AMP SQUID operating point...");
-
-const offsetCoarse = 367;
-
-for (colid=0; colid<DMX_NB_COL; colid++) {
-
-	setDMX_sqa_OffsetCoarse(colid, offsetCoarse);
-	setDMX_sqa_lockpointV(colid, 791);
-
-}
 
 
 /*

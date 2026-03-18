@@ -28,7 +28,8 @@
 // imports
 const includes_path = "../../includes/";
 include(includes_path + "dmxTools.dscript");
-include(includes_path + "fpasim/fpasim.dscript");
+include(includes_path + "dmxConfigurations.dscript");
+include(includes_path + "/fpasim/fpasim_includes.dscript");
 include(includes_path + "utilTools.dscript");
 include(includes_path + "common_constants.dscript");
 
@@ -50,10 +51,6 @@ const pulseHeightPcSingle = 90; // Modulation
 
 const nbIterations = 500000; // number of pulses per pixels and per energy
 
-const knorm = 0.077;
-const ki = 1.2;
-const kiknorm = ki*knorm; 
-
 /*
   Starting and initializing the FPAsim
 */
@@ -64,17 +61,9 @@ const TesSteady =  Math.round(STEADY_FSR * 90 / 100); // TES steady state
 /*
  Starting and configuring the DEMUX
 */
-demuxStart(conf_opti);
+demuxStart(conf_default_fpasim);
 
 print(TAB1 + "Delock counters at the beggining: " + readDMX_delockCounters(col, false));
-
-print(TAB1 + "Setting knorm to " + knorm);
-print(TAB1 + "Setting ki to " + ki);
-print(TAB1 + "Setting kiknorm to " + kiknorm);
-for (var colId=0; colId<DMX_NB_COL; colId++) {
-	setDMX_sqm_knorm(colId, makeArray(DMX_NB_PIX_PER_COL, knorm));
-	setDMX_sqm_kiknorm(colId, makeArray(DMX_NB_PIX_PER_COL, kiknorm));
-}
 
 /*
 Closing the loop
