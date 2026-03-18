@@ -27,22 +27,16 @@
 
 // imports
 const includes_path = "../../includes/";
-include(includes_path + "dmxTools.dscript");
-include(includes_path + "utilTools.dscript");
 include(includes_path + "common_constants.dscript");
+include(includes_path + "utilTools.dscript");
+include(includes_path + "dmxTools.dscript");
+include(includes_path + "dmxConfigurations.dscript");
+include(includes_path + "dmxStart.dscript");
 include(includes_path + "/fpasim/fpasim_includes.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
 
 const col = 3;
-
-//const knorm = 0.054;
-const knorm = 0.068;
-
-const kiknorm = knorm;
-
-sessionName = "carac-knorm-col"+col+"_knorm-"+knorm;
-sendStartNewSession(sessionName, "");
 
 /*
   Starting and initializing the FPAsim
@@ -58,13 +52,15 @@ fpasimConfig(raDelayOpt, SteadyMode90Fsr);
 /*
  Starting and configuring the DEMUX
 */
-const boxcarL = 0;
-const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
-const pattern = "FULL";
-const lockPointV = lockPointVOpt + 1500; // Shifting the lockpoint in order to have a greater step (less noise impact)
+var conf = conf_default_fpasim;
+conf["PATTERN"] = "FULL";
+conf["MUX_SQ_KNORM"] = [0.068, 0.068, 0.068, 0.068];
+conf["MUX_SQ_KI"] = [1, 1, 1, 1];
 
-demuxStart(conf_opti);
+demuxStart(conf);
 
+sessionName = "carac-knorm-col"+col+"_knorm-"+conf["MUX_SQ_KNORM"];
+sendStartNewSession(sessionName, "");
 
 print(TAB1 + "Delock counters at the beggining: " + readDMX_delockCounters(col, false));
 

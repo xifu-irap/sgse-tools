@@ -66,10 +66,10 @@ function demuxStart(conf_p) {
 	
 	// Definition of a fast test pattern on a small range around FB0
     const b2 = 3;
-	const c2 = 4;
-    const N2 = 1400;
-	const a2 = conf_p["MUX_SQ_FB0"][0] - Math.round(N2/2*c2);
-	const aa2 = conf_p["MUX_SQ_FB0"][0] + Math.round(N2/2*c2);
+	const c2 = 1;
+    const N2 = 64;
+	const a2 = Math.pow(2, 2) * conf_p["MUX_SQ_FB0"][0] - Math.round(N2/2*c2);
+	const aa2 = Math.pow(2, 2) * conf_p["MUX_SQ_FB0"][0] + Math.round(N2/2*c2);
 	const miniSawPattern = [
         [a2, b2, c2, N2],  // Slope upward
         [aa2, b2, -c2, N2],  // Slope downward
@@ -84,7 +84,7 @@ function demuxStart(conf_p) {
     const c3 = 128;
     const N3 = 511;
     const aa3 = Math.pow(2, 15)-1;
-    const slowSawPattern = [
+    const slowSawPattern2 = [
         [a3, b3, c3, N3],  // Slope upward
         [aa3, b3, -c3, N3],  // Slope downward
         [0, 0, 0, 0],  // Nothing
@@ -94,13 +94,27 @@ function demuxStart(conf_p) {
 
 	// Definition of a slow test pattern on FSR on a small range around Ofco coarse
     const b4 = 3;
-    const c4 = 128;
+    const c4 = 1;
     const N4 = 511;
-	const a4 = conf_p["AMP_SQ_OFFSET_COARSE"][0] - Math.round(N4/2*c4);
-	const aa4 = conf_p["AMP_SQ_OFFSET_COARSE"][0] + Math.round(N4/2*c4);
+	const a4 = Math.pow(2, 4)*(conf_p["AMP_SQ_OFFSET_COARSE"][0] - Math.round(N4*c4/2))-Math.pow(2,15);
+	const aa4 = Math.pow(2, 4)*(conf_p["AMP_SQ_OFFSET_COARSE"][0] + Math.round(N4*c4/2))-Math.pow(2,15);
     const miniSlowSawPattern = [
-        [a1, b, c, N],  // Slope upward
-        [a2, b, -c, N],  // Slope downward
+        [a4, b4, c4, N4],  // Slope upward
+        [aa4, b4, -c4, N4],  // Slope downward
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0],  // Nothing
+        [0, 0, 0, 0]  // Nothing
+    ];
+
+	// Definition of a fast test pattern on a small range around FB0
+	const b5 = 15;
+	const c5 = Math.pow(2, 4);
+	const N5 = Math.pow(2,12)/c5;
+	const a5 = -N5*c5/2;
+	const aa5 = -a5-1;
+	const slowSawPattern = [
+        [a5, b5, c5, N5],  // Slope upward
+        [aa5, b5, -c5, N5],  // Slope downward
         [0, 0, 0, 0],  // Nothing
         [0, 0, 0, 0],  // Nothing
         [0, 0, 0, 0]  // Nothing
@@ -111,13 +125,17 @@ function demuxStart(conf_p) {
 		print(TAB2 + "Defining a pattern over the full range");
 		setDMX_testPattern(fullSawPattern);
 		break;
-	case "MINI FBO":
+	case "MINI FB0":
         print(TAB2 + "Defining a pattern over a small range around FB0");
         setDMX_testPattern(miniSawPattern);
         break;
     case "FULL SLOW":
         print(TAB2 + "Defining a slow pattern over the full range");
         setDMX_testPattern(slowSawPattern);
+        break;
+    case "SLOW2":
+        print(TAB2 + "Defining a slow pattern (2)");
+        setDMX_testPattern(slowSawPattern2);
         break;
     case "MINI OFCO":
         print(TAB2 + "Defining a slow pattern over a small range around Ofco coarse");

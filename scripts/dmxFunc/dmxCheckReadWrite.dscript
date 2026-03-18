@@ -771,7 +771,6 @@ function dmxCheckReadWrite() {
     for (col=0; col<DMX_NB_COL; col++) setDMX_relock_threshold(col, initial_value[col]);
 
 
-
     /******************************************************************************************************************/
     plotLongLine();
     if (ERROR_COUNTER === 1) print("Oups, 1 error has been detected!");

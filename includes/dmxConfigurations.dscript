@@ -56,8 +56,8 @@ conf_default_fw["PATTERN"] = "";          // name of the pre-defined test patter
 
 
 var conf_default_fpasim = new Object();
-conf_default_fpasim["MUX_SQ_FB_ON_OFF"] = [OFF, OFF, OFF, OFF];           // Feedback mode 4 values (ON, OFF)
-conf_default_fpasim["AMP_SQ_OFFSET_MODE"] = [OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF];           // Offset mode: 4 values (OFFSET_MODE_OFF, OFFSET_MODE_OFFSET, OFFSET_MODE_CLOSED, OFFSET_MODE_TESTPATTERN)
+conf_default_fpasim["MUX_SQ_FB_ON_OFF"] = [ON, ON, ON, ON];           // Feedback mode 4 values (ON, OFF)
+conf_default_fpasim["AMP_SQ_OFFSET_MODE"] = [OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET];           // Offset mode: 4 values (OFFSET_MODE_OFF, OFFSET_MODE_OFFSET, OFFSET_MODE_CLOSED, OFFSET_MODE_TESTPATTERN)
 conf_default_fpasim["BOXCAR_LENGTH"] = [1, 1, 1, 1];   // boxcar length, 4 values U(4,0)
 conf_default_fpasim["A"] = [0.2, 0.2, 0.2, 0.2];  // "a" parameter of the FLL algorithm = 1/(1+Tau) (four values) U(16, 16), the script uses the same value for all the pixels in a column
 conf_default_fpasim["MUX_SQ_INPUT_GAIN"] = [-1, -1, -1, -1];   // input gain for the MUX SQUID loop (four values) S(4,0)
@@ -74,7 +74,7 @@ conf_default_fpasim["AMP_SQ_OFFSET_FINE"] = [0, 0, 0, 0];   // offset fine value
 conf_default_fpasim["AMP_SQ_OFFSET_LSB_PTR"] = [OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN]; // offset LSB value at AMP SQUID operating point U(12,0)
 conf_default_fpasim["AMP_SQ_OFFSET_LSB"] = [OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN];     // offset LSB value at AMP SQUID operating point U(12,0)
 conf_default_fpasim["AMP_SQ_OFFSET_COARSE"] = [2500, 2500, 2500, 2500];       // offset coarse value at AMP SQUID operating point U(12,0)
-conf_default_fpasim["MUX_SQ_FB_DELAY"] = [-91, -91, -91, 91];  // feedback delay [-512, 40]
+conf_default_fpasim["MUX_SQ_FB_DELAY"] = [-91, -91, -91, -91];  // feedback delay [-512, 40]
 conf_default_fpasim["AMP_SQ_OFFSET_DAC_DELAY"] = [0, 0, 0, 0];  // ofco DAC delay U(10,0)
 conf_default_fpasim["AMP_SQ_OFFSET_MUX_DELAY"] = [-94, -94, -94, -94];  // ofco MUX delay [-512, 40]
 conf_default_fpasim["SAMPLING_DELAY"] = [16, 16, 16, 16];       // sampling delay [0, 19]
