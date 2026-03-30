@@ -27,13 +27,12 @@
 
 // imports
 const includes_path = "../../includes/";
-include(includes_path + "common_constants.dscript");
-include(includes_path + "utilTools.dscript");
-include(includes_path + "dmxTools.dscript");
-include(includes_path + "dmxConfigurations.dscript");
-include(includes_path + "dmxStart.dscript");
-include(includes_path + "/fpasim/fpasim_includes.dscript");
-
+include(includes_path + "common_constants.dscript");
+include(includes_path + "utilTools.dscript");
+include(includes_path + "dmxTools.dscript");
+include(includes_path + "dmxConfigurations.dscript");
+include(includes_path + "dmxStart.dscript");
+include(includes_path + "/fpasim/fpasim_includes.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
 
@@ -63,15 +62,14 @@ fpasimConfig(raDelayOpt, SteadyMode90Fsr);
 
 /*
  Starting and configuring the DEMUX
-*/
-
-var conf = conf_default_fpasim;
-conf["BOXCAR_LENGTH"] =  [7, 7, 7, 7];
-conf["A"] = [0, 0, 0, 0];
-conf["AMP_SQ_INPUT_GAIN"] =  [1, 1, 1, 1];
-conf["AMP_SQ_KI"] =  [0.1, 0.1, 0.1, 0.1];
-conf["AMP_SQ_LOCKPOINT_V"] =  [791, 791, 791, 791];
-conf["AMP_SQ_OFFSET_COARSE"] =  [367, 367, 367, 367];
+*/
+var conf = conf_default_fpasim;
+conf["BOXCAR_LENGTH"] =  [7, 7, 7, 7];
+conf["A"] = [0, 0, 0, 0];
+conf["AMP_SQ_INPUT_GAIN"] =  [1, 1, 1, 1];
+conf["AMP_SQ_KI"] =  [0.1, 0.1, 0.1, 0.1];
+conf["AMP_SQ_LOCKPOINT_V"] =  [791, 791, 791, 791];
+conf["AMP_SQ_OFFSET_COARSE"] =  [367, 367, 367, 367];
 
 demuxStart(conf);
 

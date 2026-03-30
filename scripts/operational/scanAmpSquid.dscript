@@ -27,15 +27,11 @@
 
 // imports
 const includes_path = "../../includes/";
-include(includes_path + "common_constants.dscript");
-
-include(includes_path + "utilTools.dscript");
-
+include(includes_path + "common_constants.dscript");
+include(includes_path + "utilTools.dscript");
 include(includes_path + "dmxTools.dscript");
-include(includes_path + "dmxConfigurations.dscript");
-
-include(includes_path + "dmxStart.dscript");
-
+include(includes_path + "dmxConfigurations.dscript");
+include(includes_path + "dmxStart.dscript");
 include(includes_path + "/fpasim/fpasim_includes.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
@@ -62,10 +58,14 @@ fpasimConfig(raDelayOpt, SteadyMode90Fsr);
  Starting and configuring the DEMUX
 */
 var conf = conf_default_fpasim;
-conf["PATTERN"] = "FULL SLOW";
-//conf["PATTERN"] = "MINI OFCO";
+conf["PATTERN"] = "FULL SLOW";
+//conf["PATTERN"] = "MINI OFCO";
+
 conf["AMP_SQ_OFFSET_MODE"] = makeArray(DMX_NB_COL, OFFSET_MODE_TESTPATTERN);
 demuxStart(conf);
+
+//print(TAB1+"Setting the DMX offset mode to TEST PATTERN...");
+//setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_TESTPATTERN));
 
 print(TAB1 + "Starting data acquisition in ERROR mode...");
 sendToDMXGoToErrorSignalMode();

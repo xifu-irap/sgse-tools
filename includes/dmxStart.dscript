@@ -65,11 +65,18 @@ function demuxStart(conf_p) {
     ];
 	
 	// Definition of a fast test pattern on a small range around FB0
-    const b2 = 3;
-	const c2 = 1;
-    const N2 = 64;
-	const a2 = Math.pow(2, 2) * conf_p["MUX_SQ_FB0"][0] - Math.round(N2/2*c2);
-	const aa2 = Math.pow(2, 2) * conf_p["MUX_SQ_FB0"][0] + Math.round(N2/2*c2);
+	const b2 = 15;
+	const c2 = Math.pow(2, 4);
+	const N2 = Math.pow(2,12)/c2;
+	const a2 = -N2*c2/2;
+	const aa2 = -a2-1;
+
+//    const b2 = 3;
+//	const c2 = 1;
+//    const N2 = 64;
+//	const a2 = Math.pow(2, 2) * conf_p["MUX_SQ_FB0"][0] - Math.round(N2/2*c2);
+//	const aa2 = Math.pow(2, 2) * conf_p["MUX_SQ_FB0"][0] + Math.round(N2/2*c2);
+
 	const miniSawPattern = [
         [a2, b2, c2, N2],  // Slope upward
         [aa2, b2, -c2, N2],  // Slope downward
@@ -84,7 +91,7 @@ function demuxStart(conf_p) {
     const c3 = 128;
     const N3 = 511;
     const aa3 = Math.pow(2, 15)-1;
-    const slowSawPattern2 = [
+    const slowSawPattern = [
         [a3, b3, c3, N3],  // Slope upward
         [aa3, b3, -c3, N3],  // Slope downward
         [0, 0, 0, 0],  // Nothing
@@ -106,20 +113,6 @@ function demuxStart(conf_p) {
         [0, 0, 0, 0]  // Nothing
     ];
 
-	// Definition of a fast test pattern on a small range around FB0
-	const b5 = 15;
-	const c5 = Math.pow(2, 4);
-	const N5 = Math.pow(2,12)/c5;
-	const a5 = -N5*c5/2;
-	const aa5 = -a5-1;
-	const slowSawPattern = [
-        [a5, b5, c5, N5],  // Slope upward
-        [aa5, b5, -c5, N5],  // Slope downward
-        [0, 0, 0, 0],  // Nothing
-        [0, 0, 0, 0],  // Nothing
-        [0, 0, 0, 0]  // Nothing
-    ];
-
     switch (conf_p["PATTERN"]) {
     case "FULL":
 		print(TAB2 + "Defining a pattern over the full range");
@@ -132,10 +125,6 @@ function demuxStart(conf_p) {
     case "FULL SLOW":
         print(TAB2 + "Defining a slow pattern over the full range");
         setDMX_testPattern(slowSawPattern);
-        break;
-    case "SLOW2":
-        print(TAB2 + "Defining a slow pattern (2)");
-        setDMX_testPattern(slowSawPattern2);
         break;
     case "MINI OFCO":
         print(TAB2 + "Defining a slow pattern over a small range around Ofco coarse");

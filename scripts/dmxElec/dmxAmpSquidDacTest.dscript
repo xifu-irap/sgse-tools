@@ -158,6 +158,7 @@ function testSequence() {
 
 	// Activating the data acquisition in Error mode
 	sendToDMXGoToErrorSignalMode();
+
 	alert("Finish the test?");
 
 }
