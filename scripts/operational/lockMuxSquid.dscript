@@ -27,15 +27,16 @@
 
 // imports
 const includes_path = "../../includes/";
-include(includes_path + "dmxTools.dscript");
-include(includes_path + "dmxConfigurations.dscript");
-include(includes_path + "/fpasim/fpasim_includes.dscript");
-include(includes_path + "utilTools.dscript");
-include(includes_path + "common_constants.dscript");
+include(includes_path + "common_constants.dscript");
+include(includes_path + "utilTools.dscript");
+include(includes_path + "dmxTools.dscript");
+include(includes_path + "dmxConfigurations.dscript");
+include(includes_path + "dmxStart.dscript");
+include(includes_path + "/fpasim/fpasim_includes.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
 
-const col = 0;
+const col = 2;
 sessionName = "lockingMuxLoop-col"+col;
 sendStartNewSession(sessionName, "");
 
@@ -43,11 +44,11 @@ const savingDataWhileClosingLoop = false;
 const savingDataWhilePulses = false;
 const pulseDataDurationMs = 4000;
 
-const doingPulsesRandomEnergies = false;
-const pulseHeightPcMax = 70;  // Modulation max
+const doingPulsesRandomEnergies = true;
+const pulseHeightPcMax = 40;  // Modulation max
 
-const doingPulsesSingleEnergy = true;
-const pulseHeightPcSingle = 90; // Modulation
+const doingPulsesSingleEnergy = false;
+const pulseHeightPcSingle = 50; // Modulation
 
 const nbIterations = 500000; // number of pulses per pixels and per energy
 
@@ -115,7 +116,7 @@ if (doingPulsesSingleEnergy) {
 	for (iteration = 0; iteration < nbIterations; iteration++) {
 		print(TAB2 + "Iteration " + iteration + " / " + nbIterations);
 		for (var iPix=0; iPix < DMX_NB_PIX_PER_COL; iPix++) {
-				pulseHeight = Math.round(steady * pulseHeightPcSingle / 100);
+				pulseHeight = Math.round(TesSteady * pulseHeightPcSingle / 100);
 				sendToFPAsim_makePulse(iPix, 0, pulseHeight);
 		}
 	}

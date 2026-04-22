@@ -45,7 +45,7 @@ function demuxStart(conf_p) {
 	setDMX_testPatternEnable(false, false, 0);
 
     // Switching OFF the feedback for all the columns
-	print(TAB1+"Switching OFF the feedback OnOff for all the columns...");
+	print(TAB1 + "Switching OFF the feedback for all the columns...");
     setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
 	
 	print(TAB1 + "Setting the test pattern");
@@ -65,17 +65,11 @@ function demuxStart(conf_p) {
     ];
 	
 	// Definition of a fast test pattern on a small range around FB0
-	const b2 = 15;
-	const c2 = Math.pow(2, 4);
-	const N2 = Math.pow(2,12)/c2;
-	const a2 = -N2*c2/2;
-	const aa2 = -a2-1;
-
-//    const b2 = 3;
-//	const c2 = 1;
-//    const N2 = 64;
-//	const a2 = Math.pow(2, 2) * conf_p["MUX_SQ_FB0"][0] - Math.round(N2/2*c2);
-//	const aa2 = Math.pow(2, 2) * conf_p["MUX_SQ_FB0"][0] + Math.round(N2/2*c2);
+    const b2 = 3;
+	const c2 = 1;
+    const N2 = 64;
+	const a2 = Math.pow(2, 2) * conf_p["MUX_SQ_FB0"][0] - Math.round(N2/2*c2);
+	const aa2 = Math.pow(2, 2) * conf_p["MUX_SQ_FB0"][0] + Math.round(N2/2*c2);
 
 	const miniSawPattern = [
         [a2, b2, c2, N2],  // Slope upward
@@ -103,8 +97,8 @@ function demuxStart(conf_p) {
     const b4 = 3;
     const c4 = 1;
     const N4 = 511;
-	const a4 = Math.pow(2, 4)*(conf_p["AMP_SQ_OFFSET_COARSE"][0] - Math.round(N4*c4/2))-Math.pow(2,15);
-	const aa4 = Math.pow(2, 4)*(conf_p["AMP_SQ_OFFSET_COARSE"][0] + Math.round(N4*c4/2))-Math.pow(2,15);
+	const a4 = Math.pow(2, 4)*conf_p["AMP_SQ_OFFSET_COARSE"][0] - Math.round(N4*c4/2)-Math.pow(2,15);
+	const aa4 = Math.pow(2, 4)*conf_p["AMP_SQ_OFFSET_COARSE"][0] + Math.round(N4*c4/2)-Math.pow(2,15);
     const miniSlowSawPattern = [
         [a4, b4, c4, N4],  // Slope upward
         [aa4, b4, -c4, N4],  // Slope downward
@@ -171,9 +165,11 @@ function demuxStart(conf_p) {
     // DEMUX offset
 	print(TAB1+"Setting the Offset close to the AMP SQUID operating point...");
 	for (col=0; col<DMX_NB_COL; col++) {
-		setDMX_sqa_OffsetFine(col, makeArray(DMX_NB_PIX_PER_COL, conf_p["AMP_SQ_OFFSET_FINE"][col]), makeArray(DMX_NB_PIX_PER_COL, conf_p["AMP_SQ_OFFSET_FINE"][col]));
-		setDMX_sqa_OffsetLSB(col, conf_p["AMP_SQ_OFFSET_LSB_PTR"][col]);
-		setDMX_sqa_OffsetLSBptr(col, conf_p["AMP_SQ_OFFSET_LSB"][col]);
+
+		tab_offset_fine = makeArray(DMX_NB_PIX_PER_COL, conf_p["AMP_SQ_OFFSET_FINE"][col]);
+		setDMX_sqa_OffsetFine(col, tab_offset_fine, tab_offset_fine);
+		setDMX_sqa_OffsetLSB(col, conf_p["AMP_SQ_OFFSET_LSB"][col]);
+		setDMX_sqa_OffsetLSBptr(col, conf_p["AMP_SQ_OFFSET_LSB_PTR"][col]);
 		setDMX_sqa_OffsetCoarse(col, conf_p["AMP_SQ_OFFSET_COARSE"][col]);
 	}
 
@@ -210,8 +206,7 @@ function demuxStart(conf_p) {
     // DEMUX feedback
 	print(TAB1+"Setting the DMX FB0 values: " + conf_p["MUX_SQ_FB0"]);
 	for (col=0; col<DMX_NB_COL; col++) {
-        fb = makeArray(DMX_NB_PIX_PER_COL, conf_p["MUX_SQ_FB0"][col]);
-	    setDMX_fb0(col, fb);
+	    setDMX_fb0(col, makeArray(DMX_NB_PIX_PER_COL, conf_p["MUX_SQ_FB0"][col]));
 	}
 
     // Feedback ON/OFF
@@ -221,8 +216,7 @@ function demuxStart(conf_p) {
     // Feedback mode
 	print(TAB1+"Setting the DMX feedback mode to: " + conf_p["MUX_SQ_FB_MODE"]);
 	for (col=0; col<DMX_NB_COL; col++) {
-    	fbMode = makeArray(DMX_NB_PIX_PER_COL, conf_p["MUX_SQ_FB_MODE"][col]);
-	    setDMX_sqm_FBMode(col, fbMode);
+	    setDMX_sqm_FBMode(col, makeArray(DMX_NB_PIX_PER_COL, conf_p["MUX_SQ_FB_MODE"][col]));
 	}
 
     // Offset mode

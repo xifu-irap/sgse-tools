@@ -56,30 +56,47 @@ conf_default_fw["PATTERN"] = "";          // name of the pre-defined test patter
 
 
 var conf_default_fpasim = new Object();
-conf_default_fpasim["MUX_SQ_FB_ON_OFF"] = [ON, ON, ON, ON];           // Feedback mode 4 values (ON, OFF)
-conf_default_fpasim["AMP_SQ_OFFSET_MODE"] = [OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET];           // Offset mode: 4 values (OFFSET_MODE_OFF, OFFSET_MODE_OFFSET, OFFSET_MODE_CLOSED, OFFSET_MODE_TESTPATTERN)
-conf_default_fpasim["BOXCAR_LENGTH"] = [1, 1, 1, 1];   // boxcar length, 4 values U(4,0)
-conf_default_fpasim["A"] = [0.2, 0.2, 0.2, 0.2];  // "a" parameter of the FLL algorithm = 1/(1+Tau) (four values) U(16, 16), the script uses the same value for all the pixels in a column
-conf_default_fpasim["MUX_SQ_INPUT_GAIN"] = [-1, -1, -1, -1];   // input gain for the MUX SQUID loop (four values) S(4,0)
-conf_default_fpasim["AMP_SQ_INPUT_GAIN"] = [1, 1, 1, 1];       // input gain for the AMP SQUID loop (four values) S(4,0)
-conf_default_fpasim["MUX_SQ_KI"] = [1.2, 1.2, 1.2, 1.2];   // kiknorm for the MUX SQUID loop (four values <1), the script uses the same value for all the pixels in a column
-conf_default_fpasim["AMP_SQ_KI"] = [1.2, 1.2, 1.2, 1.2];   // kiknorm for the MUX SQUID loop (four values <1)
-conf_default_fpasim["MUX_SQ_KNORM"] = [0.077, 0.077, 0.077, 0.077];   // knorm for the MUX SQUID loop (four values converted in U(16,18)), the script uses the same value for all the pixels in a column
-conf_default_fpasim["AMP_SQ_KNORM"] = [0.10, 0.10, 0.10, 0.10];   // knorm for the MUX SQUID loop (four values converted in U(16,18))
-conf_default_fpasim["MUX_SQ_FB0"] = [-528, -528, -528, -528];  // feedback at MUX SQUID operating point s(16,2), the script uses the same value for all the pixels in a column
-conf_default_fpasim["MUX_SQ_LOCKPOINT_V"] = [-3832, -3832, -3832, -3832];   // lockpoint voltage for the Mux SQUID FLL (four values) (S(16,2), the script uses the same value for all the pixels in a column
-conf_default_fpasim["AMP_SQ_LOCKPOINT_V"] = [800, 800, 800, 800];   // lockpoint voltage for the Amp SQUID FLL (four values) (S(16,2)
-conf_default_fpasim["MUX_SQ_FB_MODE"] = [FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP];  // Feedback mode: 4 values (FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_CLOSED_LOOP, FEEDBACK_MODE_TESTPATTERN), the script uses the same value for all the pixels in a column
-conf_default_fpasim["AMP_SQ_OFFSET_FINE"] = [0, 0, 0, 0];   // offset fine value at AMP SQUID operating point U(3,0), the script uses the same value for all the pixels in a column
-conf_default_fpasim["AMP_SQ_OFFSET_LSB_PTR"] = [OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN]; // offset LSB value at AMP SQUID operating point U(12,0)
-conf_default_fpasim["AMP_SQ_OFFSET_LSB"] = [OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN];     // offset LSB value at AMP SQUID operating point U(12,0)
-conf_default_fpasim["AMP_SQ_OFFSET_COARSE"] = [2500, 2500, 2500, 2500];       // offset coarse value at AMP SQUID operating point U(12,0)
+// --- Delay parameters
 conf_default_fpasim["MUX_SQ_FB_DELAY"] = [-91, -91, -91, -91];  // feedback delay [-512, 40]
 conf_default_fpasim["AMP_SQ_OFFSET_DAC_DELAY"] = [0, 0, 0, 0];  // ofco DAC delay U(10,0)
 conf_default_fpasim["AMP_SQ_OFFSET_MUX_DELAY"] = [-94, -94, -94, -94];  // ofco MUX delay [-512, 40]
 conf_default_fpasim["SAMPLING_DELAY"] = [16, 16, 16, 16];       // sampling delay [0, 19]
-conf_default_fpasim["PULSE_SHAPING_SELECTION"] = [0, 0, 0, 0];  // pulse shaping set Id [0-3]
-conf_default_fpasim["RELOCK_DELAY"] = 0xFFF;   // Delay parameter of the auto-relock function. The scripts uses the value to the 4 columns
-conf_default_fpasim["RELOCK_THRESHOLD"] = 0xFFF;   // Threshold parameter of the auto-relock function. The scripts uses the value to the 4 columns
+conf_default_fpasim["BOXCAR_LENGTH"] = [1, 1, 1, 1];   // boxcar length, 4 values U(4,0)
+
+conf_default_fpasim["MUX_SQ_FB_ON_OFF"] = [ON, ON, ON, ON];           // Feedback mode 4 values (ON, OFF)
+conf_default_fpasim["MUX_SQ_FB_MODE"] = [FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP];  // Feedback mode: 4 values (FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_CLOSED_LOOP, FEEDBACK_MODE_TESTPATTERN), the script uses the same value for all the pixels in a column
+
+// --- Algorithm parameters for MUX SQUID FLL
+conf_default_fpasim["MUX_SQ_LOCKPOINT_V"] = [-1937, -1937, -1937, -1937];   // lockpoint voltage for the Mux SQUID FLL (four values) (S(16,2), the script uses the same value for all the pixels in a column
+conf_default_fpasim["MUX_SQ_FB0"] = [190, 190, 190, 190];  // feedback at MUX SQUID operating point s(16,2), the script uses the same value for all the pixels in a column
+conf_default_fpasim["MUX_SQ_INPUT_GAIN"] = [-1, -1, -1, -1];   // input gain for the MUX SQUID loop (four values) S(4,0)
+//conf_default_fpasim["A"] = [0.2, 0.2, 0.2, 0.2];  // "a" parameter of the FLL algorithm = 1/(1+Tau) (four values) U(16, 16), the script uses the same value for all the pixels in a column
+//conf_default_fpasim["MUX_SQ_KI"] = [2, 2, 2, 2];   // kiknorm for the MUX SQUID loop (four values <1), the script uses the same value for all the pixels in a column
+conf_default_fpasim["A"] = [0.5, 0.5, 0.5, 0.5];  // "a" parameter of the FLL algorithm = 1/(1+Tau) (four values) U(16, 16), the script uses the same value for all the pixels in a column
+conf_default_fpasim["MUX_SQ_KI"] = [2,2, 2, 2];   // kiknorm for the MUX SQUID loop (four values <1), the script uses the same value for all the pixels in a column
+conf_default_fpasim["MUX_SQ_KNORM"] = [0.055, 0.055, 0.055, 0.055];   // knorm for the MUX SQUID loop (four values converted in U(16,18)), the script uses the same value for all the pixels in a column
+
+conf_default_fpasim["AMP_SQ_OFFSET_MODE"] = [OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET];           // Offset mode: 4 values (OFFSET_MODE_OFF, OFFSET_MODE_OFFSET, OFFSET_MODE_CLOSED, OFFSET_MODE_TESTPATTERN)
+// --- Algorithm parameters for AMP SQUID FLL
+conf_default_fpasim["AMP_SQ_LOCKPOINT_V"] = [800, 800, 800, 800];   // lockpoint voltage for the Amp SQUID FLL (four values) (S(16,2)
+conf_default_fpasim["AMP_SQ_INPUT_GAIN"] = [1, 1, 1, 1];       // input gain for the AMP SQUID loop (four values) S(4,0)
+conf_default_fpasim["AMP_SQ_KI"] = [1.2, 1.2, 1.2, 1.2];   // kiknorm for the MUX SQUID loop (four values <1)
+conf_default_fpasim["AMP_SQ_KNORM"] = [0.10, 0.10, 0.10, 0.10];   // knorm for the MUX SQUID loop (four values converted in U(16,18))
+
+conf_default_fpasim["AMP_SQ_OFFSET_FINE"] = [0, 0, 0, 0];   // offset fine value at AMP SQUID operating point U(3,0), the script uses the same value for all the pixels in a column
+conf_default_fpasim["AMP_SQ_OFFSET_LSB_PTR"] = [OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN]; // offset LSB value at AMP SQUID operating point U(12,0)
+conf_default_fpasim["AMP_SQ_OFFSET_LSB"] = [OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN];     // offset LSB value at AMP SQUID operating point U(12,0)
+conf_default_fpasim["AMP_SQ_OFFSET_COARSE"] = [2600, 2600, 2600, 2600];       // offset coarse value at AMP SQUID operating point U(12,0)
+conf_default_fpasim["PULSE_SHAPING_SELECTION"] = [1, 1, 1, 1];  // pulse shaping set Id [0-3]
+
+// --- Auto-relock parameters
+//conf_default_fpasim["RELOCK_DELAY"] = 0xFFF;   // Delay parameter of the auto-relock function. The scripts uses the value to the 4 columns
+//conf_default_fpasim["RELOCK_THRESHOLD"] = 0xFFF;   // Threshold parameter of the auto-relock function. The scripts uses the value to the 4 columns
+conf_default_fpasim["RELOCK_DELAY"] = 512;   // Delay parameter of the auto-relock function. The scripts uses the value to the 4 columns
+conf_default_fpasim["RELOCK_THRESHOLD"] = 756;   // Threshold parameter of the auto-relock function. The scripts uses the value to the 4 columns
+
 conf_default_fpasim["PATTERN"] = "FULL";          // name of the pre-defined test pattern
+
+
+
 

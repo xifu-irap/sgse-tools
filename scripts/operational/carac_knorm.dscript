@@ -27,17 +27,24 @@
 
 // imports
 const includes_path = "../../includes/";
-include(includes_path + "common_constants.dscript");
-include(includes_path + "utilTools.dscript");
-include(includes_path + "dmxConfigurations.dscript");
+include(includes_path + "common_constants.dscript");
+include(includes_path + "utilTools.dscript");
+include(includes_path + "dmxConfigurations.dscript");
 include(includes_path + "dmxTools.dscript");
-include(includes_path + "dmxStart.dscript");
-
+include(includes_path + "dmxStart.dscript");
 include(includes_path + "/fpasim/fpasim_includes.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
 
 const col = 3;
+
+//const knorm = 0.054;
+const knorm = 0.068;
+
+const kiknorm = knorm;
+
+sessionName = "carac-knorm-col"+col+"_knorm-"+knorm;
+sendStartNewSession(sessionName, "");
 
 /*
   Starting and initializing the FPAsim
@@ -53,22 +60,18 @@ fpasimConfig(raDelayOpt, SteadyMode90Fsr);
 /*
  Starting and configuring the DEMUX
 */
+const boxcarL = 0;
+const boxcarLArray = [boxcarL, boxcarL, boxcarL, boxcarL];
+const pattern = "FULL";
+const lockPointV = lockPointVOpt + 1500; // Shifting the lockpoint in order to have a greater step (less noise impact)
+
 demuxStart(conf_default_fpasim);
 
-// Opening the feedback loop
-fbModeOpen = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
-setDMX_sqm_FBMode(col, fbModeOpen);
 
-//const knorm = 0.054;
-const knorm = 0.068;
-const ki = 1;
-const kiknorm = ki*knorm;
-
-sessionName = "carac-knorm-col"+col+"_knorm-"+knorm;
-sendStartNewSession(sessionName, "");
+print(TAB1 + "Delock counters at the beggining: " + readDMX_delockCounters(col, false));
 
 print(TAB1 + "Setting knorm to " + knorm);
-print(TAB1 + "Setting ki to " + ki);
+print(TAB1 + "Setting kiknorm to " + kiknorm);
 for (var colId=0; colId<DMX_NB_COL; colId++) {
 	setDMX_sqm_knorm(colId, makeArray(DMX_NB_PIX_PER_COL, knorm));
 	setDMX_sqm_kiknorm(colId, makeArray(DMX_NB_PIX_PER_COL, kiknorm));
@@ -80,14 +83,13 @@ sendToDMXGoToErrorSignalMode();
 /*
 Closing the loop
 */
+fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_CLOSED_LOOP);
+const durationMs = 3000;
 
 print(TAB1 + "Starting Error acquisition while the loop is still open, then closing the feedback loop ...");
-const durationMs = 2000;
-sendToDMXSaveScienceRaw("errorDataWhileClosingLoop.fits", durationMs, 0xF, 0);
-
-waitMs(100); // Waiting a bit before closing the loop
-fbModeClosed = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_CLOSED_LOOP);
-setDMX_sqm_FBMode(col, fbModeClosed);
+sendToDMXSaveScienceRaw("errorDataWhileClosingLoop.fits", durationMs, 1<<col, 0);
+waitMs(100);
+setDMX_sqm_FBMode(col, fbMode);
 waitMs(durationMs);
 
 // -------------------------------------------------------------------------------------------------------------
