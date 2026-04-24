@@ -31,18 +31,20 @@ const raDelayOpt = 48;
 // TES default steady state
 const STEADY_FSR = Math.pow(2, 16)-1;
 const SteadyMode0 = 0;
-const SteadyMode90Fsr = 1;
-const SteadyModePix0 = 2;
-const SteadyModeRamp = 3;
+const SteadyMode25Fsr = 1;
+const SteadyMode90Fsr = 2;
+const SteadyModePix0 = 3;
+const SteadyModeRamp = 4;
 
 /**
  * Set a TES steady states sequence
  * Depending on the value of the pattern parameter a specific sequence will be selected.
  * @param {number} pattern_p - defines the pattern for the set of values.
  *      0) all pixels at 0
- *      1) 90 % of FSR
- *      2) all pixels at 0 and pix 0 at another value
- *      3) a ramp
+ *      1) 25 % of FSR
+ *      2) 90 % of FSR
+ *      3) all pixels at 0 and pix 0 at another value
+ *      4) a ramp
  */
 function setTesSteadyStates(pattern_p) {
 
@@ -53,6 +55,11 @@ function setTesSteadyStates(pattern_p) {
             print(TAB1 + "Setting the steady state of FPAsim pixels to: 0");
             Steady = makeArray(64, 0);
             Steady = makeArray(DMX_NB_PIX_PER_COL, 0);
+            break;
+        case SteadyMode25Fsr:
+            steadyPourcentage = 25;
+            print(TAB1 + "Setting the steady state of FPAsim pixels to: " + steadyPourcentage + " % of FSR");
+            Steady = makeArray(DMX_NB_PIX_PER_COL, Math.round(STEADY_FSR * steadyPourcentage / 100));
             break;
         case SteadyMode90Fsr:
             steadyPourcentage = 90;
@@ -73,6 +80,8 @@ function setTesSteadyStates(pattern_p) {
     print(TAB1 + "Steady states: ");
     print(TAB2 + Steady);
     print("");
+
+	return Steady[0];
 }
 
 
@@ -84,5 +93,7 @@ function fpasimConfig(ra_delay_p, steadyStateMode_p) {
 
 	// TES steady states
 	print(TAB1+"Setting the FPAsim pixel steady states to a constant value");
-	setTesSteadyStates(steadyStateMode_p);
+	steady = setTesSteadyStates(steadyStateMode_p);
+
+	return steady;
 }

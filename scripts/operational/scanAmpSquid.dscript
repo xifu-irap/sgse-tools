@@ -21,7 +21,8 @@
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
-//    This file is used to do a scan of the AMP SQUID with in the FPAsim + DMX configuration.
+//    This file is used to characterise the AMP SQUID in the FPAsim + DMX configuration.
+
 //
 // -------------------------------------------------------------------------------------------------------------
 
@@ -48,15 +49,24 @@ sendToTMTC_SetWireIn(0 , 2);
 */
 fpasimStartup();
 
-fpasimConfig(raDelayOpt, SteadyMode90Fsr);
+/*
+  Configuring the FPAsim
+*/
+fpasimConfig(raDelayOpt, SteadyMode25Fsr);
 //fpasimConfig(raDelayOpt, SteadyMode0);
 
 /*
  Starting and configuring the DEMUX
 */
+
+// Asking for the test pattern shape
+const confTptTab = ["FULL SLOW", "MINI OFCO"];
+var tptId = getItem("Please, indicates the test pattern: ", confTptTab);
+var tpt = confTptTab[tptId];
+
 var conf = conf_default_fpasim;
-//conf["PATTERN"] = "FULL SLOW";
-conf["PATTERN"] = "MINI OFCO";
+
+conf["PATTERN"] = tpt;
 conf["AMP_SQ_OFFSET_MODE"] = makeArray(DMX_NB_COL, OFFSET_MODE_TESTPATTERN);
 demuxStart(conf);
 
@@ -69,7 +79,7 @@ var infinitely = true;
 var nbTime = 0x9;
 setDMX_testPatternEnable(enable, infinitely, nbTime);
 
-waitMs(6000000, true, true, "Acquisition en cours...");
+alert("Stop the test?");
 
 
 // -------------------------------------------------------------------------------------------------------------

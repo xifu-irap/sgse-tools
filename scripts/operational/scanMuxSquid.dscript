@@ -1,1 +1,103 @@
-// -------------------------------------------------------------------------------------------------------------//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.// -------------------------------------------------------------------------------------------------------------//                              This file is part of the ATHENA X-IFU DRE SGSE tools.////                              sgse tools javascripts are free software: you can redistribute it and/or modify//                              it under the terms of the GNU General Public License as published by//                              the Free Software Foundation, either version 3 of the License, or//                              (at your option) any later version.////                              This program is distributed in the hope that it will be useful,//                              but WITHOUT ANY WARRANTY; without even the implied warranty of//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the//                              GNU General Public License for more details.////                              You should have received a copy of the GNU General Public License//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.// -------------------------------------------------------------------------------------------------------------//    email                     laurent.ravera@irap.omp.eu//    @file                     scanMuxSquid.dscript// -------------------------------------------------------------------------------------------------------------//    @details////    This file is used to do a scan of the MUX SQUID with the AMP SQUID in Open loop//    in the FPAsim + DMX configuration.//// -------------------------------------------------------------------------------------------------------------// importsconst includes_path = "../../includes/";include(includes_path + "common_constants.dscript");include(includes_path + "utilTools.dscript");include(includes_path + "dmxTools.dscript");include(includes_path + "dmxConfigurations.dscript");include(includes_path + "dmxStart.dscript");include(includes_path + "/fpasim/fpasim_includes.dscript");// -------------------------------------------------------------------------------------------------------------// Init CDIFsendToTMTC_SetWireIn(0 , 1);sendToTMTC_SetWireIn(0 , 0);sendToTMTC_SetWireIn(0 , 2);/*  Starting and initializing the FPAsim  If the FPAsim function is already enabled nothing is done unless the "force_p" parameter is set to true.*/fpasimStartup();fpasimConfig(raDelayOpt, SteadyMode90Fsr);//fpasimConfig(raDelayOpt, SteadyMode0);/* Starting and configuring the DEMUX*/var conf = conf_default_fpasim;conf["PATTERN"] = "FULL SLOW";//conf["PATTERN"] = "MINI FB0";conf["MUX_SQ_FB0"] = makeArray(DMX_NB_COL, 350);conf["MUX_SQ_FB_MODE"] = makeArray(DMX_NB_COL, FEEDBACK_MODE_TESTPATTERN);demuxStart(conf);print(TAB1 + "Starting data acquisition in ERROR mode...");sendToDMXGoToErrorSignalMode();print(TAB1 + "Activating the test pattern...");var enable = true;var infinitely = true;var nbTime = 0x9;setDMX_testPatternEnable(enable, infinitely, nbTime);waitMs(6000000, true, true, "Acquisition en cours...");// -------------------------------------------------------------------------------------------------------------onAbortScript();function onAbortScript() {	sendToDMXGoToIdleMode();	print("End of script!");}
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     scanMuxSquid.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file is used to characterise the MUX SQUID in the FPAsim + DMX configuration.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+const includes_path = "../../includes/";
+include(includes_path + "common_constants.dscript");
+include(includes_path + "utilTools.dscript");
+include(includes_path + "dmxTools.dscript");
+include(includes_path + "dmxConfigurations.dscript");
+include(includes_path + "dmxStart.dscript");
+include(includes_path + "/fpasim/fpasim_includes.dscript");
+
+// -------------------------------------------------------------------------------------------------------------
+
+
+// Init CDIF
+sendToTMTC_SetWireIn(0 , 1);
+sendToTMTC_SetWireIn(0 , 0);
+sendToTMTC_SetWireIn(0 , 2);
+
+/*
+  Starting and initializing the FPAsim
+  If the FPAsim function is already enabled nothing is done unless the "force_p" parameter is set to true.
+*/
+fpasimStartup();
+
+/*
+  Configuring the FPAsim
+*/
+fpasimConfig(raDelayOpt, SteadyMode25Fsr);
+//fpasimConfig(raDelayOpt, SteadyMode0);
+
+/*
+ Starting and configuring the DEMUX
+*/
+
+// Asking for the test pattern shape
+const confTptTab = ["FULL SLOW", "MINI FB0"];
+var tptId = getItem("Please, indicates the test pattern: ", confTptTab);
+var tpt = confTptTab[tptId];
+
+var conf = conf_default_fpasim;
+conf["PATTERN"] = tpt;
+conf["MUX_SQ_FB0"] = makeArray(DMX_NB_COL, 100);
+conf["MUX_SQ_FB_MODE"] = makeArray(DMX_NB_COL, FEEDBACK_MODE_TESTPATTERN);
+
+const confOfcoCoarseTab = ["Average setting (optimal)", "High limit", "Low limit"];
+const ofco_coarse_high = 3600;
+const ofco_coarse_low = 2020;
+const ofco_coarse_average = 0.5*(ofco_coarse_high+ofco_coarse_low);
+const ofco_coarse_values = [ofco_coarse_average, ofco_coarse_high, ofco_coarse_low];
+const ofco_coarse_id = getItem("Please, indicates the ofco coarse setting: ", confOfcoCoarseTab);
+const ofco_coarse = ofco_coarse_values[ofco_coarse_id];
+conf_default_fpasim["AMP_SQ_OFFSET_COARSE"] =  makeArray(DMX_NB_COL, ofco_coarse);
+
+demuxStart(conf);
+
+print(TAB1 + "Starting data acquisition in ERROR mode...");
+sendToDMXGoToErrorSignalMode();
+
+print(TAB1 + "Activating the test pattern...");
+var enable = true;
+var infinitely = true;
+var nbTime = 0x9;
+setDMX_testPatternEnable(enable, infinitely, nbTime);
+
+var new_ofco_coarse = ofco_coarse;
+while(new_ofco_coarse !== 0) {
+	for (col=0; col<DMX_NB_COL; col++) setDMX_sqa_OffsetCoarse(col, new_ofco_coarse);
+	new_ofco_coarse = getInt("Enter a new value of the Offset coarse (0 to abort)", defaultValue = ofco_coarse_average, minRange = 0, maxRange = Math.pow(2, 14)-1);
+}
+
+onAbortScript();
+
+
+function onAbortScript() {
+	sendToDMXGoToIdleMode();
+	print("End of script!");
+}

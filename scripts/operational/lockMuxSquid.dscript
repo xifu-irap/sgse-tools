@@ -27,16 +27,16 @@
 
 // imports
 const includes_path = "../../includes/";
-include(includes_path + "common_constants.dscript");
-include(includes_path + "utilTools.dscript");
-include(includes_path + "dmxTools.dscript");
-include(includes_path + "dmxConfigurations.dscript");
-include(includes_path + "dmxStart.dscript");
-include(includes_path + "/fpasim/fpasim_includes.dscript");
+include(includes_path + "common_constants.dscript");
+include(includes_path + "utilTools.dscript");
+include(includes_path + "dmxTools.dscript");
+include(includes_path + "dmxConfigurations.dscript");
+include(includes_path + "dmxStart.dscript");
+include(includes_path + "/fpasim/fpasim_includes.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
 
-const col = 2;
+const col = 2; // Only used in the session name
 sessionName = "lockingMuxLoop-col"+col;
 sendStartNewSession(sessionName, "");
 
@@ -45,7 +45,8 @@ const savingDataWhilePulses = false;
 const pulseDataDurationMs = 4000;
 
 const doingPulsesRandomEnergies = true;
-const pulseHeightPcMax = 40;  // Modulation max
+const pulseHeightPcMax = 70;  // equiv to 12keV XIFU
+
 
 const doingPulsesSingleEnergy = false;
 const pulseHeightPcSingle = 50; // Modulation
@@ -56,8 +57,10 @@ const nbIterations = 500000; // number of pulses per pixels and per energy
   Starting and initializing the FPAsim
 */
 fpasimStartup(); // If the FPAsim is already enabled nothing is done unless the "force_p" parameter is set to true.
-fpasimConfig(raDelayOpt, SteadyMode90Fsr);
-const TesSteady =  Math.round(STEADY_FSR * 90 / 100); // TES steady state
+//fpasimConfig(raDelayOpt, SteadyMode90Fsr);
+
+const TesSteady = fpasimConfig(raDelayOpt, SteadyMode25Fsr);
+
 
 /*
  Starting and configuring the DEMUX
@@ -122,7 +125,9 @@ if (doingPulsesSingleEnergy) {
 	}
 }
 
-waitMs(6000000, true, true, "Measurement of pulses is done");
+alert("Stop the test?");
+print(TAB1 + "Delock counters at the end: " + readDMX_delockCounters(col, false));
+
 
 // -------------------------------------------------------------------------------------------------------------
 onAbortScript();
