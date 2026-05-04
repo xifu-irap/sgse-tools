@@ -99,5 +99,6 @@ onAbortScript();
 
 function onAbortScript() {
 	sendToDMXGoToIdleMode();
+	setDMX_testPatternEnable(false, false, 0);
 	print("End of script!");
 }
