@@ -1,0 +1,86 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     EPsimTest.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file tests the functionalities of the EPsim.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+const includes_path = "../../includes/";
+include(includes_path + "dmxTools.dscript");
+include(includes_path + "rasTools.dscript");
+include(includes_path + "utilTools.dscript");
+include(includes_path + "common_constants.dscript");
+
+/**
+ * This function allows to test the EPsim
+ */
+function EPsimTest() {
+
+	const ICU_main = 0;
+	const ICU_redundant = 1;
+	
+ 	// Asking for the SPI module to talk with
+    const testTabText = [
+								"SPI command to DMXA",
+								"SPI command to DMXB",
+								"SPI command to RAS",
+								"Select ICU main",
+								"Select ICU redundant",
+								"End the test"];
+								
+	var exit = false;
+	
+	while(!exit){
+		
+		iTest = getItem("Which test do you want to do?: ", testTabText);
+		test = testTabText[iTest];
+
+		switch(test) {
+			case "SPI command to DMXA":
+				sendSelectDMX(DMXA);  // Sélectionne le DEMUX A
+				setDMX_feedback_delay(0, -10); // Command to the selected DEMUX module
+				setDMX_feedback_delay(0, 0);
+				break;
+			case "SPI command to DMXB":
+				sendSelectDMX(DMXB);  // Sélectionne le DEMUX B
+				setDMX_feedback_delay(0, -10); // Command to the selected DEMUX module
+				setDMX_feedback_delay(0, 0);
+				break;
+			case "SPI command to RAS":
+				readRAS_tMux(); // Command to the RAS
+				break;
+			case "Select ICU main":
+				sendToTMTC_selectICU(ICU_main);
+				break;
+			case "Select ICU redundant":
+				sendToTMTC_selectICU(ICU_redundant);
+				break;
+			case "End the test":
+				exit = true;
+			}
+		}		
+	}
+	
+EPsimTest();
+print("End of the test");

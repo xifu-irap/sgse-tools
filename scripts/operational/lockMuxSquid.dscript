@@ -45,8 +45,8 @@ const savingDataWhilePulses = false;
 const pulseDataDurationMs = 4000;
 
 const doingPulsesRandomEnergies = true;
-const pulseHeightPcMax = 70;  // equiv to 12keV XIFU
-//const pulseHeightPcMax = 90;  // to make delocks
+const pulseHeightPcMax = 70;  // equiv to 12keV XIFU
+//const pulseHeightPcMax = 90;  // to make delocks
 
 
 const doingPulsesSingleEnergy = false;

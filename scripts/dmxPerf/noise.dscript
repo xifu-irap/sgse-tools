@@ -159,8 +159,8 @@ function noise() {
         boxcarL = 0;
         measure_data(0, 0, confName, boxcarL);
 
-        boxcarL = 3;
-        measure_data(0, 0, confName, boxcarL);
+        //boxcarL = 3;
+        //measure_data(0, 0, confName, boxcarL);
     }
 
 }

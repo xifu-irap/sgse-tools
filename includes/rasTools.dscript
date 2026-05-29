@@ -24,7 +24,9 @@
 //    This file contains low level commands to configure and read the configuration of a DRE RAS module.
 //
 // -------------------------------------------------------------------------------------------------------------
-
+
+// imports
+include(includes_path + "rasRegAddresses.dscript");
 
 const RAS_TEST_PATTERN_NBPARAMS = 4;
 const RAS_TEST_PATTERN_NBREGIONS = 5;

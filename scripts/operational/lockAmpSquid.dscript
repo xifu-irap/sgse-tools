@@ -27,12 +27,12 @@
 
 // imports
 const includes_path = "../../includes/";
-include(includes_path + "common_constants.dscript");
-include(includes_path + "utilTools.dscript");
-include(includes_path + "dmxTools.dscript");
-include(includes_path + "dmxConfigurations.dscript");
-include(includes_path + "dmxStart.dscript");
-include(includes_path + "/fpasim/fpasim_includes.dscript");
+include(includes_path + "common_constants.dscript");
+include(includes_path + "utilTools.dscript");
+include(includes_path + "dmxTools.dscript");
+include(includes_path + "dmxConfigurations.dscript");
+include(includes_path + "dmxStart.dscript");
+include(includes_path + "/fpasim/fpasim_includes.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
 
@@ -62,14 +62,17 @@ fpasimConfig(raDelayOpt, SteadyMode90Fsr);
 
 /*
  Starting and configuring the DEMUX
-*/
-var conf = conf_default_fpasim;
-conf["BOXCAR_LENGTH"] =  [7, 7, 7, 7];
+*/
+var conf = conf_default_fpasim;
+conf["BOXCAR_LENGTH"] =  [0, 0, 0, 0];
+//conf["A"] = [0.5, 0.5, 0.5, 0.5];
 conf["A"] = [0, 0, 0, 0];
-conf["AMP_SQ_INPUT_GAIN"] =  [1, 1, 1, 1];
-conf["AMP_SQ_KI"] =  [0.1, 0.1, 0.1, 0.1];
-conf["AMP_SQ_LOCKPOINT_V"] =  [791, 791, 791, 791];
-conf["AMP_SQ_OFFSET_COARSE"] =  [367, 367, 367, 367];
+conf["AMP_SQ_INPUT_GAIN"] =  [-1, -1, -1, -1];
+conf["AMP_SQ_KI"] =  [0.0000001, 0.0000001, 0.0000001, 0.0000001];
+conf["AMP_SQ_LOCKPOINT_V"] =  [891, 891, 891, 891];
+conf["AMP_SQ_OFFSET_COARSE"] =  [3367, 3367, 3367, 3367];
+conf["RELOCK_DELAY"] =  0xFFF;
+conf["RELOCK_THRESHOLD"] =  0xFFF;
 
 demuxStart(conf);
 
@@ -88,6 +91,7 @@ if (savingDataWhileClosingLoop) sendToDMXSaveScienceRaw("errorDataWhileClosingLo
 offsetMode = makeArray(DMX_NB_COL, OFFSET_MODE_CLOSED);
 setDMX_offsetMode(offsetMode);
 waitMs(fileDurationMs);
+waitMs(1000000);
 
 
 // -------------------------------------------------------------------------------------------------------------

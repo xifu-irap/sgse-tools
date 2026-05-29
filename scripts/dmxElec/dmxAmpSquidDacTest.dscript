@@ -37,7 +37,7 @@ include(includes_path + "common_constants.dscript");
 function testSequence() {
 	
 	const a1 = -1 * Math.pow(2, 15);
-	const b = 6;
+	const b = 60;
 	const c = 128;
 	const margin = 50;
 	const N = 511-margin;
