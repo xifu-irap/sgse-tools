@@ -22,7 +22,7 @@
 //    @details
 //
 //    This file is used to characterise the MUX SQUID in the FPAsim + DMX configuration.
-//    A scan is done with the feedback signal while the Ofco is in closed loop mode.
+//    A scan is done with the feedback signal while the Ofco is in closed loop mode.
 //
 // -------------------------------------------------------------------------------------------------------------
 
@@ -42,7 +42,7 @@ const col = 2;
 sessionName = "lockingAmpLoop-col"+col;
 sendStartNewSession(sessionName, "");
 
-const savingDataWhileClosingLoop = true;
+const savingDataWhileClosingLoop = false;
 const fileDurationMs = 1000;
 
 // Init CDIF
@@ -58,32 +58,36 @@ fpasimStartup();
 
 /*
   Configuring the FPAsim
-*/
-fpasimConfig(raDelayOpt, SteadyMode90Fsr);
+*/
+fpasimConfig(raDelayOpt, SteadyMode25Fsr);
+//fpasimConfig(raDelayOpt, SteadyMode90Fsr);
 
 /*
  Starting and configuring the DEMUX
 */
 demuxStart(conf_fpasim_FLL_AMP_SQUID);
 
-start_demux_scan();
+start_demux_scan();
 
 print(TAB1 + "Starting Error acquisition while the loop is still open, then closing the feedback loop ...");
 sendToDMXGoToErrorSignalMode();
 
-// Closing the loop
-waitMs(6000000, true, true, "OK to close the loop?");
-if (savingDataWhileClosingLoop) sendToDMXSaveScienceRaw("errorDataWhileClosingLoop.fits", fileDurationMs, 1<<col, 0 );
-
-setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_CLOSED));
-waitMs(fileDurationMs);
-waitMs(1000000);
+// If requested, opening the loop and then saving data while closing the loop 
+if (savingDataWhileClosingLoop) {
+	setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_OFFSET));
+	waitMs(6000000, true, true, "OK to close the loop?");
+	sendToDMXSaveScienceRaw("errorDataWhileClosingLoop.fits", fileDurationMs, 1<<col, 0 );
+	setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_CLOSED));
+	waitMs(fileDurationMs);
+}
+
+alert("Finish the test?");
 
 
 // -------------------------------------------------------------------------------------------------------------
 onAbortScript();
 
-function onAbortScript() {
+function onAbortScript() {
 	stop_demux_scan();
 	sendStopSession();
 

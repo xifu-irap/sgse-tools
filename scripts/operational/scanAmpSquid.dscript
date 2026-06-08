@@ -22,7 +22,7 @@
 //    @details
 //
 //    This file is used to characterise the AMP SQUID in the FPAsim + DMX configuration.
-//    A scan is done on the Ofco while the feedback is in open loop mode.	   
+//    A scan is done on the Ofco while the feedback is in open loop mode.	   
 //
 // -------------------------------------------------------------------------------------------------------------
 
@@ -60,21 +60,19 @@ fpasimConfig(raDelayOpt, SteadyMode25Fsr);
 */
 
 // Asking for the test pattern shape
+var conf = conf_default_fpasim;
+
 const confTptTab = ["FULL SLOW", "MINI OFCO"];
 var tptId = getItem("Please, indicates the test pattern: ", confTptTab);
 var tpt = confTptTab[tptId];
-
-var conf = conf_default_fpasim;
-
 conf["PATTERN"] = tpt;
 conf["AMP_SQ_OFFSET_MODE"] = makeArray(DMX_NB_COL, OFFSET_MODE_TESTPATTERN);
 demuxStart(conf);
 
-
 print(TAB1 + "Starting data acquisition in ERROR mode...");
 sendToDMXGoToErrorSignalMode();
 
-start_demux_scan();
+start_demux_scan();
 
 alert("Stop the test?");
 

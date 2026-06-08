@@ -35,9 +35,9 @@ conf_default_fw["A"] = [0.2, 0.2, 0.2, 0.2];  // "a" parameter of the FLL algori
 conf_default_fw["MUX_SQ_INPUT_GAIN"] = [1, 1, 1, 1];   // input gain for the MUX SQUID loop (four values) S(4,0)
 conf_default_fw["AMP_SQ_INPUT_GAIN"] = [1, 1, 1, 1];       // input gain for the AMP SQUID loop (four values) S(4,0)
 conf_default_fw["MUX_SQ_KI"] = [1.2, 1.2, 1.2, 1.2];   // kiknorm for the MUX SQUID loop (four values <1), the script uses the same value for all the pixels in a column
-conf_default_fw["AMP_SQ_KI"] = [1.2, 1.2, 1.2, 1.2];   // kiknorm for the MUX SQUID loop (four values <1)
+conf_default_fw["AMP_SQ_KI"] = [1.2, 1.2, 1.2, 1.2];   // kiknorm for the AMP SQUID loop (four values <1)
 conf_default_fw["MUX_SQ_KNORM"] = [0.10786, 0.10786, 0.10786, 0.10786];   // knorm for the MUX SQUID loop (four values converted in U(16,18)), the script uses the same value for all the pixels in a column
-conf_default_fw["AMP_SQ_KNORM"] = [0.10786, 0.10786, 0.10786, 0.10786];   // knorm for the MUX SQUID loop (four values converted in U(16,18))
+conf_default_fw["AMP_SQ_KNORM"] = [0.10786, 0.10786, 0.10786, 0.10786];   // knorm for the AMP SQUID loop (four values converted in U(16,18))
 conf_default_fw["MUX_SQ_FB0"] = [0, 0, 0, 0];  // feedback at MUX SQUID operating point s(16,2), the script uses the same value for all the pixels in a column
 conf_default_fw["MUX_SQ_LOCKPOINT_V"] = [0, 0, 0, 0];   // lockpoint voltage for the Mux SQUID FLL (four values) (S(16,2), the script uses the same value for all the pixels in a column
 conf_default_fw["AMP_SQ_LOCKPOINT_V"] = [0, 0, 0, 0];   // lockpoint voltage for the Amp SQUID FLL (four values) (S(16,2)
@@ -66,9 +66,9 @@ conf_default_fpasim["MUX_SQ_INPUT_GAIN"] = [1, 1, 1, 1];   // input gain for the
 conf_default_fpasim["AMP_SQ_INPUT_GAIN"] = [-1, -1, -1, -1];       // input gain for the AMP SQUID loop (four values) S(4,0)
 conf_default_fpasim["A"] = [0.4, 0.4, 0.4, 0.4];  // "a" parameter of the FLL algorithm = 1/(1+Tau) (four values) U(16, 16), the script uses the same value for all the pixels in a column
 conf_default_fpasim["MUX_SQ_KI"] = [1.6, 1.6, 1.6, 1.6];   // kiknorm for the MUX SQUID loop (four values <1), the script uses the same value for all the pixels in a column
-conf_default_fpasim["AMP_SQ_KI"] = [1.2, 1.2, 1.2, 1.2];   // kiknorm for the MUX SQUID loop (four values <1)
+conf_default_fpasim["AMP_SQ_KI"] = [0.5, 0.5, 0.5, 0.5];   // kiknorm for the AMP SQUID loop (four values <1)
 conf_default_fpasim["MUX_SQ_KNORM"] = [0.032, 0.032, 0.032, 0.032];   // knorm for the MUX SQUID loop (four values converted in U(16,18)), the script uses the same value for all the pixels in a column
-conf_default_fpasim["AMP_SQ_KNORM"] = [0.20, 0.20, 0.20, 0.20];   // knorm for the MUX SQUID loop (four values converted in U(16,18))
+conf_default_fpasim["AMP_SQ_KNORM"] = [0.186, 0.186, 0.186, 0.186];   // knorm for the AMP SQUID loop (four values converted in U(16,18))
 conf_default_fpasim["MUX_SQ_FB0"] = [92, 92, 92, 92];  // feedback at MUX SQUID operating point s(16,2), the script uses the same value for all the pixels in a column
 conf_default_fpasim["MUX_SQ_LOCKPOINT_V"] = [-1789, -1789, -1789, -1789];   // lockpoint voltage for the Mux SQUID FLL (four values) (S(16,2), the script uses the same value for all the pixels in a column
 conf_default_fpasim["AMP_SQ_LOCKPOINT_V"] = [891, 891, 891, 891];   // lockpoint voltage for the Amp SQUID FLL (four values) (S(16,2)
@@ -99,4 +99,4 @@ conf_fpasim_FLL_AMP_SQUID["RELOCK_THRESHOLD"] = 0x7FFF;   // Threshold parameter
 conf_fpasim_FLL_AMP_SQUID["PATTERN"] = "FULL SLOW";          // name of the pre-defined test pattern
 //==>> A ajuster quand l'algo sera corrige
 conf_fpasim_FLL_AMP_SQUID["A"] = [0, 0, 0, 0];  // "a" parameter of the FLL algorithm = 1/(1+Tau) (four values) U(16, 16), the script uses the same value for all the pixels in a column
-conf_fpasim_FLL_AMP_SQUID["AMP_SQ_KI"] =  [0.05, 0.05, 0.05, 0.05];
+conf_fpasim_FLL_AMP_SQUID["AMP_SQ_KI"] =  [0.4, 0.4, 0.4, 0.4];

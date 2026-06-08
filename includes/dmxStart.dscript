@@ -45,8 +45,8 @@ function demuxStart(conf_p) {
 	setDMX_testPatternEnable(false, false, 0);
 
     // Switching OFF the feedback for all the columns
-	print(TAB1 + "Switching OFF the feedback for all the columns...");
-    setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
+	//print(TAB1 + "Switching OFF the feedback for all the columns...");
+    //setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
 	
 	print(TAB1 + "Setting the test pattern");
 
@@ -210,8 +210,8 @@ function demuxStart(conf_p) {
 	}
 
     // Feedback ON/OFF
-	print(TAB1+"Switching the feedback ON/OFF to: " + conf_p["MUX_SQ_FB_ON_OFF"]);
-    setDMX_safeFeedbackOnOff(conf_p["MUX_SQ_FB_ON_OFF"]);
+	//print(TAB1+"Switching the feedback ON/OFF to: " + conf_p["MUX_SQ_FB_ON_OFF"]);
+    //setDMX_safeFeedbackOnOff(conf_p["MUX_SQ_FB_ON_OFF"]);
 
     // Feedback mode
 	print(TAB1+"Setting the DMX feedback mode to: " + conf_p["MUX_SQ_FB_MODE"]);

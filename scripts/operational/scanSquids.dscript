@@ -22,7 +22,7 @@
 //    @details
 //
 //    This file is used to characterise the MUX SQUID through the AMP SQUID in the FPAsim + DMX configuration.
-//    A scan is done on the feedback signal while the Ofco is in open loop mode
+//    A scan is done on the feedback signal while the Ofco is in open loop mode
 //
 // -------------------------------------------------------------------------------------------------------------
 
@@ -83,16 +83,15 @@ demuxStart(conf);
 print(TAB1 + "Starting data acquisition in ERROR mode...");
 sendToDMXGoToErrorSignalMode();
 
-start_demux_scan();
+start_demux_scan();
 
 var new_ofco_coarse = ofco_coarse;
 while(new_ofco_coarse !== 0) {
 	for (col=0; col<DMX_NB_COL; col++) setDMX_sqa_OffsetCoarse(col, new_ofco_coarse);
 	new_ofco_coarse = getInt("Enter a new value of the Offset coarse (0 to abort)", defaultValue = ofco_coarse_average, minRange = 0, maxRange = Math.pow(2, 14)-1);
 }
-
+
 onAbortScript();
-
 
 function onAbortScript() {
 	sendToDMXGoToIdleMode();
