@@ -22,7 +22,7 @@
 //    @details
 //
 //    This file is used to characterise the AMP SQUID in the FPAsim + DMX configuration.
-
+//    A scan is done on the Ofco while the feedback is in open loop mode.	   
 //
 // -------------------------------------------------------------------------------------------------------------
 
@@ -70,14 +70,11 @@ conf["PATTERN"] = tpt;
 conf["AMP_SQ_OFFSET_MODE"] = makeArray(DMX_NB_COL, OFFSET_MODE_TESTPATTERN);
 demuxStart(conf);
 
+
 print(TAB1 + "Starting data acquisition in ERROR mode...");
 sendToDMXGoToErrorSignalMode();
 
-print(TAB1 + "Activating the test pattern...");
-var enable = true;
-var infinitely = true;
-var nbTime = 0x9;
-setDMX_testPatternEnable(enable, infinitely, nbTime);
+start_demux_scan();
 
 alert("Stop the test?");
 
@@ -87,6 +84,6 @@ onAbortScript();
 
 function onAbortScript() {
 	sendToDMXGoToIdleMode();
-	setDMX_testPatternEnable(false, false, 0);
+	stop_demux_scan();
 	print("End of script!");
 }

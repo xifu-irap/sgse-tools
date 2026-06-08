@@ -81,9 +81,9 @@ function demuxStart(conf_p) {
 
 	// Definition of a slow test pattern on FSR
     const a3 = -1 * Math.pow(2, 15);
-    const b3 = 3;
-    const c3 = 128;
-    const N3 = 511;
+    const b3 = 7;
+    const c3 = Math.pow(2,1);
+    const N3 = Math.pow(2,16)/c3 - 1;
     const aa3 = Math.pow(2, 15)-1;
     const slowSawPattern = [
         [a3, b3, c3, N3],  // Slope upward

@@ -297,6 +297,31 @@ function readDMX_testPatternEnable() {
 	return [enable===1, infinitely===1, numberIterations];
 }
 
+
+/**
+* Starts an infinite scan
+*/
+function start_demux_scan() {
+	print(TAB1 + "Starting the scan");
+	var enable = true;
+	var infinitely = true;
+	var nbTime = 0x9;
+	setDMX_testPatternEnable(enable, infinitely, nbTime);
+}
+
+
+/**
+ * Stops a scan
+*/
+function stop_demux_scan() {
+	print(TAB1 + "Stopping the scan");
+	var enable = false;
+	var infinitely = false;
+	var nbTime = 0x0;
+	setDMX_testPatternEnable(enable, infinitely, nbTime);
+}
+
+
 /**
 * sets the length of the boxcar (BOXCAR_LENGTH).
 * The real length of the boxcar is 1+length

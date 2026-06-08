@@ -22,6 +22,7 @@
 //    @details
 //
 //    This file is used to characterise the MUX SQUID in the FPAsim + DMX configuration.
+//    A scan is done with the feedback signal while the Ofco is in closed loop mode.
 //
 // -------------------------------------------------------------------------------------------------------------
 
@@ -37,6 +38,13 @@ include(includes_path + "/fpasim/fpasim_includes.dscript");
 // -------------------------------------------------------------------------------------------------------------
 
 
+const col = 2;
+sessionName = "lockingAmpLoop-col"+col;
+sendStartNewSession(sessionName, "");
+
+const savingDataWhileClosingLoop = true;
+const fileDurationMs = 1000;
+
 // Init CDIF
 sendToTMTC_SetWireIn(0 , 1);
 sendToTMTC_SetWireIn(0 , 0);
@@ -51,54 +59,37 @@ fpasimStartup();
 /*
   Configuring the FPAsim
 */
-fpasimConfig(raDelayOpt, SteadyMode25Fsr);
-//fpasimConfig(raDelayOpt, SteadyMode0);
+fpasimConfig(raDelayOpt, SteadyMode90Fsr);
 
 /*
  Starting and configuring the DEMUX
 */
+demuxStart(conf_fpasim_FLL_AMP_SQUID);
 
-// Asking for the test pattern shape
-const confTptTab = ["FULL SLOW", "MINI FB0"];
-var tptId = getItem("Please, indicates the test pattern: ", confTptTab);
-var tpt = confTptTab[tptId];
+start_demux_scan();
 
-var conf = conf_default_fpasim;
-conf["PATTERN"] = tpt;
-conf["MUX_SQ_FB0"] = makeArray(DMX_NB_COL, 100);
-conf["MUX_SQ_FB_MODE"] = makeArray(DMX_NB_COL, FEEDBACK_MODE_TESTPATTERN);
-
-const confOfcoCoarseTab = ["Average setting (optimal)", "High limit", "Low limit"];
-const ofco_coarse_high = 3600;
-const ofco_coarse_low = 2020;
-const ofco_coarse_average = 0.5*(ofco_coarse_high+ofco_coarse_low);
-const ofco_coarse_values = [ofco_coarse_average, ofco_coarse_high, ofco_coarse_low];
-const ofco_coarse_id = getItem("Please, indicates the ofco coarse setting: ", confOfcoCoarseTab);
-const ofco_coarse = ofco_coarse_values[ofco_coarse_id];
-conf_default_fpasim["AMP_SQ_OFFSET_COARSE"] =  makeArray(DMX_NB_COL, ofco_coarse);
-
-demuxStart(conf);
-
-print(TAB1 + "Starting data acquisition in ERROR mode...");
+print(TAB1 + "Starting Error acquisition while the loop is still open, then closing the feedback loop ...");
 sendToDMXGoToErrorSignalMode();
 
-print(TAB1 + "Activating the test pattern...");
-var enable = true;
-var infinitely = true;
-var nbTime = 0x9;
-setDMX_testPatternEnable(enable, infinitely, nbTime);
+// Closing the loop
+waitMs(6000000, true, true, "OK to close the loop?");
+if (savingDataWhileClosingLoop) sendToDMXSaveScienceRaw("errorDataWhileClosingLoop.fits", fileDurationMs, 1<<col, 0 );
 
-var new_ofco_coarse = ofco_coarse;
-while(new_ofco_coarse !== 0) {
-	for (col=0; col<DMX_NB_COL; col++) setDMX_sqa_OffsetCoarse(col, new_ofco_coarse);
-	new_ofco_coarse = getInt("Enter a new value of the Offset coarse (0 to abort)", defaultValue = ofco_coarse_average, minRange = 0, maxRange = Math.pow(2, 14)-1);
-}
+setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_CLOSED));
+waitMs(fileDurationMs);
+waitMs(1000000);
 
+
+// -------------------------------------------------------------------------------------------------------------
 onAbortScript();
 
+function onAbortScript() {
+	stop_demux_scan();
+	sendStopSession();
 
-function onAbortScript() {
 	sendToDMXGoToIdleMode();
-	setDMX_testPatternEnable(false, false, 0);
 	print("End of script!");
 }
+
+
+

@@ -36,6 +36,20 @@ const TAB3 = repeat(TAB1, 3);
 // -- FUNCTIONS --------
 
 /**
+ * Copy a dictionnary into an other in such a way the 2 dictionnaries are independant
+ * @param {dictionnary} dictionnary - dictionnary to be copied
+ */
+function copy_dict(dictionnary) {
+	copy_dict = new Object();
+	Object.keys(dictionnary).forEach(function(key) {
+		copy_dict[key] =  dictionnary[key];
+	});
+
+	return copy_dict;
+}
+
+
+/**
  * Converts a number into a string replacing the sign with a caracter
  * "-" -> "M" and "+" -> "P"
  * @param {number} value_p - value

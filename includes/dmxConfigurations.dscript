@@ -26,7 +26,7 @@
 // -------------------------------------------------------------------------------------------------------------
 
 //----------------
-//--- This configuration corresponds to the default values of the FPA parameters
+//-- This configuration corresponds to the default values of the FPA parameters
 var conf_default_fw = new Object();
 conf_default_fw["MUX_SQ_FB_ON_OFF"] = [OFF, OFF, OFF, OFF];           // Feedback mode 4 values (ON, OFF)
 conf_default_fw["AMP_SQ_OFFSET_MODE"] = [OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF];           // Offset mode: 4 values (OFFSET_MODE_OFF, OFFSET_MODE_OFFSET, OFFSET_MODE_CLOSED, OFFSET_MODE_TESTPATTERN)
@@ -55,24 +55,23 @@ conf_default_fw["RELOCK_DELAY"] = 65535;   // Delay parameter of the auto-relock
 conf_default_fw["RELOCK_THRESHOLD"] = 16383.75;   // Threshold parameter of the auto-relock function. The script applies the value to the 4 columns
 conf_default_fw["PATTERN"] = "";          // name of the pre-defined test pattern
 
+
 //----------------
-//---  This configuration corresponds to the firmware parameters of the DEMUX + FPAsim configuration when the TES steady state is set to 25 percent
+//-- This configuration corresponds to the firmware parameters of the DEMUX + FPAsim configuration when the TES steady state is set to 25 percent
 var conf_default_fpasim = new Object();
 conf_default_fpasim["MUX_SQ_FB_ON_OFF"] = [ON, ON, ON, ON];           // Feedback mode 4 values (ON, OFF)
 conf_default_fpasim["AMP_SQ_OFFSET_MODE"] = [OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET];           // Offset mode: 4 values (OFFSET_MODE_OFF, OFFSET_MODE_OFFSET, OFFSET_MODE_CLOSED, OFFSET_MODE_TESTPATTERN)
 conf_default_fpasim["BOXCAR_LENGTH"] = [1, 1, 1, 1];   // boxcar length, 4 values U(4,0)
 conf_default_fpasim["MUX_SQ_INPUT_GAIN"] = [1, 1, 1, 1];   // input gain for the MUX SQUID loop (four values) S(4,0)
-conf_default_fpasim["AMP_SQ_INPUT_GAIN"] = [1, 1, 1, 1];       // input gain for the AMP SQUID loop (four values) S(4,0)
+conf_default_fpasim["AMP_SQ_INPUT_GAIN"] = [-1, -1, -1, -1];       // input gain for the AMP SQUID loop (four values) S(4,0)
 conf_default_fpasim["A"] = [0.4, 0.4, 0.4, 0.4];  // "a" parameter of the FLL algorithm = 1/(1+Tau) (four values) U(16, 16), the script uses the same value for all the pixels in a column
 conf_default_fpasim["MUX_SQ_KI"] = [1.6, 1.6, 1.6, 1.6];   // kiknorm for the MUX SQUID loop (four values <1), the script uses the same value for all the pixels in a column
-//conf_default_fpasim["A"] = [0.4, 0.4, 0.4, 0.4];  // "a" parameter of the FLL algorithm = 1/(1+Tau) (four values) U(16, 16), the script uses the same value for all the pixels in a column
-//conf_default_fpasim["MUX_SQ_KI"] = [1.6, 1.6, 1.6, 1.6];   // kiknorm for the MUX SQUID loop (four values <1), the script uses the same value for all the pixels in a column
 conf_default_fpasim["AMP_SQ_KI"] = [1.2, 1.2, 1.2, 1.2];   // kiknorm for the MUX SQUID loop (four values <1)
 conf_default_fpasim["MUX_SQ_KNORM"] = [0.032, 0.032, 0.032, 0.032];   // knorm for the MUX SQUID loop (four values converted in U(16,18)), the script uses the same value for all the pixels in a column
 conf_default_fpasim["AMP_SQ_KNORM"] = [0.20, 0.20, 0.20, 0.20];   // knorm for the MUX SQUID loop (four values converted in U(16,18))
 conf_default_fpasim["MUX_SQ_FB0"] = [92, 92, 92, 92];  // feedback at MUX SQUID operating point s(16,2), the script uses the same value for all the pixels in a column
 conf_default_fpasim["MUX_SQ_LOCKPOINT_V"] = [-1789, -1789, -1789, -1789];   // lockpoint voltage for the Mux SQUID FLL (four values) (S(16,2), the script uses the same value for all the pixels in a column
-conf_default_fpasim["AMP_SQ_LOCKPOINT_V"] = [800, 800, 800, 800];   // lockpoint voltage for the Amp SQUID FLL (four values) (S(16,2)
+conf_default_fpasim["AMP_SQ_LOCKPOINT_V"] = [891, 891, 891, 891];   // lockpoint voltage for the Amp SQUID FLL (four values) (S(16,2)
 conf_default_fpasim["MUX_SQ_FB_MODE"] = [FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP];  // Feedback mode: 4 values (FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_CLOSED_LOOP, FEEDBACK_MODE_TESTPATTERN), the script uses the same value for all the pixels in a column
 conf_default_fpasim["AMP_SQ_OFFSET_FINE"] = [0, 0, 0, 0];   // offset fine value at AMP SQUID operating point U(3,0), the script uses the same value for all the pixels in a column
 conf_default_fpasim["AMP_SQ_OFFSET_LSB_PTR"] = [OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN]; // offset LSB value at AMP SQUID operating point U(12,0)
@@ -87,10 +86,17 @@ conf_default_fpasim["RELOCK_DELAY"] = 512;   // Delay parameter of the auto-relo
 conf_default_fpasim["RELOCK_THRESHOLD"] = 756;   // Threshold parameter of the auto-relock function (0xFFF --> deactivated). The script applies the value to the 4 columns
 conf_default_fpasim["PATTERN"] = "FULL";          // name of the pre-defined test pattern
 
-/*var  conf_default_fpasim_AMPSQ_shadow = conf_default_fpasim;
-conf_default_fpasim_AMPSQ_shadow["MUX_SQ_INPUT_GAIN"] = [-1, -1, -1, -1];   // input gain for the MUX SQUID loop (four values) S(4,0)
-conf_default_fpasim_AMPSQ_shadow["MUX_SQ_FB0"] = [100, 100, 100, 100];  // feedback at MUX SQUID operating point s(16,2), the script uses the same value for all the pixels in a column
-conf_default_fpasim_AMPSQ_shadow["MUX_SQ_LOCKPOINT_V"] = [2115, 2115, 2115, 2115];   // lockpoint voltage for the Mux SQUID FLL (four values) (S(16,2), the script uses the same value for all the pixels in a column
-conf_default_fpasim_AMPSQ_shadow["AMP_SQ_OFFSET_COARSE"] = [2810, 2810, 2810, 2810];       // offset coarse value at AMP SQUID operating point U(12,0)
-conf_default_fpasim_AMPSQ_shadow["MUX_SQ_KNORM"] = [0.063, 0.063, 0.063, 0.063];   // knorm for the MUX SQUID loop (four values converted in U(16,18)), the script uses the same value for all the pixels in a column
-*/
+//----------------
+//-- This configuration corresponds to the firmware parameters of the DEMUX + FPAsim configuration when the TES steady state is set to 25 percent
+//-- These parameters are optimised to use the Ofco Closed loop mode
+var conf_fpasim_FLL_AMP_SQUID = copy_dict(conf_default_fpasim);
+conf_fpasim_FLL_AMP_SQUID["AMP_SQ_OFFSET_COARSE"] =  [3367, 3367, 3367, 3367];
+conf_fpasim_FLL_AMP_SQUID["AMP_SQ_OFFSET_MODE"] = [OFFSET_MODE_CLOSED, OFFSET_MODE_CLOSED, OFFSET_MODE_CLOSED, OFFSET_MODE_CLOSED];           // Offset mode: 4 values (OFFSET_MODE_OFF, OFFSET_MODE_OFFSET, OFFSET_MODE_CLOSED, OFFSET_MODE_TESTPATTERN)
+conf_fpasim_FLL_AMP_SQUID["BOXCAR_LENGTH"] = [3, 3, 3, 3];   // boxcar length, 4 values U(4,0)
+conf_fpasim_FLL_AMP_SQUID["MUX_SQ_FB_MODE"] = [FEEDBACK_MODE_TESTPATTERN, FEEDBACK_MODE_TESTPATTERN, FEEDBACK_MODE_TESTPATTERN, FEEDBACK_MODE_TESTPATTERN];  // Feedback mode: 4 values (FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_CLOSED_LOOP, FEEDBACK_MODE_TESTPATTERN), the script uses the same value for all the pixels in a column
+conf_fpasim_FLL_AMP_SQUID["RELOCK_DELAY"] = 0xFFF;   // Delay parameter of the auto-relock function. The script applies the value to the 4 columns
+conf_fpasim_FLL_AMP_SQUID["RELOCK_THRESHOLD"] = 0x7FFF;   // Threshold parameter of the auto-relock function (0xFFF --> deactivated). The script applies the value to the 4 columns
+conf_fpasim_FLL_AMP_SQUID["PATTERN"] = "FULL SLOW";          // name of the pre-defined test pattern
+//==>> A ajuster quand l'algo sera corrige
+conf_fpasim_FLL_AMP_SQUID["A"] = [0, 0, 0, 0];  // "a" parameter of the FLL algorithm = 1/(1+Tau) (four values) U(16, 16), the script uses the same value for all the pixels in a column
+conf_fpasim_FLL_AMP_SQUID["AMP_SQ_KI"] =  [0.05, 0.05, 0.05, 0.05];

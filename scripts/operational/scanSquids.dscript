@@ -17,11 +17,12 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     samplingDelayAnalysis.dscript
+//    @file                     scanSquids.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
-//    This file is used to characterise the timing parameters in the FPAsim + DMX0 configuration.
+//    This file is used to characterise the MUX SQUID through the AMP SQUID in the FPAsim + DMX configuration.
+//    A scan is done on the feedback signal while the Ofco is in open loop mode
 //
 // -------------------------------------------------------------------------------------------------------------
 
@@ -34,8 +35,8 @@ include(includes_path + "dmxConfigurations.dscript");
 include(includes_path + "dmxStart.dscript");
 include(includes_path + "/fpasim/fpasim_includes.dscript");
 
-
 // -------------------------------------------------------------------------------------------------------------
+
 
 // Init CDIF
 sendToTMTC_SetWireIn(0 , 1);
@@ -51,53 +52,50 @@ fpasimStartup();
 /*
   Configuring the FPAsim
 */
-fpasimConfig(raDelayOpt, SteadyMode90Fsr);
+fpasimConfig(raDelayOpt, SteadyMode25Fsr);
 //fpasimConfig(raDelayOpt, SteadyMode0);
 
 /*
  Starting and configuring the DEMUX
 */
-var conf = conf_default_fpasim;
-conf["BOXCAR_LENGTH"] =  [7, 7, 7, 7];
-conf["A"] = [0, 0, 0, 0];
-conf["AMP_SQ_INPUT_GAIN"] =  [1, 1, 1, 1];
-conf["AMP_SQ_KI"] =  [0.01, 0.01, 0.01, 0.01];
-conf["AMP_SQ_LOCKPOINT_V"] =  [791, 791, 791, 791];
-conf["AMP_SQ_OFFSET_COARSE"] =  [367, 367, 367, 367];
-conf["PATTERN"] = "MINI FB0";
-//conf["PATTERN"] = "FULL";
-conf["MUX_SQ_FB_MODE"] = [FEEDBACK_MODE_TESTPATTERN, FEEDBACK_MODE_TESTPATTERN, FEEDBACK_MODE_TESTPATTERN, FEEDBACK_MODE_TESTPATTERN];
+
+// Asking for the test pattern shape
+const confTptTab = ["FULL SLOW", "MINI FB0"];
+var tptId = getItem("Please, indicates the test pattern: ", confTptTab);
+var tpt = confTptTab[tptId];
+
+var conf = copy_dict(conf_default_fpasim);
+conf["PATTERN"] = tpt;
+conf["MUX_SQ_FB0"] = makeArray(DMX_NB_COL, 100);
+conf["MUX_SQ_FB_MODE"] = makeArray(DMX_NB_COL, FEEDBACK_MODE_TESTPATTERN);
+
+const confOfcoCoarseTab = ["Average setting (optimal)", "High limit", "Low limit"];
+const ofco_coarse_high = 3600;
+const ofco_coarse_low = 2020;
+const ofco_coarse_average = 0.5*(ofco_coarse_high+ofco_coarse_low);
+const ofco_coarse_values = [ofco_coarse_average, ofco_coarse_high, ofco_coarse_low];
+const ofco_coarse_id = getItem("Please, indicates the ofco coarse setting: ", confOfcoCoarseTab);
+const ofco_coarse = ofco_coarse_values[ofco_coarse_id];
+conf_default_fpasim["AMP_SQ_OFFSET_COARSE"] =  makeArray(DMX_NB_COL, ofco_coarse);
+
 demuxStart(conf);
-
-
-//pixels = [0, 1, 2, 3, 4, 5 ,6 ,7 ,8 ,9, 10, 11, 12, 13, 14, 15 ,16 ,17 ,18 ,19, 20, 21, 22, 23, 24, 25 ,26 ,27 ,28 ,29, 30, 31, 32, 33];
-//print(TAB1+"Setting the DMX feedback mode to TEST PATTERN for pixels " + pixels);
-//fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
-//for (var iPix=0; iPix<pixels.length; iPix++) fbMode[pixels[iPix]] = FEEDBACK_MODE_TESTPATTERN;
-//for (var col=0; col<DMX_NB_COL; col++) setDMX_sqm_FBMode(col, fbMode);
 
 print(TAB1 + "Starting data acquisition in ERROR mode...");
 sendToDMXGoToErrorSignalMode();
 
-var i_answer = getItem("Close the AMP SQUID FLL: ", ["yes", "no"]);
-if (i_answer === 0) setDMX_offsetMode([OFFSET_MODE_CLOSED, OFFSET_MODE_CLOSED, OFFSET_MODE_CLOSED, OFFSET_MODE_CLOSED]);
+start_demux_scan();
 
-print(TAB1 + "Activating the test pattern...");
-var enable = true;
-var infinitely = true;
-var nbTime = 0x9;
-setDMX_testPatternEnable(enable, infinitely, nbTime);
+var new_ofco_coarse = ofco_coarse;
+while(new_ofco_coarse !== 0) {
+	for (col=0; col<DMX_NB_COL; col++) setDMX_sqa_OffsetCoarse(col, new_ofco_coarse);
+	new_ofco_coarse = getInt("Enter a new value of the Offset coarse (0 to abort)", defaultValue = ofco_coarse_average, minRange = 0, maxRange = Math.pow(2, 14)-1);
+}
 
-waitMs(6000000, true, true, "Acquisition en cours...");
-
-// -------------------------------------------------------------------------------------------------------------
 onAbortScript();
+
 
 function onAbortScript() {
 	sendToDMXGoToIdleMode();
+	stop_demux_scan();
 	print("End of script!");
 }
-
-
-
-
