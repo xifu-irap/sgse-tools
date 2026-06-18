@@ -26,13 +26,14 @@
 // -------------------------------------------------------------------------------------------------------------
 
 // imports
-include("../includes/ras/rasTools.dscript");
-include("../includes/ras/rasRegAddresses.dscript");
-include("../includes/ras/rasSequences.dscript");
+const includes_path = "../../includes/";
 
-include("../includes/common/constants.dscript");
-include("../includes/common/utilTools.dscript");
+include(includes_path + "rasTools.dscript");
+include(includes_path + "rasRegAddresses.dscript");
+include(includes_path + "rasSequences.dscript");
 
+include(includes_path + "utilTools.dscript");
+include(includes_path + "common_constants.dscript");
 
 /**
  * Checks the address line levels

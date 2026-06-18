@@ -64,7 +64,8 @@ const confTptTab = ["FULL SLOW", "MINI FB0"];
 var tptId = getItem("Please, indicates the test pattern: ", confTptTab);
 var tpt = confTptTab[tptId];
 
-var conf = copy_dict(conf_default_fpasim);
+//var conf = copy_dict(conf_default_fpasim);  --> declanche une erreur que je ne comprends pas
+var conf = conf_default_fpasim;
 conf["PATTERN"] = tpt;
 conf["MUX_SQ_FB0"] = makeArray(DMX_NB_COL, 100);
 conf["MUX_SQ_FB_MODE"] = makeArray(DMX_NB_COL, FEEDBACK_MODE_TESTPATTERN);
@@ -90,7 +91,7 @@ while(new_ofco_coarse !== 0) {
 	for (col=0; col<DMX_NB_COL; col++) setDMX_sqa_OffsetCoarse(col, new_ofco_coarse);
 	new_ofco_coarse = getInt("Enter a new value of the Offset coarse (0 to abort)", defaultValue = ofco_coarse_average, minRange = 0, maxRange = Math.pow(2, 14)-1);
 }
-
+
 onAbortScript();
 
 function onAbortScript() {

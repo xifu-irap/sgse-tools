@@ -26,13 +26,13 @@
 // -------------------------------------------------------------------------------------------------------------
 
 // imports
-include("./rasTools.dscript");
+const includes_path = "../../includes/";
 
-const FAKING_RAS = true; // if true RAS is not used, DEMUX registers are simulated
-if (FAKING_RAS) {
-    include("./rasFake.dscript");
-    init_RAS_FRW_registers();
-}
+include(includes_path + "rasTools.dscript");
+include(includes_path + "rasRegAddresses.dscript");
+
+include(includes_path + "utilTools.dscript");
+include(includes_path + "common_constants.dscript");
 
 var checked_value = 0;
 const colId = 2;

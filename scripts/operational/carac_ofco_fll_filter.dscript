@@ -21,7 +21,11 @@
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
-//    This file characterises the band shape of the ofco digital filter.
+//    This file characterises the ofco digital filter:
+//        Sending a testpattern at feedback signal output
+//        The test setup shall use the feedback loopback to read the pattern with the error signal
+//        The Offset is configured in CLOSED LOOP mode
+//        The error data are the image of the digital filter output
 //
 // -------------------------------------------------------------------------------------------------------------
 
@@ -38,13 +42,12 @@ function carac_ofco_fll_filter() {
 	
 	//const test_pattern = "saw";
 	const test_pattern = "square";
-	
-	//const offset_mode = "OFF";
-	const offset_mode = "CLOSED";
-	
+		
 	print(TAB1 + "Setting the test pattern");
-	const a1 = -1 * Math.pow(2, 15);
-	const a2 = +1 * Math.pow(2, 15)-1;
+	const a = Math.pow(2, 15); // Erreurs avec firmware 0015
+	const a = Math.pow(2, 14); // OK avec firmware 0015
+	const a1 = -a;
+	const a2 = a-1;
 	const b = 1;
 	const c = 0;
 	const N = 1023;
@@ -59,7 +62,7 @@ function carac_ofco_fll_filter() {
 	const a1 = -1 * Math.pow(2, 14)-1024*4*3.8;
 	const b = 60;
 	//const c = 128;
-	const c = 64;
+	const c = 32;
 	const margin = 50;
 	const N = 511;
 	const a2 = a1 + (c*N);
@@ -84,10 +87,8 @@ function carac_ofco_fll_filter() {
 	for (col=0; col<DMX_NB_COL; col++) setDMX_sqm_FBMode(col, tabFbModesTstPattern);
 
 	setDMX_offsetMode([OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF]);
-	if (offset_mode == "CLOSED") {
-		print(TAB1 + "Configuring the Offset in Closed loop mode");	
-		setDMX_offsetMode([OFFSET_MODE_CLOSED, OFFSET_MODE_CLOSED, OFFSET_MODE_CLOSED, OFFSET_MODE_CLOSED]);
-	}
+	print(TAB1 + "Configuring the Offset in Closed loop mode");	
+	setDMX_offsetMode([OFFSET_MODE_CLOSED, OFFSET_MODE_CLOSED, OFFSET_MODE_CLOSED, OFFSET_MODE_CLOSED]);
 
 	print(TAB1 + "Configuring the Offset Fine");
 	for (var col = 0; col < DMX_NB_COL; col++) {

@@ -26,16 +26,14 @@
 // -------------------------------------------------------------------------------------------------------------
 
 // imports
-include("../includes/ras/rasTools.dscript");
-include("../includes/ras/rasRegAddresses.dscript");
-include("../includes/ras/rasSequences.dscript");
+const includes_path = "../../includes/";
 
-include("../includes/demux/dmxTools.dscript");
-include("../includes/demux/dmxRegAddresses.dscript");
-include("../includes/demux/dmxHk.dscript");
+include(includes_path + "rasTools.dscript");
+include(includes_path + "rasRegAddresses.dscript");
+include(includes_path + "rasSequences.dscript");
 
-include("../includes/common/utilTools.dscript");
-include("../includes/common/constants.dscript");
+include(includes_path + "utilTools.dscript");
+include(includes_path + "common_constants.dscript");
 
 
 /**
@@ -54,45 +52,6 @@ function tc2_read_fw_board_id() {
 rasInit();
 
 tc2_read_fw_board_id();
-
-
-//while(true)  setRAS_seqDelay(0);
-
-
-
-/*for (var compteur=0; compteur < 20; compteur++) {
-
-	print(" Ecriture : ", compteur);
-
-	sendToRASWriteRegister(ADD_RAS_GS_LOW, compteur);
-
-	print("in between")
-
-	sendToRASReadRegister(ADD_RAS_GS_LOW);
-
-	getLatestValue("RAS_registers");
-
-	print(" Lecture : ", RAS_registers[ADD_RAS_GS_LOW]);
-
-}*/
-
-
-
-
-
-
-
-//const reg_address = 0x0400;
-
-//const valeur = 0x0005;
-
-
-//while(true)     sendToRASWriteRegister(reg_address, valeur);
-
-//while(true)     sendToDMXReadRegister(reg_address);
-
-;
-
 
 print("End of script");
 /**********************************************************************************************************************/

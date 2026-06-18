@@ -58,8 +58,8 @@ fpasimStartup();
 
 /*
   Configuring the FPAsim
-*/
-fpasimConfig(raDelayOpt, SteadyMode25Fsr);
+*/
+fpasimConfig(raDelayOpt, SteadyMode25Fsr);
 //fpasimConfig(raDelayOpt, SteadyMode90Fsr);
 
 /*
@@ -73,15 +73,15 @@ print(TAB1 + "Starting Error acquisition while the loop is still open, then clos
 sendToDMXGoToErrorSignalMode();
 
 // If requested, opening the loop and then saving data while closing the loop 
-if (savingDataWhileClosingLoop) {
-	setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_OFFSET));
-	waitMs(6000000, true, true, "OK to close the loop?");
+if (savingDataWhileClosingLoop) {
+	setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_OFFSET));
+	waitMs(6000000, true, true, "OK to close the loop?");
 	sendToDMXSaveScienceRaw("errorDataWhileClosingLoop.fits", fileDurationMs, 1<<col, 0 );
 	setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_CLOSED));
-	waitMs(fileDurationMs);
+	waitMs(fileDurationMs);
 }
-
-alert("Finish the test?");
+
+alert("Finish the test?");
 
 
 // -------------------------------------------------------------------------------------------------------------

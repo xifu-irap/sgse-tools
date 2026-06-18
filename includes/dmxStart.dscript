@@ -44,9 +44,11 @@ function demuxStart(conf_p) {
 	print(TAB1 + "Switching off the test pattern (just in case...)");
 	setDMX_testPatternEnable(false, false, 0);
 
-    // Switching OFF the feedback for all the columns
-	//print(TAB1 + "Switching OFF the feedback for all the columns...");
-    //setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
+    // Checking the status of the feedback, switching the feedback ON if not already ON
+    if(readDMX_feedbackOnOff() !== [OFF, OFF, OFF, OFF]) {
+	    print(TAB1 + "All the column feedbacks are not switched ON. Switching ON all the feedbacks...");
+        setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
+    }
 	
 	print(TAB1 + "Setting the test pattern");
 
@@ -165,7 +167,6 @@ function demuxStart(conf_p) {
     // DEMUX offset
 	print(TAB1+"Setting the Offset close to the AMP SQUID operating point...");
 	for (col=0; col<DMX_NB_COL; col++) {
-
 		tab_offset_fine = makeArray(DMX_NB_PIX_PER_COL, conf_p["AMP_SQ_OFFSET_FINE"][col]);
 		setDMX_sqa_OffsetFine(col, tab_offset_fine, tab_offset_fine);
 		setDMX_sqa_OffsetLSB(col, conf_p["AMP_SQ_OFFSET_LSB"][col]);

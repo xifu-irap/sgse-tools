@@ -26,10 +26,13 @@
 // -------------------------------------------------------------------------------------------------------------
 
 // imports
-include("../includes/ras/rasTools.dscript");
-include("../includes/ras/rasRegAddresses.dscript");
+const includes_path = "../../includes/";
 
-include("../includes/common/utilTools.dscript");
+include(includes_path + "rasTools.dscript");
+include(includes_path + "rasRegAddresses.dscript");
+
+include(includes_path + "utilTools.dscript");
+include(includes_path + "common_constants.dscript");
 
 
 /**
