@@ -67,7 +67,7 @@ fpasimConfig(raDelayOpt, SteadyMode25Fsr);
 */
 demuxStart(conf_fpasim_FLL_AMP_SQUID);
 
-start_demux_scan();
+start_demux_pattern();
 
 print(TAB1 + "Starting Error acquisition while the loop is still open, then closing the feedback loop ...");
 sendToDMXGoToErrorSignalMode();
@@ -88,7 +88,7 @@ alert("Finish the test?");
 onAbortScript();
 
 function onAbortScript() {
-	stop_demux_scan();
+	stop_demux_pattern();
 	sendStopSession();
 
 	sendToDMXGoToIdleMode();

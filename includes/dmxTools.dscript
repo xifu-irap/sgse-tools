@@ -301,7 +301,7 @@ function readDMX_testPatternEnable() {
 /**
 * Starts an infinite scan
 */
-function start_demux_scan() {
+function start_demux_pattern() {
 	print(TAB1 + "Starting the scan");
 	var enable = true;
 	var infinitely = true;
@@ -313,7 +313,7 @@ function start_demux_scan() {
 /**
  * Stops a scan
 */
-function stop_demux_scan() {
+function stop_demux_pattern() {
 	print(TAB1 + "Stopping the scan");
 	var enable = false;
 	var infinitely = false;

@@ -119,11 +119,19 @@ function testSequence() {
 												"All pixels equals except pixel 0",
 												"Sequence of min / max values",
 												"All pixels set to 0"];
-			var iOffsetFine = getItem("Please, indicates the type of test: ", offsetFineTabText);
+			var iOffsetFine = getItem("Please, indicate the type of Offset Fine: ", offsetFineTabText);
+
+			// Selecting the offset fine pattern
+			const offsetLSBTabText = [
+												"Wide range",
+												"High resolution"];
+			var iOffsetLSB = getItem("Please, indicate the type of Offset LSB: ", offsetLSBTabText);
+			var OFFSET_LSB_ADU = OFFSET_LSB_ADU_MAX;
+			if (iOffsetLSB === 1) OFFSET_LSB_ADU = OFFSET_LSB_ADU_MIN;
 
 			for (var col = 0; col < DMX_NB_COL; col++) {
 				setDMX_sqa_OffsetCoarse(col, OFFSET_COARSE_ADU_MIN);
-				setDMX_sqa_OffsetLSB(col, Math.pow(2, 12)-1);
+				setDMX_sqa_OffsetLSB(col, OFFSET_LSB_ADU);
 				setDMX_sqa_OffsetFine(col, AMP_SQ_OFFSET_FINE[iOffsetFine], AMP_SQ_OFFSET_FINE[iOffsetFine]);
 			}
 
@@ -148,10 +156,7 @@ function testSequence() {
 			setDMX_offsetMode(colOffsetMode);
 
 			// Switching On the pattern
-			var enable = true;
-			var infinitely = true;
-			var nbTime = 0x9;
-			setDMX_testPatternEnable(enable, infinitely, nbTime);
+			start_demux_pattern();
 			break;
 
 	}
@@ -175,14 +180,14 @@ function startSession(sessionName) {
 function onAbortScript() {
 
     // resetting the set of Offset values
-    const zeroArray = makeArray(0, DMX_NB_PIX_PER_COL);
+    const zeroArray = makeArray(DMX_NB_PIX_PER_COL, 0);
     for (var col = 0; col < DMX_NB_COL; col++) {
         setDMX_sqa_OffsetLSB(col, OFFSET_LSB_ADU_MIN);
         setDMX_sqa_OffsetCoarse(col, OFFSET_COARSE_ADU_MIN);
     }
 
     // de-activating the test pattern
-    setDMX_testPatternEnable(false, false, 0);
+	stop_demux_pattern();
 
 	sendToDMXGoToIdleMode();
 	print("End of script!");
@@ -190,10 +195,10 @@ function onAbortScript() {
 
 // -------------------------------------------------------------------------------------------------------------
 
-startSession("offcoTest");
+sendStartNewSession("OFCO-EDGES-----", "");
 
 testSequence();
 
-// -------------------------------------------------------------------------------------------------------------
-
 onAbortScript();
+
+// -------------------------------------------------------------------------------------------------------------

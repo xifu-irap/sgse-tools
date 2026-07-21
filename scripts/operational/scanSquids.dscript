@@ -84,7 +84,7 @@ demuxStart(conf);
 print(TAB1 + "Starting data acquisition in ERROR mode...");
 sendToDMXGoToErrorSignalMode();
 
-start_demux_scan();
+start_demux_pattern();
 
 var new_ofco_coarse = ofco_coarse;
 while(new_ofco_coarse !== 0) {
@@ -96,6 +96,6 @@ onAbortScript();
 
 function onAbortScript() {
 	sendToDMXGoToIdleMode();
-	stop_demux_scan();
+	stop_demux_pattern();
 	print("End of script!");
 }

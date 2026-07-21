@@ -45,7 +45,11 @@ psSet = 0;
  */
 function dmxTMCheck(fdbkDelay_p, sampDelay_p, psSet_p) {
 
-    const saveDataDurationMs = 4000;
+    const saveDataDurationMs = 1000;
+
+    print(TAB1 + "Switching ON the 4 columns....");
+    setDMX_feedbackOnOff([ON, ON, ON, ON]);
+    print("");
 
     /******************************************************************************************************************/
     plotLongLine();
@@ -68,6 +72,16 @@ function dmxTMCheck(fdbkDelay_p, sampDelay_p, psSet_p) {
 	print(TAB1 + "Setting the pulse shaping set to " + psSet_p);
 	for (col_Id = 0; col_Id<DMX_NB_COL; col_Id++) setDMX_pulseShapingSelection(col_Id, psSet_p);
 
+
+    /******************************************************************************************************************/
+    plotLongLine();
+    print("===> Testing the IDL data acquisition mode (no data produced)...");
+    print("  Configuring the data acquisition mode to: IDLE");
+	sendToDMXGoToIdleMode();
+    print("");
+    print(TAB1 + ">> Please, check on XIFU Studio taht no data are received");
+
+
     /******************************************************************************************************************/
     plotLongLine();
     print("===> Testing the TEST PATTERN data acquisition mode...");
@@ -84,34 +98,26 @@ function dmxTMCheck(fdbkDelay_p, sampDelay_p, psSet_p) {
     print(TAB2 + "----->  ", tab_fbMode);
     for (col_id=0; col_id<DMX_NB_COL-1; col_id++) setDMX_sqm_FBMode(col_id, tab_fbMode);
 
-    print(TAB1 + "Checking the values of the Feedback mode before running the test pattern. Should be the same as the configured values:");
-    print(TAB2 + "----->  ", readDMX_sqm_FBMode(0));
-
-    print(TAB1 + "Activating the 4 columns....");
-    setDMX_feedbackOnOff([ON, ON, ON, ON]);
-    print("");
-
     print(TAB1 + "Configuring the Acquisition mode to ACQ_MODE_TSTPATTERN...");
     sendToDMXGoToTestPatternMode();
 
-    // Saving some data
-    print(TAB1 + "Saving data of the 4 columns for " + saveDataDurationMs/1000 + " seconds....");
-    sendToDMXSaveScienceRaw('TPT_acq_mode.fits', saveDataDurationMs, 0xF,0);
-
-    print(TAB1 + "Switching the test pattern ON");
+    const nb_patterns = 7;
+    print(TAB1 + "Switching the test pattern ON for " + nb_patterns + " patterns");
     var enable = true;
     var infinitely = false;
-    var nbTime = 0x7;  // nb of iterations
-    setDMX_testPatternEnable(enable, infinitely, nbTime);
+    var nbTime = nb_patterns;  // nb of iterations
 
-    // Attente pendant l acquisition
-    waitMs(saveDataDurationMs);
+    print(TAB1 + "Saving data of the 4 columns for " + saveDataDurationMs/1000 + " seconds....");
+    sendToDMXSaveScienceRaw('TPT_acq_mode.fits', saveDataDurationMs, 0xF, 0);
+    setDMX_testPatternEnable(enable, infinitely, nbTime);
+    waitMs(saveDataDurationMs);  // waiting during the data acquisition
 
     print(TAB1 + "Checking the values of the Feedback mode after the test pattern (should be set back to OPEN_LOOP (i.e. 0)):");
-    print(TAB2 + "----->  ", readDMX_sqm_FBMode(0));
+    const final_fb_mode = [DMX_NB_COL];
+    for (col_id=0; col_id<DMX_NB_COL-1; col_id++) final_fb_mode[col_id] = readDMX_sqm_FBMode(col_id);
+    error_manager(final_fb_mode, makeArray(DMX_NB_COL, makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP)), 0, TAB1)
 
-    // Switching OFF the columns
-    setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
+    print(TAB1 + ">> Please, check in data files that pixels " + pix_list + " have a pattern and others have constant values");
 
     /******************************************************************************************************************/
     plotLongLine();
@@ -132,9 +138,6 @@ function dmxTMCheck(fdbkDelay_p, sampDelay_p, psSet_p) {
     print(TAB1 + "Configuring the data acquisition mode to: ERROR");
 	sendToDMXGoToErrorSignalMode();  // Des donnees de type ERROR commencent a etre envoyees sur le lien science
 
-    print(TAB1 + "Activating the 4 columns");
-    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
-
     // Saving some data
     print(TAB1 + "Saving data of the 4 columns for " + saveDataDurationMs/1000 + " seconds....");
     sendToDMXSaveScienceRaw("ERROR_acq_mode.fits", saveDataDurationMs, 0xF, 0);
@@ -144,13 +147,10 @@ function dmxTMCheck(fdbkDelay_p, sampDelay_p, psSet_p) {
     print("  Configuring the data acquisition mode to: IDLE");
 	sendToDMXGoToIdleMode();
 
-    // Switching OFF the columns
-    setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
-
 
     /******************************************************************************************************************/
     plotLongLine();
-    print("===> Testing the DUMP data acquisition mode...");
+    print("===> Testing the DUMP data acquisition mode (please use the dump view in XIFU Studio)...");
 
     const minVal = -1*Math.pow(2, 13);
     const maxVal = Math.pow(2, 13) - (1/Math.pow(2, 2));
@@ -167,11 +167,10 @@ function dmxTMCheck(fdbkDelay_p, sampDelay_p, psSet_p) {
     var tabFbModesOpenLoop = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
     for (col_id=0; col_id<DMX_NB_COL; col_id++) setDMX_sqm_FBMode(col_id, tabFbModesOpenLoop);
 
-    print(TAB1 + "Activating the 4 columns");
-    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
-
     print(TAB1 + "Measuring DUMP data");
 	sendToDMXGoToDumpMode();
+
+    print(TAB1 + ">> Please, check that a dump has been measured");
 
     /******************************************************************************************************************/
     plotLongLine();

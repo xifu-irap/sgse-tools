@@ -1,0 +1,118 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     dmxOfcoEdges.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This script is used to characterise the rising time and the BW of the Ofco signals
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+const includes_path = "../../includes/";
+include(includes_path + "dmxTools.dscript");
+include(includes_path + "utilTools.dscript");
+include(includes_path + "common_constants.dscript");
+
+/**
+ * This function outputs a set of values or the test pattern on the offset compensation output
+ */
+function testSequence() {
+
+	// Defining sets of offset fine values
+	const AMP_SQ_OFFSET_FINE = [
+		[  // 34 3-bit values
+			0, 1, 2, 3, 4, 5, 6, 7,
+			0, 1, 2, 3, 4, 5, 6, 7,
+			7, 6, 5, 4, 3, 2, 1, 0,
+			7, 6, 5, 4, 3, 2, 1, 0,
+			5, 2
+		],
+		[  // 34 3-bit values
+			7, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0
+		],
+		[  // 34 3-bit values
+			7, 0, 7, 0, 7, 0, 7, 0,
+			7, 0, 7, 0, 7, 0, 7, 0,
+			7, 0, 7, 0, 7, 0, 7, 0,
+			7, 0, 7, 0, 7, 0, 7, 0,
+			7, 0
+		],
+		[  // 34 3-bit values
+			0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0
+		]
+	];
+
+    // Switching ON the columns
+	print(TAB1 + "Switching the feedback ON");
+    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
+
+	print(TAB1+"Setting the Offset fine to: ");
+	print(TAB2+AMP_SQ_OFFSET_FINE[1]);
+	for (var col = 0; col < DMX_NB_COL; col++) {
+		setDMX_sqa_OffsetCoarse(col, OFFSET_COARSE_ADU_MIN);
+		setDMX_sqa_OffsetLSB(col, OFFSET_LSB_ADU_MAX);
+		setDMX_sqa_OffsetFine(col, AMP_SQ_OFFSET_FINE[1], AMP_SQ_OFFSET_FINE[1]);
+	}
+
+	// Setting the offset mode to OFFSET for all the columns
+	print(TAB1+"Setting the DMX offset mode to OFFSET...");
+	setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_OFFSET));
+
+    alert("Measure the rising and falling time of the 4 ofco signals on the Fdbk loopback");
+
+}
+
+
+/**
+ * This function is called when the script is aborted
+ */
+function onAbortScript() {
+
+    // resetting the set of Offset values
+    for (var col = 0; col < DMX_NB_COL; col++) {
+        setDMX_sqa_OffsetLSB(col, OFFSET_LSB_ADU_MIN);
+        setDMX_sqa_OffsetCoarse(col, OFFSET_COARSE_ADU_MIN);
+    }
+
+    // de-activating the test pattern
+    setDMX_testPatternEnable(false, false, 0);
+
+	print("End of script!");
+
+}
+
+// -------------------------------------------------------------------------------------------------------------
+
+startSession("ofcoEdgesTest");
+
+testSequence();
+
+onAbortScript();
+
+// -------------------------------------------------------------------------------------------------------------
