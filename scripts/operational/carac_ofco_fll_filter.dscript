@@ -45,7 +45,7 @@ function carac_ofco_fll_filter() {
 		
 	print(TAB1 + "Setting the test pattern");
 	const a = Math.pow(2, 15); // Erreurs avec firmware 0015
-	const a = Math.pow(2, 14); // OK avec firmware 0015
+	//const a = Math.pow(2, 14); // OK avec firmware 0015
 	const a1 = -a;
 	const a2 = a-1;
 	const b = 1;
@@ -97,12 +97,7 @@ function carac_ofco_fll_filter() {
 		setDMX_sqa_OffsetFine(col, 0, 0);
 	}
 
-
-	print(TAB1 + "Switching On the pattern");
-	var enable = true;
-	var infinitely = true;
-	var nbTime = 0x9;
-	setDMX_testPatternEnable(enable, infinitely, nbTime);
+    start_demux_pattern();
 
 	// Activating the data acquisition in Error mode
 	sendToDMXGoToErrorSignalMode();
@@ -116,11 +111,6 @@ function carac_ofco_fll_filter() {
 }
 
 
-function startSession(sessionName) {
-	sendStartNewSession(sessionName, "");
-}
-
-
 /**
  * This function is called when the script is aborted
  */
@@ -131,11 +121,14 @@ function onAbortScript() {
 
 	sendToDMXGoToIdleMode();
 	print("End of script!");
+	
+	setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
+
 }
 
 // -------------------------------------------------------------------------------------------------------------
 
-startSession("ofcoFilterTest");
+sendStartNewSession("ofcoFilterTest");
 
 carac_ofco_fll_filter();
 

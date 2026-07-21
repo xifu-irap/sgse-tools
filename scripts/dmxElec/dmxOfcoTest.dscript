@@ -99,10 +99,10 @@ function testSequence() {
 			setDMX_offsetMode([OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET]);
 			while(true){  // Changing values is mandatory. When sending the same value the FPGA does nothing
 				for(colid=0; colid<4; colid++) {				
-					setDMX_sqa_OffsetCoarse(colid, 0x555);				
-					setDMX_sqa_OffsetCoarse(colid, 0x554);				
-					setDMX_sqa_OffsetLSB(colid, 0x555);				
-					setDMX_sqa_OffsetLSB(colid, 0x554);			
+					setDMX_sqa_OffsetCoarse(colid, OFFSET_COARSE_ADU_MIN);				
+					setDMX_sqa_OffsetCoarse(colid, OFFSET_COARSE_ADU_MAX);				
+					setDMX_sqa_OffsetLSB(colid, OFFSET_LSB_ADU_MIN);				
+					setDMX_sqa_OffsetLSB(colid, OFFSET_LSB_ADU_MIN);			
 				}		
 			}
 			break;

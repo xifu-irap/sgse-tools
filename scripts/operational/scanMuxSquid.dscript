@@ -39,7 +39,7 @@ include(includes_path + "/fpasim/fpasim_includes.dscript");
 
 
 const col = 2;
-sessionName = "lockingAmpLoop-col"+col;
+sessionName = "scanMuxSQUID-col"+col;
 sendStartNewSession(sessionName, "");
 
 const savingDataWhileClosingLoop = false;
@@ -65,6 +65,7 @@ fpasimConfig(raDelayOpt, SteadyMode25Fsr);
 /*
  Starting and configuring the DEMUX
 */
+//setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_OFF));
 demuxStart(conf_fpasim_FLL_AMP_SQUID);
 
 start_demux_pattern();
@@ -90,6 +91,9 @@ onAbortScript();
 function onAbortScript() {
 	stop_demux_pattern();
 	sendStopSession();
+	
+	print(TAB1 + "Setting the OFFSET mode back to OFFSET")
+    setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_OFFSET));
 
 	sendToDMXGoToIdleMode();
 	print("End of script!");

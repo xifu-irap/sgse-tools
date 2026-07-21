@@ -1,0 +1,49 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     dmxDacInrush.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file tests inrush and over/under voltages at feedback DAC switch ON.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+const includes_path = "../../includes/";
+include(includes_path + "dmxTools.dscript");
+include(includes_path + "utilTools.dscript");
+include(includes_path + "common_constants.dscript");
+
+// -------------------------------------------------------------------------------------------------------------
+
+print("Current status:" + readDMX_feedbackOnOff());
+
+alert("OK to switch ON the feedback DACs in sequence?");
+setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
+
+alert("OK to switch OFF the feedback DACs in sequence?");
+setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
+
+alert("OK to switch ON the feedback DACs all at once?");
+setDMX_feedbackOnOff([ON, ON, ON, ON]);
+
+alert("OK to switch OFF the feedback DACs all at once?");
+setDMX_feedbackOnOff([OFF, OFF, OFF, OFF]);
+

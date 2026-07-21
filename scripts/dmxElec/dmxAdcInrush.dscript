@@ -1,0 +1,44 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     dmxAdcInrush.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file tests inrush and over/under voltages at error ADC switch ON.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+const includes_path = "../../includes/";
+include(includes_path + "dmxTools.dscript");
+include(includes_path + "utilTools.dscript");
+include(includes_path + "common_constants.dscript");
+
+// -------------------------------------------------------------------------------------------------------------
+
+// Setting the acquisition mode to IDLE (ADC should be OFF).
+setDMX_dataAcqMode(ACQ_MODE_IDLE);
+
+alert("OK to switch ON the error ADCs all at once?");
+setDMX_dataAcqMode(ACQ_MODE_ERROR);
+
+alert("OK to switch OFF the error ADCs all at once?");
+setDMX_dataAcqMode(ACQ_MODE_IDLE);
+
