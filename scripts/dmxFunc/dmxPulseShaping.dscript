@@ -1,0 +1,101 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     dmxPulseShaping.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file is used to check the feedback pulse shaping function.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+const includes_path = "../../includes/";
+include(includes_path + "dmxTools.dscript");
+include(includes_path + "utilTools.dscript");
+include(includes_path + "common_constants.dscript");
+
+/**
+ * Configuring the test setup
+ *  Sets all the DMX fb0 to the same value except for pixel 0 (in open loop mode)
+ *  Sets all the DMX offset to the same value (in open loop mode)
+ *  Does a DMX dump
+ */
+function test_pulse_shaping() {
+
+    print("");
+    print("* Configuring setup");
+
+    const a=Math.pow(2,16)-1;
+    pulse_shaping_sets = [
+        [a*0.9, a*0.8, a*0.7, a*0.6, a*0.5, a*0.4, a*0.3, a*0.2, a*0.1, a*0, a*0, a*0.1, a*0.2, a*0.3, a*0.4, a*0.5, a*0.6, a*0.7, a*0.8, a*0.9],
+        [a*0.95, a*0.9, a*0.85, a*0.8, a*0.75, a*0.7, a*0.65, a*0.6, a*0.55, a*0.5, a*0.45, a*0.4, a*0.35, a*0.3, a*0.25, a*0.2, a*0.15, a*0.1, a*0.05, a*0],
+        [a*0, a*0.05, a*0.1, a*0.15, a*0.2, a*0.25, a*0.3, a*0.35, a*0.4, a*0.45, a*0.5, a*0.55, a*0.6, a*0.65, a*0.7, a*0.75, a*0.8, a*0.85, a*0.9, a*0.95],
+        [a*0, a*0.95, a*0.05, a*0.9, a*0.1, a*0.85, a*0.15, a*0.8, a*0.2, a*0.75, a*0.25, a*0.7, a*0.3, a*0.65, a*0.35, a*0.6, a*0.4, a*0.55, a*0.45, a*0.5]
+    ];
+    print(TAB1 + "Updating the pulse shaping sets with the following values:");
+    print(pulse_shaping_sets);
+    const pulseShapingSelection = 0;
+    print(TAB1 + "Selecting set number " + pulseShapingSelection);
+    print(TAB2 + pulse_shaping_sets[pulseShapingSelection]);
+
+    const minVal = -1*Math.pow(2, 13);
+    const maxVal = Math.pow(2, 13) - (1/Math.pow(2, 2));
+    tabFb0 = [
+        minVal, maxVal, minVal, maxVal, minVal, maxVal, minVal, maxVal, minVal,
+        minVal, maxVal, minVal, maxVal, minVal, maxVal, minVal, maxVal, minVal,
+        minVal, maxVal, minVal, maxVal, minVal, maxVal, minVal, maxVal, minVal,
+        minVal, maxVal, minVal, maxVal, minVal, maxVal, minVal
+    ];
+	print(TAB1 + "Setting the DMX feedback mode to OPEN_LOOP (FB0 -> FEEDBACK output)...");
+    print(TAB1 + "Setting the set of FB0 to:");
+    print(TAB2 + tabFb0);
+
+    for (col_id=0; col_id<DMX_NB_COL; col_id++) {
+        setDMX_pulseShaping(col_id, pulse_shaping_sets);
+        setDMX_pulseShapingSelection(col_id, pulseShapingSelection);
+        setDMX_fb0(col_id, tabFb0);
+        setDMX_sqm_FBMode(col_id, makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP));
+    }
+
+    // Switching ON the feedback for all the columns
+	print(TAB1 + "Switching the feedback ON for all the columns:");
+    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
+
+	print("Measure DAC outputs");
+
+    alert("OK to finish the test?");
+
+}
+
+
+/**
+ * This function is called when the script is aborted
+ */
+function onAbortScript() {
+	print("End of script!");
+}
+
+// -------------------------------------------------------------------------------------------------------------
+
+test_pulse_shaping();
+
+onAbortScript();
+
+// -------------------------------------------------------------------------------------------------------------
