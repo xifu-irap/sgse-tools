@@ -139,10 +139,10 @@ function noise() {
         boxcarL = 0;
         measure_data(fdbk_V, ofco_coarse_V, confName, boxcarL);
 
-      //  ofco_coarse_V = 0;
-      //  fdbk_V = 0.5;
-      //  boxcarL = 0;
-      //  measure_data(fdbk_V, ofco_coarse_V, confName, boxcarL);
+        ofco_coarse_V = 0;
+        fdbk_V = 0.5;
+        boxcarL = 0;
+        measure_data(fdbk_V, ofco_coarse_V, confName, boxcarL);
     }
     else if (confName==="NOISE-OFCO-ERRO") {
         ofco_coarse_V = 0;
