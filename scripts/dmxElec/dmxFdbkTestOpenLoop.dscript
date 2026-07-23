@@ -1,0 +1,89 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     dmxFdbkTestOpenLoop.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file is used during the electrical tests of the DEMUX modules.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+const includes_path = "../../includes/";
+include(includes_path + "dmxTools.dscript");
+include(includes_path + "utilTools.dscript");
+include(includes_path + "common_constants.dscript");
+
+/**
+ * This function activates the Mux SQUID and outputs the FB0 set
+ */
+function run_fdbk_open_loop() {
+	
+    // Setting the sampling delay
+	const samp_delay = 16;
+	print(TAB1+"Setting the 4 registers SAMPLING_DELAY to " + samp_delay);
+	for (var col=0; col<DMX_NB_COL; col++) setDMX_sampling_delay(col, samp_delay);
+
+    // Setting the feedback modes to "open loop" for all the pixels
+	print(TAB1+"Setting the feedback mode to open-loop for all the pixels");
+    var tabFbModesOpenLoop = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
+    for (col=0; col<DMX_NB_COL; col++) setDMX_sqm_FBMode(col, tabFbModesOpenLoop);
+
+    tabFb0 = [
+        minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
+        minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
+        minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
+        minVal, midVal, maxVal, minVal, midVal, maxVal, minVal
+    ];
+    print(TAB1+"Setting the FB0 to:");
+    print(tabFb0);
+    for (colId=0; colId<DMX_NB_COL; colId+=1) setDMX_fb0(colId, tabFb0);
+
+    // Disabling the pulse shaping
+    print(TAB1+"Disabling the pulse shaping...");
+    var pulseShapingType = 0;
+    for (col=0; col<DMX_NB_COL; col++) setDMX_pulseShapingSelection(col, pulseShapingType);
+
+    // Switching ON the columns
+    print(TAB1+"Switching ON the feedback for all the columns: ");
+    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
+
+	alert("Finish the test?");
+}
+
+
+/**
+ * This function is called when the script is aborted
+ */
+function onAbortScript() {
+
+	print("End of script!");
+}
+
+
+// -------------------------------------------------------------------------------------------------------------
+
+sendStartNewSession("ELEC-FDBK-OL---", "");
+
+run_fdbk_open_loop();
+
+onAbortScript();
+
+// -------------------------------------------------------------------------------------------------------------

@@ -51,17 +51,20 @@ function test_pulse_shaping() {
     ];
     print(TAB1 + "Updating the pulse shaping sets with the following values:");
     print(pulse_shaping_sets);
-    const pulseShapingSelection = 0;
+
+    // const pulseShapingSelection = 0;
+    const pulseShapingSelection = 1; // single Ramp
     print(TAB1 + "Selecting set number " + pulseShapingSelection);
     print(TAB2 + pulse_shaping_sets[pulseShapingSelection]);
 
     const minVal = -1*Math.pow(2, 13);
     const maxVal = Math.pow(2, 13) - (1/Math.pow(2, 2));
     tabFb0 = [
-        minVal, maxVal, minVal, maxVal, minVal, maxVal, minVal, maxVal, minVal,
-        minVal, maxVal, minVal, maxVal, minVal, maxVal, minVal, maxVal, minVal,
-        minVal, maxVal, minVal, maxVal, minVal, maxVal, minVal, maxVal, minVal,
-        minVal, maxVal, minVal, maxVal, minVal, maxVal, minVal
+        minVal, maxVal, minVal, maxVal, minVal, maxVal, minVal, maxVal,
+        minVal, maxVal, minVal, maxVal, minVal, maxVal, minVal, maxVal,
+        minVal, maxVal, minVal, maxVal, minVal, maxVal, minVal, maxVal,
+        minVal, maxVal, minVal, maxVal, minVal, maxVal, minVal, maxVal,
+        minVal, maxVal
     ];
 	print(TAB1 + "Setting the DMX feedback mode to OPEN_LOOP (FB0 -> FEEDBACK output)...");
     print(TAB1 + "Setting the set of FB0 to:");
