@@ -60,7 +60,7 @@ function toStringWithNoSigns(value_p, unit_p) {
     if (value_p < 0) pref = "M";
 	var text =  pref + Math.abs(value_p);
 	var dot = false;
-	var text_copie = '',
+	var text_copie = '';
 	for (var i=0; i<text.length; i++) {
 
 		if (text[i] === '.') {
