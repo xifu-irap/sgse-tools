@@ -48,38 +48,34 @@ function configure_test(bxl_p) {
     print("* Configuring setup");
     print("***");
 
-    // setting the MUX_SQ_FB_DELAY
-	const delay_min = -512;
-	const delay_max = 40;
-	var fb_delay=delay_min-1;
-	while (fb_delay < delay_min || fb_delay > delay_max) {
-		fb_delay = getInt("Fdbk delay? [" + delay_min +"; " + delay_max + "]");
-	}
-	for (col=0; col<DMX_NB_COL; col++) setDMX_feedback_delay(col, fb_delay);
+	const fb_delay= 3;
+    print(TAB1 + "Setting the MUX_SQ_FB_DELAY to " + fb_delay + "...");
 
-    // Setting the pulse shaping set
+    print(TAB1 + "de-activating the pulse shaping...");
 	const pulseShapingSet = 0;
-	for (var col=0; col<DMX_NB_COL; col++) setDMX_pulseShapingSelection(col, pulseShapingSet);
-
-	// Switching ON the feedback for all the columns
-	print(TAB1+"Switching the feedback OnOff for all the columns:");
-    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
 
     // DEMUX feedback
-	print(TAB1+"Setting the DMX feedback mode to OPEN_LOOP (FB0 -> FEEDBACK output)...");
-	print(TAB1+"Setting all the FB0 to " + fb0 + " except for pixel 0...");
-    var fb = makeArray(DMX_NB_PIX_PER_COL, fb0);
-    fb[0] += 1000;
+	const fbMin = -Math.pow(2, DMX_NB_BITS_DAC_FDBK-1);
+	const fbMax = Math.pow(2, DMX_NB_BITS_DAC_FDBK-1) - 1;
+    const fb = makeArray(DMX_NB_PIX_PER_COL, fbMin);
+    fb[0] = fbMax;
+	print(TAB1 + "Setting the DMX feedback mode to OPEN_LOOP (FB0 -> FEEDBACK output)...");
+	print(TAB1 + "Setting all the set of FB0 to: ");
     print(TAB2 + fb);
+
 	for (var col=0; col<DMX_NB_COL; col++) {
+		setDMX_feedback_delay(col, fb_delay);
+		setDMX_pulseShapingSelection(col, pulseShapingSet);
 		setDMX_fb0(col, fb);
 		setDMX_sqm_FBMode(col, makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP));
 	}
 
 	// Switching OFF the OFCO
-	print(TAB1+"Setting the DMX offset mode to OFF...");
-	colOffsetMode = [OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF];
-	setDMX_offsetMode(colOffsetMode);
+	print(TAB1 + "Setting the DMX offset mode to OFF...");
+	setDMX_offsetMode([OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF]);
+
+	print(TAB1 + "Switching the feedback ON for all the columns...");
+    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
 
 }
 
@@ -91,9 +87,6 @@ function scan_sampling_delay() {
 
 	const duration = 200;
 	const delta_duration=100;
-
-    print("");
-    print(TAB1 + "Scanning the SAMPLING_DELAY and doing ERROR files");
 
 	for (var sampDelay=0; sampDelay<20; sampDelay++) {
 
@@ -129,13 +122,15 @@ function carac_sampling_delay(boxcarL) {
 
 	setDMX_boxcarLength([boxcarL, boxcarL, boxcarL, boxcarL]);
 
-	const nbDumpFiles = 16;
+	const nbDumpFiles = 8;
 	const sessionName = "SAMP-DELAY-----BXL"+ boxcarL;
 	sendStartNewSession(sessionName, "");
 
-	print(TAB1+"Measuring input signal with dumps...");
+	print(TAB1 + "Measuring input signal with dumps...");
 	for (var i = 0; i<nbDumpFiles; i++) sendToDMXGoToDumpMode();
 
+    print("");
+    print(TAB1 + "Scanning the SAMPLING_DELAY and doing ERROR files");
 	scan_sampling_delay();
 
 	waitMs(file_conversion_delay); // delay for file format conversion
@@ -159,7 +154,7 @@ function carac_sampling_delay_and_bxl() {
 	configure_test();
 
 	// Scanning the different values of boxcar length
-	for (var bxl=0; bxl<4; bxl+=1) {
+	for (var bxl=0; bxl<6; bxl+=1) {
 		print(TAB2 + "Characterising BOXCAR_LENGTH = " + bxl + "...");
 		carac_sampling_delay(bxl);
 	}

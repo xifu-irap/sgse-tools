@@ -64,7 +64,7 @@ function configure_test() {
 
     colOffsetMode = [OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET];
     setDMX_offsetMode(colOffsetMode);
-	print(TAB1 + "Setting the Ofset fine to 0");
+	print(TAB1 + "Setting the Offset fine to 0");
 
     for (colId = 0; colId < DMX_NB_COL; colId++) {
         setDMX_sqa_OffsetLSB(colId, OFFSET_LSB_ADU_MIN);
