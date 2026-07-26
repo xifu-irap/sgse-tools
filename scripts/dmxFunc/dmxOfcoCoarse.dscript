@@ -1,0 +1,100 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     dmxOfcoCoarse.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file tests the Ofco coarse signal.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+const includes_path = "../../includes/";
+include(includes_path + "dmxTools.dscript");
+include(includes_path + "utilTools.dscript");
+include(includes_path + "common_constants.dscript");
+
+/**
+ * This function outputs a test pattern on the offset compensation output
+ */
+function run_ofco_coarse() {
+
+	const a1 = -1 * Math.pow(2, 15);
+	const b = 127;
+	const N = 64;
+	const c = Math.pow(2, 16) / N;
+
+	const a2 = Math.pow(2, 15) -1;
+	const sawPattern = [
+		[a1, b, c, N],  // Slope upward
+		[a2, b, -c, N],  // Slope downward
+		[0, 0, 0, 0],  // Nothing
+		[0, 0, 0, 0],  // Nothing
+		[0, 0, 0, 0]  // Nothing
+	];
+
+	print(TAB1 + "Setting the test pattern...");
+	setDMX_testPattern(sawPattern);
+
+	print(TAB1 + "Switching off the MUX contribution...");
+	for (var col = 0; col < DMX_NB_COL; col++) {
+		setDMX_sqa_OffsetLSB(col, OFFSET_LSB_ADU_MIN);
+		setDMX_sqa_OffsetFine(col, 0, 0);
+	}
+
+    print(TAB1 + "Switching ON the columns...");
+    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
+
+	print(TAB1 + "Setting the offset mode to TEST_PATTERN...");
+	setDMX_offsetMode([OFFSET_MODE_TESTPATTERN, OFFSET_MODE_TESTPATTERN, OFFSET_MODE_TESTPATTERN, OFFSET_MODE_TESTPATTERN]);
+
+	print(TAB1 + "Switching ON the test pattern...");
+	start_demux_pattern();
+
+	print(TAB1 + "Saving a scan...");
+	sendToDMXGoToErrorSignalMode();
+	commandToSaveScans();
+
+}
+
+
+/**
+ * This function is called when the script is aborted
+ */
+function onAbortScript() {
+
+    // de-activating the test pattern
+	stop_demux_pattern();
+
+	// Setting the Offset OFF
+	setDMX_offsetMode(OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF);
+
+	print("End of script!");
+}
+
+// -------------------------------------------------------------------------------------------------------------
+
+sendStartNewSession("ELEC-OFCO-TPT--", "");
+
+run_ofco_coarse();
+
+onAbortScript();
+
+// -------------------------------------------------------------------------------------------------------------

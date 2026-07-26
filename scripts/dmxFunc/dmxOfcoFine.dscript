@@ -1,0 +1,124 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     dmxOfcoFine.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file tests the Ofco fine.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+const includes_path = "../../includes/";
+include(includes_path + "dmxTools.dscript");
+include(includes_path + "utilTools.dscript");
+include(includes_path + "common_constants.dscript");
+
+/**
+ * This function outputs a set of values on the offset compensation output
+ */
+function configure_test() {
+
+	// Switching ON the columns
+	setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
+
+	print(TAB1 + "Setting the Offset mode to OFFSET...");
+	setDMX_offsetMode([OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET]);
+
+	print(TAB1 + "Defining a set of values to the offset fine...");
+	const AMP_SQ_OFFSET_FINE =
+		[  // 34 3-bit values
+			0, 1, 2, 3, 4, 5, 6, 7,
+			0, 1, 2, 3, 4, 5, 6, 7,
+			7, 6, 5, 4, 3, 2, 1, 0,
+			7, 6, 5, 4, 3, 2, 1, 0,
+			5, 2
+		];
+	print(AMP_SQ_OFFSET_FINE);
+
+	print(TAB1 + "Setting the offset coarse to 0...");
+	for (var col = 0; col < DMX_NB_COL; col++) {
+		setDMX_sqa_OffsetCoarse(col, OFFSET_COARSE_ADU_MIN);
+		setDMX_sqa_OffsetFine(col, AMP_SQ_OFFSET_FINE, AMP_SQ_OFFSET_FINE);
+	}
+	plotSmallLine();
+
+}
+
+function measure_ofcoFine_with_dumps(OFFSET_LSB_ADU) {
+	const nb_dumps_for_average = 8;
+	for (var col = 0; col < DMX_NB_COL; col++) setDMX_sqa_OffsetLSB(col, OFFSET_LSB_ADU);
+	print(TAB2 + "Measuring " + nb_dumps_for_average + " dump files...");
+	for (var i=0; i<nb_dumps_for_average; i++) sendToDMXGoToDumpMode();
+}
+
+
+/**
+ * This function drives the test
+ */
+function carac_offco_fine() {
+
+	plotSmallLine();
+	print("/ Ofco fine characterisation");
+	plotSmallLine();
+	print("");
+
+	configure_test();
+
+	const sessionName1 = "OFCO-FINE-HRANG";
+	sendStartNewSession(sessionName1, "");
+	print("")
+	print(TAB1 + "Setting the offset fine for a poor resolution / wide range...");
+	measure_ofcoFine_with_dumps(OFFSET_LSB_ADU_MAX);
+	print(TAB1 + "Processing data ...")
+	output = copyDirToBackupDirAndExecuteBat(analysis_tools_path,".\\SCRIPTS_ANALYSE\\dmx-dm","do_processing.bat")
+	sendStopSession();
+
+
+	const sessionName2 = "OFCO-FINE-HRESO";
+	sendStartNewSession(sessionName2, "");
+	print("")
+	print(TAB1 + "Setting the offset fine for a good resolution / small range...");
+	measure_ofcoFine_with_dumps(OFFSET_LSB_ADU_MIN);
+	print(TAB1 + "Processing data ...")
+	output = copyDirToBackupDirAndExecuteBat(analysis_tools_path,".\\SCRIPTS_ANALYSE\\dmx-dm","do_processing.bat")
+	sendStopSession();
+
+}
+
+
+/**
+ * This function is called when the script is aborted
+ */
+function onAbortScript() {
+
+	print(TAB1 + "Setting the Offset mode to OFF...");
+	setDMX_offsetMode(OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF);
+
+	print("End of script!");
+}
+
+// -------------------------------------------------------------------------------------------------------------
+
+carac_offco_fine();
+
+onAbortScript();
+
+// -------------------------------------------------------------------------------------------------------------

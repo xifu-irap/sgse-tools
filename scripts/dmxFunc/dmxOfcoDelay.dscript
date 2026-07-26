@@ -31,7 +31,6 @@ include(includes_path + "dmxTools.dscript");
 include(includes_path + "utilTools.dscript");
 include(includes_path + "common_constants.dscript");
 
-const fb0 = 0;
 const file_conversion_delay = 3000;
 
 /**
@@ -47,25 +46,9 @@ function configure_test_MUX() {
     print("* Configuring setup");
     print("***");
 
-    // Switching ON the feedback for all the columns
-	print(TAB1+"Switching the feedback ON for all the columns:");
-    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
-
-    // DEMUX feedback
-	print(TAB1+"Setting the DMX feedback mode to OPEN_LOOP (FB0 -> FEEDBACK output)...");
-	fb0 = 0;
-	print(TAB1+"Setting all the FB0 to " + fb0);
-    var fb = makeArray(DMX_NB_PIX_PER_COL, fb0);
-	for (var colid=0; colid<DMX_NB_COL; colid++) {
-		setDMX_fb0(colid, fb);
-		setDMX_sqm_FBMode(colid, makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP));
-	}
-	print("");
-
 	// OFCO
 	print(TAB1+"Setting the DMX offset mode to OFFSET...");
-	colOffsetMode = [OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET];
-	setDMX_offsetMode(colOffsetMode);
+	setDMX_offsetMode([OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET]);
 
 	print(TAB1+"Setting the Offset COARSE to 0...");
 	print(TAB1+"Setting the Offset LSB to 2^12 - 1...");
@@ -93,31 +76,15 @@ function configure_test_DAC() {
     print("* Configuring setup");
     print("***");
 
-    // Switching ON the feedback for all the columns
-	print(TAB1+"Switching the feedback ON for all the columns:");
-    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
-
-    // DEMUX feedback
-	print(TAB1+"Setting the DMX feedback mode to OPEN_LOOP (FB0 -> FEEDBACK output)...");
-	fb0 = 0;
-	print(TAB1+"Setting all the FB0 to " + fb0);
-    var fb = makeArray(DMX_NB_PIX_PER_COL, fb0);
-	for (var colid=0; colid<DMX_NB_COL; colid++) {
-		setDMX_fb0(colid, fb);
-		setDMX_sqm_FBMode(colid, makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP));
-	}
-	print("");
-
 	// OFCO
-
 	print(TAB1+"Setting the Offset LSB to 0 for all the pixels...");
 	print(TAB1+"Setting the Offset FINE to 0 for all the pixels...");
-    var offsetCoarse = makeArray(DMX_NB_PIX_PER_COL, OFFSET_COARSE_ADU_MIN);
-	for(colid=0; colid<DMX_NB_COL; colid++) {				
-		setDMX_sqa_OffsetLSB(colid, OFFSET_LSB_ADU_MIN);	
-		setDMX_sqa_OffsetFine(colid, 0, 0);
+    const offsetFine_0 = makeArray(DMX_NB_PIX_PER_COL, 0);
+	for(colid=0; colid<DMX_NB_COL; colid++) {
 		setDMX_sqa_OffsetCoarse(colid, OFFSET_COARSE_ADU_MIN);
-	}		
+		setDMX_sqa_OffsetLSB(colid, OFFSET_LSB_ADU_MIN);
+		setDMX_sqa_OffsetFine(colid, offsetFine_0, offsetFine_0);
+	}
 	
 	print(TAB1+"Setting the Offset COARSE to an alternating value with the test pattern...");
 	const a = -1*Math.pow(2, 15);
@@ -151,20 +118,23 @@ function configure_test_DAC() {
  * Sets the AMP_SQ_OFFSET_MUX_DELAY to a value and does a dump file.
  *  Does a DMX dump
  * @param {number} delay_p - offset MUX delay s(16,0) [-512, 40].
+ * @param {boolean} verbose - if true some text is ddisplayed (default=false)
  */
-function measure_OFCO_MUX_DELAY(delay_p) {
+function measure_OFCO_MUX_DELAY(delay_p, verbose=false) {
 
-    print("");
-    print("***");
-    print("* Setting the AMP_SQ_OFFSET_MUX_DELAY and doing a Dump");
-    print("***");
+	if (verbose) {
+		print("");
+		print("***");
+		print("* Setting the AMP_SQ_OFFSET_MUX_DELAY and doing a Dump");
+		print("***");
 
-    // set the register: AMP_SQ_OFFSET_MUX_DELAY
-    print(TAB1 + "Setting the register AMP_SQ_OFFSET_MUX_DELAY to " + delay_p);
+		print(TAB1 + "Setting the register AMP_SQ_OFFSET_MUX_DELAY to " + delay_p);
+
+		print(TAB1+"Doing an acquisition in DUMP mode...");
+	}
+
 	for (var colId=0; colId<DMX_NB_COL; colId++) setDMX_offsetMUX_delay(colId, delay_p);
 
-    // Data acquisition
-	print(TAB1+"Doing an acquisition in DUMP mode...");
 	sendToDMXGoToDumpMode();
 }
 
@@ -203,23 +173,21 @@ function carac_OFCO_MUX_delay() {
 	plotSmallLine();
 	print("");
 
+	setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
+
     // Definition of the delay scan limits
 	const delay_mux_min = -512;
 	const delay_mux_max = 40;
-    var start = delay_mux_min - 1;
-    while (start < delay_mux_min || start > delay_mux_max) start = getInt("Delay min? [" + delay_mux_min + "; " + delay_mux_max + "]");
-    var end = start - 1;
-    while (end < start || end > delay_mux_max) end = getInt("Delay max? [" + start + "; " + delay_mux_max + "]");
+	print(TAB1 + "measuring " + (delay_mux_max - delay_mux_min) + " dump files...");
 
-    const sessionName = "OFCOMUX-DELAY--" + toStringWithNoSigns(start,'') + "_" + toStringWithNoSigns(end,'');
+    const sessionName = "OFCOMUX-DELAY--" + toStringWithNoSigns(delay_mux_min,'') + "_" + toStringWithNoSigns(delay_mux_max,'');
     sendStartNewSession(sessionName, "");
 
     // DEMUX configuration
-    configure_test_MUX(fb0);
+    configure_test_MUX();
 
     // Doing a scan on the OFCO MUX delay
-    for (var i = start; i < end + 1; i++) measure_OFCO_MUX_DELAY(i);
-	waitMs(file_conversion_delay); // delay for file format conversion
+    for (var i = delay_mux_min; i < delay_mux_max + 1; i++) measure_OFCO_MUX_DELAY(i);
 
     print("Processing data ...")
     output = copyDirToBackupDirAndExecuteBat(analysis_tools_path, ".\\SCRIPTS_ANALYSE\\dmx-dm", "do_processing.bat")
@@ -232,6 +200,8 @@ function carac_OFCO_DAC_delay() {
 	print("/ OFCO DAC delay measurement");
 	plotSmallLine();
 	print("");
+
+    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
 
     // Definition of the delay scan limits
 	const start = 0;
@@ -276,7 +246,7 @@ function onAbortScript() {
 
 carac_OFCO_MUX_delay();
 
-carac_OFCO_DAC_delay();
+// carac_OFCO_DAC_delay();
 
 onAbortScript();
 
