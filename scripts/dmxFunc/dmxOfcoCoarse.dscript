@@ -36,6 +36,8 @@ include(includes_path + "common_constants.dscript");
  */
 function run_ofco_coarse() {
 
+	sendStartNewSession("OFCO-COAR-TPT--", "");
+
 	const a1 = -1 * Math.pow(2, 15);
 	const b = 127;
 	const N = 64;
@@ -72,6 +74,11 @@ function run_ofco_coarse() {
 	sendToDMXGoToErrorSignalMode();
 	commandToSaveScans();
 
+	print(TAB1 + "Processing data ...")
+	output = copyDirToBackupDirAndExecuteBat(analysis_tools_path,".\\SCRIPTS_ANALYSE\\dmx-dm","do_processing.bat")
+
+	sendStopSession();
+
 }
 
 
@@ -90,8 +97,6 @@ function onAbortScript() {
 }
 
 // -------------------------------------------------------------------------------------------------------------
-
-sendStartNewSession("ELEC-OFCO-TPT--", "");
 
 run_ofco_coarse();
 
