@@ -106,7 +106,7 @@ function setDMX_dataAcqMode(dataAcqMode_p) {
 		print("ERROR, unrecognised data acquisition mode! > " + dataAcqMode_p + "\n" + "selecting Idle mode instead");
 		dataAcqMode_p = 0
 	}
-	sendToDMXWriteRegister(reg_address, dataAcqMode_p);
+	sendToDMXWriteAndReadRegister(reg_address, dataAcqMode_p);
 }
 
 /**
@@ -135,7 +135,7 @@ function setDMX_feedbackOnOff(feedbackOnOff_p) {
 		}
 		value = value + (feedbackOnOff_p[col] << (4 * col));
 	}
-	sendToDMXWriteRegister(ADD_DMX_MUX_SQ_FB_ON_OFF, value);
+	sendToDMXWriteAndReadRegister(ADD_DMX_MUX_SQ_FB_ON_OFF, value);
 	sendToDMXReadRegister(ADD_DMX_MUX_SQ_FB_ON_OFF);  // pour que XIFU STUDIO recupere l'information
 }
 
@@ -190,7 +190,7 @@ function setDMX_offsetMode(offsetMode_p) {
 		}
 		value = value + (offsetMode_p[col] << (4 * col));
 	}
-	sendToDMXWriteRegister(ADD_DMX_AMP_SQ_OFFSET_MODE, value);
+	sendToDMXWriteAndReadRegister(ADD_DMX_AMP_SQ_OFFSET_MODE, value);
 	sendToDMXReadRegister(ADD_DMX_AMP_SQ_OFFSET_MODE);  // pour que XIFU STUDIO recupere l'information
 }
 
@@ -234,7 +234,7 @@ function setDMX_testPattern(parameters_p) {
 			result.push(parameters_p[i][j]);
 		}
 	}
-	sendToDMXWriteMultiRegisters(ADD_DMX_TEST_PATTERN, DMX_TEST_PATTERN_NBREGIONS * DMX_TEST_PATTERN_NBPARAMS, result);
+	sendToDMXWriteAndReadMultiRegisters(ADD_DMX_TEST_PATTERN, DMX_TEST_PATTERN_NBREGIONS * DMX_TEST_PATTERN_NBPARAMS, result);
 }
 
 /**
@@ -277,7 +277,7 @@ function setDMX_testPatternEnable(enable_p, infinite_p, numberIterations_p) {
 		numberIterations_p = 0;
 	}
 	const value = numberIterations_p + (infinite_p << 4) + (enable_p << 5);
-	sendToDMXWriteRegister(ADD_DMX_TEST_PATTERN_ENABLE, value);
+	sendToDMXWriteAndReadRegister(ADD_DMX_TEST_PATTERN_ENABLE, value);
 }
 
 /**
@@ -338,7 +338,7 @@ function setDMX_boxcarLength(length_p) {
 		}
 		value = value + (length_p[col] << (4 * col));
 	}
-	sendToDMXWriteRegister(reg_address, value);
+	sendToDMXWriteAndReadRegister(reg_address, value);
 }
 
 /**
@@ -386,7 +386,7 @@ function setDMX_a(col_p, a_p) {
 		}
 		values[pix] = Math.round(a_p[pix] * Math.pow(2, 16));
 	}
-	sendToDMXWriteMultiRegisters(reg_address, DMX_NB_PIX_PER_COL, values);
+	sendToDMXWriteAndReadMultiRegisters(reg_address, DMX_NB_PIX_PER_COL, values);
 }
 
 /**
@@ -427,7 +427,7 @@ function setDMX_sqm_inputGain(col_p, input_gain_p) {
 	}
 	const value = Math.round(input_gain_p * Math.pow(2,12));
 	const reg_address = ADD_DMX_MUX_SQ_INPUT_GAIN | (col_p << ADD_DMX_COL_BIT_SHIFT);
-	sendToDMXWriteRegister(reg_address, value);
+	sendToDMXWriteAndReadRegister(reg_address, value);
 }
 
 /**
@@ -469,7 +469,7 @@ function setDMX_sqa_inputGain(col_p, input_gain_p) {
 	
 	const value = Math.round(input_gain_p * Math.pow(2,12));
 	const reg_address = ADD_DMX_AMP_SQ_INPUT_GAIN | (col_p << ADD_DMX_COL_BIT_SHIFT);
-	sendToDMXWriteRegister(reg_address, value);
+	sendToDMXWriteAndReadRegister(reg_address, value);
 }
 
 /**
@@ -519,7 +519,7 @@ function setDMX_sqm_kiknorm(col_p, kiknorm_p) {
 		values[pix] = Math.round(kiknorm_p[pix] * Math.pow(2, 16));
 	}
 	
-	sendToDMXWriteMultiRegisters(reg_address, DMX_NB_PIX_PER_COL, values);
+	sendToDMXWriteAndReadMultiRegisters(reg_address, DMX_NB_PIX_PER_COL, values);
 }
 
 /**
@@ -566,7 +566,7 @@ function setDMX_sqa_kiknorm(col_p, kiknorm_p) {
 	}
 	const value = Math.round(kiknorm_p * Math.pow(2, 16));
 	
-	sendToDMXWriteRegister(reg_address, value);
+	sendToDMXWriteAndReadRegister(reg_address, value);
 }
 
 /**
@@ -617,7 +617,7 @@ function setDMX_sqm_knorm(col_p, knorm_p) {
 		values[pix] = Math.round(knorm_p[pix] * Math.pow(2, 18));
 	}
 	
-	sendToDMXWriteMultiRegisters(reg_address, DMX_NB_PIX_PER_COL, values);
+	sendToDMXWriteAndReadMultiRegisters(reg_address, DMX_NB_PIX_PER_COL, values);
 }
 
 /**
@@ -664,7 +664,7 @@ function setDMX_sqa_knorm(col_p, knorm_p) {
 	}
 	const value = Math.round(knorm_p * Math.pow(2, 18));
 	
-	sendToDMXWriteRegister(reg_address, value);
+	sendToDMXWriteAndReadRegister(reg_address, value);
 }
 
 /**
@@ -706,7 +706,7 @@ function setDMX_fb0(col_p, fb0_p) {
 		values[pix] = Math.round(fb0_p[pix] * Math.pow(2, 2));
 	}
 	
-	sendToDMXWriteMultiRegisters(reg_address, DMX_NB_PIX_PER_COL, values);
+	sendToDMXWriteAndReadMultiRegisters(reg_address, DMX_NB_PIX_PER_COL, values);
 }
 
 /**
@@ -758,7 +758,7 @@ function setDMX_sqm_lockpointV(col_p, lockpointV_p) {
 		values[pix] = Math.round(lockpointV_p[pix] * Math.pow(2, 2));
 	}
 	
-	sendToDMXWriteMultiRegisters(reg_address, DMX_NB_PIX_PER_COL, values);
+	sendToDMXWriteAndReadMultiRegisters(reg_address, DMX_NB_PIX_PER_COL, values);
 }
 
 /**
@@ -803,7 +803,7 @@ function setDMX_sqa_lockpointV(col_p, lockpointV_p) {
 	}
 	value = Math.round(lockpointV_p * Math.pow(2, 2));
 	
-	sendToDMXWriteRegister(reg_address, value);
+	sendToDMXWriteAndReadRegister(reg_address, value);
 }
 
 /**
@@ -840,7 +840,7 @@ function setDMX_sqm_FBMode(col_p, fbMode_p) {
 			print("Setting the mode to Open loop");
 			fbMode_p[pix] = 0;
 		}
-		sendToDMXWriteRegister(reg_address, fbMode_p[pix]);
+		sendToDMXWriteAndReadRegister(reg_address, fbMode_p[pix]);
 		reg_address++;
 	}
 }
@@ -892,7 +892,7 @@ function setDMX_sqa_OffsetFine(col_p, offsetFine_p, offsetFinePTR_p) {
 		values[pix] = (offsetFinePTR_p[pix] << 3) | offsetFine_p[pix];
 	}
 	const reg_address = ADD_DMX_AMP_SQ_OFFSET_FINE | (col_p << ADD_DMX_COL_BIT_SHIFT);
-	sendToDMXWriteMultiRegisters(reg_address, DMX_NB_PIX_PER_COL, values);
+	sendToDMXWriteAndReadMultiRegisters(reg_address, DMX_NB_PIX_PER_COL, values);
 }
 
 /**
@@ -937,7 +937,7 @@ function setDMX_sqa_OffsetLSBptr(col_p, offsetLSBptr_p) {
 		return;
 	}
 	const reg_address = ADD_DMX_AMP_SQ_OFFSET_LSB_PTR | (col_p << ADD_DMX_COL_BIT_SHIFT);
-	sendToDMXWriteRegister(reg_address, offsetLSBptr_p);
+	sendToDMXWriteAndReadRegister(reg_address, offsetLSBptr_p);
 }
 
 /**
@@ -979,7 +979,7 @@ function setDMX_sqa_OffsetLSB(col_p, offsetLSB_p) {
 		offsetLSB_p = valMax;
 	}
 	const reg_address = ADD_DMX_AMP_SQ_OFFSET_LSB | (col_p << ADD_DMX_COL_BIT_SHIFT);
-	sendToDMXWriteRegister(reg_address, offsetLSB_p);
+	sendToDMXWriteAndReadRegister(reg_address, offsetLSB_p);
 }
 
 /**
@@ -1020,7 +1020,7 @@ function setDMX_sqa_OffsetCoarse(col_p, offsetCoarse_p) {
 		offsetCoarse_p = valMax;
 	}
 	const reg_address = ADD_DMX_AMP_SQ_OFFSET_COARSE | (col_p << ADD_DMX_COL_BIT_SHIFT);
-	sendToDMXWriteRegister(reg_address, offsetCoarse_p);
+	sendToDMXWriteAndReadRegister(reg_address, offsetCoarse_p);
 }
 
 /**
@@ -1061,7 +1061,7 @@ function setDMX_feedback_delay(col_p, feedback_delay_p) {
 	else const val = feedback_delay_p;
 	// TODO: After the DM campaign, remove this test and systematically consider that fwVersion > 0x14
 	const reg_address = ADD_DMX_MUX_SQ_FB_DELAY | (col_p << ADD_DMX_COL_BIT_SHIFT);
-	sendToDMXWriteRegister(reg_address, val);
+	sendToDMXWriteAndReadRegister(reg_address, val);
 }
 
 /**
@@ -1100,7 +1100,7 @@ function setDMX_offsetDAC_delay(col_p, offsetDAC_delay_p) {
 		return;
 	}
 	const reg_address = ADD_DMX_AMP_SQ_OFFSET_DAC_DELAY | (col_p << ADD_DMX_COL_BIT_SHIFT);
-	sendToDMXWriteRegister(reg_address, offsetDAC_delay_p);
+	sendToDMXWriteAndReadRegister(reg_address, offsetDAC_delay_p);
 }
 
 /**
@@ -1140,7 +1140,7 @@ function setDMX_offsetMUX_delay(col_p, offsetMUX_delay_p) {
 	else const val = offsetMUX_delay_p;
 	// TODO: After the DM campaign, remove this test and systematically consider that fwVersion > 0x14
 	const reg_address = ADD_DMX_AMP_SQ_OFFSET_MUX_DELAY | (col_p << ADD_DMX_COL_BIT_SHIFT);
-	sendToDMXWriteRegister(reg_address, val);
+	sendToDMXWriteAndReadRegister(reg_address, val);
 }
 
 /**
@@ -1179,7 +1179,7 @@ function setDMX_sampling_delay(col_p, sampling_delay_p) {
 		return;
 	}
 	const reg_address = ADD_DMX_SAMPLING_DELAY | (col_p << ADD_DMX_COL_BIT_SHIFT);
-	sendToDMXWriteRegister(reg_address, sampling_delay_p);
+	sendToDMXWriteAndReadRegister(reg_address, sampling_delay_p);
 }
 
 /**
@@ -1218,7 +1218,7 @@ function setDMX_pulseShapingSet(col_p, setId_p, values_p) {
 		return;
 	}
 	const reg_address = ADD_DMX_PULSE_SHAPING[setId_p] | (col_p << ADD_DMX_COL_BIT_SHIFT);
-	sendToDMXWriteMultiRegisters(reg_address, DMX_PULSESHAPING_NBVALUES, values_p);
+	sendToDMXWriteAndReadMultiRegisters(reg_address, DMX_PULSESHAPING_NBVALUES, values_p);
 }
 
 /**
@@ -1289,7 +1289,7 @@ function setDMX_pulseShapingSelection(col_p, setId_p) {
 		return;
 	}
 	const reg_address = ADD_DMX_PULSE_SHAPING_SELECTION | (col_p << ADD_DMX_COL_BIT_SHIFT);
-	sendToDMXWriteRegister(reg_address, setId_p);
+	sendToDMXWriteAndReadRegister(reg_address, setId_p);
 }
 
 /**
@@ -1319,7 +1319,7 @@ function setDMX_relock_delay(col_p, relock_delay_p) {
 		return;
 	}
 	const reg_address = ADD_DMX_RELOCK_DELAY | (col_p << ADD_DMX_COL_BIT_SHIFT);
-	sendToDMXWriteRegister(reg_address, relock_delay_p);
+	sendToDMXWriteAndReadRegister(reg_address, relock_delay_p);
 }
 
 /**
@@ -1349,7 +1349,7 @@ function setDMX_relock_threshold(col_p, relock_threshold_p) {
 		return;
 	}
 	const reg_address = ADD_DMX_RELOCK_THRESHOLD | (col_p << ADD_DMX_COL_BIT_SHIFT);
-	sendToDMXWriteRegister(reg_address, relock_threshold_p);
+	sendToDMXWriteAndReadRegister(reg_address, relock_threshold_p);
 }
 
 /**
@@ -1440,7 +1440,7 @@ function setDMX_delockCounters(col_p, val_p) {
 		return;
 	}
 	const reg_address = ADD_DMX_DELOCK_COUNTERS | (col_p << ADD_DMX_COL_BIT_SHIFT);
-	sendToDMXWriteMultiRegisters(reg_address, DMX_NB_PIX_PER_COL, makeArray(DMX_NB_PIX_PER_COL, val_p));
+	sendToDMXWriteAndReadMultiRegisters(reg_address, DMX_NB_PIX_PER_COL, makeArray(DMX_NB_PIX_PER_COL, val_p));
 }
 
 /**

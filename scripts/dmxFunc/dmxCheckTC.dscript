@@ -44,7 +44,7 @@ function makeTCError(ERROR_NAME_p, ADDRESS_p, VALUE_p, ERROR_CODE_p) {
     print(TAB1 + "This should generate an " + ERROR_NAME_p + " error");
     print(TAB1 + "The error code should be " + to_hexaString(ERROR_CODE_p));
 	sendToDMXWriteRegister(ADDRESS_p, VALUE_p);
-    var answer=getText("Type enter for the next step...", "");
+    alert("Type enter for the next step...");
 }
 
 

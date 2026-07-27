@@ -72,7 +72,10 @@ function run_ofco_coarse() {
 
 	print(TAB1 + "Saving a scan...");
 	sendToDMXGoToErrorSignalMode();
-	commandToSaveScans();
+	nbScans = 8;
+	column_mask = 0xF;
+	name = "_ofco_pattern"
+	sendSaveNextScans(nbScans, column_mask, name);
 
 	print(TAB1 + "Processing data ...")
 	output = copyDirToBackupDirAndExecuteBat(analysis_tools_path,".\\SCRIPTS_ANALYSE\\dmx-dm","do_processing.bat")

@@ -32,7 +32,7 @@ include("../common/utilTools.dscript");
 //----
 
 // Passage du data acquisition mode en IDLE
-sendToDMXWriteRegister(0x4000, 0x0000);
+sendToDMXWriteAndReadRegister(0x4000, 0x0000);
 
 // Init GSE IRAP (specific IRAP, init EGSE FIFO)
 sendToTMTC_SetWireIn(0 , 1);
@@ -40,10 +40,10 @@ sendToTMTC_SetWireIn(0 , 0);
 sendToTMTC_SetWireIn(0 , 2);
 
 // Desactivation du test pattern
-sendToDMXWriteRegister(0x4150, 0x0000);
+sendToDMXWriteAndReadRegister(0x4150, 0x0000);
 
 // Desctivation des 4 colonnes
-sendToDMXWriteRegister(0x4001, 0x0000);
+sendToDMXWriteAndReadRegister(0x4001, 0x0000);
 
 
 //----
@@ -52,59 +52,59 @@ sendToDMXWriteRegister(0x4001, 0x0000);
 
 // Configuration de la table des tests pattern (type pseudo pulse)
 //      Plateau au debut du pattern --> correspond a l'espacement entre pulses
-sendToDMXWriteRegister(0x4100, 0x1000); // 56,25 pourcent FSR
-sendToDMXWriteRegister(0x4101, 0x2000); // Duree entre 2 pulses
-sendToDMXWriteRegister(0x4102, 0x0000); // hauteur des marches = 0
-sendToDMXWriteRegister(0x4103, 0x0001); // 1 plateau
+sendToDMXWriteAndReadRegister(0x4100, 0x1000); // 56,25 pourcent FSR
+sendToDMXWriteAndReadRegister(0x4101, 0x2000); // Duree entre 2 pulses
+sendToDMXWriteAndReadRegister(0x4102, 0x0000); // hauteur des marches = 0
+sendToDMXWriteAndReadRegister(0x4103, 0x0001); // 1 plateau
 //      Pente descendante raide
-sendToDMXWriteRegister(0x4104, 0x1000); // 56,25 pourcent FSR
-sendToDMXWriteRegister(0x4105, 0x0000); // 1 frame entre 2 marches
-sendToDMXWriteRegister(0x4106, 0xFE00); // hauteur des marches = -512
-sendToDMXWriteRegister(0x4107, 0x0040); // 64 marches
+sendToDMXWriteAndReadRegister(0x4104, 0x1000); // 56,25 pourcent FSR
+sendToDMXWriteAndReadRegister(0x4105, 0x0000); // 1 frame entre 2 marches
+sendToDMXWriteAndReadRegister(0x4106, 0xFE00); // hauteur des marches = -512
+sendToDMXWriteAndReadRegister(0x4107, 0x0040); // 64 marches
 //      Plateau
-sendToDMXWriteRegister(0x4108, 0x9000); // 6,25 pourcent FSR
-sendToDMXWriteRegister(0x4109, 0x0020); // longueur du plateau = 32 frames
-sendToDMXWriteRegister(0x410A, 0x0000); // hauteur des marches = 0
-sendToDMXWriteRegister(0x410B, 0x0001); // 1 plateau
+sendToDMXWriteAndReadRegister(0x4108, 0x9000); // 6,25 pourcent FSR
+sendToDMXWriteAndReadRegister(0x4109, 0x0020); // longueur du plateau = 32 frames
+sendToDMXWriteAndReadRegister(0x410A, 0x0000); // hauteur des marches = 0
+sendToDMXWriteAndReadRegister(0x410B, 0x0001); // 1 plateau
 //      Pente montante
-sendToDMXWriteRegister(0x410C, 0x9000); // 6,25 pourcent FSR
-sendToDMXWriteRegister(0x410D, 0x0000); // 1 frame entre 2 marches
-sendToDMXWriteRegister(0x410E, 0x0100); // hauteur des marches = 256
-sendToDMXWriteRegister(0x410F, 0x0040); // 64 marches
+sendToDMXWriteAndReadRegister(0x410C, 0x9000); // 6,25 pourcent FSR
+sendToDMXWriteAndReadRegister(0x410D, 0x0000); // 1 frame entre 2 marches
+sendToDMXWriteAndReadRegister(0x410E, 0x0100); // hauteur des marches = 256
+sendToDMXWriteAndReadRegister(0x410F, 0x0040); // 64 marches
 //      Pente montante douce
-sendToDMXWriteRegister(0x4110, 0xD000); // 31,25 pourcent FSR
-sendToDMXWriteRegister(0x4111, 0x0000); // 1 frame entre 2 marches
-sendToDMXWriteRegister(0x4112, 0x0010); // hauteur des marches = 16
-sendToDMXWriteRegister(0x4113, 0x0400); // 1024 marches
+sendToDMXWriteAndReadRegister(0x4110, 0xD000); // 31,25 pourcent FSR
+sendToDMXWriteAndReadRegister(0x4111, 0x0000); // 1 frame entre 2 marches
+sendToDMXWriteAndReadRegister(0x4112, 0x0010); // hauteur des marches = 16
+sendToDMXWriteAndReadRegister(0x4113, 0x0400); // 1024 marches
 
 
 // Configuration du feedback mode col0 pixel 3 en TST PATTERN
 // L'adresse 0xC3PP correspond au pixel PP de la colonne C => 0c0303 pour pixel 3 de la colonne 0
-sendToDMXWriteRegister(0x0303, 0x0002);
-sendToDMXWriteRegister(0x0321, 0x0000); // Le denier pixel doit etre configure pour que les configurations soient prises en compte
+sendToDMXWriteAndReadRegister(0x0303, 0x0002);
+sendToDMXWriteAndReadRegister(0x0321, 0x0000); // Le denier pixel doit etre configure pour que les configurations soient prises en compte
 // Configuration du feedback mode col1 pixel 6 en TST PATTERN
-sendToDMXWriteRegister(0x1306, 0x0002);
-sendToDMXWriteRegister(0x1321, 0x0000); // Le denier pixel doit etre configure pour que les configurations soient prises en compte
+sendToDMXWriteAndReadRegister(0x1306, 0x0002);
+sendToDMXWriteAndReadRegister(0x1321, 0x0000); // Le denier pixel doit etre configure pour que les configurations soient prises en compte
 // Configuration du feedback mode col2 pixel 7 en TST PATTERN
-sendToDMXWriteRegister(0x2307, 0x0002);
-sendToDMXWriteRegister(0x2321, 0x0000); // Le denier pixel doit etre configure pour que les configurations soient prises en compte
+sendToDMXWriteAndReadRegister(0x2307, 0x0002);
+sendToDMXWriteAndReadRegister(0x2321, 0x0000); // Le denier pixel doit etre configure pour que les configurations soient prises en compte
 // Configuration du feedback mode col3 pixel 10 en TST PATTERN
-sendToDMXWriteRegister(0x330A, 0x0002);
-sendToDMXWriteRegister(0x3321, 0x0000); // Le denier pixel doit etre configure pour que les configurations soient prises en compte
+sendToDMXWriteAndReadRegister(0x330A, 0x0002);
+sendToDMXWriteAndReadRegister(0x3321, 0x0000); // Le denier pixel doit etre configure pour que les configurations soient prises en compte
 
 // desactivation du pulse shaping
-sendToDMXWriteRegister(0x0880, 0x0000);
-sendToDMXWriteRegister(0x1880, 0x0000);
-sendToDMXWriteRegister(0x2880, 0x0000);
-sendToDMXWriteRegister(0x3880, 0x0000);
+sendToDMXWriteAndReadRegister(0x0880, 0x0000);
+sendToDMXWriteAndReadRegister(0x1880, 0x0000);
+sendToDMXWriteAndReadRegister(0x2880, 0x0000);
+sendToDMXWriteAndReadRegister(0x3880, 0x0000);
 
 // Activation des 4 colonnes
-sendToDMXWriteRegister(0x4001, 0x1111);
+sendToDMXWriteAndReadRegister(0x4001, 0x1111);
 
 // Passage du data acquisition mode en ERROR SIGNAL
-sendToDMXWriteRegister(0x4000, 0x0002);
+sendToDMXWriteAndReadRegister(0x4000, 0x0002);
 // Passage du data acquisition mode en SCIENCE SIGNAL
-//sendToDMXWriteRegister(0x4000, 0x0001);
+//sendToDMXWriteAndReadRegister(0x4000, 0x0001);
 
 // Debut de la sauvegarde des donnees 
 // UTILISATION DE COMMANDES SPECIFIQUES AU GSE IRAP
@@ -112,8 +112,8 @@ duration_ms = 2000;
 sendToDMXSaveScienceRaw('pseudo_pulses_'+maDate()+'.fits', duration_ms, 0xF, 0)
 
 // Activation du test pattern (decommenter la ligne souhaitee)
-//sendToDMXWriteRegister(0x4150, 0x0030); // a l'infini
-sendToDMXWriteRegister(0x4150, 0x002F); // 15 fois
+//sendToDMXWriteAndReadRegister(0x4150, 0x0030); // a l'infini
+sendToDMXWriteAndReadRegister(0x4150, 0x002F); // 15 fois
 
 // Attente pendant l acquisition
 waitMs(duration_ms);
@@ -124,11 +124,11 @@ waitMs(duration_ms);
 //----
 
 // Passage du data acquisition mode en IDLE
-sendToDMXWriteRegister(0x4000, 0x0000);
+sendToDMXWriteAndReadRegister(0x4000, 0x0000);
 
 // Desactivation du test pattern
-sendToDMXWriteRegister(0x4150, 0x0000);
+sendToDMXWriteAndReadRegister(0x4150, 0x0000);
 
 // Desctivation des 4 colonnes
-sendToDMXWriteRegister(0x4001, 0x0000);
+sendToDMXWriteAndReadRegister(0x4001, 0x0000);
 
