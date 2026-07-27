@@ -137,12 +137,13 @@ function linearity_fdbkAndError() {
 		waitMs(500);
 
 		if (scan === 0) alert("OK to save the scan files for all the columns?");
-		for (var colId=0; colId<DMX_NB_COL; colId++) {
-			sendSaveDMXScan(colId, "scan_"+maDate()+"_col"+colId+".fits");
-		}
+		nFiles = 1;
+		column_mask = 0xF;
+		name = "fdbk_lin"
+		sendSaveNextScans(n, column_mask, name);
 
 		// Stopping the current test pattern
-		setDMX_testPatternEnable(false, infinitely, nbTime);
+		setDMX_testPatternEnable(nFiles, infinitely, nbTime);
 		print("");
 
 	}

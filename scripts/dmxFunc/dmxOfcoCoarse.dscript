@@ -74,7 +74,7 @@ function run_ofco_coarse() {
 	sendToDMXGoToErrorSignalMode();
 	nbScans = 8;
 	column_mask = 0xF;
-	name = "_ofco_pattern"
+	name = "ofco_pattern"
 	sendSaveNextScans(nbScans, column_mask, name);
 
 	print(TAB1 + "Processing data ...")
