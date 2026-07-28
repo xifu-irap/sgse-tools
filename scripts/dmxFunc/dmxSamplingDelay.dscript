@@ -48,7 +48,7 @@ function configure_test(bxl_p) {
     print("* Configuring setup");
     print("***");
 
-	const fb_delay= 3;
+	const fb_delay= -2;
     print(TAB1 + "Setting the MUX_SQ_FB_DELAY to " + fb_delay + "...");
 
     print(TAB1 + "de-activating the pulse shaping...");
