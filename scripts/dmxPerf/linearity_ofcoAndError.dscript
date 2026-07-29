@@ -102,55 +102,42 @@ function linearity_fdbkAndError() {
 	// Defining the test pattern for the scan of the ofco DAC coarse values
 	const infinitely = true;
 	const nbTime = 0x9;
-	const increment = Math.pow(2, DMX_NB_BITS_TPT) / Math.pow(2, DMX_NB_BITS_DAC_OFCO);
-	const nbStepsPerScanBits = 9;
-	const nbStepsPerScan = Math.pow(2, nbStepsPerScanBits);
-	const nbStepsTotal = Math.pow(2, DMX_NB_BITS_DAC_OFCO);
-	const nbScans = nbStepsTotal / nbStepsPerScan;
 
 	print(TAB1 + "Setting data acquisition mode to ERROR mode...");
 	sendToDMXGoToErrorSignalMode();
 
 	// Several scans are measured because Xifu Studio can't acquire long scans
-	print(TAB1 + nbScans + " scans will be measured:");
-	const b = 3;
-	const c = Math.pow(2, DMX_NB_BITS_TPT) / nbStepsPerScan;
-	const N = Math.round(nbStepsPerScan * 0.91);
+	print(TAB1 + "Defining the scan...");
+	const a = -1 * Math.pow(2, DMX_NB_BITS_TPT - 1);
+	const b = 7;
+	const c = Math.pow(2, DMX_NB_BITS_TPT - DMX_NB_BITS_DAC_OFCO);
+	const N = Math.round(Math.pow(2, 16) * 0.91); // to avoid ADC saturation
 
-	for (var scan=0; scan<nbScans; scan++) {
+	const rampPattern = [
+		[a, b, 0, 1],  // plateau at the beginning
+		[a, b, c, N],  // Slope upward
+		[0, 0, 0, 0],  // Nothing
+		[0, 0, 0, 0],  // Nothing
+		[0, 0, 0, 0]  // Nothing
+	];
+	setDMX_testPattern(rampPattern);
 
-		print(TAB3 + "Setting test pattern number " + scan);
-		const a = -1 * Math.pow(2, DMX_NB_BITS_TPT - 1) + scan*increment;
-		const a2 = a + N*c;
-		const rampPattern = [
-			[a, b, c, N],  // Slope upward
-			[a2, b, -c, N],  // Slope downward
-			[0, 0, 0, 0],  // Nothing
-			[0, 0, 0, 0],  // Nothing
-			[0, 0, 0, 0]  // Nothing
-		];
-		setDMX_testPattern(rampPattern);
+	print(TAB3 + "Activating the test pattern...");
+	setDMX_testPatternEnable(true, infinitely, nbTime);
 
-		print(TAB3 + "Activating the test pattern...");
-		setDMX_testPatternEnable(true, infinitely, nbTime);
+	alert("OK to save the scan files for all the columns?");
+	nFiles = 1;
+	column_mask = 0xF;
+	name = "ofco_lin"
+	sendSaveNextScans(nFiles, column_mask, name);
 
-		waitMs(500);
-
-		if (scan === 0) alert("OK to save the scan files for all the columns?");
-		nFiles = 1;
-		column_mask = 0xF;
-		name = "fdbk_lin"
-		sendSaveNextScans(n, column_mask, name);
-
-		// Stopping the current test pattern
-		setDMX_testPatternEnable(nFiles, infinitely, nbTime);
-		print("");
-
-	}
+	// Stopping the test pattern
+	setDMX_testPatternEnable(false, infinitely, nbTime);
+	print("");
 
 	waitMs(file_conversion_delay); // delay for file format conversion
-	print("Processing data ...")
-	output = copyDirToBackupDirAndExecuteBat(analysis_tools_path,".\\SCRIPTS_ANALYSE\\dmx-dm","do_processing.bat")
+	print("Processing data ...");
+	output = copyDirToBackupDirAndExecuteBat(analysis_tools_path,".\\SCRIPTS_ANALYSE\\dmx-dm","do_processing.bat");
 	//addToFile(output)
 
 }

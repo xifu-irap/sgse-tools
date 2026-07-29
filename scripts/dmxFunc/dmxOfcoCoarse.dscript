@@ -41,12 +41,13 @@ function run_ofco_coarse() {
 	const a1 = -1 * Math.pow(2, 15);
 	const b = 127;
 	const N = 64;
-	const c = Math.pow(2, 16) / N;
+//	const c = Math.pow(2, 16) / N;  // --> saturates the ADC
+	const c = Math.floor(Math.pow(2, 16) * 0.9 / N);
 
 	const a2 = Math.pow(2, 15) -1;
 	const sawPattern = [
+		[a1, b, 0, 1],  // Plate at 0 at beginning
 		[a1, b, c, N],  // Slope upward
-		[a2, b, -c, N],  // Slope downward
 		[0, 0, 0, 0],  // Nothing
 		[0, 0, 0, 0],  // Nothing
 		[0, 0, 0, 0]  // Nothing
@@ -72,7 +73,7 @@ function run_ofco_coarse() {
 
 	print(TAB1 + "Saving a scan...");
 	sendToDMXGoToErrorSignalMode();
-	nbScans = 8;
+	nbScans = 1;
 	column_mask = 0xF;
 	name = "ofco_pattern"
 	sendSaveNextScans(nbScans, column_mask, name);
