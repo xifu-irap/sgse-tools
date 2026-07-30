@@ -96,7 +96,7 @@ function carac_feedback_edges() {
 
 // -------------------------------------------------------------------------------------------------------------
 
-startSession("fdbkEdgesTest");
+sendStartNewSession("fdbkEdgesTest");
 
 carac_feedback_edges();
 

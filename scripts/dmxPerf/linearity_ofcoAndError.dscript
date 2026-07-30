@@ -62,9 +62,6 @@ function configure_test() {
 		setDMX_sqa_OffsetFine(colId, offsetFineArray, offsetFineArray);
 	}
 
-	print(TAB2 + "Setting the DMX offset mode to TEST PATTERN for all columns");
-	setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_TESTPATTERN));
-
 	const samp_delay = 16;
 	print(TAB2 + "Setting the SAMPLING DELAY to " + samp_delay);
 	for (colId = 0; colId < DMX_NB_COL; colId++) setDMX_sampling_delay(colId, samp_delay);
@@ -106,12 +103,22 @@ function linearity_fdbkAndError() {
 	print(TAB1 + "Setting data acquisition mode to ERROR mode...");
 	sendToDMXGoToErrorSignalMode();
 
-	// Several scans are measured because Xifu Studio can't acquire long scans
 	print(TAB1 + "Defining the scan...");
-	const a = -1 * Math.pow(2, DMX_NB_BITS_TPT - 1);
+	const a = -1 * Math.pow(2, DMX_NB_BITS_TPT - 1) + OFFSET_COARSE_ADU_MIN * Math.pow(2, DMX_NB_BITS_TPT - DMX_NB_BITS_DAC_OFCO);
 	const b = 7;
 	const c = Math.pow(2, DMX_NB_BITS_TPT - DMX_NB_BITS_DAC_OFCO);
-	const N = Math.round(Math.pow(2, 16) * 0.91); // to avoid ADC saturation
+	const N = Math.round((Math.pow(2, 16) / c) * 0.91); // to avoid ADC saturation
+
+    // Setting a start value close to the beginning of the scan
+    setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_OFFSET));
+	for (var colId=0; colId<DMX_NB_COL; colId++) {
+		setDMX_sqa_OffsetCoarse(colId, OFFSET_COARSE_ADU_MIN);
+	}
+
+	nFiles = 1;
+	column_mask = 0xF;
+	name = "ofco_lin"
+	sendSaveNextScans(nFiles, column_mask, name);
 
 	const rampPattern = [
 		[a, b, 0, 1],  // plateau at the beginning
@@ -122,14 +129,13 @@ function linearity_fdbkAndError() {
 	];
 	setDMX_testPattern(rampPattern);
 
+    // Switching to TEST PATTERN mode
+	setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_TESTPATTERN));
+
 	print(TAB3 + "Activating the test pattern...");
 	setDMX_testPatternEnable(true, infinitely, nbTime);
 
-	alert("OK to save the scan files for all the columns?");
-	nFiles = 1;
-	column_mask = 0xF;
-	name = "ofco_lin"
-	sendSaveNextScans(nFiles, column_mask, name);
+    waitMs(1000);
 
 	// Stopping the test pattern
 	setDMX_testPatternEnable(false, infinitely, nbTime);

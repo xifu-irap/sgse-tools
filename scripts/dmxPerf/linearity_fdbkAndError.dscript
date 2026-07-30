@@ -108,7 +108,7 @@ function linearity_fdbkAndError() {
 	const a = -1 * Math.pow(2, DMX_NB_BITS_TPT - 1);
 	const b = 1;
 	const c = Math.pow(2, DMX_NB_BITS_TPT - DMX_NB_BITS_DAC_FDBK);
-	const N = Math.round(Math.pow(2, DMX_NB_BITS_DAC_FDBK) * 0.91); // to avoid ADC saturation;
+	const N = Math.round(Math.pow(2, DMX_NB_BITS_DAC_FDBK) * 0.98); // to avoid ADC saturation;
 
 	const rampPattern = [
 		[a, b, 0, 1],  // plateau at the beginning
@@ -128,6 +128,8 @@ function linearity_fdbkAndError() {
 	name = "fdbk_lin"
 	sendSaveNextScans(nFiles, column_mask, name);
 
+    waitMs(1000);
+    
 	// Stopping the current test pattern
 	setDMX_testPatternEnable(false, infinitely, nbTime);
 	print("");

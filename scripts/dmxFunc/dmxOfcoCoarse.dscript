@@ -38,13 +38,22 @@ function run_ofco_coarse() {
 
 	sendStartNewSession("OFCO-COAR-TPT--", "");
 
-	const a1 = -1 * Math.pow(2, 15);
+    print(TAB1 + "Switching ON the columns...");
+    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
+	sendToDMXGoToErrorSignalMode();
+
+    // Setting a start value close to the beginning of the scan
+    setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_OFFSET));
+	for (var colId=0; colId<DMX_NB_COL; colId++) {
+		setDMX_sqa_OffsetCoarse(colId, OFFSET_COARSE_ADU_MIN);
+	}
+
+	const a1 = -1 * Math.pow(2, 15) + 10 * 4;  // + 10 * 4 in order to avoid the saturation at low level
 	const b = 127;
 	const N = 64;
 //	const c = Math.pow(2, 16) / N;  // --> saturates the ADC
 	const c = Math.floor(Math.pow(2, 16) * 0.9 / N);
 
-	const a2 = Math.pow(2, 15) -1;
 	const sawPattern = [
 		[a1, b, 0, 1],  // Plate at 0 at beginning
 		[a1, b, c, N],  // Slope upward
@@ -62,8 +71,11 @@ function run_ofco_coarse() {
 		setDMX_sqa_OffsetFine(col, 0, 0);
 	}
 
-    print(TAB1 + "Switching ON the columns...");
-    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
+    // Request to save the next scan
+	nFiles = 1;
+	column_mask = 0xF;
+	name = "ofco_lin"
+	sendSaveNextScans(nFiles, column_mask, name);
 
 	print(TAB1 + "Setting the offset mode to TEST_PATTERN...");
 	setDMX_offsetMode([OFFSET_MODE_TESTPATTERN, OFFSET_MODE_TESTPATTERN, OFFSET_MODE_TESTPATTERN, OFFSET_MODE_TESTPATTERN]);
@@ -71,12 +83,9 @@ function run_ofco_coarse() {
 	print(TAB1 + "Switching ON the test pattern...");
 	start_demux_pattern();
 
-	print(TAB1 + "Saving a scan...");
-	sendToDMXGoToErrorSignalMode();
-	nbScans = 1;
-	column_mask = 0xF;
-	name = "ofco_pattern"
-	sendSaveNextScans(nbScans, column_mask, name);
+    waitMs(1000);
+
+	stop_demux_pattern();
 
 	print(TAB1 + "Processing data ...")
 	output = copyDirToBackupDirAndExecuteBat(analysis_tools_path,".\\SCRIPTS_ANALYSE\\dmx-dm","do_processing.bat")
