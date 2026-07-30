@@ -139,7 +139,14 @@ function x_talk() {
 		alert("Plug the Feedback loopback on J81/J82");
 		fdbk_x_talk();
 
+		print(TAB1 + "Switching the columns OFF before changing the setup");
+		setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
+
 		alert("Plug the 100 Ohms termination on J81/J82");
+
+		print(TAB1 + "Switching the columns ON agin");
+		setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
+
 		fdbk_x_talk();
 	}
 
