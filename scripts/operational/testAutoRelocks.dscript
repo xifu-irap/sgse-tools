@@ -1,0 +1,152 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     testAutoRelocks.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This script uses the DEMUX and the MUX SQUID of the FPAsim in closed loop mode.
+//	  Pulses are measured with high energies. Delocks should occur and the DEMUX shall auto-relock the algo.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+const includes_path = "../../includes/";
+include(includes_path + "common_constants.dscript");
+include(includes_path + "utilTools.dscript");
+include(includes_path + "dmxTools.dscript");
+include(includes_path + "dmxConfigurations.dscript");
+include(includes_path + "dmxStart.dscript");
+include(includes_path + "/fpasim/fpasim_includes.dscript");
+
+// -------------------------------------------------------------------------------------------------------------
+
+
+const savingDataWhileClosingLoop = false;
+const savingDataWhilePulses = false;
+const datafileDurationMs = 2000;
+const pulseDataDurationMs = 4000;
+const doingPulsesRandomEnergies = true;
+//const pulseHeightPcMax = 70;  // equiv to 12keV XIFU
+const pulseHeightPcMax = 90;  // to make delocks
+
+const doingPulsesSingleEnergy = false;
+const pulseHeightPcSingle = 50; // Modulation
+
+const nbIterations = 500000; // number of pulses per pixels and per energy
+
+/*
+  Starting and initializing the FPAsim
+*/
+fpasimStartup(); // If the FPAsim is already enabled nothing is done unless the "force_p" parameter is set to true.
+//fpasimConfig(raDelayOpt, SteadyMode90Fsr);
+
+const TesSteady = fpasimConfig(raDelayOpt, SteadyMode25Fsr);
+
+
+/*
+ Starting and configuring the DEMUX
+*/
+demuxStart(conf_default_fpasim);
+
+
+/*
+ Getting the column under test Id
+*/
+var colUT = -1;
+while ((colUT < 0) || (colUT > DMX_NB_COL-1)) colUT = getInt("Please, enter the Id of the column under test:");
+sessionName = "measurePulsesWithFLL-col"+colUT;
+sendStartNewSession(sessionName, "");
+
+
+/*
+Closing the loop
+*/
+alert("OK to close the loop?");
+print(TAB1 + "Delock counters at the beggining: " + readDMX_delockCounters(colUT, false));
+
+sendToDMXGoToErrorSignalMode();
+if (savingDataWhileClosingLoop) {
+	print(TAB1 + "Starting Error acquisition while the loop is still open, then closing the feedback loop ...");
+	sendToDMXSaveScienceRaw("errorDataWhileClosingLoop.fits", datafileDurationMs, 1<<colUT, 0);
+}
+
+fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_CLOSED_LOOP);
+setDMX_sqm_FBMode(colUT, fbMode);
+waitMs(fileDurationMs);
+
+print(TAB1 + "Setting data acquisition in SCIENCE mode...");
+sendToDMXGoToScienceMode();
+
+/*
+Doing pulses
+*/
+if (doingPulsesRandomEnergies) {
+	alert("OK to send the pulses?");
+
+	// Doing a data acquisition
+	if (savingDataWhilePulses) sendToDMXSaveScienceRaw("pulses", pulseDataDurationMs , 1<<colUT, 0);
+
+	// Computing pseudo random energies
+	const a = 1103515245;
+	const b = 12345;
+	const m = Math.pow(2,31);
+	//const pcMax = 80; // --> Delocks
+	var pulseHeightPc = 1;  // initialisation
+	for (iteration = 0; iteration < nbIterations; iteration++) {
+		print(TAB2 + "Iteration " + iteration + " / " + nbIterations);
+		for (var iPix=0; iPix < DMX_NB_PIX_PER_COL; iPix++) {
+				pulseHeightPc = ((pulseHeightPc * a + b) % m ) * pulseHeightPcMax / m;
+				pulseHeight = Math.round(TesSteady * pulseHeightPc / 100);
+				sendToFPAsim_makePulse(iPix, 0, pulseHeight);
+		}
+	}
+}
+
+if (doingPulsesSingleEnergy) {
+	alert("OK to send the pulses?");
+
+	// Doing a data acquisition
+	if (savingDataWhilePulses) sendToDMXSaveScienceRaw("pulses", pulseDataDurationMs , 1<<colUT, 0);
+
+	for (iteration = 0; iteration < nbIterations; iteration++) {
+		print(TAB2 + "Iteration " + iteration + " / " + nbIterations);
+		for (var iPix=0; iPix < DMX_NB_PIX_PER_COL; iPix++) {
+				pulseHeight = Math.round(TesSteady * pulseHeightPcSingle / 100);
+				sendToFPAsim_makePulse(iPix, 0, pulseHeight);
+		}
+	}
+}
+
+alert("Stop the test?");
+print(TAB1 + "Delock counters at the end: " + readDMX_delockCounters(col, false));
+
+
+// -------------------------------------------------------------------------------------------------------------
+onAbortScript();
+
+function onAbortScript() {
+	sendStopSession();
+	sendToDMXGoToIdleMode();
+	print(TAB1 + "Delock counters at the end: " + readDMX_delockCounters(col, false));
+	print("End of script!");
+}
+
+
+

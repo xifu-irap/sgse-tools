@@ -17,11 +17,12 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     lockMuxSquid.dscript
+//    @file                     measurePulsesWithFLL.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
-//    This file is used to use the DEMUX and the MUX SQUID of the FPAsim in closed loop mode.
+//    This script uses the DEMUX and the MUX SQUID of the FPAsim in closed loop mode.
+//	  Pulses are measured.
 //
 // -------------------------------------------------------------------------------------------------------------
 
@@ -36,18 +37,14 @@ include(includes_path + "/fpasim/fpasim_includes.dscript");
 
 // -------------------------------------------------------------------------------------------------------------
 
-const col = 2; // Only used in the session name
-sessionName = "lockingMuxLoop-col"+col;
-sendStartNewSession(sessionName, "");
 
 const savingDataWhileClosingLoop = false;
 const savingDataWhilePulses = false;
+const datafileDurationMs = 2000;
 const pulseDataDurationMs = 4000;
-
 const doingPulsesRandomEnergies = true;
 const pulseHeightPcMax = 70;  // equiv to 12keV XIFU
 //const pulseHeightPcMax = 90;  // to make delocks
-
 
 const doingPulsesSingleEnergy = false;
 const pulseHeightPcSingle = 50; // Modulation
@@ -68,19 +65,30 @@ const TesSteady = fpasimConfig(raDelayOpt, SteadyMode25Fsr);
 */
 demuxStart(conf_default_fpasim);
 
-print(TAB1 + "Delock counters at the beggining: " + readDMX_delockCounters(col, false));
+
+/*
+ Getting the column under test Id
+*/
+var colUT = -1;
+while ((colUT < 0) || (colUT > DMX_NB_COL-1)) colUT = getInt("Please, enter the Id of the column under test:");
+sessionName = "measurePulsesWithFLL-col"+colUT;
+sendStartNewSession(sessionName, "");
+
 
 /*
 Closing the loop
 */
-waitMs(6000000, true, true, "OK to close the loop?");
+alert("OK to close the loop?");
+print(TAB1 + "Delock counters at the beggining: " + readDMX_delockCounters(colUT, false));
 
-print(TAB1 + "Starting Error acquisition while the loop is still open, then closing the feedback loop ...");
 sendToDMXGoToErrorSignalMode();
-const fileDurationMs = 2000;
-if (savingDataWhileClosingLoop) sendToDMXSaveScienceRaw("errorDataWhileClosingLoop.fits", fileDurationMs, 1<<col, 0);
+if (savingDataWhileClosingLoop) {
+	print(TAB1 + "Starting Error acquisition while the loop is still open, then closing the feedback loop ...");
+	sendToDMXSaveScienceRaw("errorDataWhileClosingLoop.fits", datafileDurationMs, 1<<colUT, 0);
+}
+
 fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_CLOSED_LOOP);
-setDMX_sqm_FBMode(col, fbMode);
+setDMX_sqm_FBMode(colUT, fbMode);
 waitMs(fileDurationMs);
 
 print(TAB1 + "Setting data acquisition in SCIENCE mode...");
@@ -90,10 +98,10 @@ sendToDMXGoToScienceMode();
 Doing pulses
 */
 if (doingPulsesRandomEnergies) {
-	waitMs(6000000, true, true, "OK to send the pulses?");
+	alert("OK to send the pulses?");
 
 	// Doing a data acquisition
-	if (savingDataWhilePulses) sendToDMXSaveScienceRaw("pulses", pulseDataDurationMs , 1<<col, 0);
+	if (savingDataWhilePulses) sendToDMXSaveScienceRaw("pulses", pulseDataDurationMs , 1<<colUT, 0);
 
 	// Computing pseudo random energies
 	const a = 1103515245;
@@ -112,10 +120,10 @@ if (doingPulsesRandomEnergies) {
 }
 
 if (doingPulsesSingleEnergy) {
-	waitMs(6000000, true, true, "OK to send the pulses?");
+	alert("OK to send the pulses?");
 
 	// Doing a data acquisition
-	if (savingDataWhilePulses) sendToDMXSaveScienceRaw("pulses", pulseDataDurationMs , 1<<col, 0);
+	if (savingDataWhilePulses) sendToDMXSaveScienceRaw("pulses", pulseDataDurationMs , 1<<colUT, 0);
 
 	for (iteration = 0; iteration < nbIterations; iteration++) {
 		print(TAB2 + "Iteration " + iteration + " / " + nbIterations);

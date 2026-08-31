@@ -42,6 +42,14 @@ function configure_test() {
     print("");
     print("* Configuring setup");
 
+    // Switching off the Offset
+    setDMX_offsetMode([OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET]);
+    for(colid=0; colid<DMX_NB_COL; colid++) {
+        setDMX_sqa_OffsetCoarse(colid, OFFSET_COARSE_ADU_MIN);
+        setDMX_sqa_OffsetLSB(colid, OFFSET_LSB_ADU_MIN);
+        setDMX_sqa_OffsetFine(colid, makeArray(DMX_NB_PIX_PER_COL, 0), makeArray(DMX_NB_PIX_PER_COL, 0));
+    }
+
     // Setting the pulse shaping set to 0 (no pulse shaping)
 	print(TAB1+"Setting the pulse shaping set to - No pulse shaping -:");
 	const pulseShapingSet = 0;

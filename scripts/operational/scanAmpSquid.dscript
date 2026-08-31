@@ -76,6 +76,11 @@ sendToDMXGoToErrorSignalMode();
 
 start_demux_pattern();
 
+// Saving a scan
+print(TAB1 + "Saving scans in Error and Science data acquisition mode");
+waitMs(500);
+sendSaveNextScans(4, 1<<col, "amp_VPhi_error_");
+
 alert("Stop the test?");
 
 

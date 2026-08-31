@@ -45,6 +45,18 @@ function configure_test_MUX() {
     print("* Configuring setup");
     print("***");
 
+	// Setting the feedback to a constant value
+    const val_min = - Math.pow(2, DMX_NB_BITS_DAC_FDBK-1);
+    var fb = makeArray(DMX_NB_PIX_PER_COL, val_min);
+
+	print(TAB1+"Setting the DMX feedback mode to OPEN_LOOP (FB0 -> FEEDBACK output)...");
+	print(TAB1+"Setting the FB0 to: ");
+    print(TAB2 + fb);
+	for (col=0; col<DMX_NB_COL; col++) {
+		setDMX_fb0(col, fb);
+		setDMX_sqm_FBMode(col, makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP));
+	}
+
 	// OFCO
 	print(TAB1+"Setting the DMX offset mode to OFFSET...");
 	setDMX_offsetMode([OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET]);

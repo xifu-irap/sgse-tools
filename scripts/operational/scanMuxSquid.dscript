@@ -38,17 +38,16 @@ include(includes_path + "/fpasim/fpasim_includes.dscript");
 // -------------------------------------------------------------------------------------------------------------
 
 
-const col = 2;
+/*
+ Getting the column under test Id
+*/
+var col = -1;
+while ((col < 0) || (col > DMX_NB_COL-1)) col = getInt("Please, enter the Id of the column under test:");
 sessionName = "scanMuxSQUID-col"+col;
 sendStartNewSession(sessionName, "");
 
 const savingDataWhileClosingLoop = false;
 const fileDurationMs = 1000;
-
-// Init CDIF
-sendToTMTC_SetWireIn(0 , 1);
-sendToTMTC_SetWireIn(0 , 0);
-sendToTMTC_SetWireIn(0 , 2);
 
 /*
   Starting and initializing the FPAsim
@@ -70,17 +69,26 @@ demuxStart(conf_fpasim_FLL_AMP_SQUID);
 
 start_demux_pattern();
 
-print(TAB1 + "Starting Error acquisition while the loop is still open, then closing the feedback loop ...");
-sendToDMXGoToErrorSignalMode();
+sendToDMXGoToScienceSignalMode();
 
 // If requested, opening the loop and then saving data while closing the loop 
 if (savingDataWhileClosingLoop) {
 	setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_OFFSET));
-	waitMs(6000000, true, true, "OK to close the loop?");
-	sendToDMXSaveScienceRaw("errorDataWhileClosingLoop.fits", fileDurationMs, 1<<col, 0 );
-	setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_CLOSED));
-	waitMs(fileDurationMs);
+	print(TAB1 + "Starting Error acquisition while the loop is still open, then closing the feedback loop ...");
+	alert("OK to close the loop?");
+	sendToDMXSaveScienceRaw("errorDataWhileClosingLoop.h5", fileDurationMs, 1<<col, 0 );
 }
+
+setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_CLOSED));
+waitMs(fileDurationMs);
+
+// Saving a scan
+print(TAB1 + "Saving scans in Error and Science data acquisition mode");
+sendSaveNextScans(4, 1<<col, "mux_IPhi_science_");
+waitMs(500);
+sendToDMXGoToErrorSignalMode();
+waitMs(500);
+sendSaveNextScans(4, 1<<col, "mux_IPhi_error_");
 
 alert("Finish the test?");
 
