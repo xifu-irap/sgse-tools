@@ -46,8 +46,9 @@ while ((col < 0) || (col > DMX_NB_COL-1)) col = getInt("Please, enter the Id of 
 sessionName = "scanMuxSQUID-col"+col;
 sendStartNewSession(sessionName, "");
 
-const savingDataWhileClosingLoop = false;
-const fileDurationMs = 1000;
+
+const durationScanMs = 10000;
+const waitDelayMs = 1000;
 
 /*
   Starting and initializing the FPAsim
@@ -65,30 +66,45 @@ fpasimConfig(raDelayOpt, SteadyMode25Fsr);
  Starting and configuring the DEMUX
 */
 //setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_OFF));
-demuxStart(conf_fpasim_FLL_AMP_SQUID);
+var conf = conf_fpasim_FLL_AMP_SQUID;
+// Using non optimal value to show that with FLL OFF the MUX SQUID characteristic is incorrect
+conf["AMP_SQ_OFFSET_COARSE"] = [3700, 3700, 3700, 3700]; 
+demuxStart(conf);
 
 start_demux_pattern();
 
-sendToDMXGoToScienceSignalMode();
+/* 
+ Characterisation with FLL OFF
+*/
+setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_OFFSET));
 
-// If requested, opening the loop and then saving data while closing the loop 
-if (savingDataWhileClosingLoop) {
-	setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_OFFSET));
-	print(TAB1 + "Starting Error acquisition while the loop is still open, then closing the feedback loop ...");
-	alert("OK to close the loop?");
-	sendToDMXSaveScienceRaw("errorDataWhileClosingLoop.h5", fileDurationMs, 1<<col, 0 );
-}
-
-setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_CLOSED));
-waitMs(fileDurationMs);
-
-// Saving a scan
-print(TAB1 + "Saving scans in Error and Science data acquisition mode");
-sendSaveNextScans(4, 1<<col, "mux_IPhi_science_");
-waitMs(500);
+// Saving scans
+print(TAB1 + "Saving a scan with FLL OFF in Error acquisition mode");
 sendToDMXGoToErrorSignalMode();
-waitMs(500);
-sendSaveNextScans(4, 1<<col, "mux_IPhi_error_");
+sendSaveNextScans(1, 1<<col, "mux_IPhi_FLL-OFF_error_");
+waitMs(durationScanMs);
+
+/* 
+ Characterisation with FLL ON
+*/
+setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_CLOSED));
+
+// Saving scans
+print(TAB1 + "Saving scans with FLL ON in Error and Science data acquisition mode");
+
+waitMs(waitDelayMs);
+sendSaveNextScans(1, 1<<col, "mux_IPhi_FLL-ON_error_");
+waitMs(durationScanMs);
+
+sendToDMXGoToScienceMode();
+waitMs(waitDelayMs);
+
+sendSaveNextScans(1, 1<<col, "mux_IPhi_FLL-ON_science_");
+waitMs(durationScanMs);
+
+
+print("Processing data ...")
+output = copyDirToBackupDirAndExecuteBat(analysis_tools_path,".\\SCRIPTS_ANALYSE\\dmx-dm","do_processing.bat")
 
 alert("Finish the test?");
 

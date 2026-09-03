@@ -35,10 +35,44 @@ include(includes_path + "dmxConfigurations.dscript");
 include(includes_path + "dmxStart.dscript");
 include(includes_path + "/fpasim/fpasim_includes.dscript");
 
+function doingPulseWithRandomEnergy(savingDataWhilePulses_P, nbIterations_P, pulseHeightPcMax_P) {
+
+	// Doing a data acquisition
+	if (savingDataWhilePulses_P) sendToDMXSaveScienceRaw("pulses", pulseDataDurationMs , 1<<colUT, 0);
+
+	// Computing pseudo random energies
+	const a = 1103515245;
+	const b = 12345;
+	const m = Math.pow(2,31);
+	//const pcMax = 80; // --> Delocks
+	var pulseHeightPc = 1;  // initialisation
+	for (iteration = 0; iteration < nbIterations_P; iteration++) {
+		print(TAB2 + "Iteration " + iteration + " / " + nbIterations);
+		for (var iPix=0; iPix < DMX_NB_PIX_PER_COL; iPix++) {
+				pulseHeightPc = ((pulseHeightPc * a + b) % m ) * pulseHeightPcMax / m;
+				pulseHeight = Math.round(TesSteady * pulseHeightPc / 100);
+				sendToFPAsim_makePulse(iPix, 0, pulseHeight);
+		}
+	}
+}
+
+function doingPulseWithSingleEnergy(savingDataWhilePulses_P, nbIterations_P, pulseHeightPcSingle_P) {
+
+	// Doing a data acquisition
+	if (savingDataWhilePulses_P) sendToDMXSaveScienceRaw("pulses", pulseDataDurationMs , 1<<colUT, 0);
+
+	for (iteration = 0; iteration < nbIterations_P; iteration++) {
+		print(TAB2 + "Iteration " + iteration + " / " + nbIterations);
+		for (var iPix=0; iPix < DMX_NB_PIX_PER_COL; iPix++) {
+				pulseHeight = Math.round(TesSteady * pulseHeightPcSingle_P / 100);
+				sendToFPAsim_makePulse(iPix, 0, pulseHeight);
+		}
+	}
+}
+
+
 // -------------------------------------------------------------------------------------------------------------
 
-
-const savingDataWhileClosingLoop = false;
 const savingDataWhilePulses = false;
 const datafileDurationMs = 2000;
 const pulseDataDurationMs = 4000;
@@ -46,10 +80,15 @@ const doingPulsesRandomEnergies = true;
 const pulseHeightPcMax = 70;  // equiv to 12keV XIFU
 //const pulseHeightPcMax = 90;  // to make delocks
 
-const doingPulsesSingleEnergy = false;
 const pulseHeightPcSingle = 50; // Modulation
 
-const nbIterations = 500000; // number of pulses per pixels and per energy
+/*
+ Getting the column under test Id
+*/
+var colUT = -1;
+while ((colUT < 0) || (colUT > DMX_NB_COL-1)) colUT = getInt("Please, enter the Id of the column under test:");
+sessionName = "measurePulsesWithFLL-col"+colUT;
+sendStartNewSession(sessionName, "");
 
 /*
   Starting and initializing the FPAsim
@@ -65,77 +104,38 @@ const TesSteady = fpasimConfig(raDelayOpt, SteadyMode25Fsr);
 */
 demuxStart(conf_default_fpasim);
 
-
-/*
- Getting the column under test Id
-*/
-var colUT = -1;
-while ((colUT < 0) || (colUT > DMX_NB_COL-1)) colUT = getInt("Please, enter the Id of the column under test:");
-sessionName = "measurePulsesWithFLL-col"+colUT;
-sendStartNewSession(sessionName, "");
-
-
-/*
-Closing the loop
-*/
-alert("OK to close the loop?");
-print(TAB1 + "Delock counters at the beggining: " + readDMX_delockCounters(colUT, false));
-
-sendToDMXGoToErrorSignalMode();
-if (savingDataWhileClosingLoop) {
-	print(TAB1 + "Starting Error acquisition while the loop is still open, then closing the feedback loop ...");
-	sendToDMXSaveScienceRaw("errorDataWhileClosingLoop.fits", datafileDurationMs, 1<<colUT, 0);
-}
-
-fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_CLOSED_LOOP);
-setDMX_sqm_FBMode(colUT, fbMode);
-waitMs(fileDurationMs);
-
 print(TAB1 + "Setting data acquisition in SCIENCE mode...");
 sendToDMXGoToScienceMode();
 
+
 /*
-Doing pulses
+Operation in open loop
 */
-if (doingPulsesRandomEnergies) {
-	alert("OK to send the pulses?");
+fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
+setDMX_sqm_FBMode(colUT, fbMode);
 
-	// Doing a data acquisition
-	if (savingDataWhilePulses) sendToDMXSaveScienceRaw("pulses", pulseDataDurationMs , 1<<colUT, 0);
+// Doing pulses
+var nbIterations = 10;
+if (doingPulsesRandomEnergies) doingPulseWithRandomEnergy(savingDataWhilePulses, nbIterations, pulseHeightPcMax);
+else doingPulseWithSingleEnergy(savingDataWhilePulses, nbIterations, pulseHeightPcSingle);
 
-	// Computing pseudo random energies
-	const a = 1103515245;
-	const b = 12345;
-	const m = Math.pow(2,31);
-	//const pcMax = 80; // --> Delocks
-	var pulseHeightPc = 1;  // initialisation
-	for (iteration = 0; iteration < nbIterations; iteration++) {
-		print(TAB2 + "Iteration " + iteration + " / " + nbIterations);
-		for (var iPix=0; iPix < DMX_NB_PIX_PER_COL; iPix++) {
-				pulseHeightPc = ((pulseHeightPc * a + b) % m ) * pulseHeightPcMax / m;
-				pulseHeight = Math.round(TesSteady * pulseHeightPc / 100);
-				sendToFPAsim_makePulse(iPix, 0, pulseHeight);
-		}
-	}
-}
 
-if (doingPulsesSingleEnergy) {
-	alert("OK to send the pulses?");
+alert("OK to close the loop?");
 
-	// Doing a data acquisition
-	if (savingDataWhilePulses) sendToDMXSaveScienceRaw("pulses", pulseDataDurationMs , 1<<colUT, 0);
 
-	for (iteration = 0; iteration < nbIterations; iteration++) {
-		print(TAB2 + "Iteration " + iteration + " / " + nbIterations);
-		for (var iPix=0; iPix < DMX_NB_PIX_PER_COL; iPix++) {
-				pulseHeight = Math.round(TesSteady * pulseHeightPcSingle / 100);
-				sendToFPAsim_makePulse(iPix, 0, pulseHeight);
-		}
-	}
-}
+/*
+Operation in close loop
+*/
+fbMode = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_CLOSED_LOOP);
+setDMX_sqm_FBMode(colUT, fbMode);
 
-alert("Stop the test?");
-print(TAB1 + "Delock counters at the end: " + readDMX_delockCounters(col, false));
+print(TAB1 + "Delock counters at the beggining: " + readDMX_delockCounters(colUT, false));
+
+// Doing pulses
+if (doingPulsesRandomEnergies) doingPulseWithRandomEnergy(savingDataWhilePulses, nbIterations, pulseHeightPcMax);
+else doingPulseWithSingleEnergy(savingDataWhilePulses, nbIterations, pulseHeightPcSingle);
+
+print(TAB1 + "Delock counters at the end: " + readDMX_delockCounters(colUT, false));
 
 
 // -------------------------------------------------------------------------------------------------------------
@@ -144,7 +144,6 @@ onAbortScript();
 function onAbortScript() {
 	sendStopSession();
 	sendToDMXGoToIdleMode();
-	print(TAB1 + "Delock counters at the end: " + readDMX_delockCounters(col, false));
 	print("End of script!");
 }
 
