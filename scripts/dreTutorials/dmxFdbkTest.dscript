@@ -192,7 +192,7 @@ function onAbortScript() {
 
 // -------------------------------------------------------------------------------------------------------------
 
-startSession("test_dmx_feedback");
+startSession("TEST-FDBK------");
 
 SAVE_DUMP = true;
 SAVE_ERROR = true;

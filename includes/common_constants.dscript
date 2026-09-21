@@ -28,6 +28,8 @@
 // Common for the project
 const ON = 1;
 const OFF = 0;
+const all_on = [ON, ON, ON, ON];
+const all_off = [OFF, OFF, OFF, OFF];
 
 // For DEMUX and RAS modules
 // SPI error codes

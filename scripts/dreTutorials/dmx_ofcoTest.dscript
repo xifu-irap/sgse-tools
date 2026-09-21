@@ -1,0 +1,204 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     dmx_ofcoTest.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file tests the ofco signals of the DMX boards.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+const includes_path = "../../includes/";
+include(includes_path + "dmxTools.dscript");
+include(includes_path + "utilTools.dscript");
+include(includes_path + "common_constants.dscript");
+
+/**
+ * This function outputs a set of values or the test pattern on the offset compensation output
+ */
+function testSequence() {
+	
+	const a1 = -1 * Math.pow(2, 15);
+	const b = 60;
+	const c = 128;
+	const margin = 50;
+	const N = 511-margin;
+	const a2 = a1 + (c*N-margin);
+	const sawPattern = [
+		[a1, b, c, N],  // Slope upward
+		[a2, b, -c, N],  // Slope downward
+		[0, 0, 0, 0],  // Nothing
+		[0, 0, 0, 0],  // Nothing
+		[0, 0, 0, 0]  // Nothing
+	];
+
+	// Defining sets of offset fine values
+	const AMP_SQ_OFFSET_FINE = [
+		[  // 34 3-bit values
+			0, 1, 2, 3, 4, 5, 6, 7,
+			0, 1, 2, 3, 4, 5, 6, 7,
+			7, 6, 5, 4, 3, 2, 1, 0,
+			7, 6, 5, 4, 3, 2, 1, 0,
+			5, 2
+		],
+		[  // 34 3-bit values
+			7, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0
+		],
+		[  // 34 3-bit values
+			7, 0, 7, 0, 7, 0, 7, 0,
+			7, 0, 7, 0, 7, 0, 7, 0,
+			7, 0, 7, 0, 7, 0, 7, 0,
+			7, 0, 7, 0, 7, 0, 7, 0,
+			7, 0
+		],
+		[  // 34 3-bit values
+			0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0
+		]
+	];
+
+    // Switching ON the columns
+    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
+
+	// Asking for the configuration setup
+    const testTabText = [
+								"Test pattern on DAC coarse",
+								"Offset values on MUX fine",
+								"Test of slow DACs SPI",
+								"Offset switched off"];
+    var iTest = getItem("Please, indicates the type of test: ", testTabText);
+    var test = testTabText[iTest];
+
+	switch(test) {
+		case "Test of slow DACs SPI": 	// Doing infinite loop with commands to the slow DACs
+			setDMX_offsetMode([OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET]);
+			while(true){  // Changing values is mandatory. When sending the same value the FPGA does nothing
+				for(colid=0; colid<4; colid++) {				
+					setDMX_sqa_OffsetCoarse(colid, OFFSET_COARSE_ADU_MIN);				
+					setDMX_sqa_OffsetCoarse(colid, OFFSET_COARSE_ADU_MAX);				
+					setDMX_sqa_OffsetLSB(colid, OFFSET_LSB_ADU_MIN);				
+					setDMX_sqa_OffsetLSB(colid, OFFSET_LSB_ADU_MAX);
+				}		
+			}
+			break;
+
+		case  "Offset switched off":
+			colOffsetMode = [OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF];
+			setDMX_offsetMode(colOffsetMode);
+			break;
+
+		case "Offset values on MUX fine":
+			// Selecting the offset fine pattern
+			const offsetFineTabText = [
+												"8-step ramp",
+												"All pixels equals except pixel 0",
+												"Sequence of min / max values",
+												"All pixels set to 0"];
+			var iOffsetFine = getItem("Please, indicate the type of Offset Fine: ", offsetFineTabText);
+
+			// Selecting the offset fine pattern
+			const offsetLSBTabText = [
+												"Wide range",
+												"High resolution"];
+			var iOffsetLSB = getItem("Please, indicate the type of Offset LSB: ", offsetLSBTabText);
+			var OFFSET_LSB_ADU = OFFSET_LSB_ADU_MAX;
+			if (iOffsetLSB === 1) OFFSET_LSB_ADU = OFFSET_LSB_ADU_MIN;
+
+			for (var col = 0; col < DMX_NB_COL; col++) {
+				setDMX_sqa_OffsetCoarse(col, OFFSET_COARSE_ADU_MIN);
+				setDMX_sqa_OffsetLSB(col, OFFSET_LSB_ADU);
+				setDMX_sqa_OffsetFine(col, AMP_SQ_OFFSET_FINE[iOffsetFine], AMP_SQ_OFFSET_FINE[iOffsetFine]);
+			}
+
+			// Setting the offset mode to OFFSET for all the columns
+			colOffsetMode = [OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET];
+			setDMX_offsetMode(colOffsetMode);
+			break;
+
+		case "Test pattern on DAC coarse":
+
+			// Switching off the MUX contribution
+			for (var col = 0; col < DMX_NB_COL; col++) {
+				setDMX_sqa_OffsetLSB(col, OFFSET_LSB_ADU_MIN);
+				setDMX_sqa_OffsetFine(col, 0, 0);
+			}
+
+			// Setting the test pattern in the FPGA registers
+			setDMX_testPattern(sawPattern);
+
+			// Setting the offset mode to TEST_PATTERN
+			colOffsetMode = [OFFSET_MODE_TESTPATTERN, OFFSET_MODE_TESTPATTERN, OFFSET_MODE_TESTPATTERN, OFFSET_MODE_TESTPATTERN];
+			setDMX_offsetMode(colOffsetMode);
+
+			// Switching On the pattern
+			start_demux_pattern();
+			break;
+
+	}
+
+	// Activating the data acquisition in Error mode
+	sendToDMXGoToErrorSignalMode();
+
+	alert("Finish the test?");
+
+}
+
+
+function startSession(sessionName) {
+	sendStartNewSession(sessionName, "");
+}
+
+
+/**
+ * This function is called when the script is aborted
+ */
+function onAbortScript() {
+
+    // resetting the set of Offset values
+    const zeroArray = makeArray(DMX_NB_PIX_PER_COL, 0);
+    for (var col = 0; col < DMX_NB_COL; col++) {
+        setDMX_sqa_OffsetLSB(col, OFFSET_LSB_ADU_MIN);
+        setDMX_sqa_OffsetCoarse(col, OFFSET_COARSE_ADU_MIN);
+    }
+
+    // de-activating the test pattern
+	stop_demux_pattern();
+
+	sendToDMXGoToIdleMode();
+	print("End of script!");
+}
+
+// -------------------------------------------------------------------------------------------------------------
+
+sendStartNewSession("OFCO-EDGES-----", "");
+
+testSequence();
+
+onAbortScript();
+
+// -------------------------------------------------------------------------------------------------------------

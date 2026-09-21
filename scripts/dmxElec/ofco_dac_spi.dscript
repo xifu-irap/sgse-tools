@@ -17,11 +17,12 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     dmxFdbkTestOpenLoop.dscript
+//    @file                     ofco_dac_spi
+//    .dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
-//    This file is used during the electrical tests of the DEMUX modules.
+//    This file tests the SPI links to the slow DACs of the ofco.
 //
 // -------------------------------------------------------------------------------------------------------------
 
@@ -32,40 +33,32 @@ include(includes_path + "utilTools.dscript");
 include(includes_path + "common_constants.dscript");
 
 /**
- * This function activates the Mux SQUID and outputs the FB0 set
+ * This function sends commands to the slow DACs of the ofco
  */
-function run_fdbk_open_loop() {
-	
-    // Setting the sampling delay
-	const samp_delay = 16;
-	print(TAB1+"Setting the 4 registers SAMPLING_DELAY to " + samp_delay);
-	for (var col=0; col<DMX_NB_COL; col++) setDMX_sampling_delay(col, samp_delay);
-
-    // Setting the feedback modes to "open loop" for all the pixels
-	print(TAB1+"Setting the feedback mode to open-loop for all the pixels");
-    var tabFbModesOpenLoop = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
-    for (col=0; col<DMX_NB_COL; col++) setDMX_sqm_FBMode(col, tabFbModesOpenLoop);
-
-    tabFb0 = [
-        minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
-        minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
-        minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
-        minVal, midVal, maxVal, minVal, midVal, maxVal, minVal
-    ];
-    print(TAB1+"Setting the FB0 to:");
-    print(tabFb0);
-    for (colId=0; colId<DMX_NB_COL; colId+=1) setDMX_fb0(colId, tabFb0);
-
-    // Disabling the pulse shaping
-    print(TAB1+"Disabling the pulse shaping...");
-    var pulseShapingType = 0;
-    for (col=0; col<DMX_NB_COL; col++) setDMX_pulseShapingSelection(col, pulseShapingType);
+function testSequence() {
 
     // Switching ON the columns
-    print(TAB1+"Switching ON the feedback for all the columns: ");
     setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
 
-	alert("Finish the test?");
+	setDMX_offsetMode([OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET]);
+
+	alert("OK to send SPI commands indefinitely?");
+	while(true){  // Changing values is mandatory. When sending the same value the FPGA does nothing
+		for(colid=0; colid<DMX_NB_COL; colid++) {
+			setDMX_sqa_OffsetCoarse(colid, OFFSET_COARSE_ADU_MIN);
+			setDMX_sqa_OffsetCoarse(colid, OFFSET_COARSE_ADU_MAX);
+			setDMX_sqa_OffsetLSB(colid, OFFSET_LSB_ADU_MIN);
+			setDMX_sqa_OffsetLSB(colid, OFFSET_LSB_ADU_MAX);
+		}
+	}
+}
+
+
+/**
+ * This function is called to start a new session
+ */
+function startSession(sessionName) {
+	sendStartNewSession(sessionName, "");
 }
 
 
@@ -74,15 +67,15 @@ function run_fdbk_open_loop() {
  */
 function onAbortScript() {
 
+	sendToDMXGoToIdleMode();
 	print("End of script!");
 }
 
-
 // -------------------------------------------------------------------------------------------------------------
 
-sendStartNewSession("ELEC-FDBK-OL---", "");
+startSession("ELEC-OFCO-SPI--");
 
-run_fdbk_open_loop();
+testSequence();
 
 onAbortScript();
 

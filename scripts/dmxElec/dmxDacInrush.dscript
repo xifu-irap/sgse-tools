@@ -36,14 +36,14 @@ include(includes_path + "common_constants.dscript");
 print("Current status:" + readDMX_feedbackOnOff());
 
 alert("OK to switch ON the feedback DACs in sequence?");
-setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
+setDMX_safeFeedbackOnOff(all_on);
 
 alert("OK to switch OFF the feedback DACs in sequence?");
-setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
+setDMX_safeFeedbackOnOff(all_off);
 
 alert("OK to switch ON the feedback DACs all at once?");
-setDMX_feedbackOnOff([ON, ON, ON, ON]);
+setDMX_feedbackOnOff(all_on);
 
 alert("OK to switch OFF the feedback DACs all at once?");
-setDMX_feedbackOnOff([OFF, OFF, OFF, OFF]);
+setDMX_feedbackOnOff(all_off);
 
