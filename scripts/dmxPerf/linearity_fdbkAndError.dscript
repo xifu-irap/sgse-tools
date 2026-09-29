@@ -34,7 +34,6 @@ include(includes_path + "dmxTools.dscript");
 include(includes_path + "utilTools.dscript");
 include(includes_path + "common_constants.dscript");
 
-const boxcarL = 3;
 const file_conversion_delay = 1000;
 
 // -------------------------------------------------------------------------------------------------------------
@@ -42,30 +41,27 @@ const file_conversion_delay = 1000;
 function configure_test() {
 
 	// setting the MUX_SQ_FB_DELAY
-	const delay_min = -512;
-	const delay_max = 40;
-	var fb_delay = delay_min - 1;
-	while (fb_delay < delay_min || fb_delay > delay_max) {
-		fb_delay = getInt("Fdbk delay? [" + delay_min + "; " + delay_max + "]");
-	}
+	const fb_delay = 0;
+	print(TAB1 + "Setting the feedback delay to " + fb_delay);
 	for (var colId = 0; colId < DMX_NB_COL; colId++) setDMX_feedback_delay(colId, fb_delay);
 
 	// setting the SAMPLING_DELAY
 	const samp_delay = 16;
-	print(TAB1 + "Setting the sampling delay to 16");
+	print(TAB1 + "Setting the sampling delay to " + samp_delay);
 	for (colId = 0; colId < DMX_NB_COL; colId++) setDMX_sampling_delay(colId, samp_delay);
 
 	// Setting the boxcar length
-	print(TAB1 + "Setting the Boxcar length to 4 samples");
+	const boxcarL = 3;
+	print(TAB1 + "Setting the Boxcar length to " + (boxcarL+1) + " samples");
 	setDMX_boxcarLength([boxcarL, boxcarL, boxcarL, boxcarL]);
 
 	// Setting the pulse shaping set
-	print(TAB1 + "Setting the pulse shaping set to 0 (no pulse shaping)");
 	const pulseShapingSet = 0;
+	print(TAB1 + "Setting the pulse shaping set to " + pulseShapingSet + " (no pulse shaping)");
 	for (colId=0; colId<DMX_NB_COL; colId++) setDMX_pulseShapingSelection(colId, pulseShapingSet);
 
 	print(TAB1 + "Switching the feedback OnOff to ON for all the columns:");
-	setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
+	setDMX_safeFeedbackOnOff(all_on);
 
 	print(TAB1 + "Setting the feedback mode to TEST PATTERN for all columns and all pixels");
 	fbMode_TPT = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_TESTPATTERN);
@@ -98,12 +94,10 @@ function linearity_fdbkAndError() {
 	// Defining the test pattern for the scan of the feedback DAC values
 	const infinitely = true;
 	const nbTime = 0x9;
-	const nbStepsPerScanBits = 11;
 
 	print(TAB1 + "Setting data acquisition mode to ERROR mode...");
 	sendToDMXGoToErrorSignalMode();
 
-	// Several scans are measured because Xifu Studio can't acquire long scans
 	print(TAB1 + "Configuring test pattern..");
 	const a = -1 * Math.pow(2, DMX_NB_BITS_TPT - 1);
 	const b = 1;

@@ -96,7 +96,8 @@ function carac_offco_fine() {
 	sendStartNewSession(sessionName2, "");
 	print("")
 	print(TAB1 + "Setting the offset fine for a good resolution / small range...");
-	measure_ofcoFine_with_dumps(OFFSET_LSB_ADU_MIN);
+    const setting_for_5mv = 6*8*0.005*OFFSET_LSB_ADU_MAX/(2*3.3);
+	measure_ofcoFine_with_dumps(setting_for_5mv);
 	print(TAB1 + "Processing data ...")
 	output = copyDirToBackupDirAndExecuteBat(analysis_tools_path,".\\SCRIPTS_ANALYSE\\dmx-dm","do_processing.bat")
 	sendStopSession();
