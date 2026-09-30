@@ -127,9 +127,9 @@ function testSequence(SAVE_DUMP, SAVE_ERROR) {
 
 		if (answer === "Yes") {
 			// Setting the feedback FB0 values
-			const minVal = -1*Math.pow(2, 13);
+			const minVal = -1*Math.pow(2, DMX_NB_BITS_DAC_FDBK-1);
 			const midVal = 0;
-			const maxVal = Math.pow(2, 13) - (1/Math.pow(2, 2));
+			const maxVal = Math.pow(2, DMX_NB_BITS_DAC_FDBK-1) - (1/Math.pow(2, 2));
 
 			tabFb0 = [
 				minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,

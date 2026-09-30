@@ -46,6 +46,10 @@ function run_fdbk_open_loop() {
     const tabFbModesOpenLoop = makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP);
 
     // Fb0
+    const minVal = -1*Math.pow(2, DMX_NB_BITS_DAC_FDBK);
+	const midVal = 0;
+	const maxVal = Math.pow(2, DMX_NB_BITS_DAC_FDBK) - (1/Math.pow(2, 2));
+
     const tabFb0 = [
         minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,
         minVal, midVal, maxVal, minVal, midVal, maxVal, minVal, midVal, maxVal,

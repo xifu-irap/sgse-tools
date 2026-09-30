@@ -29,8 +29,8 @@
 include("../dmxRegAddresses.dscript");
 include("../rasRegAddresses.dscript");
 
-TEST_SPI_RAS = false;  // Passer Ã  true pour faire des commandes infiniment sur le SPI RAS
-TEST_SPI_DMX = true;  // Passer Ã  true pour faire des commandes infiniment sur le SPI DMX
+TEST_SPI_RAS = false;  // Passer a true pour faire des commandes infiniment sur le SPI RAS
+TEST_SPI_DMX = true;  // Passer a true pour faire des commandes infiniment sur le SPI DMX
 
 
 while (true) {

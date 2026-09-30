@@ -54,7 +54,7 @@ fpasimConfig(raDelayOpt, SteadyMode25Fsr);
 */
 var col = -1;
 while ((col < 0) || (col > DMX_NB_COL-1)) col = getInt("Please, enter the Id of the column under test:");
-sessionName = "scanAmpSQUID-col"+col;
+sessionName = "SCAN_AMP_SQUID-col"+col;
 sendStartNewSession(sessionName, "");
 
 /*

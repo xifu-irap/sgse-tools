@@ -76,6 +76,10 @@ function configure_test() {
 
 function onAbortScript() {
 	sendToDMXGoToIdleMode();
+	
+	print(TAB1 + "Setting the offset mode back to OFFSET");
+	setDMX_offsetMode(makeArray(DMX_NB_COL, OFFSET_MODE_OFFSET));
+
 	sendStopSession();
 	print("End of script!");
 }
