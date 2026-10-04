@@ -74,6 +74,70 @@ function tst_I2C(tst_mode) {
 		var checked_param = sendToWFEEReadRegister(addr);
 		print(TAB2 + "The returned parameter value is " + checked_param.toString(16).toUpperCase());
 	}
+
+	if (tst_mode === "WriteRead_always") {
+
+		error_counter = 0;
+
+		const add_function_shift = 3;
+		const nb_iterations = 10000;
+		for (var iteration=0; iteration<nb_iterations; iteration++){
+			print("Iteration " + iteration);
+			for (col_id=0; col_id<2; col_id++){
+				print(TAB1 + "Testing column " + col_id);
+				col_add=col_id*4;
+				for (asic_add=0; asic_add<4; asic_add++) {
+					print(TAB2 + "Testing ASIC " + asic_add);
+
+					dac_id = i_tes_bias;
+					print(TAB3 + "Write / Read on " + dac_id.name);
+				    add_function = dac_id.address | col_add;
+				    add = (asic_add + (add_function << add_function_shift));
+					sendToWFEEWriteRegister(add, param);
+					checked_param = sendToWFEEReadRegister(add);
+					if (checked_param !== param) error_counter++;
+					print(TAB3 + "   ---> " + error_counter + " errors in total");
+
+					dac_id = i_sqm_bias;
+					print(TAB3 + "Write / Read on " + dac_id.name);
+				    add_function = dac_id.address | col_add;
+				    add = (asic_add + (add_function << add_function_shift));
+					sendToWFEEWriteRegister(add, param);
+					checked_param = sendToWFEEReadRegister(add);
+					if (checked_param !== param) error_counter++;
+					print(TAB3 + "   ---> " + error_counter + " errors in total");
+
+					dac_id = i_sqm_fdbk;
+					print(TAB3 + "Write / Read on " + dac_id.name);
+				    add_function = dac_id.address | col_add;
+				    add = (asic_add + (add_function << add_function_shift));
+					sendToWFEEWriteRegister(add, param);
+					checked_param = sendToWFEEReadRegister(add);
+					if (checked_param !== param) error_counter++;
+					print(TAB3 + "   ---> " + error_counter + " errors in total");
+
+					dac_id = i_sqa_bias;
+					print(TAB3 + "Write / Read on " + dac_id.name);
+				    add_function = dac_id.address | col_add;
+				    add = (asic_add + (add_function << add_function_shift));
+					sendToWFEEWriteRegister(add, param);
+					checked_param = sendToWFEEReadRegister(add);
+					if (checked_param !== param) error_counter++;
+					print(TAB3 + "   ---> " + error_counter + " errors in total");
+
+					dac_id = i_sqa_ofcm;
+					print(TAB3 + "Write / Read on " + dac_id.name);
+				    add_function = dac_id.address | col_add;
+				    add = (asic_add + (add_function << add_function_shift));
+					sendToWFEEWriteRegister(add, param);
+					checked_param = sendToWFEEReadRegister(add);
+					if (checked_param !== param) error_counter++;
+					print(TAB3 + "   ---> " + error_counter + " errors in total");
+
+				}
+			}
+		}
+	}
 }
 
 // -------------------------------------------------------------------------------------------------------------
@@ -83,6 +147,7 @@ function tst_I2C(tst_mode) {
 const testMode = "Write";
 //const testMode = "Read";
 //const testMode = "WriteRead";
+//const testMode = "WriteRead_always";
 
 tst_I2C(testMode);
 

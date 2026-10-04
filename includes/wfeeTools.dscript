@@ -60,7 +60,7 @@ const i_sqa_bias = {name: "I SQA bias", address: 0xB};                 // addres
 const i_sqa_ofcm = {name: "I SQA offset compensation", address: 0xA};  // address = 0b1010
 
 //---- HK
-const WFEE_NB_HK = 0x8;
+const WFEE_NB_HK = 8;
 const WFEE_HK_NAMES = ['TEMP ASIC0', 'TEMP ASIC1', 'TEMP ASIC2', 'TEMP ASIC3', 'TEMP ASIC4', 'TEMP ASIC5', 'MEANV', 'SEU Flag'];
 
 
