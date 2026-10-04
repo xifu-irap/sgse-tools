@@ -68,7 +68,6 @@ const ADD_RAS_HK_VGS_LOW = 0x0516;
 const ADD_RAS_HK_VGS_HIGH = 0x0518;
 const ADD_RAS_HK_P3V3_DAC = 0x051A;
 const ADD_RAS_HK_P3V3WFEE = 0x051C;
-const ADD_RAS_HK_SPARE = 0x051E;
 
 // WFEE Housekeepings (read only)
 const ADD_WFEE_HK_TEMP1 = 0x0520;

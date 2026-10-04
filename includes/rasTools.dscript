@@ -24,9 +24,9 @@
 //    This file contains low level commands to configure and read the configuration of a DRE RAS module.
 //
 // -------------------------------------------------------------------------------------------------------------
-
-// imports
-include(includes_path + "rasRegAddresses.dscript");
+
+// imports
+include(includes_path + "rasRegAddresses.dscript");
 
 const RAS_TEST_PATTERN_NBPARAMS = 4;
 const RAS_TEST_PATTERN_NBREGIONS = 5;
@@ -36,17 +36,18 @@ const NB_PS = 8;
 const NB_GS = 6;
 const NB_RA = NB_PS + NB_GS;
 // DACs
-const DAC_PS_HIGH = 0;
-const DAC_PS_LOW = 1;
-const DAC_GS_HIGH = 2;
-const DAC_GS_LOW = 3;
+const DAC_PS_LOW = 0;
+const DAC_PS_HIGH = 1;
+const DAC_GS_LOW = 2;
+const DAC_GS_HIGH = 3;
 const NB_RA_DACS = 4;
 const RAS_DAC_NAMES = ["PS LOW", "PS HIGH", "GS LOW", "GS HIGH"];
 
 // HK
-const RAS_NB_HK = 0x0F;
+const RAS_NB_HK = 15;
 const RAS_HK_NAMES = ['P5V0_ANA', 'P2V5_ANA', 'M2V5_ANA', 'P1V2_DIG', 'P2V5_DIG', 'M2V5_DIG', 'P3V3_DIG',
-    'TEMP_A', 'TEMP_B', 'VPS_LOW', 'VPS_HIGH', 'VGS_LOW', 'VGS_HIGH', 'P3V3_DAC', 'P3V3WFEE', 'NOT USED'];
+    'TEMP_A', 'TEMP_B', 'VPS_LOW', 'VPS_HIGH', 'VGS_LOW', 'VGS_HIGH', 'P3V3_DAC', 'P3V3WFEE'];
+
 // ICU selection (to be used with the XIFU Studio command sendToTMTC_selectICU() )
 ICUMain = 0;
 ICURed = 1;
