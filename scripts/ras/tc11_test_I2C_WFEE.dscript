@@ -41,7 +41,7 @@ include(includes_path + "common_constants.dscript");
  * @param {number} tst_mode - test mode (either "Send_always", "Write", "Read" or "WriteRead")
  */
 function tst_I2C(tst_mode) {
-	const addr = WFEEBuildAddress("asic0", "col0", "i_tes_bias");
+	const addr = WFEEBuildAddress(asic0, col0, i_tes_bias);
 	const param = 0x55;  // 01010101 in binary
 
 	if (tst_mode === "Send_always") {
@@ -62,7 +62,7 @@ function tst_I2C(tst_mode) {
 	if (tst_mode === "Read") {
 		print(TAB1 + "Sending a read command:");
 		print(TAB2 + "Address = " + addr.toString(16).toUpperCase());
-		sendToRASReadRegister(addr);
+		sendToWFEEReadRegister(addr);
 	}
 
 	if (tst_mode === "WriteRead") {
