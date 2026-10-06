@@ -31,6 +31,7 @@ const includes_path = "../../includes/";
 include(includes_path + "rasTools.dscript");
 include(includes_path + "rasRegAddresses.dscript");
 include(includes_path + "rasSequences.dscript");
+include(includes_path + "wfeeTools.dscript");
 
 include(includes_path + "utilTools.dscript");
 include(includes_path + "common_constants.dscript");
@@ -55,7 +56,7 @@ function tst_I2C() {
 	var iConfTest = getItem("Please, select the test: ", confTestTab);
 	const test_mode = confTestTab[iConfTest];
 
-	if (tst_mode === "Repeat write in WFEE register") {
+	if (test_mode === "Repeat write in WFEE register") {
 		print(TAB1 + "Sending always the same write command:");
 		print(TAB2 + "Address = " + addr.toString(16).toUpperCase());
 		print(TAB2 + "Parameter = " + param.toString(16).toUpperCase());
@@ -63,20 +64,20 @@ function tst_I2C() {
 		while(true) sendToWFEEWriteRegister(addr, param);
 	}
 
-	if (tst_mode === "Write in WFEE register") {
+	if (test_mode === "Write in WFEE register") {
 		print(TAB1 + "Sending a write command:");
 		print(TAB2 + "Address = " + addr.toString(16).toUpperCase());
 		print(TAB2 + "Parameter = " + param.toString(16).toUpperCase());
 		sendToWFEEWriteRegister(addr, param);
 	}
 
-	if (tst_mode === "Read WFEE register") {
+	if (test_mode === "Read WFEE register") {
 		print(TAB1 + "Sending a read command:");
 		print(TAB2 + "Address = " + addr.toString(16).toUpperCase());
 		sendToWFEEReadRegister(addr);
 	}
 
-	if (tst_mode === "Write and read in WFEE register") {
+	if (test_mode === "Write and read in WFEE register") {
 		print(TAB1 + "Sending a write command:");
 		print(TAB2 + "Address = " + addr.toString(16).toUpperCase());
 		print(TAB2 + "Parameter = " + param.toString(16).toUpperCase());
@@ -86,7 +87,7 @@ function tst_I2C() {
 		print(TAB2 + "The returned parameter value is " + checked_param.toString(16).toUpperCase());
 	}
 
-	if (tst_mode === "Repeat write and read in WFEE register") {
+	if (test_mode === "Repeat write and read in WFEE register") {
 
 		error_counter = 0;
 
@@ -97,7 +98,7 @@ function tst_I2C() {
 			for (col_id=0; col_id<2; col_id++){
 				print(TAB1 + "Testing column " + col_id);
 				col_add=col_id*4;
-				for (asic_add=0; asic_add<4; asic_add++) {
+				for (asic_add=1; asic_add<5; asic_add++) {
 					print(TAB2 + "Testing ASIC " + asic_add);
 
 					dac_id = i_tes_bias;
