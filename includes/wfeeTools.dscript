@@ -209,4 +209,15 @@ function WFEEScan(asic, col, dac, param_i, param_f, n_step, t_holdMs, verbose) {
     print("");
 }
 
+
+/**
+ * This function selects a WFEE address for the next test pattern
+ * @param {number} address - command address [0 - 127]
+ */
+function sendToWFEEAddressForTestPattern(address) {
+
+    const param = 0x100; // DT8=1 and DT7-0=0 (see command dictionnary table 12)
+    sendToWFEEWriteRegister(address, param);
+}
+
 //------------------------------------------------------------------------------------------------------------------

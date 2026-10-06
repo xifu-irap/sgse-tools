@@ -1,0 +1,74 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     tc12_test_pattern_on_WFEE.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file is used to make test patterns on WFEE.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+const includes_path = "../../includes/";
+
+include(includes_path + "rasTools.dscript");
+include(includes_path + "rasRegAddresses.dscript");
+include(includes_path + "rasSequences.dscript");
+include(includes_path + "wfeeTools.dscript");
+
+include(includes_path + "utilTools.dscript");
+include(includes_path + "common_constants.dscript");
+
+
+/**
+ * This function tests the I2C interface between DRE-RAS and WFEE
+ * @param {object} asic - asic dictionary (asic0, asic1, asic2 or asic3)
+ * @param {object} col - column dictionary (col0 or col1)
+ * @param {object} dac - dac dictionary (i_tes_bias, i_sqm_bias, i_sqm_fdbk, i_sqa_bias or i_sqa_ofcm)
+ **/
+function makeWfee_tstPattern(col, asic, dac) {
+
+    setRAS_seqMode(OFF);
+
+	// Defining the test pattern
+    const patternParameters = [
+        [0x0000, 0x0020, 0x0002, 0x07FF],   // Slope upward
+        [0x0FFF, 0x0020, -1*0x0002, 0x07FF],    // Slope downward
+        [0x0000, 0x0000, 0x0000, 0x0000],   // Nothing
+        [0x0000, 0x0000, 0x0000, 0x0000],   // Nothing
+        [0x0000, 0x0000, 0x0000, 0x0000]];    // Nothing
+    setRAS_testPattern(patternParameters);
+
+	// Defining the address to apply the test pattern
+	const address = WFEEBuildAddress(col, asic, dac);
+	sendToWFEEAddressForTestPattern(address);
+
+	// Starting the test pattern
+	alert("Ready to start 3 patterns on the WFEE?");
+    setRAS_testPatternEnable('WFEE', true, false, 3);
+    setRAS_seqMode(ON);
+
+}
+
+// -------------------------------------------------------------------------------------------------------------
+
+makeWfee_tstPattern(col0, asic1, i_tes_bias);
+
+// -------------------------------------------------------------------------------------------------------------
