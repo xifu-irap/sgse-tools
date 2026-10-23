@@ -25,8 +25,8 @@
 //
 // -------------------------------------------------------------------------------------------------------------
 
-// imports
-const includes_path = "../../includes/";
+// imports
+const includes_path = "../../includes/";
 
 include(includes_path + "rasTools.dscript");
 include(includes_path + "rasRegAddresses.dscript");
@@ -56,7 +56,7 @@ function tc5_address_sequence() {
 
 
     setRAS_seqMode(OFF);
-    setRAS_addressSequence(3, 0x555555555555);
+    setRAS_addressSequence(2, 0x555555555555);
     setRAS_seqMode(ON);
     answer = getText("Third address line should be 010101...  (y/n)", " ");
 	print("  => " + answer);

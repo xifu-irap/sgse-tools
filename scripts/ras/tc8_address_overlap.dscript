@@ -52,9 +52,9 @@ function tc8_address_overlap() {
     setRAS_psOverlap(overlap);
     setRAS_gsOverlap(overlap);
 	setRAS_seqMode(ON);
-    var answer1 = getText("Measure the delay between the falling edge of PS0 and the rising edge of PS1 (ns)", " ");
+    var answer1 = getText("Measure the delay between the falling edge of PS7 and the rising edge of PS0 (ns)", " ");
     print(TAB3 + "==> " + answer1 + " ns");
-    var answer2 = getText("Measure the delay between the falling edge of GS0 and the rising edge of GS1 (ns)", " ");
+    var answer2 = getText("Measure the delay between the falling edge of GS4 and the rising edge of GS0 (ns)", " ");
     print(TAB3 + "==> " + answer2 + " ns");
 
     overlap = -8;
@@ -63,9 +63,9 @@ function tc8_address_overlap() {
     setRAS_psOverlap(overlap);
     setRAS_gsOverlap(overlap);
 	setRAS_seqMode(ON);
-    answer1 = getText("Measure the delay between the falling edge of PS0 and the rising edge of PS1 (ns)", " ");
+    answer1 = getText("Measure the delay between the falling edge of PS7 and the rising edge of PS0 (ns)", " ");
     print(TAB3 + "==> " + answer1 + " ns");
-    answer2 = getText("Measure the delay between the falling edge of GS0 and the rising edge of GS1 (ns)", " ");
+    answer2 = getText("Measure the delay between the falling edge of GS4 and the rising edge of GS0 (ns)", " ");
     print(TAB3 + "==> " + answer2 + " ns");
 
     overlap = 7;
@@ -74,9 +74,9 @@ function tc8_address_overlap() {
     setRAS_psOverlap(overlap);
     setRAS_gsOverlap(overlap);
 	setRAS_seqMode(ON);
-    answer1 = getText("Measure the delay between the falling edge of PS0 and the rising edge of PS1 (ns)", " ");
+    answer1 = getText("Measure the delay between the falling edge of PS7 and the rising edge of PS0 (ns)", " ");
     print(TAB3 + "==> " + answer1 + " ns");
-    answer2 = getText("Measure the delay between the falling edge of GS0 and the rising edge of GS1 (ns)", " ");
+    answer2 = getText("Measure the delay between the falling edge of GS4 and the rising edge of GS0 (ns)", " ");
     print(TAB3 + "==> " + answer2 + " ns");
 
     const step_ms = 1000;

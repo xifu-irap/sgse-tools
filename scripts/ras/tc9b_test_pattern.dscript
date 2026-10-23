@@ -41,17 +41,20 @@ include(includes_path + "common_constants.dscript");
  */
 function tc9_test_pattern() {
 
+    const pix1 = 0;
+    const pix2 = 7;
+    
     plotLongLine();
     print("* Checking the test pattern");
     print(" ");
 
     setRAS_seqMode(OFF);
-    print(TAB1 + "Setting the address sequence for PS0 and PS1");
-    setRAS_addressSequence( 0, 0x000000000000);
-	setRAS_DAC(DAC_PS_LOW, 0x800);
+    print(TAB1 + "Setting the address sequence for PS"+pix1+" and PS"+pix2);
+    setRAS_addressSequence( pix1, 0x000000000000);
+	setRAS_DAC(DAC_PS_LOW, 0x200);
 
-    setRAS_addressSequence( 1, 0xFFFFFFFFFFFF);
-	setRAS_DAC(DAC_PS_HIGH, 0x400);
+    setRAS_addressSequence( pix2, 0xFFFFFFFFFFFF);
+	setRAS_DAC(DAC_PS_HIGH, 0xEFF);
     setRAS_seqMode(ON);
 	waitMs(1000);
 
@@ -64,11 +67,24 @@ function tc9_test_pattern() {
         [0x0FFF, 0x0020, -1*0x0002, 0x07FF]];    // Slope downward
     setRAS_testPattern(patternParameters);
 
-    answer = getText("Ready to start 3 patterns on PS0 line? [yes]", " ");
+    /*
+    answer = getText("Ready to start 3 patterns on DAC LOW (pixel "+pix1+")? [yes]", " ");
     setRAS_seqMode(OFF);
     setRAS_testPatternEnable('PS_LOW', true, false, 3);
     setRAS_seqMode(ON);
     print(" ");
+    */
+    
+    answer = getText("Ready to start 3 patterns on DAC HIGH (pixel "+pix2+")? [yes]", " ");
+    setRAS_seqMode(OFF);
+    setRAS_testPatternEnable('PS_HIGH', true, true, 3);
+    setRAS_seqMode(ON);
+    print(" ");
+
+    alert("OK to stop the pattern?");
+    setRAS_testPatternEnable('PS_HIGH', false, false, 0);
+    
+    
 
 }
 

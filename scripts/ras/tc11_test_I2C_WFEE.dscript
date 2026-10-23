@@ -42,8 +42,9 @@ include(includes_path + "common_constants.dscript");
  */
 function tst_I2C() {
 	// address and parameter used in some of the tests
-	const addr = WFEEBuildAddress(asic0, col0, i_tes_bias);
+	const addr = WFEEBuildAddress(asic0, col1, i_tes_bias);
 	const param = 0x55;  // 01010101 in binary
+	const param = 250;  // 01010101 in binary
 
 	// Asking for the test type
 	const confTestTab = [
@@ -94,56 +95,57 @@ function tst_I2C() {
 		const add_function_shift = 3;
 		const nb_iterations = 10000;
 		for (var iteration=0; iteration<nb_iterations; iteration++){
+
 			print("Iteration " + iteration);
 			for (col_id=0; col_id<2; col_id++){
 				print(TAB1 + "Testing column " + col_id);
 				col_add=col_id*4;
-				for (asic_add=1; asic_add<5; asic_add++) {
+				for (asic_add=2; asic_add<5; asic_add+=2) {
 					print(TAB2 + "Testing ASIC " + asic_add);
 
 					dac_id = i_tes_bias;
 					print(TAB3 + "Write / Read on " + dac_id.name);
 				    add_function = dac_id.address | col_add;
 				    add = (asic_add + (add_function << add_function_shift));
-					sendToWFEEWriteRegister(add, param);
+					sendToWFEEWriteRegister(add, iteration);
 					checked_param = sendToWFEEReadRegister(add);
-					if (checked_param !== param) error_counter++;
+					if (checked_param !== iteration) error_counter++;
 					print(TAB3 + "   ---> " + error_counter + " errors in total");
 
 					dac_id = i_sqm_bias;
 					print(TAB3 + "Write / Read on " + dac_id.name);
 				    add_function = dac_id.address | col_add;
 				    add = (asic_add + (add_function << add_function_shift));
-					sendToWFEEWriteRegister(add, param);
+					sendToWFEEWriteRegister(add, iteration);
 					checked_param = sendToWFEEReadRegister(add);
-					if (checked_param !== param) error_counter++;
+					if (checked_param !== iteration) error_counter++;
 					print(TAB3 + "   ---> " + error_counter + " errors in total");
 
 					dac_id = i_sqm_fdbk;
 					print(TAB3 + "Write / Read on " + dac_id.name);
 				    add_function = dac_id.address | col_add;
 				    add = (asic_add + (add_function << add_function_shift));
-					sendToWFEEWriteRegister(add, param);
+					sendToWFEEWriteRegister(add, iteration);
 					checked_param = sendToWFEEReadRegister(add);
-					if (checked_param !== param) error_counter++;
+					if (checked_param !== iteration) error_counter++;
 					print(TAB3 + "   ---> " + error_counter + " errors in total");
 
 					dac_id = i_sqa_bias;
 					print(TAB3 + "Write / Read on " + dac_id.name);
 				    add_function = dac_id.address | col_add;
 				    add = (asic_add + (add_function << add_function_shift));
-					sendToWFEEWriteRegister(add, param);
+					sendToWFEEWriteRegister(add, iteration);
 					checked_param = sendToWFEEReadRegister(add);
-					if (checked_param !== param) error_counter++;
+					if (checked_param !== iteration) error_counter++;
 					print(TAB3 + "   ---> " + error_counter + " errors in total");
 
 					dac_id = i_sqa_ofcm;
 					print(TAB3 + "Write / Read on " + dac_id.name);
 				    add_function = dac_id.address | col_add;
 				    add = (asic_add + (add_function << add_function_shift));
-					sendToWFEEWriteRegister(add, param);
+					sendToWFEEWriteRegister(add, iteration);
 					checked_param = sendToWFEEReadRegister(add);
-					if (checked_param !== param) error_counter++;
+					if (checked_param !== iteration) error_counter++;
 					print(TAB3 + "   ---> " + error_counter + " errors in total");
 
 				}
