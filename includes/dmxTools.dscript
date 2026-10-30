@@ -136,7 +136,6 @@ function setDMX_feedbackOnOff(feedbackOnOff_p) {
 		value = value + (feedbackOnOff_p[col] << (4 * col));
 	}
 	sendToDMXWriteAndReadRegister(ADD_DMX_MUX_SQ_FB_ON_OFF, value);
-	sendToDMXReadRegister(ADD_DMX_MUX_SQ_FB_ON_OFF);  // pour que XIFU STUDIO recupere l'information
 }
 
 /**
