@@ -785,4 +785,9 @@ function dmxCheckReadWrite() {
 
 }
 
+const sessionName = "CHECK-WRITE-READ--";
+sendStartNewSession(sessionName, "");
+
 readWriteOK = dmxCheckReadWrite();
+
+sendStopSession();

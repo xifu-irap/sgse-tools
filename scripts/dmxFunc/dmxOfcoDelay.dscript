@@ -78,19 +78,10 @@ function configure_test_MUX() {
  * Sets the AMP_SQ_OFFSET_MUX_DELAY to a value and does a dump file.
  *  Does a DMX dump
  * @param {number} delay_p - offset MUX delay s(16,0) [-512, 40].
- * @param {boolean} verbose - if true some text is ddisplayed (default=false)
  */
-function measure_OFCO_MUX_DELAY(delay_p, verbose=false) {
+function measure_OFCO_MUX_DELAY(delay_p) {
 
-	if (verbose) {
-		print("");
-		print("***");
-		print("* Setting the AMP_SQ_OFFSET_MUX_DELAY and doing a Dump");
-		print("***");
-
-		print(TAB1 + "Setting the register AMP_SQ_OFFSET_MUX_DELAY to " + delay_p);
-		print(TAB1 + "Doing an acquisition in DUMP mode...");
-	}
+    print(TAB1 + "Setting the OFCO_MUX_DELAY to " + delay_p + " and doing a Dump");
 
 	for (var colId=0; colId<DMX_NB_COL; colId++) setDMX_offsetMUX_delay(colId, delay_p);
 
@@ -112,6 +103,7 @@ function carac_OFCO_MUX_delay() {
 
     // Definition of the delay scan limits
 	const delay_mux_min = -512;
+	//const delay_mux_min = 0;  // for fast check
 	const delay_mux_max = 40;
 	print(TAB1 + "measuring " + (delay_mux_max - delay_mux_min) + " dump files...");
 

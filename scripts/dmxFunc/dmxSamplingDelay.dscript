@@ -109,7 +109,6 @@ function scan_sampling_delay() {
  */
 function onAbortScript() {
     sendToDMXGoToIdleMode();
-    setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
 	print("End of script!");
 	sendStopSession();
 }

@@ -116,6 +116,7 @@ function carac_feedback_delay() {
 
     // Definition of the feedback delay scan limits
     const delay_min = -512;
+    //const delay_min = 0;  // For fast check
     const delay_max = 40;
     const start = delay_min;
     const end = delay_max;

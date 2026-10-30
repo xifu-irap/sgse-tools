@@ -539,4 +539,9 @@ function dmxCheckDefaults() {
 
 }
 
+const sessionName = "CHECK-DEFAULTS--";
+sendStartNewSession(sessionName, "");
+
 defaultsOK = dmxCheckDefaults();
+
+sendStopSession();
