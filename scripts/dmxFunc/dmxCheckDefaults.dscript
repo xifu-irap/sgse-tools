@@ -77,7 +77,7 @@ function dmxCheckDefaults() {
     initial_value = readDMX_feedbackOnOff();
     print(TAB1 + "Initial value is: " + initial_value);
 
-    expected_value = readDMX_feedbackOnOff();
+    expected_value = [OFF, OFF, OFF, OFF];
     print(TAB1 + "Expected value is: " + expected_value);
 
     ERROR_COUNTER = error_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
@@ -90,7 +90,7 @@ function dmxCheckDefaults() {
     initial_value = readDMX_offsetMode();
     print(TAB1 + "Initial value is: " + initial_value);
 
-    expected_value = readDMX_offsetMode();
+    expected_value = [OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF];
     print(TAB1 + "Expected value is: " + expected_value);
 
     ERROR_COUNTER = error_manager(initial_value, expected_value, ERROR_COUNTER, TAB1);
