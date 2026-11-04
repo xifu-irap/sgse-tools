@@ -541,34 +541,8 @@ function dmxCheckDefaults() {
 
 const sessionName = "CHECK-DEFAULTS--";
 
-// Asking for configuration
-const testTabText = [
-                    "DMXA",
-                    "DMXB",
-                    "DMXA+DMXB"
-                    ];
-const iTest = getItem("Select the module to test: ", testTabText);
-const test = testTabText[iTest];
+sendStartNewSession(sessionName, "");
 
-switch(test) {
-    case "DMXA":
-        sendStartNewSession(sessionName, test);
-        sendSelectDMX(DMXA);
-        defaults_dmxa_ok = dmxCheckDefaults();
-        break;
-    case "DMXB":
-        sendStartNewSession(sessionName, test);
-        sendSelectDMX(DMXB);
-        defaults_dmxb_ok = dmxCheckDefaults();
-        break;
-    case "DMXA+DMXB":
-        sendStartNewSession(sessionName, test);
-        sendSelectDMX(DMXA);
-        defaults_dmxa_ok = dmxCheckDefaults();
-
-        sendSelectDMX(DMXB);
-        defaults_dmxb_ok = dmxCheckDefaults();
-        break;
-}
+defaults_ok = dmxCheckDefaults();
 
 sendStopSession();

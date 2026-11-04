@@ -1,0 +1,74 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     dreCheckDefaults.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file checks the low level commands of the dmx_tools to read the default values of the DEMUX registers.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+const includes_path = "../../includes/";
+include(includes_path + "dmxTools.dscript");
+include(includes_path + "utilTools.dscript");
+
+include("../dmxFunc/dmxCheckDefaults.dscript");
+
+/**
+ * This function checks the default values of the registers in the DRE modules
+ */
+function dreCheckDefaults() {
+
+    const sessionName = "CHECK-DEFAULTS--";
+
+    // Asking for configuration
+    const testTabText = [
+                        "DMXA",
+                        "DMXB",
+                        "DMXA+DMXB"
+                        ];
+    const iTest = getItem("Select the module to test: ", testTabText);
+    const test = testTabText[iTest];
+
+    switch(test) {
+        case "DMXA":
+            sendStartNewSession(sessionName, test);
+            sendSelectDMX(DMXA);
+            defaults_dmxa_ok = dmxCheckDefaults();
+            break;
+        case "DMXB":
+            sendStartNewSession(sessionName, test);
+            sendSelectDMX(DMXB);
+            defaults_dmxb_ok = dmxCheckDefaults();
+            break;
+        case "DMXA+DMXB":
+            sendStartNewSession(sessionName, test);
+            sendSelectDMX(DMXA);
+            defaults_dmxa_ok = dmxCheckDefaults();
+
+            sendSelectDMX(DMXB);
+            defaults_dmxb_ok = dmxCheckDefaults();
+            break;
+    }
+
+    sendStopSession();
+
+}
