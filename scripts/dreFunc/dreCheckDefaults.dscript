@@ -29,8 +29,7 @@
 const includes_path = "../../includes/";
 include(includes_path + "dmxTools.dscript");
 include(includes_path + "utilTools.dscript");
-
-include("../dmxFunc/dmxCheckDefaults.dscript");
+include(includes_path + "dmxCheckDefaults.dscript");
 
 /**
  * This function checks the default values of the registers in the DRE modules
