@@ -165,10 +165,9 @@ function demuxStart(conf_p) {
 	}
 
     // DEMUX offset
-	print(TAB1+"Setting the Offset close to the AMP SQUID operating point...");
+	print(TAB1+"Setting the Offset compensation...");
 	for (col=0; col<DMX_NB_COL; col++) {
-		tab_offset_fine = makeArray(DMX_NB_PIX_PER_COL, conf_p["AMP_SQ_OFFSET_FINE"][col]);
-		setDMX_sqa_OffsetFine(col, tab_offset_fine, tab_offset_fine);
+		setDMX_sqa_OffsetFine(col, tab_offset_fine[col], tab_offset_fine[col]);
 		setDMX_sqa_OffsetLSB(col, conf_p["AMP_SQ_OFFSET_LSB"][col]);
 		setDMX_sqa_OffsetLSBptr(col, conf_p["AMP_SQ_OFFSET_LSB_PTR"][col]);
 		setDMX_sqa_OffsetCoarse(col, conf_p["AMP_SQ_OFFSET_COARSE"][col]);
@@ -181,16 +180,16 @@ function demuxStart(conf_p) {
 	print(TAB1+"Setting the Amp SQUID FLL ki to: " + conf_p["AMP_SQ_KI"]);
 	print(TAB1+"Setting the Amp SQUID FLL knorm to: " + conf_p["AMP_SQ_KNORM"]);
 	for (col=0; col<DMX_NB_COL; col++) {
-	    setDMX_a(col, makeArray(DMX_NB_PIX_PER_COL, conf_p["A"][col]));
-	    setDMX_sqm_kiknorm(col, makeArray(DMX_NB_PIX_PER_COL, conf_p["MUX_SQ_KI"][col] * conf_p["MUX_SQ_KNORM"][col]));
-	    setDMX_sqm_knorm(col, makeArray(DMX_NB_PIX_PER_COL, conf_p["MUX_SQ_KNORM"][col]));
-	    setDMX_sqa_kiknorm(col, conf_p["AMP_SQ_KI"][col] * conf_p["AMP_SQ_KNORM"][col]);
+	    setDMX_a(col, conf_p["A"][col]);
+	    setDMX_sqm_kiknorm(col, conf_p["MUX_SQ_KI_KNORM"][col]);
+	    setDMX_sqm_knorm(col, conf_p["MUX_SQ_KNORM"][col]);
+	    setDMX_sqa_kiknorm(col, conf_p["MUX_SQ_KI_KNORM"][col]);
 	    setDMX_sqa_knorm(col, conf_p["AMP_SQ_KNORM"][col]);
 	}
 	
     // Setting the Mux SQUID FLL LOCKPOINT_V
 	print(TAB1+"Setting the Mux SQUID FLL lockpoint voltage: " + conf_p["MUX_SQ_LOCKPOINT_V"]);
-	for (col=0; col<DMX_NB_COL; col++)	setDMX_sqm_lockpointV(col, makeArray(DMX_NB_PIX_PER_COL, conf_p["MUX_SQ_LOCKPOINT_V"][col]));
+	for (col=0; col<DMX_NB_COL; col++)	setDMX_sqm_lockpointV(col, conf_p["MUX_SQ_LOCKPOINT_V"][col]);
 
     // Setting the MUX INPUT GAIN
 	print(TAB1 + "Setting the MUX SQUID loop input gain to " + conf_p["MUX_SQ_INPUT_GAIN"]);
@@ -206,9 +205,7 @@ function demuxStart(conf_p) {
 
     // DEMUX feedback
 	print(TAB1+"Setting the DMX FB0 values: " + conf_p["MUX_SQ_FB0"]);
-	for (col=0; col<DMX_NB_COL; col++) {
-	    setDMX_fb0(col, makeArray(DMX_NB_PIX_PER_COL, conf_p["MUX_SQ_FB0"][col]));
-	}
+	for (col=0; col<DMX_NB_COL; col++) setDMX_fb0(col, conf_p["MUX_SQ_FB0"][col]);
 
     // Feedback ON/OFF
 	//print(TAB1+"Switching the feedback ON/OFF to: " + conf_p["MUX_SQ_FB_ON_OFF"]);
@@ -216,9 +213,7 @@ function demuxStart(conf_p) {
 
     // Feedback mode
 	print(TAB1+"Setting the DMX feedback mode to: " + conf_p["MUX_SQ_FB_MODE"]);
-	for (col=0; col<DMX_NB_COL; col++) {
-	    setDMX_sqm_FBMode(col, makeArray(DMX_NB_PIX_PER_COL, conf_p["MUX_SQ_FB_MODE"][col]));
-	}
+	for (col=0; col<DMX_NB_COL; col++) setDMX_sqm_FBMode(col, conf_p["MUX_SQ_FB_MODE"][col]);
 
     // Offset mode
 	print(TAB1+"Setting the offset mode to: " + conf_p["AMP_SQ_OFFSET_MODE"]);

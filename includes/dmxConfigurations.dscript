@@ -28,21 +28,57 @@
 //----------------
 //-- This configuration corresponds to the default values of the FPA parameters
 var conf_default_fw = new Object();
+conf_default_fw["DATA_ACQ_MODE"] = [ACQ_MODE_IDLE, ACQ_MODE_IDLE, ACQ_MODE_IDLE, ACQ_MODE_IDLE];
 conf_default_fw["MUX_SQ_FB_ON_OFF"] = [OFF, OFF, OFF, OFF];           // Feedback mode 4 values (ON, OFF)
-conf_default_fw["AMP_SQ_OFFSET_MODE"] = [OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF];           // Offset mode: 4 values (OFFSET_MODE_OFF, OFFSET_MODE_OFFSET, OFFSET_MODE_CLOSED, OFFSET_MODE_TESTPATTERN)
+conf_default_fw["AMP_SQ_OFFSET_MODE"] = [OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF, OFFSET_MODE_OFF]; // Offset mode: 4 values (OFFSET_MODE_OFF, OFFSET_MODE_OFFSET, OFFSET_MODE_CLOSED, OFFSET_MODE_TESTPATTERN)
+conf_default_fw["TEST_PATTERN"] = [  // no pattern
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0]];
+conf_default_fw["TEST_PATTERN_ENABLE"] = [false, false, 0];
 conf_default_fw["BOXCAR_LENGTH"] = [0, 0, 0, 0];   // boxcar length, 4 values U(4,0)
-conf_default_fw["A"] = [0.2, 0.2, 0.2, 0.2];  // "a" parameter of the FLL algorithm = 1/(1+Tau) (four values) U(16, 16), the script uses the same value for all the pixels in a column
+conf_default_fw["A"] = [
+        makeArray(DMX_NB_PIX_PER_COL, 0x3333 / Math.pow(2,16)),
+        makeArray(DMX_NB_PIX_PER_COL, 0x3333 / Math.pow(2,16)),
+        makeArray(DMX_NB_PIX_PER_COL, 0x3333 / Math.pow(2,16)),
+        makeArray(DMX_NB_PIX_PER_COL, 0x3333 / Math.pow(2,16))];  // "a" parameter of the FLL algorithm = 1/(1+Tau) 1 value per pixel U(16, 16)
 conf_default_fw["MUX_SQ_INPUT_GAIN"] = [1, 1, 1, 1];   // input gain for the MUX SQUID loop (four values) S(4,0)
 conf_default_fw["AMP_SQ_INPUT_GAIN"] = [1, 1, 1, 1];       // input gain for the AMP SQUID loop (four values) S(4,0)
-conf_default_fw["MUX_SQ_KI"] = [1.2, 1.2, 1.2, 1.2];   // kiknorm for the MUX SQUID loop (four values <1), the script uses the same value for all the pixels in a column
-conf_default_fw["AMP_SQ_KI"] = [1.2, 1.2, 1.2, 1.2];   // kiknorm for the AMP SQUID loop (four values <1)
-conf_default_fw["MUX_SQ_KNORM"] = [0.10786, 0.10786, 0.10786, 0.10786];   // knorm for the MUX SQUID loop (four values converted in U(16,18)), the script uses the same value for all the pixels in a column
-conf_default_fw["AMP_SQ_KNORM"] = [0.10786, 0.10786, 0.10786, 0.10786];   // knorm for the AMP SQUID loop (four values converted in U(16,18))
-conf_default_fw["MUX_SQ_FB0"] = [0, 0, 0, 0];  // feedback at MUX SQUID operating point s(16,2), the script uses the same value for all the pixels in a column
-conf_default_fw["MUX_SQ_LOCKPOINT_V"] = [0, 0, 0, 0];   // lockpoint voltage for the Mux SQUID FLL (four values) (S(16,2), the script uses the same value for all the pixels in a column
-conf_default_fw["AMP_SQ_LOCKPOINT_V"] = [0, 0, 0, 0];   // lockpoint voltage for the Amp SQUID FLL (four values) (S(16,2)
-conf_default_fw["MUX_SQ_FB_MODE"] = [FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_OPEN_LOOP];  // Feedback mode: 4 values (FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_CLOSED_LOOP, FEEDBACK_MODE_TESTPATTERN), the script uses the same value for all the pixels in a column
-conf_default_fw["AMP_SQ_OFFSET_FINE"] = [0, 0, 0, 0];   // offset fine value at AMP SQUID operating point U(3,0)
+conf_default_fw["MUX_SQ_KI_KNORM"] = [
+        makeArray(DMX_NB_PIX_PER_COL, 0x3CC0 / Math.pow(2,16)),
+        makeArray(DMX_NB_PIX_PER_COL, 0x3CC0 / Math.pow(2,16)),
+        makeArray(DMX_NB_PIX_PER_COL, 0x3CC0 / Math.pow(2,16)),
+        makeArray(DMX_NB_PIX_PER_COL, 0x3CC0 / Math.pow(2,16))];   // kiknorm for the MUX SQUID loop, 1 value per pixel
+conf_default_fw["AMP_SQ_KI_KNORM"] = makeArray(DMX_NB_COL, 0x3CC0 / Math.pow(2,16));   // kiknorm for the AMP SQUID loop (four values <1)
+conf_default_fw["MUX_SQ_KNORM"] = [
+        makeArray(DMX_NB_PIX_PER_COL, 0x6E74 / Math.pow(2,18)),
+        makeArray(DMX_NB_PIX_PER_COL, 0x6E74 / Math.pow(2,18)),
+        makeArray(DMX_NB_PIX_PER_COL, 0x6E74 / Math.pow(2,18)),
+        makeArray(DMX_NB_PIX_PER_COL, 0x6E74 / Math.pow(2,18))];   // knorm for the MUX SQUID loop, 1 value per pixel
+conf_default_fw["AMP_SQ_KNORM"] = makeArray(DMX_NB_COL, 0x6E74 / Math.pow(2,18));   // knorm for the AMP SQUID loop (four values converted in U(16,18))
+conf_default_fw["MUX_SQ_FB0"] = [
+        makeArray(DMX_NB_PIX_PER_COL, 0),
+        makeArray(DMX_NB_PIX_PER_COL, 0),
+        makeArray(DMX_NB_PIX_PER_COL, 0),
+        makeArray(DMX_NB_PIX_PER_COL, 0)];  // feedback at MUX SQUID operating point s(16,2)
+conf_default_fw["MUX_SQ_LOCKPOINT_V"] = [
+        makeArray(DMX_NB_PIX_PER_COL, 0),
+        makeArray(DMX_NB_PIX_PER_COL, 0),
+        makeArray(DMX_NB_PIX_PER_COL, 0),
+        makeArray(DMX_NB_PIX_PER_COL, 0)];   // lockpoint voltage for the Mux SQUID FLL, 1 value per pixel
+conf_default_fw["AMP_SQ_LOCKPOINT_V"] = [0, 0, 0, 0];  
+conf_default_fw["MUX_SQ_FB_MODE"] = [
+        makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP),
+        makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP),
+        makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP),
+        makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP)];  // (FEEDBACK_MODE_OPEN_LOOP, FEEDBACK_MODE_CLOSED_LOOP, FEEDBACK_MODE_TESTPATTERN)
+conf_default_fw["AMP_SQ_OFFSET_FINE"] = [
+        makeArray(DMX_NB_PIX_PER_COL, 0),
+        makeArray(DMX_NB_PIX_PER_COL, 0),
+        makeArray(DMX_NB_PIX_PER_COL, 0),
+        makeArray(DMX_NB_PIX_PER_COL, 0)];   // offset fine value at AMP SQUID operating point U(3,0)
 conf_default_fw["AMP_SQ_OFFSET_LSB_PTR"] = [OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN]; // offset LSB value at AMP SQUID operating point U(12,0)
 conf_default_fw["AMP_SQ_OFFSET_LSB"] = [OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN];     // offset LSB value at AMP SQUID operating point U(12,0)
 conf_default_fw["AMP_SQ_OFFSET_COARSE"] = [OFFSET_COARSE_ADU_MIN, OFFSET_COARSE_ADU_MIN, OFFSET_COARSE_ADU_MIN, OFFSET_COARSE_ADU_MIN];       // offset coarse value at AMP SQUID operating point U(12,0)
@@ -50,9 +86,14 @@ conf_default_fw["MUX_SQ_FB_DELAY"] = [0, 0, 0, 0];  // feedback delay [-512, 40]
 conf_default_fw["AMP_SQ_OFFSET_DAC_DELAY"] = [0, 0, 0, 0];  // ofco DAC delay U(10,0)
 conf_default_fw["AMP_SQ_OFFSET_MUX_DELAY"] = [0, 0, 0, 0];  // ofco MUX delay [-512, 40]
 conf_default_fw["SAMPLING_DELAY"] = [0, 0, 0, 0];           // sampling delay [0, 19]
+conf_default_fw["PULSE_SHAPING"] = [
+        [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+        [ 32681, 16297, 8127, 4053, 2021, 1008, 503, 251, 125, 62, 31, 15, 8, 4, 2, 1, 0, 0, 0, 0],
+        [29041, 12869, 5703, 2527, 1120, 496, 220, 97, 43, 19, 8, 4, 2, 1, 0, 0, 0, 0, 0, 0],
+        [26131, 10419, 4154, 1657, 661, 263, 105, 42, 17, 7, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0]];
 conf_default_fw["PULSE_SHAPING_SELECTION"] = [1, 1, 1, 1];  // pulse shaping set Id [0-3]
-conf_default_fw["RELOCK_DELAY"] = 65535;   // Delay parameter of the auto-relock function. The script applies the value to the 4 columns
-conf_default_fw["RELOCK_THRESHOLD"] = 16383.75;   // Threshold parameter of the auto-relock function. The script applies the value to the 4 columns
+conf_default_fw["RELOCK_DELAY"] = makeArray(DMX_NB_COL, 0xFFFF);   // Delay parameter of the auto-relock function. The script applies the value to the 4 columns
+conf_default_fw["RELOCK_THRESHOLD"] = makeArray(DMX_NB_COL, 0xFFFF);   // Threshold parameter of the auto-relock function. The script applies the value to the 4 columns
 conf_default_fw["PATTERN"] = "";          // name of the pre-defined test pattern
 
 
