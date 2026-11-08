@@ -29,7 +29,8 @@
 const includes_path = "../../includes/";
 include(includes_path + "dmxTools.dscript");
 include(includes_path + "utilTools.dscript");
-include(includes_path + "dmxCheckDefaults.dscript");
+include(includes_path + "dmxConfigurations.dscript")
+include(includes_path + "dmxCheckConf.dscript")
 
 /**
  * This function checks the default values of the registers in the DRE modules
@@ -51,20 +52,20 @@ function dreCheckDefaults() {
         case "DMXA":
             sendStartNewSession(sessionName, test);
             sendSelectDMX(DMXA);
-            defaults_dmxa_ok = dmxCheckDefaults();
+            defaults_dmxa_ok = dmxCheckDefaults(conf_default_fw);
             break;
         case "DMXB":
             sendStartNewSession(sessionName, test);
             sendSelectDMX(DMXB);
-            defaults_dmxb_ok = dmxCheckDefaults();
+            defaults_dmxb_ok = dmxCheckDefaults(conf_default_fw);
             break;
         case "DMXA+DMXB":
             sendStartNewSession(sessionName, test);
             sendSelectDMX(DMXA);
-            defaults_dmxa_ok = dmxCheckDefaults();
+            defaults_dmxa_ok = dmxCheckDefaults(conf_default_fw);
 
             sendSelectDMX(DMXB);
-            defaults_dmxb_ok = dmxCheckDefaults();
+            defaults_dmxb_ok = dmxCheckDefaults(conf_default_fw);
             break;
     }
 

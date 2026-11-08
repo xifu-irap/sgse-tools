@@ -79,6 +79,11 @@ conf_default_fw["AMP_SQ_OFFSET_FINE"] = [
         makeArray(DMX_NB_PIX_PER_COL, 0),
         makeArray(DMX_NB_PIX_PER_COL, 0),
         makeArray(DMX_NB_PIX_PER_COL, 0)];   // offset fine value at AMP SQUID operating point U(3,0)
+conf_default_fw["AMP_SQ_OFFSET_FINE_PTR"] = [
+        makeArray(DMX_NB_PIX_PER_COL, 0),
+        makeArray(DMX_NB_PIX_PER_COL, 0),
+        makeArray(DMX_NB_PIX_PER_COL, 0),
+        makeArray(DMX_NB_PIX_PER_COL, 0)];   // offset fine value at AMP SQUID operating point U(3,0)
 conf_default_fw["AMP_SQ_OFFSET_LSB_PTR"] = [OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN]; // offset LSB value at AMP SQUID operating point U(12,0)
 conf_default_fw["AMP_SQ_OFFSET_LSB"] = [OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN, OFFSET_LSB_ADU_MIN];     // offset LSB value at AMP SQUID operating point U(12,0)
 conf_default_fw["AMP_SQ_OFFSET_COARSE"] = [OFFSET_COARSE_ADU_MIN, OFFSET_COARSE_ADU_MIN, OFFSET_COARSE_ADU_MIN, OFFSET_COARSE_ADU_MIN];       // offset coarse value at AMP SQUID operating point U(12,0)
