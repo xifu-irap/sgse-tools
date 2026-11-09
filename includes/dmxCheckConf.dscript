@@ -25,14 +25,15 @@
 //
 // -------------------------------------------------------------------------------------------------------------
 
-function dmxCheckDefaults(ref_conf) {
+function dmxCheckDefaults(DMX, ref_conf) {
 
     var ERROR_COUNTER = 0;
+    sendSelectDMX(DMX);
 
     /******************************************************************************************************************/
     print("<pre>")
     plotLongLine();
-    print("| Testing the default values of the DEMUX registers...");
+    print("| Testing the default values of the ", DMX, " registers...");
     print("| " + maDate());
 
 

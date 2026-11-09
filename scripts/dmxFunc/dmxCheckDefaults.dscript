@@ -28,6 +28,7 @@
 // imports
 const includes_path = "../../includes/";
 include(includes_path + "dmxTools.dscript");
+include(includes_path + "common_constants.dscript");
 include(includes_path + "utilTools.dscript");
 include(includes_path + "dmxConfigurations.dscript")
 include(includes_path + "dmxCheckConf.dscript")
@@ -37,6 +38,6 @@ const sessionName = "CHECK-DEFAULTS--";
 
 sendStartNewSession(sessionName, "");
 
-defaults_ok = dmxCheckDefaults(conf_default_fw);
+defaults_ok = dmxCheckDefaults(DMXA, conf_default_fw);
 
 sendStopSession();

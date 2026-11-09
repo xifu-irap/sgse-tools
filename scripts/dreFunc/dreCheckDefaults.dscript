@@ -27,6 +27,7 @@
 
 // imports
 const includes_path = "../../includes/";
+include(includes_path + "common_constants.dscript");
 include(includes_path + "dmxTools.dscript");
 include(includes_path + "utilTools.dscript");
 include(includes_path + "dmxConfigurations.dscript")
@@ -51,24 +52,21 @@ function dreCheckDefaults() {
     switch(test) {
         case "DMXA":
             sendStartNewSession(sessionName, test);
-            sendSelectDMX(DMXA);
-            defaults_dmxa_ok = dmxCheckDefaults(conf_default_fw);
+            defaults_dmxa_ok = dmxCheckDefaults(DMXA, conf_default_fw);
             break;
         case "DMXB":
             sendStartNewSession(sessionName, test);
-            sendSelectDMX(DMXB);
-            defaults_dmxb_ok = dmxCheckDefaults(conf_default_fw);
+            defaults_dmxb_ok = dmxCheckDefaults(DMXB, conf_default_fw);
             break;
         case "DMXA+DMXB":
             sendStartNewSession(sessionName, test);
-            sendSelectDMX(DMXA);
-            defaults_dmxa_ok = dmxCheckDefaults(conf_default_fw);
+            defaults_dmxa_ok = dmxCheckDefaults(DMXA, conf_default_fw);
 
-            sendSelectDMX(DMXB);
-            defaults_dmxb_ok = dmxCheckDefaults(conf_default_fw);
+            defaults_dmxb_ok = dmxCheckDefaults(DMXB, conf_default_fw);
             break;
     }
 
     sendStopSession();
-
 }
+
+dreCheckDefaults();
