@@ -50,24 +50,22 @@ function dreCheckDefaults() {
     switch(test) {
         case "DMXA":
             sendStartNewSession(sessionName, test);
-            sendSelectDMX(DMXA);
-            defaults_dmxa_ok = dmxCheckDefaults();
+            defaults_dmxa_ok = dmxCheckDefaults(DMXA);
             break;
         case "DMXB":
             sendStartNewSession(sessionName, test);
-            sendSelectDMX(DMXB);
-            defaults_dmxb_ok = dmxCheckDefaults();
+            defaults_dmxb_ok = dmxCheckDefaults(DMXB);
             break;
         case "DMXA+DMXB":
             sendStartNewSession(sessionName, test);
-            sendSelectDMX(DMXA);
-            defaults_dmxa_ok = dmxCheckDefaults();
+            defaults_dmxa_ok = dmxCheckDefaults(DMXA);
 
-            sendSelectDMX(DMXB);
-            defaults_dmxb_ok = dmxCheckDefaults();
+            defaults_dmxb_ok = dmxCheckDefaults(DMXB);
             break;
     }
 
     sendStopSession();
 
 }
+
+dreCheckDefaults();

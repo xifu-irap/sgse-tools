@@ -44,11 +44,8 @@ function demuxStart(conf_p) {
 	print(TAB1 + "Switching off the test pattern (just in case...)");
 	setDMX_testPatternEnable(false, false, 0);
 
-    // Checking the status of the feedback, switching the feedback ON if not already ON
-    if(readDMX_feedbackOnOff() !== [OFF, OFF, OFF, OFF]) {
-	    print(TAB1 + "All the column feedbacks are not switched ON. Switching ON all the feedbacks...");
-        setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
-    }
+    print(TAB1 + "Switching ON all the feedbacks...");
+    setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
 	
 	print(TAB1 + "Setting the test pattern");
 
