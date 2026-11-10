@@ -28,22 +28,20 @@
 include("../common/utilTools.dscript");
 
 //----
-// Initialisation du firmware DEMUX au cas ou...
+// Initialisation du firmware DEMUX
 //----
 
 // Passage du data acquisition mode en IDLE
 sendToDMXWriteAndReadRegister(0x4000, 0x0000);
 
-// Init GSE IRAP (specific IRAP, init EGSE FIFO)
-sendToTMTC_SetWireIn(0 , 1);
-sendToTMTC_SetWireIn(0 , 0);
-sendToTMTC_SetWireIn(0 , 2);
-
 // Desactivation du test pattern
 sendToDMXWriteAndReadRegister(0x4150, 0x0000);
 
-// Desctivation des 4 colonnes
-sendToDMXWriteAndReadRegister(0x4001, 0x0000);
+// Switching the feedback on in sequence
+sendToDMXWriteRegister(0x4001, 0x1000); // col3 on -> 0x1000
+sendToDMXWriteRegister(0x4001, 0x1100); // col3, col2 on -> 0x1100
+sendToDMXWriteRegister(0x4001, 0x1110); // col3, col2, col1 on -> 0x1110
+sendToDMXWriteRegister(0x4001, 0x1111); // col3, col2, col1, col0 on -> 0x1111
 
 
 //----
@@ -80,16 +78,16 @@ sendToDMXWriteAndReadRegister(0x4113, 0x0400); // 1024 marches
 // Configuration du feedback mode col0 pixel 3 en TST PATTERN
 // L'adresse 0xC3PP correspond au pixel PP de la colonne C => 0c0303 pour pixel 3 de la colonne 0
 sendToDMXWriteAndReadRegister(0x0303, 0x0002);
-sendToDMXWriteAndReadRegister(0x0321, 0x0000); // Le denier pixel doit etre configure pour que les configurations soient prises en compte
+sendToDMXWriteAndReadRegister(0x0321, 0x0000); // Le dernier pixel doit etre configure pour que les configurations soient prises en compte
 // Configuration du feedback mode col1 pixel 6 en TST PATTERN
 sendToDMXWriteAndReadRegister(0x1306, 0x0002);
-sendToDMXWriteAndReadRegister(0x1321, 0x0000); // Le denier pixel doit etre configure pour que les configurations soient prises en compte
+sendToDMXWriteAndReadRegister(0x1321, 0x0000); // Le dernier pixel doit etre configure pour que les configurations soient prises en compte
 // Configuration du feedback mode col2 pixel 7 en TST PATTERN
 sendToDMXWriteAndReadRegister(0x2307, 0x0002);
-sendToDMXWriteAndReadRegister(0x2321, 0x0000); // Le denier pixel doit etre configure pour que les configurations soient prises en compte
+sendToDMXWriteAndReadRegister(0x2321, 0x0000); // Le dernier pixel doit etre configure pour que les configurations soient prises en compte
 // Configuration du feedback mode col3 pixel 10 en TST PATTERN
 sendToDMXWriteAndReadRegister(0x330A, 0x0002);
-sendToDMXWriteAndReadRegister(0x3321, 0x0000); // Le denier pixel doit etre configure pour que les configurations soient prises en compte
+sendToDMXWriteAndReadRegister(0x3321, 0x0000); // Le dernier pixel doit etre configure pour que les configurations soient prises en compte
 
 // desactivation du pulse shaping
 sendToDMXWriteAndReadRegister(0x0880, 0x0000);

@@ -28,23 +28,20 @@
 include("../common/utilTools.dscript");
 
 //----
-// Initialisation du firmware DEMUX au cas ou...
+// Initialisation du firmware
 //----
 
 // Passage du data acquisition mode en IDLE
 sendToDMXWriteAndReadRegister(0x4000, 0x0000);
 
-// Init GSE IRAP (specific IRAP, init EGSE FIFO)
-sendToTMTC_SetWireIn(0 , 1);
-sendToTMTC_SetWireIn(0 , 0);
-sendToTMTC_SetWireIn(0 , 2);
-
 // Desactivation du test pattern
 sendToDMXWriteAndReadRegister(0x4150, 0x0000);
 
-// Desctivation des 4 colonnes
-sendToDMXWriteAndReadRegister(0x4001, 0x0000);
-
+// Switching the feedback on in sequence
+sendToDMXWriteRegister(0x4001, 0x1000); // col3 on -> 0x1000
+sendToDMXWriteRegister(0x4001, 0x1100); // col3, col2 on -> 0x1100
+sendToDMXWriteRegister(0x4001, 0x1110); // col3, col2, col1 on -> 0x1110
+sendToDMXWriteRegister(0x4001, 0x1111); // col3, col2, col1, col0 on -> 0x1111
 
 //----
 // Debut du test
@@ -79,8 +76,14 @@ sendToDMXWriteAndReadRegister(0x4113, 0x0000);
 
 // Configuration du data acquisition mode en TST PATTERN
 sendToDMXWriteAndReadRegister(0x4000, 0x0007);
-//sendToDMXGoToTestPatternMode();
-
+// Configuration du FEEDBACK MODE en TST PATTERN pour les pixels 0, 3 et 33 de la colonne 0 (le dernier pixel doit être configuré)
+sendToDMXWriteAndReadRegister(0x0300, 0x0002);
+sendToDMXWriteAndReadRegister(0x0303, 0x0002);
+sendToDMXWriteAndReadRegister(0x0321, 0x0002);
+// Configuration de FB0 a 0x55 pour les pixels 5, 7 et 33 de la colonne 0 (le dernier pixel doit être configuré)
+sendToDMXWriteAndReadRegister(0x0205, 0x0055);
+sendToDMXWriteAndReadRegister(0x0207, 0x0055);
+sendToDMXWriteAndReadRegister(0x0221, 0x0055);
 
 // Sauvegarde des donnees 
 // UTILISATION DE COMMANDES SPECIFIQUES AU GSE IRAP
@@ -89,7 +92,7 @@ sendToDMXSaveScienceRaw('tpt_'+maDate()+'.fits', duration_ms, 0xF, 0)
 
 // Activation du test pattern (decommenter la ligne souhaitee)
 sendToDMXWriteAndReadRegister(0x4150, 0x0030); // a l'infini
-//sendToDMXWriteAndReadRegister(0x4150, 0x0021); // 1 fois
+//sendToDMXWriteAndReadRegister(0x4150, 0x0023); // 3 fois
 
 // Attente pendant l acquisition
 waitMs(duration_ms);
@@ -104,6 +107,9 @@ sendToDMXWriteAndReadRegister(0x4000, 0x0000);
 // Desactivation du test pattern
 sendToDMXWriteAndReadRegister(0x4150, 0x0000);
 
-// Desctivation des 4 colonnes
-sendToDMXWriteAndReadRegister(0x4001, 0x0000);
+// Desactivation des 4 colonnes en sequence (important pour les vrais DEMUX)
+sendToDMXWriteRegister(0x4001, 0x1110); // col0 off -> 0x1110
+sendToDMXWriteRegister(0x4001, 0x1100); // col0, col1 off -> 0x1100
+sendToDMXWriteRegister(0x4001, 0x1000); // col0, col1, col2 off -> 0x1000
+sendToDMXWriteRegister(0x4001, 0x0000); // col0, col1, col2, col3 off -> 0x0000
 
