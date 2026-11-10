@@ -396,7 +396,6 @@ sendToDMXWriteRegister(0x3321, 0);
 sendToDMXWriteRegister(0x4002, 0x3333);
 
 
-
 // -------------------------------------------------------------------------------------------------------------
 
 // Starting data acquisition in ACQ_MODE_ERROR (2)
@@ -418,3 +417,5 @@ sendToDMXWriteRegister(0x4001, 0x1110); // col0 off -> 0x1110
 sendToDMXWriteRegister(0x4001, 0x1100); // col0, col1 off -> 0x1100
 sendToDMXWriteRegister(0x4001, 0x1000); // col0, col1, col2 off -> 0x1000
 sendToDMXWriteRegister(0x4001, 0x0000); // col0, col1, col2, col3 off -> 0x0000
+
+// -------------------------------------------------------------------------------------------------------------
