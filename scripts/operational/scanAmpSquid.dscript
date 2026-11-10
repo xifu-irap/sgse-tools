@@ -42,12 +42,9 @@ include(includes_path + "/fpasim/fpasim_includes.dscript");
   If the FPAsim function is already enabled nothing is done unless the "force_p" parameter is set to true.
 */
 fpasimStartup();
-
-/*
-  Configuring the FPAsim
-*/
 fpasimConfig(raDelayOpt, SteadyMode25Fsr);
 //fpasimConfig(raDelayOpt, SteadyMode0);
+
 
 /*
  Getting the column under test Id
@@ -57,21 +54,25 @@ while ((col < 0) || (col > DMX_NB_COL-1)) col = getInt("Please, enter the Id of 
 sessionName = "SCAN_AMP_SQUID-col"+col;
 sendStartNewSession(sessionName, "");
 
+
 /*
  Starting and configuring the DEMUX
 */
 
 // Asking for the test pattern shape
 var conf = conf_default_fpasim;
-
-
 const confTptTab = ["FULL SLOW", "MINI OFCO"];
 var tptId = getItem("Please, indicates the test pattern: ", confTptTab);
 var tpt = confTptTab[tptId];
 conf["PATTERN"] = tpt;
 conf["AMP_SQ_OFFSET_MODE"] = makeArray(DMX_NB_COL, OFFSET_MODE_TESTPATTERN);
+
 demuxStart(conf);
 
+
+/*
+ Doing the measurement
+*/
 print(TAB1 + "Starting data acquisition in ERROR mode...");
 sendToDMXGoToErrorSignalMode();
 
@@ -84,13 +85,15 @@ sendSaveNextScans(1, 1<<col, "amp_VPhi_error_");
 waitMs(10000); // to be sure the scan is finished in the data file
 
 	
+/*
+ Processing the data
+*/
 print("Processing data ...")
 output = copyDirToBackupDirAndExecuteBat(analysis_tools_path,".\\SCRIPTS_ANALYSE\\dmx-dm","do_processing.bat")
 
-alert("Stop the test?");
-
 
 // -------------------------------------------------------------------------------------------------------------
+alert("Stop the test?");
 onAbortScript();
 
 function onAbortScript() {

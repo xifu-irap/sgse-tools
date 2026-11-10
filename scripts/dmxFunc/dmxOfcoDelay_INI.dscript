@@ -1,0 +1,151 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     dmxOfcoMuxDelay.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file is used to characterise the timing parameters of the MUX part of the ofco signal.
+//
+// -------------------------------------------------------------------------------------------------------------
+
+// imports
+const includes_path = "../../includes/";
+include(includes_path + "dmxTools.dscript");
+include(includes_path + "utilTools.dscript");
+include(includes_path + "common_constants.dscript");
+
+
+/**
+ * Configuring the test setup
+ *  Sets all the DMX fb0 to the same value (in open loop mode)
+ *  Sets all the DMX offset MUX to the same value except for pixel 0 (in open loop mode)
+ *  Does a DMX dump
+ */
+function configure_test_MUX() {
+
+    print("");
+    print("***");
+    print("* Configuring setup");
+    print("***");
+
+	// Setting the feedback to a constant value
+    const val_min = -Math.pow(2, DMX_NB_BITS_DAC_FDBK-1);
+    var fb = makeArray(DMX_NB_PIX_PER_COL, val_min);
+
+	print(TAB1+"Setting the DMX feedback mode to OPEN_LOOP (FB0 -> FEEDBACK output)...");
+	print(TAB1+"Setting the FB0 to: ");
+    print(TAB2+fb);
+	for (col=0; col<DMX_NB_COL; col++) {
+		setDMX_fb0(col, fb);
+		setDMX_sqm_FBMode(col, makeArray(DMX_NB_PIX_PER_COL, FEEDBACK_MODE_OPEN_LOOP));
+	}
+
+	// OFCO
+	print(TAB1+"Setting the DMX offset mode to OFFSET...");
+	setDMX_offsetMode([OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET, OFFSET_MODE_OFFSET]);
+
+	print(TAB1+"Setting the Offset COARSE to 0...");
+	print(TAB1+"Setting the Offset LSB to 2^12 - 1...");
+	print(TAB1+"Setting the Offset FINE to 0 for all pixels except for pixel 0...");
+    var offsetFine = makeArray(DMX_NB_PIX_PER_COL, 0);
+	offsetFine[0] = 7;
+	for(colid=0; colid<DMX_NB_COL; colid++) {				
+		setDMX_sqa_OffsetCoarse(colid, OFFSET_COARSE_ADU_MIN);				
+		setDMX_sqa_OffsetLSB(colid, OFFSET_LSB_ADU_MAX);	
+		setDMX_sqa_OffsetFine(colid, offsetFine, offsetFine);
+	}		
+}
+
+
+/**
+ * Sets the AMP_SQ_OFFSET_MUX_DELAY to a value and does a dump file.
+ *  Does a DMX dump
+ * @param {number} delay_p - offset MUX delay s(16,0) [-512, 40].
+ * @param {boolean} verbose - if true some text is ddisplayed (default=false)
+ */
+function measure_OFCO_MUX_DELAY(delay_p, verbose=false)) {
+
+	if (verbose) {
+		print("");
+		print("***");
+		print("* Setting the AMP_SQ_OFFSET_MUX_DELAY and doing a Dump");
+		print("***");
+
+		print(TAB1 + "Setting the register AMP_SQ_OFFSET_MUX_DELAY to " + delay_p);
+		print(TAB1 + "Doing an acquisition in DUMP mode...");
+	}
+
+	for (var colId=0; colId<DMX_NB_COL; colId++) setDMX_offsetMUX_delay(colId, delay_p);
+
+	sendToDMXGoToDumpMode();
+}
+
+
+/**
+ * This function drives the test
+ */
+function carac_OFCO_MUX_delay() {
+
+    plotSmallLine();
+	print("/ OFCO MUX delay measurement");
+	plotSmallLine();
+	print("");
+
+	setDMX_safeFeedbackOnOff([ON, ON, ON, ON]);
+
+    // Definition of the delay scan limits
+	//const delay_mux_min = -512;
+	const delay_mux_min = 0;
+	const delay_mux_max = 40;
+	print(TAB1 + "measuring " + (delay_mux_max - delay_mux_min) + " dump files...");
+
+    const sessionName = "OFCOMUX-DELAY--" + toStringWithNoSigns(delay_mux_min,'') + "_" + toStringWithNoSigns(delay_mux_max,'');
+    sendStartNewSession(sessionName, "");
+
+    // DEMUX configuration
+    configure_test_MUX();
+
+    // Doing a scan on the OFCO MUX delay
+    for (var i = delay_mux_min; i < delay_mux_max + 1; i++) measure_OFCO_MUX_DELAY(i);
+
+    print("Processing data ...")
+    output = copyDirToBackupDirAndExecuteBat(analysis_tools_path, ".\\SCRIPTS_ANALYSE\\dmx-dm", "do_processing.bat")
+    //addToFile(output)
+}
+
+
+/**
+ * This function is called when the script is aborted
+ */
+function onAbortScript() {
+    sendToDMXGoToIdleMode();
+    //setDMX_safeFeedbackOnOff([OFF, OFF, OFF, OFF]);
+	print("End of script!");
+	sendStopSession();
+}
+
+
+// -------------------------------------------------------------------------------------------------------------
+
+carac_OFCO_MUX_delay();
+
+onAbortScript();
+
+// -------------------------------------------------------------------------------------------------------------

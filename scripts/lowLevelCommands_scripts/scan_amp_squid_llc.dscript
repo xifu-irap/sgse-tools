@@ -1,0 +1,421 @@
+// -------------------------------------------------------------------------------------------------------------
+//                              Copyright (C) 2022-2030 Laurent Ravera, IRAP Toulouse.
+// -------------------------------------------------------------------------------------------------------------
+//                              This file is part of the ATHENA X-IFU DRE SGSE tools.
+//
+//                              sgse tools javascripts are free software: you can redistribute it and/or modify
+//                              it under the terms of the GNU General Public License as published by
+//                              the Free Software Foundation, either version 3 of the License, or
+//                              (at your option) any later version.
+//
+//                              This program is distributed in the hope that it will be useful,
+//                              but WITHOUT ANY WARRANTY; without even the implied warranty of
+//                              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                              GNU General Public License for more details.
+//
+//                              You should have received a copy of the GNU General Public License
+//                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// -------------------------------------------------------------------------------------------------------------
+//    email                     laurent.ravera@irap.omp.eu
+//    @file                     scan_amp_squid_llc.dscript
+// -------------------------------------------------------------------------------------------------------------
+//    @details
+//
+//    This file is used to characterise the AMP SQUID in the FPAsim + DMX configuration.
+//    A scan is done on the Ofco while the feedback is in open loop mode.	   
+//
+// -------------------------------------------------------------------------------------------------------------
+
+
+// -------------------------------------------------------------------------------------------------------------
+/*
+  Starting and initializing the FPAsim
+  If the FPAsim function is already enabled nothing is done unless the "force_p" parameter is set to true.
+
+-------> Done by DEMUX EGSE
+*/
+// fpasimStartup();  
+// fpasimConfig(raDelayOpt, SteadyMode25Fsr);
+
+
+// -------------------------------------------------------------------------------------------------------------
+/*
+ Starting and configuring the DEMUX
+
+-------> Done by EP
+*/
+
+// Switching the feedback on in sequence
+sendToDMXWriteRegister(0x4001, 0x1000); // col3 on -> 0x1000
+sendToDMXWriteRegister(0x4001, 0x1100); // col3, col2 on -> 0x1100
+sendToDMXWriteRegister(0x4001, 0x1110); // col3, col2, col1 on -> 0x1110
+sendToDMXWriteRegister(0x4001, 0x1111); // col3, col2, col1, col0 on -> 0x1111
+
+// Definition of a slow test pattern on FSR
+// setDMX_testPattern(slowSawPattern);  -> TEST_PATTERN (0x4100..0x4113), 5 regions x 4 params
+// Region 0: [a3=-32768, b3=7, c3=2, N3=32767]
+sendToDMXWriteRegister(0x4100, -32768);
+sendToDMXWriteRegister(0x4101, 7);
+sendToDMXWriteRegister(0x4102, 2);
+sendToDMXWriteRegister(0x4103, 32767);
+// Region 1: [aa3=32767, b3=7, -c3=-2, N3=32767]
+sendToDMXWriteRegister(0x4104, 32767);
+sendToDMXWriteRegister(0x4105, 7);
+sendToDMXWriteRegister(0x4106, -2);
+sendToDMXWriteRegister(0x4107, 32767);
+// Regions 2 to 4: [0, 0, 0, 0]
+sendToDMXWriteRegister(0x4108, 0);
+sendToDMXWriteRegister(0x4109, 0);
+sendToDMXWriteRegister(0x410A, 0);
+sendToDMXWriteRegister(0x410B, 0);
+// Des qu'une région du pattern à N=0, le pattern se termine
+//sendToDMXWriteRegister(0x410C, 0);
+//sendToDMXWriteRegister(0x410D, 0);
+//sendToDMXWriteRegister(0x410E, 0);
+//sendToDMXWriteRegister(0x410F, 0);
+//sendToDMXWriteRegister(0x4110, 0);
+//sendToDMXWriteRegister(0x4111, 0);
+//sendToDMXWriteRegister(0x4112, 0);
+//sendToDMXWriteRegister(0x4113, 0);
+
+// set the register: SAMPLING_DELAY (0x0504 + col<<12) = 16
+// 16 is the optimal value
+sendToDMXWriteRegister(0x0504, 16);
+sendToDMXWriteRegister(0x1504, 16);
+sendToDMXWriteRegister(0x2504, 16);
+sendToDMXWriteRegister(0x3504, 16);
+
+// No need to set the register MUX_SQ_FB_DELAY because feedback is constant in this test
+
+// No need to set the register AMP_SQ_OFFSET_MUX_DELAY because the offset fine is constant in this test
+
+// Setting DEMUX offset LSB to 10: AMP_SQ_OFFSET_LSB (0x0440 + col<<12)
+sendToDMXWriteRegister(0x0440, 10);
+sendToDMXWriteRegister(0x1440, 10);
+sendToDMXWriteRegister(0x2440, 10);
+sendToDMXWriteRegister(0x3440, 10);
+// Setting DEMUX offset LSB PTR to 10: AMP_SQ_OFFSET_LSB_PTR (0x0439 + col<<12)
+sendToDMXWriteRegister(0x0439, 10);
+sendToDMXWriteRegister(0x1439, 10);
+sendToDMXWriteRegister(0x2439, 10);
+sendToDMXWriteRegister(0x3439, 10);
+// Setting DEMUX offset COARSE to 705: AMP_SQ_OFFSET_COARSE (0x0441 + col<<12)
+// 705 is the operating point for the FPAsim
+sendToDMXWriteRegister(0x0441, 705);
+sendToDMXWriteRegister(0x1441, 705);
+sendToDMXWriteRegister(0x2441, 705);
+sendToDMXWriteRegister(0x3441, 705);
+// Using Offset fine default values (0)
+
+// DEMUX feedback
+// setDMX_fb0(0, [...]);  -> MUX_SQ_FB0 (0x0200 + col<<12), 34 pixels, S(16,2): 92*4 = 368
+sendToDMXWriteRegister(0x0200, 368);
+sendToDMXWriteRegister(0x0201, 368);
+sendToDMXWriteRegister(0x0202, 368);
+sendToDMXWriteRegister(0x0203, 368);
+sendToDMXWriteRegister(0x0204, 368);
+sendToDMXWriteRegister(0x0205, 368);
+sendToDMXWriteRegister(0x0206, 368);
+sendToDMXWriteRegister(0x0207, 368);
+sendToDMXWriteRegister(0x0208, 368);
+sendToDMXWriteRegister(0x0209, 368);
+sendToDMXWriteRegister(0x020A, 368);
+sendToDMXWriteRegister(0x020B, 368);
+sendToDMXWriteRegister(0x020C, 368);
+sendToDMXWriteRegister(0x020D, 368);
+sendToDMXWriteRegister(0x020E, 368);
+sendToDMXWriteRegister(0x020F, 368);
+sendToDMXWriteRegister(0x0210, 368);
+sendToDMXWriteRegister(0x0211, 368);
+sendToDMXWriteRegister(0x0212, 368);
+sendToDMXWriteRegister(0x0213, 368);
+sendToDMXWriteRegister(0x0214, 368);
+sendToDMXWriteRegister(0x0215, 368);
+sendToDMXWriteRegister(0x0216, 368);
+sendToDMXWriteRegister(0x0217, 368);
+sendToDMXWriteRegister(0x0218, 368);
+sendToDMXWriteRegister(0x0219, 368);
+sendToDMXWriteRegister(0x021A, 368);
+sendToDMXWriteRegister(0x021B, 368);
+sendToDMXWriteRegister(0x021C, 368);
+sendToDMXWriteRegister(0x021D, 368);
+sendToDMXWriteRegister(0x021E, 368);
+sendToDMXWriteRegister(0x021F, 368);
+sendToDMXWriteRegister(0x0220, 368);
+sendToDMXWriteRegister(0x0221, 368);
+// setDMX_fb0(1, [...]);  -> MUX_SQ_FB0 (0x1200..0x1221)
+sendToDMXWriteRegister(0x1200, 368);
+sendToDMXWriteRegister(0x1201, 368);
+sendToDMXWriteRegister(0x1202, 368);
+sendToDMXWriteRegister(0x1203, 368);
+sendToDMXWriteRegister(0x1204, 368);
+sendToDMXWriteRegister(0x1205, 368);
+sendToDMXWriteRegister(0x1206, 368);
+sendToDMXWriteRegister(0x1207, 368);
+sendToDMXWriteRegister(0x1208, 368);
+sendToDMXWriteRegister(0x1209, 368);
+sendToDMXWriteRegister(0x120A, 368);
+sendToDMXWriteRegister(0x120B, 368);
+sendToDMXWriteRegister(0x120C, 368);
+sendToDMXWriteRegister(0x120D, 368);
+sendToDMXWriteRegister(0x120E, 368);
+sendToDMXWriteRegister(0x120F, 368);
+sendToDMXWriteRegister(0x1210, 368);
+sendToDMXWriteRegister(0x1211, 368);
+sendToDMXWriteRegister(0x1212, 368);
+sendToDMXWriteRegister(0x1213, 368);
+sendToDMXWriteRegister(0x1214, 368);
+sendToDMXWriteRegister(0x1215, 368);
+sendToDMXWriteRegister(0x1216, 368);
+sendToDMXWriteRegister(0x1217, 368);
+sendToDMXWriteRegister(0x1218, 368);
+sendToDMXWriteRegister(0x1219, 368);
+sendToDMXWriteRegister(0x121A, 368);
+sendToDMXWriteRegister(0x121B, 368);
+sendToDMXWriteRegister(0x121C, 368);
+sendToDMXWriteRegister(0x121D, 368);
+sendToDMXWriteRegister(0x121E, 368);
+sendToDMXWriteRegister(0x121F, 368);
+sendToDMXWriteRegister(0x1220, 368);
+sendToDMXWriteRegister(0x1221, 368);
+// setDMX_fb0(2, [...]);  -> MUX_SQ_FB0 (0x2200..0x2221)
+sendToDMXWriteRegister(0x2200, 368);
+sendToDMXWriteRegister(0x2201, 368);
+sendToDMXWriteRegister(0x2202, 368);
+sendToDMXWriteRegister(0x2203, 368);
+sendToDMXWriteRegister(0x2204, 368);
+sendToDMXWriteRegister(0x2205, 368);
+sendToDMXWriteRegister(0x2206, 368);
+sendToDMXWriteRegister(0x2207, 368);
+sendToDMXWriteRegister(0x2208, 368);
+sendToDMXWriteRegister(0x2209, 368);
+sendToDMXWriteRegister(0x220A, 368);
+sendToDMXWriteRegister(0x220B, 368);
+sendToDMXWriteRegister(0x220C, 368);
+sendToDMXWriteRegister(0x220D, 368);
+sendToDMXWriteRegister(0x220E, 368);
+sendToDMXWriteRegister(0x220F, 368);
+sendToDMXWriteRegister(0x2210, 368);
+sendToDMXWriteRegister(0x2211, 368);
+sendToDMXWriteRegister(0x2212, 368);
+sendToDMXWriteRegister(0x2213, 368);
+sendToDMXWriteRegister(0x2214, 368);
+sendToDMXWriteRegister(0x2215, 368);
+sendToDMXWriteRegister(0x2216, 368);
+sendToDMXWriteRegister(0x2217, 368);
+sendToDMXWriteRegister(0x2218, 368);
+sendToDMXWriteRegister(0x2219, 368);
+sendToDMXWriteRegister(0x221A, 368);
+sendToDMXWriteRegister(0x221B, 368);
+sendToDMXWriteRegister(0x221C, 368);
+sendToDMXWriteRegister(0x221D, 368);
+sendToDMXWriteRegister(0x221E, 368);
+sendToDMXWriteRegister(0x221F, 368);
+sendToDMXWriteRegister(0x2220, 368);
+sendToDMXWriteRegister(0x2221, 368);
+// setDMX_fb0(3, [...]);  -> MUX_SQ_FB0 (0x3200..0x3221)
+sendToDMXWriteRegister(0x3200, 368);
+sendToDMXWriteRegister(0x3201, 368);
+sendToDMXWriteRegister(0x3202, 368);
+sendToDMXWriteRegister(0x3203, 368);
+sendToDMXWriteRegister(0x3204, 368);
+sendToDMXWriteRegister(0x3205, 368);
+sendToDMXWriteRegister(0x3206, 368);
+sendToDMXWriteRegister(0x3207, 368);
+sendToDMXWriteRegister(0x3208, 368);
+sendToDMXWriteRegister(0x3209, 368);
+sendToDMXWriteRegister(0x320A, 368);
+sendToDMXWriteRegister(0x320B, 368);
+sendToDMXWriteRegister(0x320C, 368);
+sendToDMXWriteRegister(0x320D, 368);
+sendToDMXWriteRegister(0x320E, 368);
+sendToDMXWriteRegister(0x320F, 368);
+sendToDMXWriteRegister(0x3210, 368);
+sendToDMXWriteRegister(0x3211, 368);
+sendToDMXWriteRegister(0x3212, 368);
+sendToDMXWriteRegister(0x3213, 368);
+sendToDMXWriteRegister(0x3214, 368);
+sendToDMXWriteRegister(0x3215, 368);
+sendToDMXWriteRegister(0x3216, 368);
+sendToDMXWriteRegister(0x3217, 368);
+sendToDMXWriteRegister(0x3218, 368);
+sendToDMXWriteRegister(0x3219, 368);
+sendToDMXWriteRegister(0x321A, 368);
+sendToDMXWriteRegister(0x321B, 368);
+sendToDMXWriteRegister(0x321C, 368);
+sendToDMXWriteRegister(0x321D, 368);
+sendToDMXWriteRegister(0x321E, 368);
+sendToDMXWriteRegister(0x321F, 368);
+sendToDMXWriteRegister(0x3220, 368);
+sendToDMXWriteRegister(0x3221, 368);
+
+// Feedback mode (FB0)
+// setDMX_sqm_FBMode(0, [...]);  -> MUX_SQ_FB_MODE (0x0300..0x0321), 34 pixels = 0
+sendToDMXWriteRegister(0x0300, 0);
+sendToDMXWriteRegister(0x0301, 0);
+sendToDMXWriteRegister(0x0302, 0);
+sendToDMXWriteRegister(0x0303, 0);
+sendToDMXWriteRegister(0x0304, 0);
+sendToDMXWriteRegister(0x0305, 0);
+sendToDMXWriteRegister(0x0306, 0);
+sendToDMXWriteRegister(0x0307, 0);
+sendToDMXWriteRegister(0x0308, 0);
+sendToDMXWriteRegister(0x0309, 0);
+sendToDMXWriteRegister(0x030A, 0);
+sendToDMXWriteRegister(0x030B, 0);
+sendToDMXWriteRegister(0x030C, 0);
+sendToDMXWriteRegister(0x030D, 0);
+sendToDMXWriteRegister(0x030E, 0);
+sendToDMXWriteRegister(0x030F, 0);
+sendToDMXWriteRegister(0x0310, 0);
+sendToDMXWriteRegister(0x0311, 0);
+sendToDMXWriteRegister(0x0312, 0);
+sendToDMXWriteRegister(0x0313, 0);
+sendToDMXWriteRegister(0x0314, 0);
+sendToDMXWriteRegister(0x0315, 0);
+sendToDMXWriteRegister(0x0316, 0);
+sendToDMXWriteRegister(0x0317, 0);
+sendToDMXWriteRegister(0x0318, 0);
+sendToDMXWriteRegister(0x0319, 0);
+sendToDMXWriteRegister(0x031A, 0);
+sendToDMXWriteRegister(0x031B, 0);
+sendToDMXWriteRegister(0x031C, 0);
+sendToDMXWriteRegister(0x031D, 0);
+sendToDMXWriteRegister(0x031E, 0);
+sendToDMXWriteRegister(0x031F, 0);
+sendToDMXWriteRegister(0x0320, 0);
+sendToDMXWriteRegister(0x0321, 0);
+// setDMX_sqm_FBMode(1, [...]);  -> MUX_SQ_FB_MODE (0x1300..0x1321)
+sendToDMXWriteRegister(0x1300, 0);
+sendToDMXWriteRegister(0x1301, 0);
+sendToDMXWriteRegister(0x1302, 0);
+sendToDMXWriteRegister(0x1303, 0);
+sendToDMXWriteRegister(0x1304, 0);
+sendToDMXWriteRegister(0x1305, 0);
+sendToDMXWriteRegister(0x1306, 0);
+sendToDMXWriteRegister(0x1307, 0);
+sendToDMXWriteRegister(0x1308, 0);
+sendToDMXWriteRegister(0x1309, 0);
+sendToDMXWriteRegister(0x130A, 0);
+sendToDMXWriteRegister(0x130B, 0);
+sendToDMXWriteRegister(0x130C, 0);
+sendToDMXWriteRegister(0x130D, 0);
+sendToDMXWriteRegister(0x130E, 0);
+sendToDMXWriteRegister(0x130F, 0);
+sendToDMXWriteRegister(0x1310, 0);
+sendToDMXWriteRegister(0x1311, 0);
+sendToDMXWriteRegister(0x1312, 0);
+sendToDMXWriteRegister(0x1313, 0);
+sendToDMXWriteRegister(0x1314, 0);
+sendToDMXWriteRegister(0x1315, 0);
+sendToDMXWriteRegister(0x1316, 0);
+sendToDMXWriteRegister(0x1317, 0);
+sendToDMXWriteRegister(0x1318, 0);
+sendToDMXWriteRegister(0x1319, 0);
+sendToDMXWriteRegister(0x131A, 0);
+sendToDMXWriteRegister(0x131B, 0);
+sendToDMXWriteRegister(0x131C, 0);
+sendToDMXWriteRegister(0x131D, 0);
+sendToDMXWriteRegister(0x131E, 0);
+sendToDMXWriteRegister(0x131F, 0);
+sendToDMXWriteRegister(0x1320, 0);
+sendToDMXWriteRegister(0x1321, 0);
+// setDMX_sqm_FBMode(2, [...]);  -> MUX_SQ_FB_MODE (0x2300..0x2321)
+sendToDMXWriteRegister(0x2300, 0);
+sendToDMXWriteRegister(0x2301, 0);
+sendToDMXWriteRegister(0x2302, 0);
+sendToDMXWriteRegister(0x2303, 0);
+sendToDMXWriteRegister(0x2304, 0);
+sendToDMXWriteRegister(0x2305, 0);
+sendToDMXWriteRegister(0x2306, 0);
+sendToDMXWriteRegister(0x2307, 0);
+sendToDMXWriteRegister(0x2308, 0);
+sendToDMXWriteRegister(0x2309, 0);
+sendToDMXWriteRegister(0x230A, 0);
+sendToDMXWriteRegister(0x230B, 0);
+sendToDMXWriteRegister(0x230C, 0);
+sendToDMXWriteRegister(0x230D, 0);
+sendToDMXWriteRegister(0x230E, 0);
+sendToDMXWriteRegister(0x230F, 0);
+sendToDMXWriteRegister(0x2310, 0);
+sendToDMXWriteRegister(0x2311, 0);
+sendToDMXWriteRegister(0x2312, 0);
+sendToDMXWriteRegister(0x2313, 0);
+sendToDMXWriteRegister(0x2314, 0);
+sendToDMXWriteRegister(0x2315, 0);
+sendToDMXWriteRegister(0x2316, 0);
+sendToDMXWriteRegister(0x2317, 0);
+sendToDMXWriteRegister(0x2318, 0);
+sendToDMXWriteRegister(0x2319, 0);
+sendToDMXWriteRegister(0x231A, 0);
+sendToDMXWriteRegister(0x231B, 0);
+sendToDMXWriteRegister(0x231C, 0);
+sendToDMXWriteRegister(0x231D, 0);
+sendToDMXWriteRegister(0x231E, 0);
+sendToDMXWriteRegister(0x231F, 0);
+sendToDMXWriteRegister(0x2320, 0);
+sendToDMXWriteRegister(0x2321, 0);
+// setDMX_sqm_FBMode(3, [...]);  -> MUX_SQ_FB_MODE (0x3300..0x3321)
+sendToDMXWriteRegister(0x3300, 0);
+sendToDMXWriteRegister(0x3301, 0);
+sendToDMXWriteRegister(0x3302, 0);
+sendToDMXWriteRegister(0x3303, 0);
+sendToDMXWriteRegister(0x3304, 0);
+sendToDMXWriteRegister(0x3305, 0);
+sendToDMXWriteRegister(0x3306, 0);
+sendToDMXWriteRegister(0x3307, 0);
+sendToDMXWriteRegister(0x3308, 0);
+sendToDMXWriteRegister(0x3309, 0);
+sendToDMXWriteRegister(0x330A, 0);
+sendToDMXWriteRegister(0x330B, 0);
+sendToDMXWriteRegister(0x330C, 0);
+sendToDMXWriteRegister(0x330D, 0);
+sendToDMXWriteRegister(0x330E, 0);
+sendToDMXWriteRegister(0x330F, 0);
+sendToDMXWriteRegister(0x3310, 0);
+sendToDMXWriteRegister(0x3311, 0);
+sendToDMXWriteRegister(0x3312, 0);
+sendToDMXWriteRegister(0x3313, 0);
+sendToDMXWriteRegister(0x3314, 0);
+sendToDMXWriteRegister(0x3315, 0);
+sendToDMXWriteRegister(0x3316, 0);
+sendToDMXWriteRegister(0x3317, 0);
+sendToDMXWriteRegister(0x3318, 0);
+sendToDMXWriteRegister(0x3319, 0);
+sendToDMXWriteRegister(0x331A, 0);
+sendToDMXWriteRegister(0x331B, 0);
+sendToDMXWriteRegister(0x331C, 0);
+sendToDMXWriteRegister(0x331D, 0);
+sendToDMXWriteRegister(0x331E, 0);
+sendToDMXWriteRegister(0x331F, 0);
+sendToDMXWriteRegister(0x3320, 0);
+sendToDMXWriteRegister(0x3321, 0);
+
+// Offset mode (OFFSET_MODE_TESTPATTERN)
+// setDMX_offsetMode([3, 3, 3, 3]);  -> AMP_SQ_OFFSET_MODE (0x4002) = 0x3333
+sendToDMXWriteRegister(0x4002, 0x3333);
+
+
+// -------------------------------------------------------------------------------------------------------------
+
+// Starting data acquisition in ACQ_MODE_ERROR (2)
+// setDMX_dataAcqMode(ACQ_MODE_ERROR);  -> DATA_ACQ_MODE (0x4000) = 2
+sendToDMXWriteRegister(0x4000, 2);
+
+// start_demux_pattern(); // sets TEST_PATTERN_ENABLE: enable=1, infinite=0, nbTime=0x9 -> value 0x29
+sendToDMXWriteRegister(0x4150, 0x29);
+
+// Saving scans
+// ---->>>  EP shall save the data
+	
+// Setting ACQ_MODE_ERROR to IDLE (0)
+// setDMX_dataAcqMode(ACQ_MODE_IDLE);  -> DATA_ACQ_MODE (0x4000) = 0
+sendToDMXWriteRegister(0x4000, 0);
+
+// Switching the feedback off in sequence
+sendToDMXWriteRegister(0x4001, 0x1110); // col0 off -> 0x1110
+sendToDMXWriteRegister(0x4001, 0x1100); // col0, col1 off -> 0x1100
+sendToDMXWriteRegister(0x4001, 0x1000); // col0, col1, col2 off -> 0x1000
+sendToDMXWriteRegister(0x4001, 0x0000); // col0, col1, col2, col3 off -> 0x0000
+
+// -------------------------------------------------------------------------------------------------------------
