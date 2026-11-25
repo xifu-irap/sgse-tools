@@ -37,6 +37,7 @@ include(includes_path + "dmxCheckDefaults.dscript");
 function dreCheckDefaults() {
 
     const sessionName = "CHECK-DEFAULTS--";
+    wiki_formating = true;
 
     // Asking for configuration
     const testTabText = [
@@ -50,17 +51,20 @@ function dreCheckDefaults() {
     switch(test) {
         case "DMXA":
             sendStartNewSession(sessionName, test);
-            defaults_dmxa_ok = dmxCheckDefaults(DMXA);
+            error_count_dmxa = dmxCheckDefaults("DMXA");
+            print_error_message(error_counter_dmxa, wiki_formating);
             break;
         case "DMXB":
             sendStartNewSession(sessionName, test);
-            defaults_dmxb_ok = dmxCheckDefaults(DMXB);
+            error_count_dmxb = dmxCheckDefaults("DMXB");
+            print_error_message(error_counter_dmxb, wiki_formating);
             break;
         case "DMXA+DMXB":
             sendStartNewSession(sessionName, test);
-            defaults_dmxa_ok = dmxCheckDefaults(DMXA);
-
-            defaults_dmxb_ok = dmxCheckDefaults(DMXB);
+            error_count_dmxa = dmxCheckDefaults("DMXA");
+            error_count_dmxb = dmxCheckDefaults("DMXB");
+            print_error_message(error_counter_dmxa, wiki_formating);
+            print_error_message(error_counter_dmxb, wiki_formating);
             break;
     }
 

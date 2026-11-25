@@ -17,7 +17,7 @@
 //                              along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // -------------------------------------------------------------------------------------------------------------
 //    email                     laurent.ravera@irap.omp.eu
-//    @file                     dmxCheckDefaults.dscript
+//    @file                     dmxLevelCheckDefaults.dscript
 // -------------------------------------------------------------------------------------------------------------
 //    @details
 //
@@ -32,11 +32,13 @@ include(includes_path + "dmxTools.dscript");
 include(includes_path + "utilTools.dscript");
 include(includes_path + "dmxCheckDefaults.dscript")
 
-
+wiki_formating = true;
 const sessionName = "CHECK-DEFAULTS--";
+const DMX = "DMXA";
 
-sendStartNewSession(sessionName, "");
+sendStartNewSession(sessionName, DMX);
 
-defaults_ok = dmxCheckDefaults("DMXA");
+error_count = dmxCheckDefaults(DMX);
+print_error_message(error_count, wiki_formating);
 
 sendStopSession();

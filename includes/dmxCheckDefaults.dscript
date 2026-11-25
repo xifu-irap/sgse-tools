@@ -524,16 +524,8 @@ function dmxCheckDefaults(DMX) {
     print("</pre>");
     print("}}");
 
-    print("<pre>");
-    plotLongLine();
-    if (ERROR_COUNTER === 1) print("Oups, " + ERROR_COUNTER + " error has been detected!");
-    else    if (ERROR_COUNTER > 1) print("Oups, " + ERROR_COUNTER + " errors have been detected!");
-        else print("Nice, no error detected");
-    plotLongLine();
-    print("</pre>");
-
     /******************************************************************************************************************/
 
-    return ERROR_COUNTER === 0;
+    return ERROR_COUNTER;
 
 }
