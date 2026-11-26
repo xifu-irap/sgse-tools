@@ -354,19 +354,4 @@ function zipFitsErrorData()
 	exec(getEGSEDirectory()+"\\rar.exe m -ep "+DISP_BackupsCurrentDirectory+"\\dmx_data\\error_data.rar "+DISP_BackupsCurrentDirectory+"\\dmx_data\\error_*.fits")
 }
 
-//---------------------------------------------------------------------------------------------------------------------------------------
-function print_error_message(ERROR_COUNTER, wiki_formating)
-{
-	if (typeof(wiki_formating) !== 'undefined') wiki_formating = false;
-	if (wiki_formating) print("<pre>");
-
-	plotLongLine();
-	if (ERROR_COUNTER === 1) print("Oups, " + ERROR_COUNTER + " error has been detected!");
-	else    if (ERROR_COUNTER > 1) print("Oups, " + ERROR_COUNTER + " errors have been detected!");
-		else print("Nice, no error detected");
-	plotLongLine();
-	
-	if (wiki_formating) print("</pre>");
-}
-
 //---------------------------------------------------------------------------------------

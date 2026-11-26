@@ -25,6 +25,23 @@
 //
 // -------------------------------------------------------------------------------------------------------------
 
+
+function print_error_message(DMX, ERROR_COUNTER, wiki_formating)
+{
+	if (typeof(wiki_formating) !== 'undefined') wiki_formating = false;
+	if (wiki_formating) print("<pre>");
+
+	plotLongLine();
+    print("Test summary for ", DMX)
+	if (ERROR_COUNTER === 1) print("Oups, " + ERROR_COUNTER + " error has been detected!");
+	else    if (ERROR_COUNTER > 1) print("Oups, " + ERROR_COUNTER + " errors have been detected!");
+		else print("Nice, no error detected");
+	plotLongLine();
+	
+	if (wiki_formating) print("</pre>");
+}
+
+
 function dmxCheckDefaults(DMX) {
 
     var ERROR_COUNTER = 0;
