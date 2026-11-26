@@ -95,6 +95,21 @@ function getSelectedDMXRegisters()
 	}	
 }
 
+
+/**
+* Gets the name "DMXA" or "DMXB" from the DMX id (0 or 1)
+* @param {number} dmx - [0, 1].
+* @return {string} DMX name.
+*/
+function DMX_text(dmx)
+{
+	if (dmx == DMXA) return "DMXA";
+	else
+	if (dmx == DMXB) return "DMXB";
+	else return "error"; 
+}
+
+
 /**
 * Sets the data acquisition mode (DATA_ACQ_MODE).
 * @param {number} dataAcqMode_p - [0, 7].

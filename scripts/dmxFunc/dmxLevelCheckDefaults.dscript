@@ -34,11 +34,10 @@ include(includes_path + "dmxCheckDefaults.dscript")
 
 wiki_formating = true;
 const sessionName = "CHECK-DEFAULTS--";
-const DMX = "DMXA";
 
-sendStartNewSession(sessionName, DMX);
+sendStartNewSession(sessionName, "DMXA");
 
-error_count = dmxCheckDefaults(DMX);
-print_error_message(DMX, error_count, wiki_formating);
+error_count = dmxCheckDefaults(DMXA, wiki_formating);
+print_error_message("DMXA", error_count, wiki_formating);
 
 sendStopSession();

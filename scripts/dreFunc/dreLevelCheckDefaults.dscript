@@ -28,6 +28,7 @@
 // imports
 const includes_path = "../../includes/";
 include(includes_path + "dmxTools.dscript");
+include(includes_path + "common_constants.dscript");
 include(includes_path + "utilTools.dscript");
 include(includes_path + "dmxCheckDefaults.dscript");
 
@@ -51,20 +52,20 @@ function dreCheckDefaults() {
     switch(test) {
         case "DMXA":
             sendStartNewSession(sessionName, test);
-            error_count_dmxa = dmxCheckDefaults("DMXA");
-            print_error_message("DMXA", error_counter_dmxa, wiki_formating);
+            error_count_dmxa = dmxCheckDefaults(DMXA, wiki_formating);
+            print_error_message("DMXA", error_count_dmxa, wiki_formating);
             break;
         case "DMXB":
             sendStartNewSession(sessionName, test);
-            error_count_dmxb = dmxCheckDefaults("DMXB");
-            print_error_message("DMXB", error_counter_dmxb, wiki_formating);
+            error_count_dmxb = dmxCheckDefaults(DMXB, wiki_formating);
+            print_error_message("DMXB", error_count_dmxb, wiki_formating);
             break;
         case "DMXA+DMXB":
             sendStartNewSession(sessionName, test);
-            error_count_dmxa = dmxCheckDefaults("DMXA");
-            error_count_dmxb = dmxCheckDefaults("DMXB");
-            print_error_message("DMXA", error_counter_dmxa, wiki_formating);
-            print_error_message("DMXB", error_counter_dmxb, wiki_formating);
+            error_count_dmxa = dmxCheckDefaults(DMXA, wiki_formating);
+            error_count_dmxb = dmxCheckDefaults(DMXB, wiki_formating);
+            print_error_message("DMXA", error_count_dmxa, wiki_formating);
+            print_error_message("DMXB", error_count_dmxb, wiki_formating);
             break;
     }
 

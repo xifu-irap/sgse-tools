@@ -28,7 +28,7 @@
 
 function print_error_message(DMX, ERROR_COUNTER, wiki_formating)
 {
-	if (typeof(wiki_formating) !== 'undefined') wiki_formating = false;
+	if (typeof(wiki_formating) === 'undefined') wiki_formating = false;
 	if (wiki_formating) print("<pre>");
 
 	plotLongLine();
@@ -42,15 +42,17 @@ function print_error_message(DMX, ERROR_COUNTER, wiki_formating)
 }
 
 
-function dmxCheckDefaults(DMX) {
+function dmxCheckDefaults(DMX, wiki_formating) {
+
+	if (typeof(wiki_formating) === 'undefined') wiki_formating = false;
 
     var ERROR_COUNTER = 0;
     sendSelectDMX(DMX);
 
     /******************************************************************************************************************/
-    print("<pre>")
+    if (wiki_formating) print("<pre>")
     plotLongLine();
-    print("| Testing the default values of the ", DMX, " registers...");
+    print("| Testing the default values of the ", DMX_text(DMX), " registers...");
     print("| " + maDate());
 
 
@@ -65,10 +67,7 @@ function dmxCheckDefaults(DMX) {
     print("Reading the hardware version");
     readDMX_hardwareVersion(true);
     plotLongLine();
-    print("</pre>");
-
-    print("{{collapse(Click to see the full script report...)");
-    print("<pre>");
+    if (wiki_formating) print("</pre>\n{{collapse(Click to see the full script report...)\n<pre>");
     /* DATA_ACQ_MODE **************************************************************************************************/
     plotLongLine();
     print("Testing the DATA_ACQ_MODE register:");
@@ -538,8 +537,7 @@ function dmxCheckDefaults(DMX) {
 
     /******************************************************************************************************************/
     plotLongLine();
-    print("</pre>");
-    print("}}");
+    if (wiki_formating) print("</pre>\n}}");
 
     /******************************************************************************************************************/
 
